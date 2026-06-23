@@ -464,7 +464,7 @@
             <tbody>
               <tr><td>square = num * num</td><td><code>square = num * num</code></td></tr>
               <tr><td>total = price * quantity</td><td><code>total = price * quantity</code></td></tr>
-              <tr><td>cars = round up(children / 5)</td><td><code>cars = math.ceil(children / 5)</code></td></tr>
+              <tr><td>cars = children / 5</td><td><code>cars = children // 5</code></td></tr>
             </tbody>
           </table>
 
@@ -516,19 +516,19 @@
             <h3>Class trip cars</h3>
           </div>
           <p>There is a class trip. Each car has <strong>5 seats</strong>. Input how many children are in the class, then print how many cars need to be booked.</p>
-          <p>If the last car is not full, you still need to book it. That means you must <strong>round up</strong>.</p>
+          <p>The number of children is guaranteed to be divisible by 5, so no rounding is needed.</p>
           <table class="ex-table">
             <thead><tr><th>Children</th><th>Cars needed</th><th>Why</th></tr></thead>
             <tbody>
               <tr><td>10</td><td>2</td><td>10 / 5 = 2</td></tr>
-              <tr><td>13</td><td>3</td><td>13 / 5 = 2.6, round up to 3</td></tr>
+              <tr><td>15</td><td>3</td><td>15 / 5 = 3</td></tr>
               <tr><td>20</td><td>4</td><td>20 / 5 = 4</td></tr>
-              <tr><td>21</td><td>5</td><td>21 / 5 = 4.2, round up to 5</td></tr>
-              <tr><td>1</td><td>1</td><td>1 / 5 = 0.2, round up to 1</td></tr>
+              <tr><td>25</td><td>5</td><td>25 / 5 = 5</td></tr>
+              <tr><td>5</td><td>1</td><td>5 / 5 = 1</td></tr>
             </tbody>
           </table>
           <div class="task-box">
-            Your flowchart should use: START, one INPUT box, one OPERATION box for rounding up, one OUTPUT box, STOP.
+            Your flowchart should use: START, one INPUT box, one OPERATION box for cars = children / 5, one OUTPUT box, STOP.
           </div>
 
           <div class="big-result">Submission</div>
@@ -588,19 +588,19 @@
             <h3>טיול כיתתי - כמה מכוניות צריך?</h3>
           </div>
           <p>יש טיול כיתתי. בכל מכונית יש <strong>5 מקומות</strong>. קלטו כמה ילדים יש בכיתה, ואז הדפיסו כמה מכוניות צריך להזמין.</p>
-          <p>אם המכונית האחרונה לא מלאה, עדיין חייבים להזמין אותה. לכן צריך תמיד <strong>לעגל כלפי מעלה</strong>.</p>
+          <p>מובטח שמספר הילדים מתחלק ב-5, לכן לא צריך לעגל.</p>
           <table class="ex-table">
             <thead><tr><th>מספר ילדים</th><th>מכוניות שצריך</th><th>למה?</th></tr></thead>
             <tbody>
               <tr><td>10</td><td>2</td><td>10 / 5 = 2</td></tr>
-              <tr><td>13</td><td>3</td><td>13 / 5 = 2.6, מעגלים למעלה ל-3</td></tr>
+              <tr><td>15</td><td>3</td><td>15 / 5 = 3</td></tr>
               <tr><td>20</td><td>4</td><td>20 / 5 = 4</td></tr>
-              <tr><td>21</td><td>5</td><td>21 / 5 = 4.2, מעגלים למעלה ל-5</td></tr>
-              <tr><td>1</td><td>1</td><td>1 / 5 = 0.2, מעגלים למעלה ל-1</td></tr>
+              <tr><td>25</td><td>5</td><td>25 / 5 = 5</td></tr>
+              <tr><td>5</td><td>1</td><td>5 / 5 = 1</td></tr>
             </tbody>
           </table>
           <div class="task-box">
-            בתרשים הזרימה צריך להשתמש ב: START, תיבת INPUT אחת, תיבת OPERATION אחת לעיגול כלפי מעלה, תיבת OUTPUT אחת, ו-STOP.
+            בתרשים הזרימה צריך להשתמש ב: START, תיבת INPUT אחת, תיבת OPERATION אחת עבור cars = children / 5, תיבת OUTPUT אחת, ו-STOP.
           </div>
 
           <div class="big-result">הגשה</div>
