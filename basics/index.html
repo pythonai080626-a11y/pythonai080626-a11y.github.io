@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python Basics — Learn to Code</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Comic+Neue:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Comic Neue', cursive; }
+    h1, h2, h3, h4, .heading { font-family: 'Baloo 2', cursive; }
+
+    /* ── Claymorphism base ── */
+    .clay {
+      border: 3px solid rgba(13, 148, 136, 0.18);
+      box-shadow: 5px 5px 0 rgba(13, 148, 136, 0.22), inset 0 1px 0 rgba(255,255,255,0.65);
+      transition: transform 200ms ease-out, box-shadow 200ms ease-out;
+    }
+    .clay:hover {
+      transform: translateY(-5px);
+      box-shadow: 8px 12px 0 rgba(13, 148, 136, 0.28), inset 0 1px 0 rgba(255,255,255,0.65);
+    }
+    .clay-orange {
+      border: 3px solid rgba(249, 115, 22, 0.18);
+      box-shadow: 5px 5px 0 rgba(249, 115, 22, 0.22), inset 0 1px 0 rgba(255,255,255,0.65);
+      transition: transform 200ms ease-out, box-shadow 200ms ease-out;
+    }
+    .clay-orange:hover {
+      transform: translateY(-5px);
+      box-shadow: 8px 12px 0 rgba(249, 115, 22, 0.28), inset 0 1px 0 rgba(255,255,255,0.65);
+    }
+    .clay-card {
+      border: 3px solid rgba(13, 148, 136, 0.15);
+      box-shadow: 6px 6px 0 rgba(13, 148, 136, 0.18), inset 0 1px 0 rgba(255,255,255,0.7);
+      transition: transform 200ms ease-out, box-shadow 200ms ease-out;
+    }
+    .clay-card:hover {
+      transform: translateY(-6px) scale(1.01);
+      box-shadow: 10px 14px 0 rgba(13, 148, 136, 0.25), inset 0 1px 0 rgba(255,255,255,0.7);
+    }
+    .clay-card-orange {
+      border: 3px solid rgba(249, 115, 22, 0.15);
+      box-shadow: 6px 6px 0 rgba(249, 115, 22, 0.18), inset 0 1px 0 rgba(255,255,255,0.7);
+      transition: transform 200ms ease-out, box-shadow 200ms ease-out;
+    }
+    .clay-card-orange:hover {
+      transform: translateY(-6px) scale(1.01);
+      box-shadow: 10px 14px 0 rgba(249, 115, 22, 0.25), inset 0 1px 0 rgba(255,255,255,0.7);
+    }
+    .lesson-row {
+      border: 3px solid rgba(13, 148, 136, 0.12);
+      box-shadow: 4px 4px 0 rgba(13, 148, 136, 0.15), inset 0 1px 0 rgba(255,255,255,0.6);
+      transition: transform 200ms ease-out, box-shadow 200ms ease-out;
+    }
+    .lesson-row:hover {
+      transform: translateX(6px);
+      box-shadow: 6px 6px 0 rgba(13, 148, 136, 0.2), inset 0 1px 0 rgba(255,255,255,0.6);
+    }
+
+    /* ── Hero gradient ── */
+    .hero-bg {
+      background: linear-gradient(135deg, #F0FDFA 0%, #CCFBF1 35%, #A7F3D0 60%, #FFF7ED 85%, #F0FDFA 100%);
+      background-size: 300% 300%;
+      animation: gradShift 10s ease infinite;
+    }
+    @keyframes gradShift {
+      0%   { background-position: 0% 50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* ── Float animations ── */
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-14px); }
+    }
+    .float  { animation: float 4s ease-in-out infinite; }
+    .float2 { animation: float 4s ease-in-out 1.3s infinite; }
+    .float3 { animation: float 4s ease-in-out 2.6s infinite; }
+
+    /* ── Pulse ring ── */
+    @keyframes pulseRing {
+      0%   { transform: scale(1);   opacity: 0.6; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+    .pulse-ring::before {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      border-radius: 50%;
+      border: 3px solid #0D9488;
+      animation: pulseRing 2s ease-out infinite;
+    }
+
+    /* ── Shimmer on lesson badge ── */
+    @keyframes shimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+    .shimmer {
+      background: linear-gradient(90deg, #0D9488 25%, #2DD4BF 50%, #0D9488 75%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 3s linear infinite;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 150ms !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-[#F0FDFA] text-[#134E4A] min-h-screen">
+
+  <!-- ═══════════════════════════════════ NAVBAR ═══════════════════════════════════ -->
+  <nav class="fixed top-4 left-4 right-4 z-50">
+    <div class="max-w-6xl mx-auto bg-white/85 backdrop-blur-md rounded-2xl px-6 py-3 clay flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <svg width="30" height="30" viewBox="0 0 32 32" fill="none">
+          <path d="M15.885 2C10.335 2 10.704 4.39 10.704 4.39L10.71 6.863H15.98V7.594H8.626C8.626 7.594 5 7.178 5 12.82C5 18.462 8.177 18.262 8.177 18.262H10.048V15.674C10.048 15.674 9.948 12.497 13.175 12.497H18.407C18.407 12.497 21.413 12.546 21.413 9.593V4.878C21.413 4.878 21.879 2 15.885 2ZM12.927 3.916C13.55 3.916 14.056 4.422 14.056 5.045C14.056 5.668 13.55 6.174 12.927 6.174C12.304 6.174 11.798 5.668 11.798 5.045C11.798 4.422 12.304 3.916 12.927 3.916Z" fill="#366994"/>
+          <path d="M16.115 30C21.665 30 21.296 27.61 21.296 27.61L21.29 25.137H16.02V24.406H23.374C23.374 24.406 27 24.822 27 19.18C27 13.538 23.823 13.738 23.823 13.738H21.952V16.326C21.952 16.326 22.052 19.503 18.825 19.503H13.593C13.593 19.503 10.587 19.454 10.587 22.407V27.122C10.587 27.122 10.121 30 16.115 30ZM19.073 28.084C18.45 28.084 17.944 27.578 17.944 26.955C17.944 26.332 18.45 25.826 19.073 25.826C19.696 25.826 20.202 26.332 20.202 26.955C20.202 27.578 19.696 28.084 19.073 28.084Z" fill="#FFC800"/>
+        </svg>
+        <span class="heading font-bold text-lg text-[#134E4A]">Python Basics</span>
+      </div>
+      <span class="text-xs font-bold text-[#0D9488] bg-teal-50 border border-teal-200 px-3 py-1 rounded-full tracking-wide uppercase">Beginner</span>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════════ HERO ═══════════════════════════════════ -->
+  <section class="hero-bg min-h-screen flex items-center justify-center pt-28 pb-20 px-4 relative overflow-hidden">
+
+    <!-- Decorative blobs -->
+    <div class="absolute top-24 left-8  w-40 h-40 bg-[#0D9488]/10 rounded-full blur-3xl float pointer-events-none"></div>
+    <div class="absolute top-48 right-12 w-52 h-52 bg-[#F97316]/10 rounded-full blur-3xl float2 pointer-events-none"></div>
+    <div class="absolute bottom-24 left-1/3 w-36 h-36 bg-[#2DD4BF]/15 rounded-full blur-3xl float3 pointer-events-none"></div>
+
+    <!-- Floating code snippets (decorative) -->
+    <div class="absolute top-36 right-8 hidden lg:block opacity-25 float2 pointer-events-none select-none">
+      <div class="bg-white/70 rounded-xl px-4 py-3 clay text-xs font-mono text-[#0D9488] leading-relaxed">
+        <span class="text-[#F97316]">print</span>(<span class="text-[#134E4A]">"Hello, World!"</span>)
+      </div>
+    </div>
+    <div class="absolute bottom-36 left-8 hidden lg:block opacity-25 float3 pointer-events-none select-none">
+      <div class="bg-white/70 rounded-xl px-4 py-3 clay text-xs font-mono text-[#0D9488] leading-relaxed">
+        <span class="text-[#366994]">for</span> i <span class="text-[#366994]">in</span> <span class="text-[#F97316]">range</span>(10):<br>
+        &nbsp;&nbsp;<span class="text-[#F97316]">print</span>(i)
+      </div>
+    </div>
+
+    <div class="max-w-4xl mx-auto text-center relative">
+      <!-- Python logo with pulse ring -->
+      <div class="flex justify-center mb-10">
+        <div class="relative float">
+          <div class="pulse-ring relative w-28 h-28 bg-white rounded-[28px] clay flex items-center justify-center">
+            <svg width="68" height="68" viewBox="0 0 32 32" fill="none">
+              <path d="M15.885 2C10.335 2 10.704 4.39 10.704 4.39L10.71 6.863H15.98V7.594H8.626C8.626 7.594 5 7.178 5 12.82C5 18.462 8.177 18.262 8.177 18.262H10.048V15.674C10.048 15.674 9.948 12.497 13.175 12.497H18.407C18.407 12.497 21.413 12.546 21.413 9.593V4.878C21.413 4.878 21.879 2 15.885 2ZM12.927 3.916C13.55 3.916 14.056 4.422 14.056 5.045C14.056 5.668 13.55 6.174 12.927 6.174C12.304 6.174 11.798 5.668 11.798 5.045C11.798 4.422 12.304 3.916 12.927 3.916Z" fill="#366994"/>
+              <path d="M16.115 30C21.665 30 21.296 27.61 21.296 27.61L21.29 25.137H16.02V24.406H23.374C23.374 24.406 27 24.822 27 19.18C27 13.538 23.823 13.738 23.823 13.738H21.952V16.326C21.952 16.326 22.052 19.503 18.825 19.503H13.593C13.593 19.503 10.587 19.454 10.587 22.407V27.122C10.587 27.122 10.121 30 16.115 30ZM19.073 28.084C18.45 28.084 17.944 27.578 17.944 26.955C17.944 26.332 18.45 25.826 19.073 25.826C19.696 25.826 20.202 26.332 20.202 26.955C20.202 27.578 19.696 28.084 19.073 28.084Z" fill="#FFC800"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Headline -->
+      <h1 class="heading text-6xl md:text-8xl font-extrabold text-[#134E4A] leading-none mb-5">
+        Python <span class="shimmer">Basics</span>
+      </h1>
+      <p class="text-lg md:text-xl text-[#134E4A]/70 max-w-xl mx-auto leading-relaxed mb-12">
+        Your hands-on journey into programming — from zero to writing real code, one lesson at a time.
+      </p>
+
+      <!-- Stat pills -->
+      <div class="flex justify-center gap-4 flex-wrap">
+        <div class="bg-white/90 rounded-2xl px-7 py-4 clay inline-flex items-center gap-3">
+          <span class="heading text-3xl font-extrabold text-[#0D9488]">2</span>
+          <span class="text-sm text-[#134E4A]/60 font-semibold leading-tight">Topics<br>Covered</span>
+        </div>
+        <div class="bg-white/90 rounded-2xl px-7 py-4 clay-orange inline-flex items-center gap-3">
+          <span class="heading text-3xl font-extrabold text-[#F97316]">2</span>
+          <span class="text-sm text-[#134E4A]/60 font-semibold leading-tight">Lessons<br>Scheduled</span>
+        </div>
+        <div class="bg-white/90 rounded-2xl px-7 py-4 clay inline-flex items-center gap-3">
+          <span class="heading text-3xl font-extrabold text-[#0D9488]">∞</span>
+          <span class="text-sm text-[#134E4A]/60 font-semibold leading-tight">Things<br>to Learn</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════ TOPICS ════════════════════════════════ -->
+  <section class="py-24 px-4 bg-white/50">
+    <div class="max-w-5xl mx-auto">
+
+      <div class="text-center mb-14">
+        <span class="text-xs font-bold tracking-widest uppercase text-[#0D9488] bg-teal-50 border border-teal-200 px-4 py-1.5 rounded-full">Topics</span>
+        <h2 class="heading text-4xl md:text-5xl font-extrabold text-[#134E4A] mt-4 mb-3">What You'll Learn</h2>
+        <p class="text-[#134E4A]/60 max-w-md mx-auto">Two essential pillars every Python developer needs to master</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+        <!-- ── GitHub Card ── -->
+        <a href="01_github/index.html" class="block group cursor-pointer" aria-label="GitHub Basics topic">
+          <article class="bg-white rounded-[24px] overflow-hidden clay-card h-full flex flex-col">
+            <!-- Image -->
+            <div class="h-52 relative overflow-hidden flex-shrink-0">
+              <img
+                src="https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?w=640&q=80"
+                alt="GitHub repository showing code collaboration"
+                loading="lazy"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-[#1a1a2e]/70 via-transparent to-transparent"></div>
+              <span class="absolute bottom-4 left-4 bg-white/90 text-[#0D9488] text-xs font-bold px-3 py-1 rounded-full">Version Control</span>
+              <div class="absolute top-4 right-4 w-10 h-10 bg-[#24292E] rounded-xl flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+                </svg>
+              </div>
+            </div>
+            <!-- Body -->
+            <div class="p-7 flex flex-col flex-1">
+              <h3 class="heading text-2xl font-bold text-[#134E4A] mb-2">GitHub Basics</h3>
+              <p class="text-[#134E4A]/65 leading-relaxed mb-6 flex-1">
+                Learn how to use Git & GitHub to save your code, travel through its history, and collaborate with others on real projects.
+              </p>
+              <div class="flex items-center gap-2 text-[#0D9488] font-bold text-sm group-hover:gap-3 transition-all duration-200">
+                <span>Explore topic</span>
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                </svg>
+              </div>
+            </div>
+          </article>
+        </a>
+
+        <!-- ── Flowcharts Card ── -->
+        <a href="02_flowcharts/index.html" class="block group cursor-pointer" aria-label="Flowcharts Basics topic">
+          <article class="bg-white rounded-[24px] overflow-hidden clay-card-orange h-full flex flex-col">
+            <!-- Image -->
+            <div class="h-52 relative overflow-hidden flex-shrink-0">
+              <img
+                src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=640&q=80"
+                alt="Flowchart diagram showing decision logic"
+                loading="lazy"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-[#7c2d12]/60 via-transparent to-transparent"></div>
+              <span class="absolute bottom-4 left-4 bg-white/90 text-[#F97316] text-xs font-bold px-3 py-1 rounded-full">Logic & Design</span>
+              <div class="absolute top-4 right-4 w-10 h-10 bg-[#F97316] rounded-xl flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                  <rect x="3" y="3" width="7" height="5" rx="1" fill="white" stroke="none"/>
+                  <rect x="14" y="3" width="7" height="5" rx="1" fill="white" stroke="none"/>
+                  <rect x="8.5" y="16" width="7" height="5" rx="1" fill="white" stroke="none"/>
+                  <path d="M6.5 8v3M17.5 8v3M6.5 11h11M12 11v5" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+              </div>
+            </div>
+            <!-- Body -->
+            <div class="p-7 flex flex-col flex-1">
+              <h3 class="heading text-2xl font-bold text-[#134E4A] mb-2">Flowcharts Basics</h3>
+              <p class="text-[#134E4A]/65 leading-relaxed mb-6 flex-1">
+                Visualize your programs before you write a single line. Master the art of thinking algorithmically with diagrams and decision trees.
+              </p>
+              <div class="flex items-center gap-2 text-[#F97316] font-bold text-sm group-hover:gap-3 transition-all duration-200">
+                <span>Explore topic</span>
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                </svg>
+              </div>
+            </div>
+          </article>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════ LESSONS ════════════════════════════════ -->
+  <section id="lessons" class="py-24 px-4 scroll-mt-24">
+    <div class="max-w-3xl mx-auto">
+
+      <div class="text-center mb-14">
+        <span class="text-xs font-bold tracking-widest uppercase text-[#F97316] bg-orange-50 border border-orange-200 px-4 py-1.5 rounded-full">Schedule</span>
+        <h2 class="heading text-4xl md:text-5xl font-extrabold text-[#134E4A] mt-4 mb-3">Lessons</h2>
+        <p class="text-[#134E4A]/60 max-w-md mx-auto">Follow along with our structured lesson schedule</p>
+      </div>
+
+      <!-- Timeline connector line -->
+      <div class="relative">
+        <div class="absolute left-[35px] top-14 bottom-14 w-0.5 bg-gradient-to-b from-[#0D9488] to-[#F97316] opacity-20 hidden sm:block"></div>
+
+        <div class="space-y-5">
+
+          <!-- Lesson 1 -->
+          <a href="lessons/01_lesson/01_lesson.html" class="block group cursor-pointer" aria-label="Lesson 1, June 18 2026">
+            <div class="lesson-row bg-white rounded-[20px] p-5 flex items-center gap-5">
+              <!-- Badge -->
+              <div class="relative w-[70px] h-[70px] flex-shrink-0">
+                <div class="w-full h-full bg-[#F0FDFA] rounded-2xl clay flex flex-col items-center justify-center">
+                  <span class="heading text-xs font-bold text-[#0D9488] leading-none">JUN</span>
+                  <span class="heading text-2xl font-extrabold text-[#0D9488] leading-tight">18</span>
+                  <span class="heading text-xs font-bold text-[#0D9488]/60 leading-none">2026</span>
+                </div>
+              </div>
+              <!-- Info -->
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-0.5">
+                  <span class="heading text-lg font-bold text-[#134E4A]">Lesson 1</span>
+                  <span class="text-xs font-semibold text-white bg-[#0D9488] px-2 py-0.5 rounded-full">Done</span>
+                </div>
+                <p class="text-sm text-[#134E4A]/55">Wednesday · June 18, 2026</p>
+              </div>
+              <!-- Arrow -->
+              <svg class="w-5 h-5 text-[#0D9488] flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+              </svg>
+            </div>
+          </a>
+
+          <!-- Lesson 2 -->
+          <a href="lessons/02_lesson/02_lesson.html" class="block group cursor-pointer" aria-label="Lesson 2, June 22 2026">
+            <div class="lesson-row bg-white rounded-[20px] p-5 flex items-center gap-5">
+              <!-- Badge -->
+              <div class="w-[70px] h-[70px] flex-shrink-0">
+                <div class="w-full h-full bg-[#FFF7ED] rounded-2xl clay-orange flex flex-col items-center justify-center">
+                  <span class="heading text-xs font-bold text-[#F97316] leading-none">JUN</span>
+                  <span class="heading text-2xl font-extrabold text-[#F97316] leading-tight">22</span>
+                  <span class="heading text-xs font-bold text-[#F97316]/60 leading-none">2026</span>
+                </div>
+              </div>
+              <!-- Info -->
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-0.5">
+                  <span class="heading text-lg font-bold text-[#134E4A]">Lesson 2</span>
+                  <span class="text-xs font-semibold text-white bg-[#F97316] px-2 py-0.5 rounded-full">Done</span>
+                </div>
+                <p class="text-sm text-[#134E4A]/55">Sunday · June 22, 2026</p>
+              </div>
+              <!-- Arrow -->
+              <svg class="w-5 h-5 text-[#F97316] flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+              </svg>
+            </div>
+          </a>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════ FOOTER ════════════════════════════════ -->
+  <footer class="py-10 px-4 text-center border-t border-teal-100/60">
+    <div class="flex justify-center mb-3">
+      <svg width="24" height="24" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <path d="M15.885 2C10.335 2 10.704 4.39 10.704 4.39L10.71 6.863H15.98V7.594H8.626C8.626 7.594 5 7.178 5 12.82C5 18.462 8.177 18.262 8.177 18.262H10.048V15.674C10.048 15.674 9.948 12.497 13.175 12.497H18.407C18.407 12.497 21.413 12.546 21.413 9.593V4.878C21.413 4.878 21.879 2 15.885 2ZM12.927 3.916C13.55 3.916 14.056 4.422 14.056 5.045C14.056 5.668 13.55 6.174 12.927 6.174C12.304 6.174 11.798 5.668 11.798 5.045C11.798 4.422 12.304 3.916 12.927 3.916Z" fill="#366994"/>
+        <path d="M16.115 30C21.665 30 21.296 27.61 21.296 27.61L21.29 25.137H16.02V24.406H23.374C23.374 24.406 27 24.822 27 19.18C27 13.538 23.823 13.738 23.823 13.738H21.952V16.326C21.952 16.326 22.052 19.503 18.825 19.503H13.593C13.593 19.503 10.587 19.454 10.587 22.407V27.122C10.587 27.122 10.121 30 16.115 30ZM19.073 28.084C18.45 28.084 17.944 27.578 17.944 26.955C17.944 26.332 18.45 25.826 19.073 25.826C19.696 25.826 20.202 26.332 20.202 26.955C20.202 27.578 19.696 28.084 19.073 28.084Z" fill="#FFC800"/>
+      </svg>
+    </div>
+    <p class="text-sm text-[#134E4A]/40">Python Basics — Learn to code, one lesson at a time.</p>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lesson 2 Homework - Flowcharts</title>
+  <style>
+    :root {
+      --bg-soft: #ffffff;
+      --green-1: #0f5a2e;
+      --green-2: #1f8f4e;
+      --green-3: #dbf6e5;
+      --mint: #e6fff2;
+      --text: #14281d;
+      --muted: #426654;
+      --border: #aadfbd;
+      --code-bg: #0b2517;
+      --code-text: #d2ffe3;
+      --accent-a: #ddfbe7;
+      --accent-b: #f2ffe6;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Lucida Sans", "Segoe UI", sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 15% 10%, #e7fff0 0%, transparent 35%),
+                  radial-gradient(circle at 85% 18%, #f6ffe8 0%, transparent 36%),
+                  linear-gradient(180deg, #f4fff6 0%, #ffffff 45%, #edfff4 100%);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      width: 240px;
+      height: 240px;
+      z-index: -1;
+      border-radius: 999px;
+      filter: blur(2px);
+      opacity: 0.35;
+      animation: blobMove 8s ease-in-out infinite alternate;
+    }
+
+    body::before { background: #bff0d0; top: -30px; left: -40px; }
+    body::after  { background: #dfffc8; bottom: -40px; right: -40px; animation-delay: 1.4s; }
+
+    .wrap {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .side-nav {
+      position: sticky;
+      top: 14px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 8px 22px rgba(18, 102, 55, 0.1);
+      padding: 12px;
+    }
+
+    .side-title {
+      margin: 0 0 8px;
+      font-size: 0.9rem;
+      color: var(--green-1);
+      font-weight: 700;
+    }
+
+    .topic-link {
+      display: block;
+      width: 100%;
+      text-align: left;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      padding: 8px 10px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.89rem;
+      text-transform: lowercase;
+      margin-bottom: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .topic-link:hover {
+      background: #f0fff4;
+      color: var(--green-1);
+      border-color: var(--border);
+    }
+
+    .topic-link.active {
+      background: #e8faee;
+      color: var(--green-1);
+      border-color: var(--green-2);
+      font-weight: 700;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, var(--bg-soft) 0%, var(--accent-a) 55%, var(--accent-b) 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 12px 30px rgba(24, 110, 58, 0.12);
+      margin-bottom: 22px;
+      animation: riseIn 0.75s ease both;
+    }
+
+    h1, h2, h3 { margin-top: 0; color: var(--green-1); }
+    h1 { font-size: 2rem; margin-bottom: 8px; }
+
+    .tag {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      background: var(--green-3);
+      color: var(--green-1);
+      border: 1px solid var(--border);
+      margin-bottom: 10px;
+    }
+
+    .card {
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 16px;
+      box-shadow: 0 7px 22px rgba(18, 102, 55, 0.08);
+      animation: riseIn 0.65s ease both;
+    }
+
+    .topic-panel { display: none; }
+    .topic-panel.active { display: block; }
+    .step-title { margin: 0 0 12px; font-size: 1.25rem; }
+
+    .note {
+      background: var(--mint);
+      border-left: 4px solid var(--green-2);
+      padding: 10px 14px;
+      color: var(--muted);
+      margin: 12px 0;
+      border-radius: 6px;
+      font-size: 0.94rem;
+    }
+
+    .big-result {
+      font-size: 1.1rem;
+      margin: 18px 0 8px;
+      color: var(--green-1);
+      font-weight: 700;
+    }
+
+    .task-list { padding-left: 22px; margin: 10px 0 0; }
+    .task-list li { margin-bottom: 10px; color: #1a3a2a; }
+    .task-list li strong { color: var(--green-1); }
+
+    .side-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 10px 0;
+    }
+
+    .side-section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--green-2);
+      padding: 4px 4px 6px;
+    }
+
+    .nav-back {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--green-2);
+      background: #e9fbe8;
+      color: var(--green-1);
+      text-decoration: none;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      width: 100%;
+      text-align: center;
+    }
+
+    .nav-back:hover { background: #d8f7df; transform: translateY(-1px); }
+
+    .symbol-row {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin: 18px 0;
+      align-items: flex-end;
+    }
+
+    .symbol-cell { text-align: center; }
+
+    .symbol-label {
+      display: block;
+      margin-top: 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--green-1);
+    }
+
+    .fc-wrap {
+      display: flex;
+      justify-content: center;
+      margin: 18px 0;
+      overflow-x: auto;
+    }
+
+    .code {
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 10px;
+      border: 1px solid #2f5a3d;
+      padding: 16px 18px;
+      overflow-x: auto;
+      margin: 10px 0 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95rem;
+      white-space: pre;
+      line-height: 1.7;
+    }
+
+    .code .cm { color: #6dbf8a; }
+    .code .fn { color: #ffa657; }
+    .code .kw { color: #79c0ff; }
+    .code .num { color: #d2a8ff; }
+    .code .str { color: #ffd580; }
+
+    .ex-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .88rem;
+      margin: 10px 0 14px;
+    }
+
+    .ex-table th {
+      background: var(--green-3);
+      color: var(--green-1);
+      padding: 8px 12px;
+      text-align: left;
+      border: 1px solid var(--border);
+      font-size: .78rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    .ex-table td {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    .ex-table tr:nth-child(even) td { background: #f4fff7; }
+
+    .rtl {
+      direction: rtl;
+      text-align: right;
+    }
+
+    .rtl .task-list {
+      padding-left: 0;
+      padding-right: 22px;
+    }
+
+    .rtl .ex-title {
+      flex-direction: row-reverse;
+      justify-content: flex-end;
+    }
+
+    .rtl .ex-num {
+      margin-right: 0;
+      margin-left: 8px;
+    }
+
+    .rtl .ex-table th,
+    .rtl .ex-table td {
+      text-align: right;
+    }
+
+    .task-box {
+      background: var(--mint);
+      border: 2px dashed var(--green-2);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin: 14px 0;
+    }
+
+    .ex-title {
+      display: flex;
+      align-items: center;
+      margin: 22px 0 8px;
+    }
+
+    .ex-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--green-3);
+      border: 2px solid var(--green-2);
+      color: var(--green-1);
+      font-weight: 800;
+      font-size: .88rem;
+      margin-right: 8px;
+      flex-shrink: 0;
+    }
+
+    .ex-title h3 { margin: 0; font-size: 1.1rem; }
+
+    .submission {
+      background: var(--mint);
+      border-color: var(--green-2);
+      margin-top: 0;
+    }
+
+    .submission a {
+      color: var(--green-1);
+      font-weight: 800;
+      font-size: 1.05rem;
+      word-break: break-all;
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.86rem;
+      padding: 10px 0 16px;
+    }
+
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes blobMove {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(24px, 18px) scale(1.06); }
+    }
+
+    @media (max-width: 760px) {
+      .wrap { padding: 14px; }
+      .layout { grid-template-columns: 1fr; }
+      .side-nav { position: static; }
+      h1 { font-size: 1.6rem; }
+      .code { font-size: 0.86rem; }
+      .ex-table { font-size: .8rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <span class="tag">Lesson 2 Homework</span>
+      <h1>Flowcharts: Start, Stop, Input, Output, Operation</h1>
+      <p>Use the sidebar to review the symbols, then complete the three exercises as flowcharts.</p>
+    </section>
+
+    <div class="layout">
+      <aside class="side-nav" aria-label="Topic navigation">
+        <h2 class="side-title">Topics</h2>
+        <button class="topic-link active" data-target="topic-start-stop">start / stop</button>
+        <button class="topic-link" data-target="topic-input-output">input / output</button>
+        <button class="topic-link" data-target="topic-operation">operation</button>
+        <button class="topic-link" data-target="topic-exercise">exercise</button>
+        <button class="topic-link" data-target="topic-exercise-heb">exercise-heb</button>
+        <hr class="side-divider" />
+        <div class="side-section-label">Navigation</div>
+        <a class="nav-back" href="index.html">Back to lessons</a>
+      </aside>
+
+      <main>
+        <section class="card topic-panel active" id="topic-start-stop">
+          <h2 class="step-title">Start / Stop</h2>
+          <p>A flowchart shows the steps of a program from beginning to end. Every flowchart must have a clear <strong>START</strong> and a clear <strong>STOP</strong>.</p>
+
+          <div class="symbol-row">
+            <div class="symbol-cell">
+              <svg width="150" height="76" viewBox="0 0 150 76" role="img" aria-label="Start oval">
+                <ellipse cx="75" cy="38" rx="62" ry="27" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.5"/>
+                <text x="75" y="44" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="16" font-weight="700" fill="#0f5a2e">START</text>
+              </svg>
+              <span class="symbol-label">Oval: program begins</span>
+            </div>
+
+            <div class="symbol-cell">
+              <svg width="150" height="76" viewBox="0 0 150 76" role="img" aria-label="Stop oval">
+                <ellipse cx="75" cy="38" rx="62" ry="27" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.5"/>
+                <text x="75" y="44" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="16" font-weight="700" fill="#0f5a2e">STOP</text>
+              </svg>
+              <span class="symbol-label">Oval: program ends</span>
+            </div>
+          </div>
+
+          <div class="note">Rule: nothing comes before START and nothing comes after STOP. The arrows show the order of the program.</div>
+        </section>
+
+        <section class="card topic-panel" id="topic-input-output">
+          <h2 class="step-title">Input / Output</h2>
+          <p><strong>Input</strong> means the user gives data to the program. In Python, this is usually <code>input()</code>.</p>
+          <p><strong>Output</strong> means the program shows data to the user. In Python, this is usually <code>print()</code>.</p>
+
+          <div class="symbol-row">
+            <div class="symbol-cell">
+              <svg width="220" height="76" viewBox="0 0 220 76" role="img" aria-label="Input parallelogram">
+                <polygon points="24,10 210,10 188,66 2,66" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.5"/>
+                <text x="106" y="35" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">INPUT</text>
+                <text x="106" y="52" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="12" fill="#0f5a2e">enter a number</text>
+              </svg>
+              <span class="symbol-label">Parallelogram: data goes in</span>
+            </div>
+
+            <div class="symbol-cell">
+              <svg width="220" height="76" viewBox="0 0 220 76" role="img" aria-label="Output parallelogram">
+                <polygon points="24,10 210,10 188,66 2,66" fill="#e8fff4" stroke="#1f8f4e" stroke-width="2.5"/>
+                <text x="106" y="35" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">OUTPUT</text>
+                <text x="106" y="52" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="12" fill="#0f5a2e">print result</text>
+              </svg>
+              <span class="symbol-label">Parallelogram: data goes out</span>
+            </div>
+          </div>
+
+          <div class="big-result">Python examples</div>
+          <div class="code">num = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">"Enter a number: "</span>))   <span class="cm"># INPUT</span>
+<span class="fn">print</span>(num)                             <span class="cm"># OUTPUT</span></div>
+        </section>
+
+        <section class="card topic-panel" id="topic-operation">
+          <h2 class="step-title">Operation</h2>
+          <p>An <strong>operation</strong> is a step where the computer does work: calculation, assignment, or changing a value. It is drawn as a rectangle.</p>
+
+          <div class="fc-wrap">
+            <svg width="280" height="76" viewBox="0 0 280 76" role="img" aria-label="Operation rectangle">
+              <rect x="12" y="12" width="256" height="52" rx="4" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.5"/>
+              <text x="140" y="34" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">OPERATION</text>
+              <text x="140" y="52" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" fill="#0f5a2e">result = num * num</text>
+            </svg>
+          </div>
+
+          <div class="big-result">Python examples</div>
+          <table class="ex-table">
+            <thead>
+              <tr><th>Flowchart operation</th><th>Python code</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>square = num * num</td><td><code>square = num * num</code></td></tr>
+              <tr><td>total = price * quantity</td><td><code>total = price * quantity</code></td></tr>
+              <tr><td>cars = children / 5</td><td><code>cars = children // 5</code></td></tr>
+            </tbody>
+          </table>
+
+          <div class="note">Use a rectangle when the program calculates something but does not ask the user and does not print yet.</div>
+        </section>
+
+        <section class="card topic-panel" id="topic-exercise">
+          <span class="tag">Exercise</span>
+          <h2 class="step-title">Flowchart Homework</h2>
+          <p>For each question, draw the flowchart.</p>
+
+          <div class="ex-title">
+            <span class="ex-num">1</span>
+            <h3>Print two numbers</h3>
+          </div>
+          <p>Input <strong>two numbers</strong>. Print the first number <strong>3 times</strong>, then print the second number <strong>2 times</strong>.</p>
+          <table class="ex-table">
+            <thead><tr><th>Input 1</th><th>Input 2</th><th>Expected output</th></tr></thead>
+            <tbody>
+              <tr><td>5</td><td>9</td><td>5, 5, 5, 9, 9</td></tr>
+              <tr><td>7</td><td>2</td><td>7, 7, 7, 2, 2</td></tr>
+            </tbody>
+          </table>
+          <div class="task-box">
+            Your flowchart should use: START, two INPUT boxes, five OUTPUT boxes, STOP.
+          </div>
+
+          <div class="ex-title">
+            <span class="ex-num">2</span>
+            <h3>Print the square</h3>
+          </div>
+          <p>Input <strong>one number</strong>. Print its square, meaning <code>num * num</code>.</p>
+          <table class="ex-table">
+            <thead><tr><th>Input</th><th>Expected output</th><th>Why</th></tr></thead>
+            <tbody>
+              <tr><td>2</td><td>4</td><td>2 * 2 = 4</td></tr>
+              <tr><td>3</td><td>9</td><td>3 * 3 = 9</td></tr>
+              <tr><td>4</td><td>16</td><td>4 * 4 = 16</td></tr>
+              <tr><td>5</td><td>25</td><td>5 * 5 = 25</td></tr>
+              <tr><td>10</td><td>100</td><td>10 * 10 = 100</td></tr>
+            </tbody>
+          </table>
+          <div class="task-box">
+            Your flowchart should use: START, one INPUT box, one OPERATION box, one OUTPUT box, STOP.
+          </div>
+
+          <div class="ex-title">
+            <span class="ex-num">3</span>
+            <h3>Class trip cars</h3>
+          </div>
+          <p>There is a class trip. Each car has <strong>5 seats</strong>. Input how many children are in the class, then print how many cars need to be booked.</p>
+          <p>The number of children is guaranteed to be divisible by 5, so no rounding is needed.</p>
+          <table class="ex-table">
+            <thead><tr><th>Children</th><th>Cars needed</th><th>Why</th></tr></thead>
+            <tbody>
+              <tr><td>10</td><td>2</td><td>10 / 5 = 2</td></tr>
+              <tr><td>15</td><td>3</td><td>15 / 5 = 3</td></tr>
+              <tr><td>20</td><td>4</td><td>20 / 5 = 4</td></tr>
+              <tr><td>25</td><td>5</td><td>25 / 5 = 5</td></tr>
+              <tr><td>5</td><td>1</td><td>5 / 5 = 1</td></tr>
+            </tbody>
+          </table>
+          <div class="task-box">
+            Your flowchart should use: START, one INPUT box, one OPERATION box for cars = children / 5, one OUTPUT box, STOP.
+          </div>
+
+          <div class="big-result">Submission</div>
+          <div class="card submission">
+            <ol class="task-list">
+              <li><strong>Draw all three flowcharts</strong> in <a href="https://app.diagrams.net/" target="_blank" rel="noopener">draw.io</a>.</li>
+              <li><strong>Upload your flowcharts</strong> to GitHub.</li>
+              <li><strong>Send the GitHub link</strong> to:<br>
+                <a href="mailto:pythonai080626+flow1@gmail.com">pythonai080626+flow1@gmail.com</a>
+              </li>
+            </ol>
+          </div>
+        </section>
+
+        <section class="card topic-panel rtl" id="topic-exercise-heb" lang="he" dir="rtl">
+          <span class="tag">תרגול בעברית</span>
+          <h2 class="step-title">שיעורי בית בתרשימי זרימה</h2>
+          <p>בכל שאלה צריך לצייר תרשים זרימה.</p>
+
+          <div class="ex-title">
+            <span class="ex-num">1</span>
+            <h3>הדפסת שני מספרים</h3>
+          </div>
+          <p>קלטו <strong>שני מספרים</strong>. הדפיסו את המספר הראשון <strong>3 פעמים</strong>, ואז הדפיסו את המספר השני <strong>2 פעמים</strong>.</p>
+          <table class="ex-table">
+            <thead><tr><th>קלט 1</th><th>קלט 2</th><th>פלט צפוי</th></tr></thead>
+            <tbody>
+              <tr><td>5</td><td>9</td><td>5, 5, 5, 9, 9</td></tr>
+              <tr><td>7</td><td>2</td><td>7, 7, 7, 2, 2</td></tr>
+            </tbody>
+          </table>
+          <div class="task-box">
+            בתרשים הזרימה צריך להשתמש ב: START, שתי תיבות INPUT, חמש תיבות OUTPUT, ו-STOP.
+          </div>
+
+          <div class="ex-title">
+            <span class="ex-num">2</span>
+            <h3>הדפסת ריבוע של מספר</h3>
+          </div>
+          <p>קלטו <strong>מספר אחד</strong>. הדפיסו את הריבוע שלו, כלומר <code>num * num</code>.</p>
+          <table class="ex-table">
+            <thead><tr><th>קלט</th><th>פלט צפוי</th><th>למה?</th></tr></thead>
+            <tbody>
+              <tr><td>2</td><td>4</td><td>2 * 2 = 4</td></tr>
+              <tr><td>3</td><td>9</td><td>3 * 3 = 9</td></tr>
+              <tr><td>4</td><td>16</td><td>4 * 4 = 16</td></tr>
+              <tr><td>5</td><td>25</td><td>5 * 5 = 25</td></tr>
+              <tr><td>10</td><td>100</td><td>10 * 10 = 100</td></tr>
+            </tbody>
+          </table>
+          <div class="task-box">
+            בתרשים הזרימה צריך להשתמש ב: START, תיבת INPUT אחת, תיבת OPERATION אחת, תיבת OUTPUT אחת, ו-STOP.
+          </div>
+
+          <div class="ex-title">
+            <span class="ex-num">3</span>
+            <h3>טיול כיתתי - כמה מכוניות צריך?</h3>
+          </div>
+          <p>יש טיול כיתתי. בכל מכונית יש <strong>5 מקומות</strong>. קלטו כמה ילדים יש בכיתה, ואז הדפיסו כמה מכוניות צריך להזמין.</p>
+          <p>מובטח שמספר הילדים מתחלק ב-5, לכן לא צריך לעגל.</p>
+          <table class="ex-table">
+            <thead><tr><th>מספר ילדים</th><th>מכוניות שצריך</th><th>למה?</th></tr></thead>
+            <tbody>
+              <tr><td>10</td><td>2</td><td>10 / 5 = 2</td></tr>
+              <tr><td>15</td><td>3</td><td>15 / 5 = 3</td></tr>
+              <tr><td>20</td><td>4</td><td>20 / 5 = 4</td></tr>
+              <tr><td>25</td><td>5</td><td>25 / 5 = 5</td></tr>
+              <tr><td>5</td><td>1</td><td>5 / 5 = 1</td></tr>
+            </tbody>
+          </table>
+          <div class="task-box">
+            בתרשים הזרימה צריך להשתמש ב: START, תיבת INPUT אחת, תיבת OPERATION אחת עבור cars = children / 5, תיבת OUTPUT אחת, ו-STOP.
+          </div>
+
+          <div class="big-result">הגשה</div>
+          <div class="card submission">
+            <ol class="task-list">
+              <li><strong>ציירו את שלושת תרשימי הזרימה</strong> ב-<a href="https://app.diagrams.net/" target="_blank" rel="noopener">draw.io</a>.</li>
+              <li><strong>העלו את תרשימי הזרימה</strong> ל-GitHub.</li>
+              <li><strong>שלחו את הקישור מ-GitHub</strong> אל:<br>
+                <a href="mailto:pythonai080626+flow1@gmail.com">pythonai080626+flow1@gmail.com</a>
+              </li>
+            </ol>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <footer class="footer">
+      Python Basics - Lesson 2 Homework - Flowcharts
+    </footer>
+  </div>
+
+  <script>
+    const links = document.querySelectorAll('.topic-link');
+    const panels = document.querySelectorAll('.topic-panel');
+
+    function showTopic(id) {
+      panels.forEach(panel => panel.classList.toggle('active', panel.id === id));
+      links.forEach(link => link.classList.toggle('active', link.dataset.target === id));
+    }
+
+    links.forEach(link => {
+      link.addEventListener('click', () => {
+        showTopic(link.dataset.target);
+        location.hash = link.dataset.target;
+      });
+    });
+
+    const hash = location.hash.replace('#', '');
+    if (hash && document.getElementById(hash)) showTopic(hash);
+  </script>
+</body>
+</html>

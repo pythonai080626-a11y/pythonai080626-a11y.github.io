@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lesson 1</title>
+  <style>
+    :root {
+      --bg-soft: #ffffff;
+      --green-1: #0f5a2e;
+      --green-2: #1f8f4e;
+      --green-3: #dbf6e5;
+      --mint: #e6fff2;
+      --text: #14281d;
+      --muted: #426654;
+      --border: #aadfbd;
+      --accent-a: #ddfbe7;
+      --accent-b: #f2ffe6;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Lucida Sans", "Segoe UI", sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 15% 10%, #e7fff0 0%, transparent 35%),
+                  radial-gradient(circle at 85% 18%, #f6ffe8 0%, transparent 36%),
+                  linear-gradient(180deg, #f4fff6 0%, #ffffff 45%, #edfff4 100%);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      width: 240px;
+      height: 240px;
+      z-index: -1;
+      border-radius: 999px;
+      filter: blur(2px);
+      opacity: 0.35;
+      animation: blobMove 8s ease-in-out infinite alternate;
+    }
+
+    body::before { background: #bff0d0; top: -30px; left: -40px; }
+    body::after  { background: #dfffc8; bottom: -40px; right: -40px; animation-delay: 1.4s; }
+
+    .wrap {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .side-nav {
+      position: sticky;
+      top: 14px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 8px 22px rgba(18, 102, 55, 0.1);
+      padding: 12px;
+    }
+
+    .side-title {
+      margin: 0 0 8px;
+      font-size: 0.9rem;
+      color: var(--green-1);
+      font-weight: 700;
+    }
+
+    .topic-link {
+      display: block;
+      width: 100%;
+      text-align: left;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      padding: 8px 10px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.89rem;
+      text-transform: lowercase;
+      margin-bottom: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .topic-link:hover {
+      background: #f0fff4;
+      color: var(--green-1);
+      border-color: var(--border);
+    }
+
+    .topic-link.active {
+      background: #e8faee;
+      color: var(--green-1);
+      border-color: var(--green-2);
+      font-weight: 700;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, var(--bg-soft) 0%, var(--accent-a) 55%, var(--accent-b) 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 12px 30px rgba(24, 110, 58, 0.12);
+      margin-bottom: 22px;
+      animation: riseIn 0.75s ease both;
+    }
+
+    h1, h2, h3 { margin-top: 0; color: var(--green-1); }
+    h1 { font-size: 2rem; margin-bottom: 8px; }
+
+    .tag {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      background: var(--green-3);
+      color: var(--green-1);
+      border: 1px solid var(--border);
+      margin-bottom: 10px;
+    }
+
+    .card {
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 16px;
+      box-shadow: 0 7px 22px rgba(18, 102, 55, 0.08);
+      animation: riseIn 0.65s ease both;
+    }
+
+    .topic-panel { display: none; }
+    .topic-panel.active { display: block; }
+    .step-title { margin: 0 0 12px; font-size: 1.25rem; }
+
+    .note {
+      background: var(--mint);
+      border-left: 4px solid var(--green-2);
+      padding: 10px 14px;
+      color: var(--muted);
+      margin: 12px 0;
+      border-radius: 6px;
+      font-size: 0.94rem;
+    }
+
+    .big-result {
+      font-size: 1.1rem;
+      margin: 18px 0 8px;
+      color: var(--green-1);
+      font-weight: 700;
+    }
+
+    .task-list { padding-left: 22px; margin: 10px 0 0; }
+    .task-list li { margin-bottom: 10px; color: #1a3a2a; }
+    .task-list li strong { color: var(--green-1); }
+
+    .side-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 10px 0;
+    }
+
+    .side-section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--green-2);
+      padding: 4px 4px 6px;
+    }
+
+    .nav-back {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--green-2);
+      background: #e9fbe8;
+      color: var(--green-1);
+      text-decoration: none;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      width: 100%;
+      text-align: center;
+    }
+
+    .nav-back:hover { background: #d8f7df; transform: translateY(-1px); }
+
+    .resource-link {
+      color: var(--green-1);
+      font-weight: 700;
+      text-decoration: none;
+      border-bottom: 2px solid var(--green-3);
+    }
+
+    .resource-link:hover { border-bottom-color: var(--green-2); }
+
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes blobMove {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(24px, 18px) scale(1.06); }
+    }
+
+    @media (max-width: 760px) {
+      .wrap { padding: 14px; }
+      .layout { grid-template-columns: 1fr; }
+      .side-nav { position: static; }
+      h1 { font-size: 1.6rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <span class="tag">Lesson 1</span>
+      <h1>GitHub and Draw.io Basics</h1>
+      <p>In this lesson we learned how to create diagrams, create a GitHub account, create a repository, and upload files.</p>
+    </section>
+
+    <div class="layout">
+      <aside class="side-nav" aria-label="Topic navigation">
+        <h2 class="side-title">Topics</h2>
+        <button class="topic-link active" data-target="topic-drawio">draw.io</button>
+        <button class="topic-link" data-target="topic-github-user">github user</button>
+        <button class="topic-link" data-target="topic-github-repo">github repo</button>
+        <button class="topic-link" data-target="topic-upload-files">uploading files</button>
+        <hr class="side-divider" />
+        <div class="side-section-label">Navigation</div>
+        <a class="nav-back" href="../../index.html#lessons">Back to lessons</a>
+      </aside>
+
+      <main>
+        <section class="card topic-panel active" id="topic-drawio">
+          <span class="tag">draw.io</span>
+          <h2 class="step-title">Creating Diagrams</h2>
+          <p>We used <a class="resource-link" href="https://app.diagrams.net/" target="_blank" rel="noopener">draw.io</a> to create visual diagrams.</p>
+
+          <div class="big-result">Main steps</div>
+          <ol class="task-list">
+            <li>Open <strong>draw.io</strong>.</li>
+            <li>Create a new diagram.</li>
+            <li>Add shapes and arrows.</li>
+            <li>Save or export the diagram file.</li>
+          </ol>
+
+          <div class="note">draw.io helps us explain an idea visually before writing or sharing files.</div>
+        </section>
+
+        <section class="card topic-panel" id="topic-github-user">
+          <span class="tag">GitHub</span>
+          <h2 class="step-title">Creating a GitHub User</h2>
+          <p>We created a GitHub user so each student can save and share work online.</p>
+
+          <div class="big-result">Main steps</div>
+          <ol class="task-list">
+            <li>Open <a class="resource-link" href="https://github.com/" target="_blank" rel="noopener">github.com</a>.</li>
+            <li>Choose <strong>Sign up</strong>.</li>
+            <li>Enter an email, password, and username.</li>
+            <li>Confirm the account if GitHub asks for verification.</li>
+          </ol>
+
+          <div class="note">The username is public, so choose a name that is simple and easy to recognize.</div>
+        </section>
+
+        <section class="card topic-panel" id="topic-github-repo">
+          <span class="tag">Repository</span>
+          <h2 class="step-title">Creating a Repository</h2>
+          <p>A repository is a folder on GitHub where project files are stored.</p>
+
+          <div class="big-result">Main steps</div>
+          <ol class="task-list">
+            <li>Click the <strong>New</strong> repository button.</li>
+            <li>Write a repository name.</li>
+            <li>Choose whether the repository is public or private.</li>
+            <li>Create the repository.</li>
+          </ol>
+
+          <div class="note">A clear repository name makes it easier to find the correct project later.</div>
+        </section>
+
+        <section class="card topic-panel" id="topic-upload-files">
+          <span class="tag">Files</span>
+          <h2 class="step-title">Uploading Files to GitHub</h2>
+          <p>We uploaded files into a GitHub repository so the work is saved online.</p>
+
+          <div class="big-result">Main steps</div>
+          <ol class="task-list">
+            <li>Open the repository.</li>
+            <li>Click <strong>Add file</strong>.</li>
+            <li>Choose <strong>Upload files</strong>.</li>
+            <li>Drag files into the upload area or select them from the computer.</li>
+            <li>Click <strong>Commit changes</strong>.</li>
+          </ol>
+
+          <div class="note">Committing changes saves the uploaded files inside the repository.</div>
+        </section>
+      </main>
+    </div>
+
+    <footer class="footer">
+      Python Basics - Lesson 1
+    </footer>
+  </div>
+
+  <script>
+    const links = document.querySelectorAll('.topic-link');
+    const panels = document.querySelectorAll('.topic-panel');
+
+    function showTopic(id) {
+      panels.forEach(panel => panel.classList.toggle('active', panel.id === id));
+      links.forEach(link => link.classList.toggle('active', link.dataset.target === id));
+    }
+
+    links.forEach(link => {
+      link.addEventListener('click', () => {
+        showTopic(link.dataset.target);
+        location.hash = link.dataset.target;
+      });
+    });
+
+    const hash = location.hash.replace('#', '');
+    if (hash && document.getElementById(hash)) showTopic(hash);
+  </script>
+</body>
+</html>
