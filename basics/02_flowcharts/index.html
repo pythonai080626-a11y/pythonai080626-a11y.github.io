@@ -125,6 +125,67 @@
           <p class="text-[#134E4A]/65">Use if for a question with different paths, usually YES and NO.</p>
         </article>
 
+        <!-- If / Else detail -->
+        <article class="symbol-card bg-white rounded-[22px] p-6 clay md:col-span-2">
+          <svg class="w-full mb-4" viewBox="0 0 380 200" role="img" aria-label="If-else flowchart example">
+            <defs>
+              <marker id="fc-arr" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+                <path d="M0,0 L8,4 L0,8 Z" fill="#F97316"/>
+              </marker>
+            </defs>
+            <!-- Diamond -->
+            <polygon points="190,20 290,70 190,120 90,70" fill="#FFF7ED" stroke="#F97316" stroke-width="2.5"/>
+            <text x="190" y="65" text-anchor="middle" font-family="Baloo 2" font-size="13" font-weight="800" fill="#9A3412">condition ?</text>
+            <!-- YES left -->
+            <text x="74" y="67" text-anchor="end" font-family="Baloo 2" font-size="12" font-weight="800" fill="#166534">YES</text>
+            <line x1="90" y1="70" x2="44" y2="70" stroke="#F97316" stroke-width="2.2" marker-end="url(#fc-arr)"/>
+            <rect x="4" y="88" width="76" height="36" rx="5" fill="#FFF7ED" stroke="#F97316" stroke-width="2"/>
+            <text x="42" y="111" text-anchor="middle" font-family="Baloo 2" font-size="12" font-weight="800" fill="#9A3412">if body</text>
+            <!-- NO right -->
+            <text x="306" y="67" font-family="Baloo 2" font-size="12" font-weight="800" fill="#9A3412">NO</text>
+            <line x1="290" y1="70" x2="336" y2="70" stroke="#F97316" stroke-width="2.2" marker-end="url(#fc-arr)"/>
+            <rect x="300" y="88" width="76" height="36" rx="5" fill="#ECFDF5" stroke="#0D9488" stroke-width="2"/>
+            <text x="338" y="111" text-anchor="middle" font-family="Baloo 2" font-size="12" font-weight="800" fill="#0F766E">else body</text>
+            <!-- Merge -->
+            <line x1="42" y1="124" x2="42" y2="165" stroke="#F97316" stroke-width="2"/>
+            <line x1="338" y1="124" x2="338" y2="165" stroke="#F97316" stroke-width="2"/>
+            <line x1="42" y1="165" x2="338" y2="165" stroke="#F97316" stroke-width="2"/>
+            <line x1="190" y1="165" x2="190" y2="183" stroke="#F97316" stroke-width="2.2" marker-end="url(#fc-arr)"/>
+            <text x="190" y="198" text-anchor="middle" font-family="Baloo 2" font-size="12" font-weight="700" fill="#9A3412">continue</text>
+          </svg>
+          <h2 class="heading text-2xl font-extrabold mb-2">If / Else — Two Paths</h2>
+          <p class="text-[#134E4A]/65">The diamond splits the flow into two paths. <strong>YES</strong> runs the <em>if body</em>; <strong>NO</strong> runs the <em>else body</em>. Both paths join again afterwards.</p>
+          <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-3 mt-3 text-sm text-[#134E4A]/70">
+            Example: <code>if age &gt;= 18</code> — YES → "You get a Beer", NO → "You get a Coke"
+          </div>
+        </article>
+
+        <!-- Integer Division // -->
+        <article class="symbol-card bg-white rounded-[22px] p-6 clay">
+          <svg class="w-full h-24 mb-4" viewBox="0 0 260 90" role="img" aria-label="Integer division symbol">
+            <rect x="42" y="20" width="176" height="50" rx="6" fill="#FFF7ED" stroke="#F97316" stroke-width="3"/>
+            <text x="130" y="50" text-anchor="middle" font-family="Baloo 2" font-size="20" font-weight="800" fill="#9A3412">a // b</text>
+          </svg>
+          <h2 class="heading text-2xl font-extrabold mb-2">Integer Division (//)</h2>
+          <p class="text-[#134E4A]/65">Divides two numbers and drops the decimal part. Use it inside an operation box when you need whole groups.</p>
+          <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-3 mt-3 text-sm text-[#134E4A]/70">
+            <code>10 // 3 = 3</code> &nbsp;·&nbsp; <code>7 // 2 = 3</code> &nbsp;·&nbsp; <code>cars = children // 5</code>
+          </div>
+        </article>
+
+        <!-- Modulus % -->
+        <article class="symbol-card bg-white rounded-[22px] p-6 clay">
+          <svg class="w-full h-24 mb-4" viewBox="0 0 260 90" role="img" aria-label="Modulus symbol">
+            <rect x="42" y="20" width="176" height="50" rx="6" fill="#FFF7ED" stroke="#F97316" stroke-width="3"/>
+            <text x="130" y="50" text-anchor="middle" font-family="Baloo 2" font-size="20" font-weight="800" fill="#9A3412">a % b</text>
+          </svg>
+          <h2 class="heading text-2xl font-extrabold mb-2">Modulus (%)</h2>
+          <p class="text-[#134E4A]/65">Returns the <strong>remainder</strong> after dividing. Most common use: check if a number is even or odd.</p>
+          <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-3 mt-3 text-sm text-[#134E4A]/70">
+            <code>8 % 2 = 0</code> (even) &nbsp;·&nbsp; <code>7 % 2 = 1</code> (odd) &nbsp;·&nbsp; <code>10 % 3 = 1</code>
+          </div>
+        </article>
+
         <article class="symbol-card bg-white rounded-[22px] p-6 clay-teal md:col-span-2 xl:col-span-3">
           <div class="grid md:grid-cols-[260px_1fr] gap-5 items-center">
             <svg class="w-full h-40" viewBox="0 0 260 150" role="img" aria-label="While loop symbol">
