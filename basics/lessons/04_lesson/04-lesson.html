@@ -252,7 +252,47 @@
         <p>Set <code>number = 1</code>. While <code>number &lt;= 3</code>, print the number then add 1. After the loop print <em>"Finish"</em>.</p>
 
         <div class="fc-wrap">
-          <img src="diag_10.png" alt="Program 10 flowchart — while number <= 3" width="520" />
+          <svg viewBox="0 0 450 350" width="380" role="img" aria-label="Program 10 flowchart — while number <= 3">
+            <defs>
+              <marker id="a10" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+                <path d="M0,0 L8,4 L0,8 Z" fill="#1f8f4e"/>
+              </marker>
+            </defs>
+            <!-- START -->
+            <ellipse cx="185" cy="28" rx="62" ry="22" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="185" y="35" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="14" font-weight="700" fill="#0f5a2e">START</text>
+            <line x1="185" y1="50" x2="185" y2="70" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a10)"/>
+            <!-- number = 1 -->
+            <rect x="110" y="70" width="150" height="34" rx="4" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="185" y="92" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">number = 1</text>
+            <line x1="185" y1="104" x2="185" y2="124" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a10)"/>
+            <!-- Oval: number <= 3 ? -->
+            <ellipse cx="185" cy="164" rx="117" ry="40" fill="#e8fff4" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="185" y="169" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="12" font-weight="700" fill="#0f5a2e">number &lt;= 3 ?</text>
+            <!-- YES down -->
+            <text x="172" y="222" text-anchor="end" font-family="Trebuchet MS,sans-serif" font-size="11" font-weight="700" fill="#166534">YES</text>
+            <line x1="185" y1="204" x2="185" y2="226" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a10)"/>
+            <!-- print number (output parallelogram) -->
+            <polygon points="90,226 280,226 260,264 70,264" fill="#f0fff8" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="175" y="250" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">print number</text>
+            <line x1="185" y1="264" x2="185" y2="284" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a10)"/>
+            <!-- number += 1 -->
+            <rect x="110" y="284" width="150" height="34" rx="4" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="185" y="306" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">number += 1</text>
+            <!-- Loop back -->
+            <line x1="185" y1="318" x2="185" y2="332" stroke="#1f8f4e" stroke-width="2.2"/>
+            <polyline points="185,332 30,332 30,164 68,164" fill="none" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a10)"/>
+            <!-- NO right -->
+            <text x="310" y="158" font-family="Trebuchet MS,sans-serif" font-size="11" font-weight="700" fill="#166534">NO</text>
+            <line x1="302" y1="164" x2="358" y2="164" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a10)"/>
+            <!-- "Finish" output -->
+            <polygon points="358,144 428,144 408,184 338,184" fill="#f0fff8" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="383" y="169" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="12" font-weight="700" fill="#0f5a2e">"Finish"</text>
+            <line x1="383" y1="184" x2="383" y2="206" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a10)"/>
+            <!-- END -->
+            <ellipse cx="383" cy="228" rx="46" ry="22" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="383" y="235" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="14" font-weight="700" fill="#0f5a2e">END</text>
+          </svg>
         </div>
 
         <div class="big-result">Trace table</div>
@@ -279,7 +319,49 @@
         <p>Input a number. While the number is <strong>&gt;= 0</strong>, print a message and input again. When the user enters a negative number, print <em>"Negative number was entered"</em> and stop.</p>
 
         <div class="fc-wrap">
-          <img src="diag_11_while.png" alt="Program 11 flowchart — input until negative" width="520" />
+          <svg viewBox="0 0 480 360" width="380" role="img" aria-label="Program 11 flowchart — input until negative">
+            <defs>
+              <marker id="a11" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+                <path d="M0,0 L8,4 L0,8 Z" fill="#1f8f4e"/>
+              </marker>
+            </defs>
+            <!-- START -->
+            <ellipse cx="170" cy="28" rx="62" ry="22" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="170" y="35" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="14" font-weight="700" fill="#0f5a2e">START</text>
+            <line x1="170" y1="50" x2="170" y2="68" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a11)"/>
+            <!-- INPUT number -->
+            <polygon points="85,68 255,68 235,106 65,106" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="160" y="92" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">INPUT number</text>
+            <line x1="170" y1="106" x2="170" y2="126" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a11)"/>
+            <!-- Oval: number >= 0 ? -->
+            <ellipse cx="170" cy="166" rx="122" ry="40" fill="#e8fff4" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="170" y="171" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="12" font-weight="700" fill="#0f5a2e">number &gt;= 0 ?</text>
+            <!-- YES down -->
+            <text x="158" y="224" text-anchor="end" font-family="Trebuchet MS,sans-serif" font-size="11" font-weight="700" fill="#166534">YES</text>
+            <line x1="170" y1="206" x2="170" y2="228" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a11)"/>
+            <!-- "Enter negative number to exit" output -->
+            <polygon points="72,228 268,228 248,272 52,272" fill="#f0fff8" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="160" y="247" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="11" font-weight="700" fill="#0f5a2e">"Enter negative number</text>
+            <text x="160" y="262" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="11" font-weight="700" fill="#0f5a2e">to exit"</text>
+            <line x1="170" y1="272" x2="170" y2="292" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a11)"/>
+            <!-- INPUT number (again) -->
+            <polygon points="85,292 255,292 235,330 65,330" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="160" y="316" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">INPUT number</text>
+            <!-- Loop back -->
+            <line x1="170" y1="330" x2="170" y2="344" stroke="#1f8f4e" stroke-width="2.2"/>
+            <polyline points="170,344 20,344 20,166 48,166" fill="none" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a11)"/>
+            <!-- NO right -->
+            <text x="300" y="160" font-family="Trebuchet MS,sans-serif" font-size="11" font-weight="700" fill="#166534">NO</text>
+            <line x1="292" y1="166" x2="350" y2="166" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a11)"/>
+            <!-- "Negative number was entered" output -->
+            <polygon points="350,142 472,142 452,190 330,190" fill="#f0fff8" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="401" y="162" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="11" font-weight="700" fill="#0f5a2e">"Negative number</text>
+            <text x="401" y="177" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="11" font-weight="700" fill="#0f5a2e">was entered"</text>
+            <line x1="401" y1="190" x2="401" y2="214" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a11)"/>
+            <!-- END -->
+            <ellipse cx="401" cy="236" rx="50" ry="22" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="401" y="243" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="14" font-weight="700" fill="#0f5a2e">END</text>
+          </svg>
         </div>
 
         <div class="note">
@@ -301,7 +383,51 @@
         <p>Input numbers. Keep adding them to a running total (<code>sum</code>). Stop when the user enters <strong>999</strong>. Print the sum (not including 999).</p>
 
         <div class="fc-wrap">
-          <img src="diag_12_while.png" alt="Program 12 flowchart — sum until 999" width="520" />
+          <svg viewBox="0 0 450 380" width="380" role="img" aria-label="Program 12 flowchart — sum until 999">
+            <defs>
+              <marker id="a12" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+                <path d="M0,0 L8,4 L0,8 Z" fill="#1f8f4e"/>
+              </marker>
+            </defs>
+            <!-- START -->
+            <ellipse cx="178" cy="28" rx="62" ry="22" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="178" y="35" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="14" font-weight="700" fill="#0f5a2e">START</text>
+            <line x1="178" y1="50" x2="178" y2="68" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a12)"/>
+            <!-- INPUT number -->
+            <polygon points="88,68 268,68 248,106 68,106" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="168" y="92" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">INPUT number</text>
+            <line x1="178" y1="106" x2="178" y2="124" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a12)"/>
+            <!-- sum = 0 -->
+            <rect x="108" y="124" width="140" height="34" rx="4" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="178" y="146" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">sum = 0</text>
+            <line x1="178" y1="158" x2="178" y2="178" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a12)"/>
+            <!-- Oval: number != 999 ? -->
+            <ellipse cx="178" cy="216" rx="122" ry="38" fill="#e8fff4" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="178" y="221" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="12" font-weight="700" fill="#0f5a2e">number != 999 ?</text>
+            <!-- YES down -->
+            <text x="165" y="272" text-anchor="end" font-family="Trebuchet MS,sans-serif" font-size="11" font-weight="700" fill="#166534">YES</text>
+            <line x1="178" y1="254" x2="178" y2="276" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a12)"/>
+            <!-- sum += number -->
+            <rect x="108" y="276" width="140" height="34" rx="4" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="178" y="298" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">sum += number</text>
+            <line x1="178" y1="310" x2="178" y2="328" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a12)"/>
+            <!-- INPUT number (again) -->
+            <polygon points="88,328 268,328 248,366 68,366" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="168" y="352" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">INPUT number</text>
+            <!-- Loop back -->
+            <line x1="178" y1="366" x2="178" y2="378" stroke="#1f8f4e" stroke-width="2.2"/>
+            <polyline points="178,378 28,378 28,216 56,216" fill="none" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a12)"/>
+            <!-- NO right -->
+            <text x="308" y="210" font-family="Trebuchet MS,sans-serif" font-size="11" font-weight="700" fill="#166534">NO</text>
+            <line x1="300" y1="216" x2="360" y2="216" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a12)"/>
+            <!-- OUTPUT sum -->
+            <polygon points="360,196 430,196 410,236 340,236" fill="#f0fff8" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="385" y="221" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">print sum</text>
+            <line x1="385" y1="236" x2="385" y2="258" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a12)"/>
+            <!-- END -->
+            <ellipse cx="385" cy="280" rx="46" ry="22" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="385" y="287" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="14" font-weight="700" fill="#0f5a2e">END</text>
+          </svg>
         </div>
 
         <div class="big-result">Trace table (inputs: 1, 10, 999)</div>
@@ -332,7 +458,47 @@
         <p>Input two numbers <code>a</code> and <code>b</code> where <code>a &lt;= b</code>. Print every integer from <code>a</code> up to and including <code>b</code>.</p>
 
         <div class="fc-wrap">
-          <img src="diag_13_while.png" alt="Program 13 flowchart — print range a to b" width="520" />
+          <svg viewBox="0 0 440 400" width="380" role="img" aria-label="Program 13 flowchart — print range a to b">
+            <defs>
+              <marker id="a13" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+                <path d="M0,0 L8,4 L0,8 Z" fill="#1f8f4e"/>
+              </marker>
+            </defs>
+            <!-- START -->
+            <ellipse cx="178" cy="28" rx="62" ry="22" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="178" y="35" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="14" font-weight="700" fill="#0f5a2e">START</text>
+            <line x1="178" y1="50" x2="178" y2="68" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a13)"/>
+            <!-- INPUT a -->
+            <polygon points="88,68 268,68 248,106 68,106" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="168" y="92" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">INPUT a</text>
+            <line x1="178" y1="106" x2="178" y2="124" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a13)"/>
+            <!-- INPUT b -->
+            <polygon points="88,124 268,124 248,162 68,162" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="168" y="148" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">INPUT b</text>
+            <line x1="178" y1="162" x2="178" y2="182" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a13)"/>
+            <!-- Oval: a <= b ? -->
+            <ellipse cx="178" cy="220" rx="120" ry="38" fill="#e8fff4" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="178" y="225" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="12" font-weight="700" fill="#0f5a2e">a &lt;= b ?</text>
+            <!-- YES down -->
+            <text x="165" y="276" text-anchor="end" font-family="Trebuchet MS,sans-serif" font-size="11" font-weight="700" fill="#166534">YES</text>
+            <line x1="178" y1="258" x2="178" y2="280" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a13)"/>
+            <!-- print a (output) -->
+            <polygon points="88,280 268,280 248,318 68,318" fill="#f0fff8" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="168" y="304" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">print a</text>
+            <line x1="178" y1="318" x2="178" y2="338" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a13)"/>
+            <!-- a += 1 -->
+            <rect x="108" y="338" width="140" height="34" rx="4" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="178" y="360" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">a += 1</text>
+            <!-- Loop back -->
+            <line x1="178" y1="372" x2="178" y2="386" stroke="#1f8f4e" stroke-width="2.2"/>
+            <polyline points="178,386 28,386 28,220 58,220" fill="none" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a13)"/>
+            <!-- NO right → END -->
+            <text x="306" y="214" font-family="Trebuchet MS,sans-serif" font-size="11" font-weight="700" fill="#166534">NO</text>
+            <line x1="298" y1="220" x2="348" y2="220" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a13)"/>
+            <!-- END -->
+            <ellipse cx="394" cy="220" rx="46" ry="22" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="394" y="227" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="14" font-weight="700" fill="#0f5a2e">END</text>
+          </svg>
         </div>
 
         <table class="ex-table">
@@ -362,7 +528,55 @@
         </div>
 
         <div class="fc-wrap">
-          <img src="diag_14_while.png" alt="Program 14 flowchart — multiply with addition" width="520" />
+          <svg viewBox="0 0 450 450" width="380" role="img" aria-label="Program 14 flowchart — multiply with addition">
+            <defs>
+              <marker id="a14" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+                <path d="M0,0 L8,4 L0,8 Z" fill="#1f8f4e"/>
+              </marker>
+            </defs>
+            <!-- START -->
+            <ellipse cx="178" cy="28" rx="62" ry="22" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="178" y="35" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="14" font-weight="700" fill="#0f5a2e">START</text>
+            <line x1="178" y1="50" x2="178" y2="68" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a14)"/>
+            <!-- INPUT a -->
+            <polygon points="88,68 268,68 248,106 68,106" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="168" y="92" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">INPUT a</text>
+            <line x1="178" y1="106" x2="178" y2="124" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a14)"/>
+            <!-- INPUT b -->
+            <polygon points="88,124 268,124 248,162 68,162" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="168" y="148" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">INPUT b</text>
+            <line x1="178" y1="162" x2="178" y2="180" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a14)"/>
+            <!-- sum = 0 -->
+            <rect x="108" y="180" width="140" height="34" rx="4" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="178" y="202" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">sum = 0</text>
+            <line x1="178" y1="214" x2="178" y2="234" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a14)"/>
+            <!-- Oval: a > 0 AND b > 0 ? -->
+            <ellipse cx="178" cy="274" rx="134" ry="40" fill="#e8fff4" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="178" y="279" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="12" font-weight="700" fill="#0f5a2e">a &gt; 0 AND b &gt; 0 ?</text>
+            <!-- YES down -->
+            <text x="165" y="332" text-anchor="end" font-family="Trebuchet MS,sans-serif" font-size="11" font-weight="700" fill="#166534">YES</text>
+            <line x1="178" y1="314" x2="178" y2="336" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a14)"/>
+            <!-- sum += a -->
+            <rect x="108" y="336" width="140" height="34" rx="4" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="178" y="358" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">sum += a</text>
+            <line x1="178" y1="370" x2="178" y2="390" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a14)"/>
+            <!-- b -= 1 -->
+            <rect x="108" y="390" width="140" height="34" rx="4" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="178" y="412" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">b -= 1</text>
+            <!-- Loop back -->
+            <line x1="178" y1="424" x2="178" y2="438" stroke="#1f8f4e" stroke-width="2.2"/>
+            <polyline points="178,438 24,438 24,274 44,274" fill="none" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a14)"/>
+            <!-- NO right -->
+            <text x="320" y="268" font-family="Trebuchet MS,sans-serif" font-size="11" font-weight="700" fill="#166534">NO</text>
+            <line x1="312" y1="274" x2="370" y2="274" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a14)"/>
+            <!-- print sum -->
+            <polygon points="370,254 440,254 420,294 350,294" fill="#f0fff8" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="395" y="279" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">print sum</text>
+            <line x1="395" y1="294" x2="395" y2="316" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a14)"/>
+            <!-- END -->
+            <ellipse cx="395" cy="338" rx="46" ry="22" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="395" y="345" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="14" font-weight="700" fill="#0f5a2e">END</text>
+          </svg>
         </div>
 
         <div class="big-result">Trace table (a = 5, b = 3)</div>
@@ -384,7 +598,60 @@
         <p>Input the <strong>number of students</strong>. Then in a loop, input each student's grade and accumulate the total. After the loop, print the average.</p>
 
         <div class="fc-wrap">
-          <img src="diag_15_while.png" alt="Program 15 flowchart — class average" width="520" />
+          <svg viewBox="0 0 466 488" width="380" role="img" aria-label="Program 15 flowchart — class average">
+            <defs>
+              <marker id="a15" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+                <path d="M0,0 L8,4 L0,8 Z" fill="#1f8f4e"/>
+              </marker>
+            </defs>
+            <!-- START -->
+            <ellipse cx="178" cy="28" rx="62" ry="22" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="178" y="35" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="14" font-weight="700" fill="#0f5a2e">START</text>
+            <line x1="178" y1="50" x2="178" y2="68" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a15)"/>
+            <!-- INPUT num_students -->
+            <polygon points="78,68 278,68 258,106 58,106" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="168" y="92" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">INPUT num_students</text>
+            <line x1="178" y1="106" x2="178" y2="124" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a15)"/>
+            <!-- i = 0 -->
+            <rect x="108" y="124" width="140" height="32" rx="4" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="178" y="145" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">i = 0</text>
+            <line x1="178" y1="156" x2="178" y2="174" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a15)"/>
+            <!-- sum = 0 -->
+            <rect x="108" y="174" width="140" height="32" rx="4" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="178" y="195" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">sum = 0</text>
+            <line x1="178" y1="206" x2="178" y2="226" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a15)"/>
+            <!-- Oval: i < num_students ? -->
+            <ellipse cx="178" cy="264" rx="134" ry="38" fill="#e8fff4" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="178" y="269" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="12" font-weight="700" fill="#0f5a2e">i &lt; num_students ?</text>
+            <!-- YES down -->
+            <text x="165" y="320" text-anchor="end" font-family="Trebuchet MS,sans-serif" font-size="11" font-weight="700" fill="#166534">YES</text>
+            <line x1="178" y1="302" x2="178" y2="324" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a15)"/>
+            <!-- INPUT grade -->
+            <polygon points="88,324 268,324 248,362 68,362" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="168" y="348" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">INPUT grade</text>
+            <line x1="178" y1="362" x2="178" y2="380" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a15)"/>
+            <!-- sum += grade -->
+            <rect x="108" y="380" width="140" height="32" rx="4" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="178" y="401" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">sum += grade</text>
+            <line x1="178" y1="412" x2="178" y2="430" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a15)"/>
+            <!-- i += 1 -->
+            <rect x="108" y="430" width="140" height="32" rx="4" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="178" y="451" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">i += 1</text>
+            <!-- Loop back -->
+            <line x1="178" y1="462" x2="178" y2="476" stroke="#1f8f4e" stroke-width="2.2"/>
+            <polyline points="178,476 22,476 22,264 44,264" fill="none" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a15)"/>
+            <!-- NO right -->
+            <text x="320" y="258" font-family="Trebuchet MS,sans-serif" font-size="11" font-weight="700" fill="#166534">NO</text>
+            <line x1="312" y1="264" x2="370" y2="264" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a15)"/>
+            <!-- print average -->
+            <polygon points="370,238 460,238 440,290 350,290" fill="#f0fff8" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="405" y="258" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="11" font-weight="700" fill="#0f5a2e">print average</text>
+            <text x="405" y="274" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="10" fill="#0f5a2e">sum / num_students</text>
+            <line x1="405" y1="290" x2="405" y2="312" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a15)"/>
+            <!-- END -->
+            <ellipse cx="405" cy="334" rx="50" ry="22" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="405" y="341" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="14" font-weight="700" fill="#0f5a2e">END</text>
+          </svg>
         </div>
 
         <div class="big-result">Trace table (3 students: 80, 90, 100)</div>
