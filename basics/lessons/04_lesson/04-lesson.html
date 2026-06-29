@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lesson 4 — While Loops</title>
+  <style>
+    :root {
+      --bg-soft: #ffffff;
+      --green-1: #0f5a2e;
+      --green-2: #1f8f4e;
+      --green-3: #dbf6e5;
+      --mint: #e6fff2;
+      --text: #14281d;
+      --muted: #426654;
+      --border: #aadfbd;
+      --accent-a: #ddfbe7;
+      --accent-b: #f2ffe6;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Lucida Sans", "Segoe UI", sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 15% 10%, #e7fff0 0%, transparent 35%),
+                  radial-gradient(circle at 85% 18%, #f6ffe8 0%, transparent 36%),
+                  linear-gradient(180deg, #f4fff6 0%, #ffffff 45%, #edfff4 100%);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    body::before, body::after {
+      content: "";
+      position: fixed;
+      width: 240px; height: 240px;
+      z-index: -1;
+      border-radius: 999px;
+      filter: blur(2px);
+      opacity: 0.35;
+      animation: blobMove 8s ease-in-out infinite alternate;
+    }
+    body::before { background: #bff0d0; top: -30px; left: -40px; }
+    body::after  { background: #dfffc8; bottom: -40px; right: -40px; animation-delay: 1.4s; }
+
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 24px; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .side-nav {
+      position: sticky; top: 14px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 8px 22px rgba(18,102,55,0.1);
+      padding: 12px;
+    }
+    .side-title { margin: 0 0 8px; font-size: 0.9rem; color: var(--green-1); font-weight: 700; }
+
+    .topic-link {
+      display: block; width: 100%; text-align: left;
+      border: 1px solid transparent; border-radius: 9px;
+      padding: 8px 10px; background: transparent;
+      color: var(--muted); cursor: pointer;
+      font-size: 0.89rem; text-transform: lowercase;
+      margin-bottom: 4px;
+      transition: all 0.2s ease;
+    }
+    .topic-link:hover { background: #f0fff4; color: var(--green-1); border-color: var(--border); }
+    .topic-link.active { background: #e8faee; color: var(--green-1); border-color: var(--green-2); font-weight: 700; }
+
+    .hero {
+      background: linear-gradient(135deg, var(--bg-soft) 0%, var(--accent-a) 55%, var(--accent-b) 100%);
+      border: 1px solid var(--border); border-radius: 16px;
+      padding: 28px; box-shadow: 0 12px 30px rgba(24,110,58,0.12);
+      margin-bottom: 22px; animation: riseIn 0.75s ease both;
+    }
+
+    h1, h2, h3 { margin-top: 0; color: var(--green-1); }
+    h1 { font-size: 2rem; margin-bottom: 8px; }
+
+    .tag {
+      display: inline-block; padding: 5px 10px; border-radius: 999px;
+      font-size: 0.82rem; background: var(--green-3); color: var(--green-1);
+      border: 1px solid var(--border); margin-bottom: 10px;
+    }
+
+    .card {
+      background: var(--bg-soft); border: 1px solid var(--border);
+      border-radius: 14px; padding: 22px; margin-bottom: 16px;
+      box-shadow: 0 7px 22px rgba(18,102,55,0.08);
+      animation: riseIn 0.65s ease both;
+    }
+
+    .topic-panel { display: none; }
+    .topic-panel.active { display: block; }
+    .step-title { margin: 0 0 12px; font-size: 1.25rem; }
+
+    .note {
+      background: var(--mint); border-left: 4px solid var(--green-2);
+      padding: 10px 14px; color: var(--muted); margin: 12px 0;
+      border-radius: 6px; font-size: 0.94rem;
+    }
+
+    .big-result { font-size: 1.1rem; margin: 18px 0 8px; color: var(--green-1); font-weight: 700; }
+
+    .task-list { padding-left: 22px; margin: 10px 0 0; }
+    .task-list li { margin-bottom: 10px; color: #1a3a2a; }
+    .task-list li strong { color: var(--green-1); }
+
+    .side-divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+    .side-section-label {
+      font-size: 0.72rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--green-2); padding: 4px 4px 6px;
+    }
+
+    .nav-back {
+      display: inline-block; margin-top: 10px; padding: 10px 16px;
+      border-radius: 10px; border: 1px solid var(--green-2);
+      background: #e9fbe8; color: var(--green-1);
+      text-decoration: none; font-weight: 700;
+      transition: all 0.2s ease; width: 100%; text-align: center;
+    }
+    .nav-back:hover { background: #d8f7df; transform: translateY(-1px); }
+
+    .fc-wrap { display: flex; justify-content: center; margin: 18px 0; overflow-x: auto; }
+    .fc-wrap img { max-width: 100%; border-radius: 10px; border: 1px solid var(--border); }
+
+    .ex-table {
+      width: 100%; border-collapse: collapse;
+      font-size: .88rem; margin: 10px 0 14px;
+    }
+    .ex-table th {
+      background: var(--green-3); color: var(--green-1);
+      padding: 8px 12px; text-align: left;
+      border: 1px solid var(--border);
+      font-size: .78rem; letter-spacing: .05em; text-transform: uppercase;
+    }
+    .ex-table td { padding: 8px 12px; border: 1px solid var(--border); vertical-align: top; }
+    .ex-table tr:nth-child(even) td { background: #f4fff7; }
+
+    .task-box {
+      background: var(--mint); border: 2px dashed var(--green-2);
+      border-radius: 10px; padding: 14px 18px; margin: 14px 0;
+    }
+
+    .ex-title { display: flex; align-items: center; margin: 22px 0 8px; }
+    .ex-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--green-3); border: 2px solid var(--green-2);
+      color: var(--green-1); font-weight: 800; font-size: .88rem;
+      margin-right: 8px; flex-shrink: 0;
+    }
+    .ex-title h3 { margin: 0; font-size: 1.1rem; }
+
+    .submission { background: var(--mint); border-color: var(--green-2); margin-top: 0; }
+    .submission a { color: var(--green-1); font-weight: 800; font-size: 1.05rem; word-break: break-all; }
+
+    .footer { text-align: center; color: var(--muted); font-size: 0.86rem; padding: 10px 0 16px; }
+
+    .rtl { direction: rtl; text-align: right; }
+    .rtl .task-list { padding-left: 0; padding-right: 22px; }
+    .rtl .ex-title { flex-direction: row-reverse; justify-content: flex-end; }
+    .rtl .ex-num { margin-right: 0; margin-left: 8px; }
+    .rtl .ex-table th, .rtl .ex-table td { text-align: right; }
+
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes blobMove {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(24px, 18px) scale(1.06); }
+    }
+
+    @media (max-width: 760px) {
+      .wrap { padding: 14px; }
+      .layout { grid-template-columns: 1fr; }
+      .side-nav { position: static; }
+      h1 { font-size: 1.6rem; }
+      .ex-table { font-size: .8rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <span class="tag">Lesson 4 · June 29, 2026</span>
+    <h1>While Loops</h1>
+    <p>Repeat a block of code as long as a condition stays true — the foundation of iteration in Python.</p>
+  </section>
+
+  <div class="layout">
+    <aside class="side-nav" aria-label="Topic navigation">
+      <h2 class="side-title">Topics</h2>
+      <button class="topic-link active" data-target="topic-while">while loop</button>
+      <button class="topic-link" data-target="topic-p10">prog 10 — count 1 to 3</button>
+      <button class="topic-link" data-target="topic-p11">prog 11 — input until negative</button>
+      <button class="topic-link" data-target="topic-p12">prog 12 — sum until 999</button>
+      <button class="topic-link" data-target="topic-p13">prog 13 — print range a to b</button>
+      <button class="topic-link" data-target="topic-p14">prog 14 — multiply with +</button>
+      <button class="topic-link" data-target="topic-p15">prog 15 — class average</button>
+      <button class="topic-link" data-target="topic-github">github folder</button>
+      <button class="topic-link" data-target="topic-exercise">exercise</button>
+      <button class="topic-link" data-target="topic-exercise-heb">exercise — עברית</button>
+      <hr class="side-divider" />
+      <div class="side-section-label">Navigation</div>
+      <a class="nav-back" href="../../index.html#lessons">Back to lessons</a>
+    </aside>
+
+    <main>
+
+      <!-- ═══ WHILE LOOP CONCEPT ═══ -->
+      <section class="card topic-panel active" id="topic-while">
+        <h2 class="step-title">The While Loop</h2>
+        <p>A <strong>while</strong> loop repeats a block of code <strong>as long as a condition stays True</strong>.<br>
+           Every time the body finishes, Python checks the condition again. When it becomes False, the loop stops.</p>
+
+        <div class="big-result">How it works — step by step</div>
+        <table class="ex-table">
+          <thead><tr><th>Step</th><th>What happens</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Check the condition</td></tr>
+            <tr><td>2</td><td>If <strong>True</strong> → run the body, then go back to step 1</td></tr>
+            <tr><td>3</td><td>If <strong>False</strong> → exit the loop, continue the program</td></tr>
+          </tbody>
+        </table>
+
+        <div class="note">
+          <strong>3 essential parts of every while loop:</strong><br>
+          1. <strong>Initialise</strong> — set the variable before the loop<br>
+          2. <strong>Condition</strong> — checked before each repetition<br>
+          3. <strong>Update</strong> — change the variable inside the body so the loop eventually stops
+        </div>
+
+        <div class="note">
+          Always make sure something inside the loop body changes the condition variable — otherwise the loop runs forever (infinite loop)!
+        </div>
+      </section>
+
+      <!-- ═══ PROGRAM 10 ═══ -->
+      <section class="card topic-panel" id="topic-p10">
+        <span class="tag">Program 10</span>
+        <h2 class="step-title">Count 1 to 3 — Basic While</h2>
+        <p>Set <code>number = 1</code>. While <code>number &lt;= 3</code>, print the number then add 1. After the loop print <em>"Finish"</em>.</p>
+
+        <div class="fc-wrap">
+          <img src="diag_10.png" alt="Program 10 flowchart — while number <= 3" width="520" />
+        </div>
+
+        <div class="big-result">Trace table</div>
+        <table class="ex-table">
+          <thead><tr><th>Check #</th><th>number</th><th>number &lt;= 3 ?</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>1</td><td>True</td><td>print 1, number = 2</td></tr>
+            <tr><td>2</td><td>2</td><td>True</td><td>print 2, number = 3</td></tr>
+            <tr><td>3</td><td>3</td><td>True</td><td>print 3, number = 4</td></tr>
+            <tr><td>4</td><td>4</td><td>False</td><td>exit loop → print "Finish"</td></tr>
+          </tbody>
+        </table>
+
+        <div class="task-box">
+          <strong>In-class exercise (from diagram):</strong><br>
+          Print the numbers <code>5 4 3 2 1 0</code> then print <em>"Boom"</em> outside the loop.
+        </div>
+      </section>
+
+      <!-- ═══ PROGRAM 11 ═══ -->
+      <section class="card topic-panel" id="topic-p11">
+        <span class="tag">Program 11</span>
+        <h2 class="step-title">Input Until Negative — Sentinel Value</h2>
+        <p>Input a number. While the number is <strong>&gt;= 0</strong>, print a message and input again. When the user enters a negative number, print <em>"Negative number was entered"</em> and stop.</p>
+
+        <div class="fc-wrap">
+          <img src="diag_11_while.png" alt="Program 11 flowchart — input until negative" width="520" />
+        </div>
+
+        <div class="note">
+          A <strong>sentinel value</strong> is a special input that signals "stop the loop". Here the sentinel is any negative number.<br>
+          The first input happens <strong>before</strong> the loop so the condition can be checked immediately.
+        </div>
+
+        <div class="task-box">
+          <strong>In-class exercise (from diagram):</strong><br>
+          Input numbers until the user enters <code>999</code>. Calculate the sum of all numbers entered (not counting 999).<br>
+          Example: 1, 10, 999 → sum = 11
+        </div>
+      </section>
+
+      <!-- ═══ PROGRAM 12 ═══ -->
+      <section class="card topic-panel" id="topic-p12">
+        <span class="tag">Program 12</span>
+        <h2 class="step-title">Sum Until 999 — Accumulator</h2>
+        <p>Input numbers. Keep adding them to a running total (<code>sum</code>). Stop when the user enters <strong>999</strong>. Print the sum (not including 999).</p>
+
+        <div class="fc-wrap">
+          <img src="diag_12_while.png" alt="Program 12 flowchart — sum until 999" width="520" />
+        </div>
+
+        <div class="big-result">Trace table (inputs: 1, 10, 999)</div>
+        <table class="ex-table">
+          <thead><tr><th>number</th><th>number != 999 ?</th><th>sum after body</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>True</td><td>0 + 1 = 1</td></tr>
+            <tr><td>10</td><td>True</td><td>1 + 10 = 11</td></tr>
+            <tr><td>999</td><td>False</td><td>exit → print 11</td></tr>
+          </tbody>
+        </table>
+
+        <div class="note">
+          <code>sum = 0</code> before the loop is called an <strong>accumulator</strong> — it collects a running total. Always initialise accumulators to 0 before the loop starts.
+        </div>
+
+        <div class="task-box">
+          <strong>In-class exercise (from diagram):</strong><br>
+          Input two numbers <code>a</code> and <code>b</code> where <code>a &lt;= b</code>. Print every integer from <code>a</code> to <code>b</code> inclusive.<br>
+          Example: a = 3, b = 9 → 3 4 5 6 7 8 9
+        </div>
+      </section>
+
+      <!-- ═══ PROGRAM 13 ═══ -->
+      <section class="card topic-panel" id="topic-p13">
+        <span class="tag">Program 13</span>
+        <h2 class="step-title">Print Range a to b</h2>
+        <p>Input two numbers <code>a</code> and <code>b</code> where <code>a &lt;= b</code>. Print every integer from <code>a</code> up to and including <code>b</code>.</p>
+
+        <div class="fc-wrap">
+          <img src="diag_13_while.png" alt="Program 13 flowchart — print range a to b" width="520" />
+        </div>
+
+        <table class="ex-table">
+          <thead><tr><th>Input a</th><th>Input b</th><th>Output</th></tr></thead>
+          <tbody>
+            <tr><td>3</td><td>5</td><td>3, 4, 5</td></tr>
+            <tr><td>1</td><td>1</td><td>1</td></tr>
+            <tr><td>7</td><td>10</td><td>7, 8, 9, 10</td></tr>
+          </tbody>
+        </table>
+
+        <div class="note">
+          <code>a</code> acts as both the counter and the printed value — it counts up by 1 each iteration until it passes <code>b</code>.
+        </div>
+      </section>
+
+      <!-- ═══ PROGRAM 14 ═══ -->
+      <section class="card topic-panel" id="topic-p14">
+        <span class="tag">Program 14</span>
+        <h2 class="step-title">Multiply Using Addition</h2>
+        <p>Input two positive numbers <code>a</code> and <code>b</code>. Print <code>a × b</code> without using <code>*</code> — use only <code>+</code>.</p>
+
+        <div class="note">
+          Multiplication is just repeated addition:<br>
+          <code>5 × 3 = 5 + 5 + 5 = 15</code><br>
+          Start with <code>sum = 0</code>, add <code>a</code> to <code>sum</code> exactly <code>b</code> times.
+        </div>
+
+        <div class="fc-wrap">
+          <img src="diag_14_while.png" alt="Program 14 flowchart — multiply with addition" width="520" />
+        </div>
+
+        <div class="big-result">Trace table (a = 5, b = 3)</div>
+        <table class="ex-table">
+          <thead><tr><th>a</th><th>b (before body)</th><th>sum after body</th><th>b after body</th></tr></thead>
+          <tbody>
+            <tr><td>5</td><td>3</td><td>0 + 5 = 5</td><td>2</td></tr>
+            <tr><td>5</td><td>2</td><td>5 + 5 = 10</td><td>1</td></tr>
+            <tr><td>5</td><td>1</td><td>10 + 5 = 15</td><td>0</td></tr>
+            <tr><td>5</td><td>0</td><td colspan="2">b &gt; 0 is False → exit → print 15</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- ═══ PROGRAM 15 ═══ -->
+      <section class="card topic-panel" id="topic-p15">
+        <span class="tag">Program 15</span>
+        <h2 class="step-title">Class Average — Counter Loop</h2>
+        <p>Input the <strong>number of students</strong>. Then in a loop, input each student's grade and accumulate the total. After the loop, print the average.</p>
+
+        <div class="fc-wrap">
+          <img src="diag_15_while.png" alt="Program 15 flowchart — class average" width="520" />
+        </div>
+
+        <div class="big-result">Trace table (3 students: 80, 90, 100)</div>
+        <table class="ex-table">
+          <thead><tr><th>i</th><th>i &lt; 3 ?</th><th>grade</th><th>sum</th><th>i after</th></tr></thead>
+          <tbody>
+            <tr><td>0</td><td>True</td><td>80</td><td>80</td><td>1</td></tr>
+            <tr><td>1</td><td>True</td><td>90</td><td>170</td><td>2</td></tr>
+            <tr><td>2</td><td>True</td><td>100</td><td>270</td><td>3</td></tr>
+            <tr><td>3</td><td>False</td><td>—</td><td>—</td><td>exit → average = 270 / 3 = 90</td></tr>
+          </tbody>
+        </table>
+
+        <div class="note">
+          <code>i</code> is a <strong>counter</strong> — it counts how many times the loop body has run.<br>
+          Pattern: initialise <code>i = 0</code> before the loop · check <code>i &lt; n</code> · update <code>i += 1</code> inside the body.
+        </div>
+      </section>
+
+      <!-- ═══ GITHUB FOLDER ═══ -->
+      <section class="card topic-panel" id="topic-github">
+        <span class="tag">GitHub</span>
+        <h2 class="step-title">Lesson 4 GitHub Folder</h2>
+        <p>All programs from today's lesson:</p>
+        <div class="task-box">
+          <a href="https://github.com/pythonai080626-a11y/29.06.2026" target="_blank" rel="noopener">
+            https://github.com/pythonai080626-a11y/29.06.2026
+          </a>
+        </div>
+      </section>
+
+      <!-- ═══ EXERCISE (English) ═══ -->
+      <section class="card topic-panel" id="topic-exercise">
+        <span class="tag">Homework</span>
+        <h2 class="step-title">3 Exercises</h2>
+        <p>Draw the flowchart and write the program for each exercise using a <code>while</code> loop.</p>
+
+        <!-- Exercise 1 -->
+        <div class="ex-title">
+          <span class="ex-num">1</span>
+          <h3>Print even numbers between 10 and 20</h3>
+        </div>
+        <p>Print all even numbers from <strong>10</strong> to <strong>20</strong> inclusive, separated by spaces.</p>
+        <div class="task-box">
+          <strong>Expected output:</strong><br>
+          <code>10 12 14 16 18 20</code>
+        </div>
+        <div class="note">
+          <strong>Hint:</strong> Start at 10. Each even number is exactly 2 more than the previous one.
+        </div>
+
+        <!-- Exercise 2 -->
+        <div class="ex-title">
+          <span class="ex-num">2</span>
+          <h3>Count inputs until 0</h3>
+        </div>
+        <p>Input numbers in a loop. Stop when the user enters <strong>0</strong>. Print how many numbers were entered (not counting the 0).</p>
+        <table class="ex-table">
+          <thead><tr><th>Input sequence</th><th>Count</th></tr></thead>
+          <tbody>
+            <tr><td>0</td><td>0</td></tr>
+            <tr><td>1, 0</td><td>1</td></tr>
+            <tr><td>-9, 2, 18, 0</td><td>3</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          <strong>Hint:</strong> Use a <code>count</code> variable starting at 0. Add 1 each time a non-zero number is entered. The sentinel value here is <code>0</code>.
+        </div>
+
+        <!-- Exercise 3 -->
+        <div class="ex-title">
+          <span class="ex-num">3</span>
+          <h3>Divide using only subtraction</h3>
+        </div>
+        <p>Input two numbers <code>a</code> and <code>b</code>. Assume <code>a</code> is divisible by <code>b</code> with no remainder. Print the result of <code>a ÷ b</code>.<br>
+        <strong>Rule:</strong> You may only use <code>+</code> and <code>-</code>. The <code>/</code>, <code>//</code>, and <code>*</code> operators are not allowed.</p>
+        <table class="ex-table">
+          <thead><tr><th>a</th><th>b</th><th>Result</th><th>How</th></tr></thead>
+          <tbody>
+            <tr><td>10</td><td>2</td><td>5</td><td>subtract 2 five times to reach 0</td></tr>
+            <tr><td>15</td><td>3</td><td>5</td><td>subtract 3 five times to reach 0</td></tr>
+            <tr><td>12</td><td>4</td><td>3</td><td>subtract 4 three times to reach 0</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          <strong>Key idea:</strong> Division is repeated subtraction. Count how many times you subtract <code>b</code> from <code>a</code> before reaching 0 — that count is the answer.
+        </div>
+        <div class="big-result">Trace table (a = 10, b = 2)</div>
+        <table class="ex-table">
+          <thead><tr><th>a before</th><th>a after (a -= 2)</th><th>count</th></tr></thead>
+          <tbody>
+            <tr><td>10</td><td>8</td><td>1</td></tr>
+            <tr><td>8</td><td>6</td><td>2</td></tr>
+            <tr><td>6</td><td>4</td><td>3</td></tr>
+            <tr><td>4</td><td>2</td><td>4</td></tr>
+            <tr><td>2</td><td>0</td><td>5</td></tr>
+            <tr><td>0</td><td colspan="2">a &gt; 0 is False → exit → print 5</td></tr>
+          </tbody>
+        </table>
+
+        <div class="big-result">Submission</div>
+        <div class="card submission">
+          <ol class="task-list">
+            <li><strong>Draw all flowcharts</strong> in <a href="https://app.diagrams.net/" target="_blank" rel="noopener">draw.io</a>.</li>
+            <li><strong>Upload to GitHub</strong> and send the link to:<br>
+              <a href="mailto:pythonai080626+hw4@gmail.com">pythonai080626+hw4@gmail.com</a>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ═══ EXERCISE (Hebrew) ═══ -->
+      <section class="card topic-panel rtl" id="topic-exercise-heb" lang="he" dir="rtl">
+        <span class="tag">שיעורי בית</span>
+        <h2 class="step-title">3 תרגילים</h2>
+        <p>צייר תרשים זרימה וכתוב את התוכנית לכל תרגיל תוך שימוש בלולאת <code>while</code>.</p>
+
+        <!-- Exercise 1 -->
+        <div class="ex-title">
+          <span class="ex-num">1</span>
+          <h3>הדפסת מספרים זוגיים בין 10 ל-20</h3>
+        </div>
+        <p>הדפיסו את כל המספרים הזוגיים מ-<strong>10</strong> עד <strong>20</strong> (כולל), מופרדים ברווחים.</p>
+        <div class="task-box">
+          <strong>פלט צפוי:</strong><br>
+          <code>10 12 14 16 18 20</code>
+        </div>
+        <div class="note">
+          <strong>רמז:</strong> התחילו מ-10 וכל פעם הוסיפו 2.
+        </div>
+
+        <!-- Exercise 2 -->
+        <div class="ex-title">
+          <span class="ex-num">2</span>
+          <h3>ספירת קלטים עד 0</h3>
+        </div>
+        <p>קלטו מספרים בלולאה. עצרו כאשר המשתמש מזין <strong>0</strong>. הדפיסו כמה מספרים הוזנו (לא כולל ה-0).</p>
+        <table class="ex-table">
+          <thead><tr><th>סדרת קלטים</th><th>ספירה</th></tr></thead>
+          <tbody>
+            <tr><td>0</td><td>0</td></tr>
+            <tr><td>1, 0</td><td>1</td></tr>
+            <tr><td>-9, 2, 18, 0</td><td>3</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          <strong>רמז:</strong> השתמשו במשתנה <code>count</code> שמתחיל ב-0. הוסיפו 1 בכל פעם שמוזן מספר שאינו 0. ה-sentinel כאן הוא <code>0</code>.
+        </div>
+
+        <!-- Exercise 3 -->
+        <div class="ex-title">
+          <span class="ex-num">3</span>
+          <h3>חלוקה באמצעות חיסור בלבד</h3>
+        </div>
+        <p>קלטו שני מספרים <code>a</code> ו-<code>b</code>. הניחו ש-<code>a</code> מתחלק ב-<code>b</code> ללא שארית. הדפיסו את תוצאת <code>a ÷ b</code>.<br>
+        <strong>כלל:</strong> מותר להשתמש רק ב-<code>+</code> ו-<code>-</code>. אסור להשתמש ב-<code>/</code>, <code>//</code>, או <code>*</code>.</p>
+        <table class="ex-table">
+          <thead><tr><th>a</th><th>b</th><th>תוצאה</th><th>הסבר</th></tr></thead>
+          <tbody>
+            <tr><td>10</td><td>2</td><td>5</td><td>מחסירים 2 חמש פעמים עד שמגיעים ל-0</td></tr>
+            <tr><td>15</td><td>3</td><td>5</td><td>מחסירים 3 חמש פעמים עד שמגיעים ל-0</td></tr>
+            <tr><td>12</td><td>4</td><td>3</td><td>מחסירים 4 שלוש פעמים עד שמגיעים ל-0</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          <strong>רעיון המפתח:</strong> חלוקה היא חיסור חוזר. ספרו כמה פעמים ניתן להחסיר את <code>b</code> מ-<code>a</code> עד שמגיעים ל-0 — הספירה היא המנה.
+        </div>
+        <div class="big-result">טבלת מעקב (a = 10, b = 2)</div>
+        <table class="ex-table">
+          <thead><tr><th>a לפני</th><th>a אחרי (a -= 2)</th><th>count</th></tr></thead>
+          <tbody>
+            <tr><td>10</td><td>8</td><td>1</td></tr>
+            <tr><td>8</td><td>6</td><td>2</td></tr>
+            <tr><td>6</td><td>4</td><td>3</td></tr>
+            <tr><td>4</td><td>2</td><td>4</td></tr>
+            <tr><td>2</td><td>0</td><td>5</td></tr>
+            <tr><td>0</td><td colspan="2">a &gt; 0 שקר ← יציאה ← הדפסת 5</td></tr>
+          </tbody>
+        </table>
+
+        <div class="big-result">הגשה</div>
+        <div class="card submission">
+          <ol class="task-list">
+            <li><strong>ציירו את כל תרשימי הזרימה</strong> ב-<a href="https://app.diagrams.net/" target="_blank" rel="noopener">draw.io</a>.</li>
+            <li><strong>העלו ל-GitHub</strong> ושלחו את הקישור ל:<br>
+              <a href="mailto:pythonai080626+hw4@gmail.com">pythonai080626+hw4@gmail.com</a>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <footer class="footer">
+    Python Basics — Lesson 4 · June 29, 2026 · While Loops
+  </footer>
+</div>
+
+<script>
+  const links  = document.querySelectorAll('.topic-link');
+  const panels = document.querySelectorAll('.topic-panel');
+
+  function showTopic(id) {
+    panels.forEach(p => p.classList.toggle('active', p.id === id));
+    links.forEach(l  => l.classList.toggle('active',  l.dataset.target === id));
+  }
+
+  links.forEach(l => {
+    l.addEventListener('click', () => {
+      showTopic(l.dataset.target);
+      location.hash = l.dataset.target;
+    });
+  });
+
+  const hash = location.hash.replace('#', '');
+  if (hash && document.getElementById(hash)) showTopic(hash);
+</script>
+</body>
+</html>
