@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lesson 5 — Advanced Flowcharts &amp; First Python Code</title>
+  <style>
+    :root {
+      --bg-soft: #ffffff;
+      --green-1: #0f5a2e;
+      --green-2: #1f8f4e;
+      --green-3: #dbf6e5;
+      --mint: #e6fff2;
+      --text: #14281d;
+      --muted: #426654;
+      --border: #aadfbd;
+      --accent-a: #ddfbe7;
+      --accent-b: #f2ffe6;
+      --code-bg: #0b2517;
+      --code-text: #d2ffe3;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Lucida Sans", "Segoe UI", sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 15% 10%, #e7fff0 0%, transparent 35%),
+                  radial-gradient(circle at 85% 18%, #f6ffe8 0%, transparent 36%),
+                  linear-gradient(180deg, #f4fff6 0%, #ffffff 45%, #edfff4 100%);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    body::before, body::after {
+      content: "";
+      position: fixed;
+      width: 240px; height: 240px;
+      z-index: -1;
+      border-radius: 999px;
+      filter: blur(2px);
+      opacity: 0.35;
+      animation: blobMove 8s ease-in-out infinite alternate;
+    }
+    body::before { background: #bff0d0; top: -30px; left: -40px; }
+    body::after  { background: #dfffc8; bottom: -40px; right: -40px; animation-delay: 1.4s; }
+
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 24px; }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .side-nav {
+      position: sticky; top: 14px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 8px 22px rgba(18,102,55,0.1);
+      padding: 12px;
+    }
+    .side-title { margin: 0 0 8px; font-size: 0.9rem; color: var(--green-1); font-weight: 700; }
+
+    .topic-link {
+      display: block; width: 100%; text-align: left;
+      border: 1px solid transparent; border-radius: 9px;
+      padding: 8px 10px; background: transparent;
+      color: var(--muted); cursor: pointer;
+      font-size: 0.89rem; text-transform: lowercase;
+      margin-bottom: 4px;
+      transition: all 0.2s ease;
+    }
+    .topic-link:hover { background: #f0fff4; color: var(--green-1); border-color: var(--border); }
+    .topic-link.active { background: #e8faee; color: var(--green-1); border-color: var(--green-2); font-weight: 700; }
+
+    .hero {
+      background: linear-gradient(135deg, var(--bg-soft) 0%, var(--accent-a) 55%, var(--accent-b) 100%);
+      border: 1px solid var(--border); border-radius: 16px;
+      padding: 28px; box-shadow: 0 12px 30px rgba(24,110,58,0.12);
+      margin-bottom: 22px; animation: riseIn 0.75s ease both;
+    }
+
+    h1, h2, h3 { margin-top: 0; color: var(--green-1); }
+    h1 { font-size: 2rem; margin-bottom: 8px; }
+
+    .tag {
+      display: inline-block; padding: 5px 10px; border-radius: 999px;
+      font-size: 0.82rem; background: var(--green-3); color: var(--green-1);
+      border: 1px solid var(--border); margin-bottom: 10px;
+    }
+
+    .card {
+      background: var(--bg-soft); border: 1px solid var(--border);
+      border-radius: 14px; padding: 22px; margin-bottom: 16px;
+      box-shadow: 0 7px 22px rgba(18,102,55,0.08);
+      animation: riseIn 0.65s ease both;
+    }
+
+    .topic-panel { display: none; }
+    .topic-panel.active { display: block; }
+    .step-title { margin: 0 0 12px; font-size: 1.25rem; }
+
+    .note {
+      background: var(--mint); border-left: 4px solid var(--green-2);
+      padding: 10px 14px; color: var(--muted); margin: 12px 0;
+      border-radius: 6px; font-size: 0.94rem;
+    }
+
+    .big-result { font-size: 1.1rem; margin: 18px 0 8px; color: var(--green-1); font-weight: 700; }
+
+    .task-list { padding-left: 22px; margin: 10px 0 0; }
+    .task-list li { margin-bottom: 10px; color: #1a3a2a; }
+    .task-list li strong { color: var(--green-1); }
+
+    .side-divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+    .side-section-label {
+      font-size: 0.72rem; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: var(--green-2); padding: 4px 4px 6px;
+    }
+
+    .nav-back {
+      display: inline-block; margin-top: 10px; padding: 10px 16px;
+      border-radius: 10px; border: 1px solid var(--green-2);
+      background: #e9fbe8; color: var(--green-1);
+      text-decoration: none; font-weight: 700;
+      transition: all 0.2s ease; width: 100%; text-align: center;
+    }
+    .nav-back:hover { background: #d8f7df; transform: translateY(-1px); }
+
+    .fc-wrap { display: flex; justify-content: center; margin: 18px 0; overflow-x: auto; }
+    .fc-wrap img { max-width: 100%; border-radius: 10px; border: 1px solid var(--border); }
+
+    .code {
+      background: var(--code-bg); color: var(--code-text);
+      border-radius: 10px; border: 1px solid #2f5a3d;
+      padding: 16px 18px; overflow-x: auto; margin: 10px 0 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95rem; white-space: pre; line-height: 1.7;
+    }
+    .code .cm { color: #6dbf8a; }
+    .code .fn { color: #ffa657; }
+    .code .kw { color: #79c0ff; }
+    .code .num { color: #d2a8ff; }
+    .code .str { color: #ffd580; }
+
+    .console {
+      background: #101418; color: #e6edf3;
+      border-radius: 10px; border: 1px solid #30363d;
+      padding: 12px 18px; overflow-x: auto; margin: 10px 0 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92rem; white-space: pre; line-height: 1.7;
+    }
+    .console .usr { color: #7ee787; font-weight: 700; }
+
+    .ex-table {
+      width: 100%; border-collapse: collapse;
+      font-size: .88rem; margin: 10px 0 14px;
+    }
+    .ex-table th {
+      background: var(--green-3); color: var(--green-1);
+      padding: 8px 12px; text-align: left;
+      border: 1px solid var(--border);
+      font-size: .78rem; letter-spacing: .05em; text-transform: uppercase;
+    }
+    .ex-table td { padding: 8px 12px; border: 1px solid var(--border); vertical-align: top; }
+    .ex-table tr:nth-child(even) td { background: #f4fff7; }
+
+    .task-box {
+      background: var(--mint); border: 2px dashed var(--green-2);
+      border-radius: 10px; padding: 14px 18px; margin: 14px 0;
+    }
+
+    .kbd {
+      display: inline-block; padding: 2px 8px; border-radius: 6px;
+      background: #f0fff4; border: 1px solid var(--border);
+      border-bottom-width: 3px; font-family: Consolas, monospace;
+      font-size: .85rem; color: var(--green-1); font-weight: 700;
+    }
+
+    .ex-title { display: flex; align-items: center; margin: 22px 0 8px; }
+    .ex-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--green-3); border: 2px solid var(--green-2);
+      color: var(--green-1); font-weight: 800; font-size: .88rem;
+      margin-right: 8px; flex-shrink: 0;
+    }
+    .ex-title h3 { margin: 0; font-size: 1.1rem; }
+
+    .submission { background: var(--mint); border-color: var(--green-2); margin-top: 0; }
+    .submission a { color: var(--green-1); font-weight: 800; font-size: 1.05rem; word-break: break-all; }
+
+    .footer { text-align: center; color: var(--muted); font-size: 0.86rem; padding: 10px 0 16px; }
+
+    .rtl { direction: rtl; text-align: right; }
+    .rtl .task-list { padding-left: 0; padding-right: 22px; }
+    .rtl .ex-title { flex-direction: row-reverse; justify-content: flex-end; }
+    .rtl .ex-num { margin-right: 0; margin-left: 8px; }
+    .rtl .ex-table th, .rtl .ex-table td { text-align: right; }
+
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes blobMove {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(24px, 18px) scale(1.06); }
+    }
+
+    @media (max-width: 760px) {
+      .wrap { padding: 14px; }
+      .layout { grid-template-columns: 1fr; }
+      .side-nav { position: static; }
+      h1 { font-size: 1.6rem; }
+      .ex-table { font-size: .8rem; }
+      .code { font-size: 0.86rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <span class="tag">Lesson 5 · July 6, 2026</span>
+    <h1>Advanced Flowcharts &amp; First Python Code 🐍</h1>
+    <p>We solve three sophisticated flow diagrams — factorial, sum of digits and modulus — and then the big moment: we open PyCharm and turn simple flowcharts into <strong>real Python programs</strong>.</p>
+  </section>
+
+  <div class="layout">
+    <aside class="side-nav" aria-label="Topic navigation">
+      <h2 class="side-title">Topics</h2>
+      <button class="topic-link active" data-target="topic-d16">diag 16 - factorial</button>
+      <button class="topic-link" data-target="topic-d17">diag 17 - sum of digits</button>
+      <button class="topic-link" data-target="topic-d18">diag 18 - find modulus</button>
+      <button class="topic-link" data-target="topic-py1">python - first program</button>
+      <button class="topic-link" data-target="topic-py2">python - print hello</button>
+      <button class="topic-link" data-target="topic-py3">python - print 1 2 3</button>
+      <button class="topic-link" data-target="topic-py4">python - input name</button>
+      <button class="topic-link" data-target="topic-github">github folder</button>
+      <button class="topic-link" data-target="topic-exercise">exercise</button>
+      <button class="topic-link" data-target="topic-exercise-heb">exercise - עברית</button>
+      <hr class="side-divider" />
+      <div class="side-section-label">Navigation</div>
+      <a class="nav-back" href="../../index.html#lessons">Back to lessons</a>
+    </aside>
+
+    <main>
+
+      <!-- ═══ DIAGRAM 16 — FACTORIAL ═══ -->
+      <section class="card topic-panel active" id="topic-d16">
+        <span class="tag">Diagram 16</span>
+        <h2 class="step-title">Factorial (עצרת)</h2>
+        <p>Factorial of a number is the product of all integers from 1 up to that number:<br>
+           <code>3! = 1 × 2 × 3 = 6</code> &nbsp;·&nbsp; <code>5! = 1 × 2 × 3 × 4 × 5 = 120</code></p>
+
+        <div class="note">
+          <strong>The plan:</strong><br>
+          1. Input <code>number</code><br>
+          2. Set <code>result = 1</code><br>
+          3. Set <code>i = 1</code><br>
+          4. While <code>i &lt; number</code> — increase <code>i</code>, and each time <code>result = result * i</code>
+        </div>
+
+        <div class="fc-wrap">
+          <svg viewBox="0 0 460 420" width="390" role="img" aria-label="Diagram 16 flowchart — factorial">
+            <defs>
+              <marker id="a16" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+                <path d="M0,0 L8,4 L0,8 Z" fill="#1f8f4e"/>
+              </marker>
+            </defs>
+            <!-- START -->
+            <ellipse cx="178" cy="28" rx="62" ry="22" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="178" y="35" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="14" font-weight="700" fill="#0f5a2e">START</text>
+            <line x1="178" y1="50" x2="178" y2="68" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a16)"/>
+            <!-- INPUT number -->
+            <polygon points="88,68 268,68 248,106 68,106" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="168" y="92" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">INPUT number</text>
+            <line x1="178" y1="106" x2="178" y2="124" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a16)"/>
+            <!-- i = 1, result = 1 -->
+            <rect x="103" y="124" width="150" height="46" rx="4" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="178" y="142" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">i = 1</text>
+            <text x="178" y="160" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">result = 1</text>
+            <line x1="178" y1="170" x2="178" y2="190" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a16)"/>
+            <!-- Oval: i < number ? -->
+            <ellipse cx="178" cy="228" rx="118" ry="38" fill="#e8fff4" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="178" y="233" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="12" font-weight="700" fill="#0f5a2e">i &lt; number ?</text>
+            <!-- YES down -->
+            <text x="165" y="284" text-anchor="end" font-family="Trebuchet MS,sans-serif" font-size="11" font-weight="700" fill="#166534">YES</text>
+            <line x1="178" y1="266" x2="178" y2="288" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a16)"/>
+            <!-- i += 1 -->
+            <rect x="108" y="288" width="140" height="34" rx="4" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="178" y="310" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">i += 1</text>
+            <line x1="178" y1="322" x2="178" y2="342" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a16)"/>
+            <!-- result = result * i -->
+            <rect x="93" y="342" width="170" height="34" rx="4" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="178" y="364" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">result = result * i</text>
+            <!-- Loop back -->
+            <line x1="178" y1="376" x2="178" y2="392" stroke="#1f8f4e" stroke-width="2.2"/>
+            <polyline points="178,392 28,392 28,228 60,228" fill="none" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a16)"/>
+            <!-- NO right -->
+            <text x="306" y="222" font-family="Trebuchet MS,sans-serif" font-size="11" font-weight="700" fill="#166534">NO</text>
+            <line x1="296" y1="228" x2="352" y2="228" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a16)"/>
+            <!-- print result -->
+            <polygon points="352,208 448,208 428,248 332,248" fill="#f0fff8" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="390" y="233" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">print result</text>
+            <line x1="390" y1="248" x2="390" y2="270" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a16)"/>
+            <!-- END -->
+            <ellipse cx="390" cy="292" rx="46" ry="22" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="390" y="299" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="14" font-weight="700" fill="#0f5a2e">END</text>
+          </svg>
+        </div>
+
+        <div class="big-result">Trace table (number = 5)</div>
+        <table class="ex-table">
+          <thead><tr><th>i &lt; number ?</th><th>i after</th><th>result after</th></tr></thead>
+          <tbody>
+            <tr><td>1 &lt; 5 → True</td><td>2</td><td>1 × 2 = 2</td></tr>
+            <tr><td>2 &lt; 5 → True</td><td>3</td><td>2 × 3 = 6</td></tr>
+            <tr><td>3 &lt; 5 → True</td><td>4</td><td>6 × 4 = 24</td></tr>
+            <tr><td>4 &lt; 5 → True</td><td>5</td><td>24 × 5 = 120</td></tr>
+            <tr><td>5 &lt; 5 → False</td><td colspan="2">exit loop → print <strong>120</strong></td></tr>
+          </tbody>
+        </table>
+
+        <div class="note">
+          Notice the trick: we start with <code>result = 1</code> (not 0!) because we are <strong>multiplying</strong> —
+          anything multiplied by 0 would stay 0 forever. For products, initialise with 1; for sums, initialise with 0.
+        </div>
+      </section>
+
+      <!-- ═══ DIAGRAM 17 — SUM OF DIGITS ═══ -->
+      <section class="card topic-panel" id="topic-d17">
+        <span class="tag">Diagram 17</span>
+        <h2 class="step-title">Sum of Digits</h2>
+        <p>Input a number and calculate the sum of its digits.<br>
+           Example: <code>123 → 1 + 2 + 3 = 6</code> &nbsp;·&nbsp; <code>456 → 4 + 5 + 6 = 15</code></p>
+
+        <div class="note">
+          <strong>The plan:</strong><br>
+          1. Input <code>number</code><br>
+          2. Set <code>sum = 0</code><br>
+          3. While <code>number &gt; 0</code>:<br>
+          &nbsp;&nbsp;&nbsp;· <code>digit = number % 10</code> — take the last digit<br>
+          &nbsp;&nbsp;&nbsp;· add digit to sum<br>
+          &nbsp;&nbsp;&nbsp;· <code>number = number // 10</code> — chop off the last digit (integer division)
+        </div>
+
+        <div class="fc-wrap">
+          <svg viewBox="0 0 460 470" width="390" role="img" aria-label="Diagram 17 flowchart — sum of digits">
+            <defs>
+              <marker id="a17" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+                <path d="M0,0 L8,4 L0,8 Z" fill="#1f8f4e"/>
+              </marker>
+            </defs>
+            <!-- START -->
+            <ellipse cx="178" cy="28" rx="62" ry="22" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="178" y="35" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="14" font-weight="700" fill="#0f5a2e">START</text>
+            <line x1="178" y1="50" x2="178" y2="68" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a17)"/>
+            <!-- INPUT number -->
+            <polygon points="88,68 268,68 248,106 68,106" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="168" y="92" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">INPUT number</text>
+            <line x1="178" y1="106" x2="178" y2="124" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a17)"/>
+            <!-- sum = 0 -->
+            <rect x="108" y="124" width="140" height="34" rx="4" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="178" y="146" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">sum = 0</text>
+            <line x1="178" y1="158" x2="178" y2="178" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a17)"/>
+            <!-- Oval: number > 0 ? -->
+            <ellipse cx="178" cy="216" rx="118" ry="38" fill="#e8fff4" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="178" y="221" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="12" font-weight="700" fill="#0f5a2e">number &gt; 0 ?</text>
+            <!-- YES down -->
+            <text x="165" y="272" text-anchor="end" font-family="Trebuchet MS,sans-serif" font-size="11" font-weight="700" fill="#166534">YES</text>
+            <line x1="178" y1="254" x2="178" y2="276" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a17)"/>
+            <!-- digit = number % 10 -->
+            <rect x="88" y="276" width="180" height="34" rx="4" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="178" y="298" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">digit = number % 10</text>
+            <line x1="178" y1="310" x2="178" y2="330" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a17)"/>
+            <!-- sum += digit -->
+            <rect x="108" y="330" width="140" height="34" rx="4" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="178" y="352" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">sum += digit</text>
+            <line x1="178" y1="364" x2="178" y2="384" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a17)"/>
+            <!-- number = number // 10 -->
+            <rect x="78" y="384" width="200" height="34" rx="4" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="178" y="406" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">number = number // 10</text>
+            <!-- Loop back -->
+            <line x1="178" y1="418" x2="178" y2="434" stroke="#1f8f4e" stroke-width="2.2"/>
+            <polyline points="178,434 26,434 26,216 60,216" fill="none" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a17)"/>
+            <!-- NO right -->
+            <text x="306" y="210" font-family="Trebuchet MS,sans-serif" font-size="11" font-weight="700" fill="#166534">NO</text>
+            <line x1="296" y1="216" x2="352" y2="216" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a17)"/>
+            <!-- print sum -->
+            <polygon points="352,196 442,196 422,236 332,236" fill="#f0fff8" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="387" y="221" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">print sum</text>
+            <line x1="387" y1="236" x2="387" y2="258" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a17)"/>
+            <!-- END -->
+            <ellipse cx="387" cy="280" rx="46" ry="22" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="387" y="287" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="14" font-weight="700" fill="#0f5a2e">END</text>
+          </svg>
+        </div>
+
+        <div class="big-result">Trace table (number = 456)</div>
+        <table class="ex-table">
+          <thead><tr><th>number &gt; 0 ?</th><th>digit</th><th>sum after</th><th>number after (// 10)</th></tr></thead>
+          <tbody>
+            <tr><td>456 &gt; 0 → True</td><td>456 % 10 = 6</td><td>0 + 6 = 6</td><td>45</td></tr>
+            <tr><td>45 &gt; 0 → True</td><td>45 % 10 = 5</td><td>6 + 5 = 11</td><td>4</td></tr>
+            <tr><td>4 &gt; 0 → True</td><td>4 % 10 = 4</td><td>11 + 4 = 15</td><td>0</td></tr>
+            <tr><td>0 &gt; 0 → False</td><td colspan="3">exit loop → print <strong>15</strong></td></tr>
+          </tbody>
+        </table>
+
+        <div class="note">
+          <strong>Two power tools working together:</strong><br>
+          <code>% 10</code> gives the <strong>last digit</strong> (456 % 10 = 6)<br>
+          <code>// 10</code> <strong>removes the last digit</strong> (456 // 10 = 45)<br>
+          Repeat until the number becomes 0 — you have visited every digit.
+        </div>
+      </section>
+
+      <!-- ═══ DIAGRAM 18 — FIND MODULUS ═══ -->
+      <section class="card topic-panel" id="topic-d18">
+        <span class="tag">Diagram 18</span>
+        <h2 class="step-title">Find Modulus — Without Using %</h2>
+        <p>Input <code>mone</code> (מונה) and <code>mehane</code> (מכנה) and compute <code>mone % mehane</code> —
+           <strong>without</strong> using the <code>%</code> operator.<br>
+           Examples: <code>9 % 4 = 1</code> &nbsp;·&nbsp; <code>11 % 3 = 2</code> &nbsp;·&nbsp; <code>12 % 3 = 0</code></p>
+
+        <div class="note">
+          <strong>The idea:</strong> keep adding <code>mehane</code> to itself until we reach or pass <code>mone</code>.<br>
+          1. <code>sum = mehane</code><br>
+          2. While <code>sum &lt; mone</code>: <code>sum += mehane</code><br>
+          3. If <code>sum == mone</code> → the remainder is <strong>0</strong> (divides evenly)<br>
+          4. Else we overshot → step one back: <code>sum -= mehane</code>, then the remainder is <code>mone - sum</code>
+        </div>
+
+        <div class="fc-wrap">
+          <svg viewBox="0 0 640 470" width="560" role="img" aria-label="Diagram 18 flowchart — find modulus without %">
+            <defs>
+              <marker id="a18" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+                <path d="M0,0 L8,4 L0,8 Z" fill="#1f8f4e"/>
+              </marker>
+            </defs>
+            <!-- START -->
+            <ellipse cx="170" cy="28" rx="62" ry="22" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="170" y="35" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="14" font-weight="700" fill="#0f5a2e">START</text>
+            <line x1="170" y1="50" x2="170" y2="68" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a18)"/>
+            <!-- INPUT mone, mehane -->
+            <polygon points="70,68 270,68 250,106 50,106" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="160" y="92" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">INPUT mone, mehane</text>
+            <line x1="170" y1="106" x2="170" y2="124" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a18)"/>
+            <!-- sum = mehane -->
+            <rect x="95" y="124" width="150" height="34" rx="4" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="170" y="146" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">sum = mehane</text>
+            <line x1="170" y1="158" x2="170" y2="178" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a18)"/>
+            <!-- Oval: sum < mone ? -->
+            <ellipse cx="170" cy="216" rx="112" ry="38" fill="#e8fff4" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="170" y="221" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="12" font-weight="700" fill="#0f5a2e">sum &lt; mone ?</text>
+            <!-- YES down -->
+            <text x="157" y="272" text-anchor="end" font-family="Trebuchet MS,sans-serif" font-size="11" font-weight="700" fill="#166534">YES</text>
+            <line x1="170" y1="254" x2="170" y2="276" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a18)"/>
+            <!-- sum += mehane -->
+            <rect x="95" y="276" width="150" height="34" rx="4" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="170" y="298" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">sum += mehane</text>
+            <!-- Loop back -->
+            <line x1="170" y1="310" x2="170" y2="326" stroke="#1f8f4e" stroke-width="2.2"/>
+            <polyline points="170,326 24,326 24,216 58,216" fill="none" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a18)"/>
+            <!-- NO right → second decision -->
+            <text x="300" y="210" font-family="Trebuchet MS,sans-serif" font-size="11" font-weight="700" fill="#166534">NO</text>
+            <line x1="282" y1="216" x2="336" y2="216" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a18)"/>
+            <!-- Diamond: sum == mone ? -->
+            <polygon points="416,178 496,216 416,254 336,216" fill="#e8fff4" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="416" y="221" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="12" font-weight="700" fill="#0f5a2e">sum == mone ?</text>
+            <!-- YES down: print 0 -->
+            <text x="402" y="282" text-anchor="end" font-family="Trebuchet MS,sans-serif" font-size="11" font-weight="700" fill="#166534">YES</text>
+            <line x1="416" y1="254" x2="416" y2="290" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a18)"/>
+            <polygon points="386,290 456,290 436,330 366,330" fill="#f0fff8" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="411" y="315" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">print 0</text>
+            <!-- NO right: sum -= mehane -->
+            <text x="508" y="210" font-family="Trebuchet MS,sans-serif" font-size="11" font-weight="700" fill="#166534">NO</text>
+            <line x1="496" y1="216" x2="540" y2="216" stroke="#1f8f4e" stroke-width="2.2"/>
+            <line x1="540" y1="216" x2="540" y2="240" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a18)"/>
+            <rect x="466" y="240" width="150" height="34" rx="4" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="541" y="262" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">sum -= mehane</text>
+            <line x1="541" y1="274" x2="541" y2="296" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a18)"/>
+            <!-- print mone - sum -->
+            <polygon points="486,296 616,296 596,336 466,336" fill="#f0fff8" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="541" y="321" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">print mone - sum</text>
+            <!-- merge to END -->
+            <line x1="411" y1="330" x2="411" y2="392" stroke="#1f8f4e" stroke-width="2.2"/>
+            <line x1="541" y1="336" x2="541" y2="392" stroke="#1f8f4e" stroke-width="2.2"/>
+            <polyline points="411,392 476,392" fill="none" stroke="#1f8f4e" stroke-width="2.2"/>
+            <polyline points="541,392 476,392" fill="none" stroke="#1f8f4e" stroke-width="2.2"/>
+            <line x1="476" y1="392" x2="476" y2="408" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#a18)"/>
+            <!-- END -->
+            <ellipse cx="476" cy="432" rx="46" ry="22" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="476" y="439" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="14" font-weight="700" fill="#0f5a2e">END</text>
+          </svg>
+        </div>
+
+        <div class="big-result">Trace table (mone = 11, mehane = 3)</div>
+        <table class="ex-table">
+          <thead><tr><th>sum &lt; mone ?</th><th>sum after</th></tr></thead>
+          <tbody>
+            <tr><td>3 &lt; 11 → True</td><td>3 + 3 = 6</td></tr>
+            <tr><td>6 &lt; 11 → True</td><td>6 + 3 = 9</td></tr>
+            <tr><td>9 &lt; 11 → True</td><td>9 + 3 = 12</td></tr>
+            <tr><td>12 &lt; 11 → False</td><td>exit loop</td></tr>
+            <tr><td>sum == mone ? 12 == 11 → False</td><td>sum = 12 − 3 = 9 → print 11 − 9 = <strong>2</strong> ✓</td></tr>
+          </tbody>
+        </table>
+
+        <div class="big-result">And when it divides evenly? (mone = 12, mehane = 3)</div>
+        <table class="ex-table">
+          <thead><tr><th>Step</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr><td>sum grows: 3 → 6 → 9 → 12</td><td>loop stops (12 &lt; 12 is False)</td></tr>
+            <tr><td>sum == mone ? 12 == 12 → True</td><td>print <strong>0</strong> ✓ (12 % 3 = 0)</td></tr>
+          </tbody>
+        </table>
+
+        <div class="note">
+          <strong>mone</strong> (מונה) = the number being divided · <strong>mehane</strong> (מכנה) = the number we divide by.<br>
+          This is the same trick as lesson 4's "multiply with +" — we rebuild a complex operator from simple ones.
+        </div>
+      </section>
+
+      <!-- ═══ PYTHON 1 — FIRST PROGRAM ═══ -->
+      <section class="card topic-panel" id="topic-py1">
+        <span class="tag">Python · Program 1</span>
+        <h2 class="step-title">🎉 Our First Python Program — START / STOP</h2>
+        <p>Big milestone: today we moved from drawing flowcharts to <strong>writing real Python code in PyCharm</strong>.<br>
+           Every flowchart shape has a Python translation — and we begin with the simplest flowchart of all:</p>
+
+        <div class="fc-wrap">
+          <svg viewBox="0 0 200 170" width="150" role="img" aria-label="Simplest flowchart — start then stop">
+            <defs>
+              <marker id="ap1" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+                <path d="M0,0 L8,4 L0,8 Z" fill="#1f8f4e"/>
+              </marker>
+            </defs>
+            <ellipse cx="100" cy="32" rx="58" ry="24" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="100" y="39" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="14" font-weight="700" fill="#0f5a2e">START</text>
+            <line x1="100" y1="56" x2="100" y2="106" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#ap1)"/>
+            <ellipse cx="100" cy="132" rx="58" ry="24" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="100" y="139" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="14" font-weight="700" fill="#0f5a2e">STOP</text>
+          </svg>
+        </div>
+
+        <p>A program that starts and immediately stops — it does <em>nothing</em>, and it is 100% valid Python:</p>
+
+        <div class="code"><span class="cm"># START</span>
+
+<span class="cm"># STOP</span></div>
+
+        <div class="note">
+          Lines starting with <code>#</code> are <strong>comments</strong> — Python ignores them completely.
+          They are notes for humans. Here the whole program is just two comments marking where the flowchart starts and stops.
+        </div>
+
+        <div class="big-result">PyCharm survival shortcuts</div>
+        <table class="ex-table">
+          <thead><tr><th>Shortcut</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><td><span class="kbd">Shift</span> + <span class="kbd">F10</span></td><td>Run the program</td></tr>
+            <tr><td><span class="kbd">Ctrl</span> + <span class="kbd">/</span></td><td>Comment / uncomment the selected lines</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- ═══ PYTHON 2 — PRINT HELLO ═══ -->
+      <section class="card topic-panel" id="topic-py2">
+        <span class="tag">Python · Program 2</span>
+        <h2 class="step-title">Print Hello</h2>
+        <p>Next flowchart: START → output a message → STOP. The <strong>output parallelogram</strong> becomes the <code>print()</code> function in Python.</p>
+
+        <div class="fc-wrap">
+          <svg viewBox="0 0 240 260" width="180" role="img" aria-label="Flowchart — start, print hello, stop">
+            <defs>
+              <marker id="ap2" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+                <path d="M0,0 L8,4 L0,8 Z" fill="#1f8f4e"/>
+              </marker>
+            </defs>
+            <ellipse cx="120" cy="30" rx="58" ry="24" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="120" y="37" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="14" font-weight="700" fill="#0f5a2e">START</text>
+            <line x1="120" y1="54" x2="120" y2="88" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#ap2)"/>
+            <polygon points="45,88 215,88 195,128 25,128" fill="#f0fff8" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="120" y="113" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">"Hello Itay!"</text>
+            <line x1="120" y1="128" x2="120" y2="162" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#ap2)"/>
+            <ellipse cx="120" cy="188" rx="58" ry="24" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="120" y="195" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="14" font-weight="700" fill="#0f5a2e">STOP</text>
+          </svg>
+        </div>
+
+        <div class="code"><span class="cm"># START</span>
+
+<span class="fn">print</span>(<span class="str">"Hello Itay!"</span>)
+
+<span class="cm"># STOP</span></div>
+
+        <div class="big-result">Output</div>
+        <div class="console">Hello Itay!</div>
+
+        <div class="note">
+          <strong>Anatomy of the line:</strong> <code>print</code> is a built-in <strong>function</strong>, the parentheses <code>( )</code> call it,
+          and the text in quotes <code>"Hello Itay!"</code> is a <strong>string</strong> — the value we ask it to display.
+        </div>
+      </section>
+
+      <!-- ═══ PYTHON 3 — PRINT 1 2 3 ═══ -->
+      <section class="card topic-panel" id="topic-py3">
+        <span class="tag">Python · Program 3</span>
+        <h2 class="step-title">Print 1, 2, 3 — Instructions Run in Order</h2>
+        <p>Three output boxes, one after another. Python executes the file <strong>top to bottom</strong>, exactly like following the arrows in the flowchart.</p>
+
+        <div class="fc-wrap">
+          <svg viewBox="0 0 240 420" width="160" role="img" aria-label="Flowchart — print 1 then 2 then 3">
+            <defs>
+              <marker id="ap3" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+                <path d="M0,0 L8,4 L0,8 Z" fill="#1f8f4e"/>
+              </marker>
+            </defs>
+            <ellipse cx="120" cy="30" rx="58" ry="24" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="120" y="37" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="14" font-weight="700" fill="#0f5a2e">START</text>
+            <line x1="120" y1="54" x2="120" y2="84" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#ap3)"/>
+            <polygon points="70,84 190,84 170,122 50,122" fill="#f0fff8" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="120" y="108" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">1</text>
+            <line x1="120" y1="122" x2="120" y2="152" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#ap3)"/>
+            <polygon points="70,152 190,152 170,190 50,190" fill="#f0fff8" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="120" y="176" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">2</text>
+            <line x1="120" y1="190" x2="120" y2="220" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#ap3)"/>
+            <polygon points="70,220 190,220 170,258 50,258" fill="#f0fff8" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="120" y="244" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">3</text>
+            <line x1="120" y1="258" x2="120" y2="292" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#ap3)"/>
+            <ellipse cx="120" cy="318" rx="58" ry="24" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="120" y="325" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="14" font-weight="700" fill="#0f5a2e">END</text>
+          </svg>
+        </div>
+
+        <div class="code"><span class="cm"># START</span>
+
+<span class="fn">print</span>(<span class="num">1</span>)
+<span class="fn">print</span>(<span class="num">2</span>)
+<span class="fn">print</span>(<span class="num">3</span>)
+
+<span class="cm"># STOP</span></div>
+
+        <div class="big-result">Output</div>
+        <div class="console">1
+2
+3</div>
+
+        <div class="note">
+          Each <code>print()</code> writes on a <strong>new line</strong>. Notice the numbers have no quotes —
+          <code>1</code> is a <strong>number</strong>, while <code>"1"</code> would be a string. Both would display the same here, but they are different types.
+        </div>
+      </section>
+
+      <!-- ═══ PYTHON 4 — INPUT NAME ═══ -->
+      <section class="card topic-panel" id="topic-py4">
+        <span class="tag">Python · Program 4</span>
+        <h2 class="step-title">Input a Name — Talk to the User</h2>
+        <p>Now the full trio: <strong>output</strong> a question, <strong>input</strong> an answer into a variable, and <strong>output</strong> a greeting that uses it. The <strong>input shape</strong> becomes the <code>input()</code> function.</p>
+
+        <div class="fc-wrap">
+          <svg viewBox="0 0 260 400" width="190" role="img" aria-label="Flowchart — ask name, input my_name, print hello with name">
+            <defs>
+              <marker id="ap4" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+                <path d="M0,0 L8,4 L0,8 Z" fill="#1f8f4e"/>
+              </marker>
+            </defs>
+            <ellipse cx="130" cy="30" rx="58" ry="24" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="130" y="37" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="14" font-weight="700" fill="#0f5a2e">START</text>
+            <line x1="130" y1="54" x2="130" y2="84" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#ap4)"/>
+            <!-- output question -->
+            <polygon points="50,84 230,84 210,122 30,122" fill="#f0fff8" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="130" y="108" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="12" font-weight="700" fill="#0f5a2e">"What is your name?"</text>
+            <line x1="130" y1="122" x2="130" y2="152" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#ap4)"/>
+            <!-- input my_name (hexagon-ish input shape) -->
+            <polygon points="70,152 190,152 205,171 190,190 70,190 55,171" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="130" y="176" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">my_name</text>
+            <line x1="130" y1="190" x2="130" y2="220" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#ap4)"/>
+            <!-- output greeting -->
+            <polygon points="50,220 230,220 210,258 30,258" fill="#f0fff8" stroke="#1f8f4e" stroke-width="2.2"/>
+            <text x="130" y="244" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="12" font-weight="700" fill="#0f5a2e">"Hello," , my_name</text>
+            <line x1="130" y1="258" x2="130" y2="292" stroke="#1f8f4e" stroke-width="2.2" marker-end="url(#ap4)"/>
+            <ellipse cx="130" cy="318" rx="58" ry="24" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="130" y="325" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="14" font-weight="700" fill="#0f5a2e">STOP</text>
+          </svg>
+        </div>
+
+        <div class="code"><span class="cm"># START</span>
+
+<span class="fn">print</span>(<span class="str">'What is your name?'</span>)
+my_name = <span class="fn">input</span>()
+
+<span class="fn">print</span>(<span class="str">"Hello"</span>, my_name)
+
+<span class="cm"># STOP</span></div>
+
+        <div class="big-result">Output (user types "Itay")</div>
+        <div class="console">What is your name?
+<span class="usr">Itay</span>
+Hello Itay</div>
+
+        <div class="big-result">Flowchart shape → Python translation</div>
+        <table class="ex-table">
+          <thead><tr><th>Flowchart shape</th><th>Python</th></tr></thead>
+          <tbody>
+            <tr><td>START / STOP oval</td><td><code># START</code> / <code># STOP</code> comments (beginning and end of the file)</td></tr>
+            <tr><td>Output parallelogram</td><td><code>print(...)</code></td></tr>
+            <tr><td>Input shape</td><td><code>variable = input()</code></td></tr>
+          </tbody>
+        </table>
+
+        <div class="note">
+          <strong>Three new things in one program:</strong><br>
+          1. <code>input()</code> pauses the program and waits for the user to type a line and press Enter.<br>
+          2. Whatever they typed is <strong>stored in the variable</strong> <code>my_name</code>.<br>
+          3. <code>print("Hello", my_name)</code> — separating values with a comma prints them together, with a space in between.
+        </div>
+      </section>
+
+      <!-- ═══ GITHUB FOLDER ═══ -->
+      <section class="card topic-panel" id="topic-github">
+        <span class="tag">GitHub</span>
+        <h2 class="step-title">Lesson 5 GitHub Folder</h2>
+        <p>All diagrams and Python programs from today's lesson:</p>
+        <div class="task-box">
+          <a href="https://github.com/pythonai080626-a11y/06.07.2026" target="_blank" rel="noopener">
+            https://github.com/pythonai080626-a11y/06.07.2026
+          </a>
+        </div>
+      </section>
+
+      <!-- ═══ EXERCISE (English) ═══ -->
+      <section class="card topic-panel" id="topic-exercise">
+        <span class="tag">Homework</span>
+        <h2 class="step-title">3 Exercises</h2>
+        <p>For each exercise: <strong>draw the flowchart</strong> in draw.io, then <strong>write the Python program</strong> in PyCharm and run it with <span class="kbd">Shift</span> + <span class="kbd">F10</span>.</p>
+
+        <!-- Exercise 1 -->
+        <div class="ex-title">
+          <span class="ex-num">1</span>
+          <h3>Introduce yourself — 3 prints</h3>
+        </div>
+        <p>Write a program that prints <strong>three lines</strong>: your name, your city, and your favorite hobby.</p>
+        <div class="task-box">
+          <strong>Expected output (example):</strong><br>
+          <code>My name is Itay</code><br>
+          <code>I live in Tel Aviv</code><br>
+          <code>I love playing basketball</code>
+        </div>
+        <div class="note">
+          <strong>Hint:</strong> Three output boxes in the flowchart → three <code>print()</code> lines in Python.
+        </div>
+
+        <!-- Exercise 2 -->
+        <div class="ex-title">
+          <span class="ex-num">2</span>
+          <h3>Favorite color</h3>
+        </div>
+        <p>Ask the user <em>"What is your favorite color?"</em>, read the answer into a variable, and print the color back with a compliment.</p>
+        <table class="ex-table">
+          <thead><tr><th>User types</th><th>Program prints</th></tr></thead>
+          <tbody>
+            <tr><td>green</td><td>green is a beautiful color!</td></tr>
+            <tr><td>blue</td><td>blue is a beautiful color!</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          <strong>Hint:</strong> Just like the name program — <code>print</code> the question, <code>input()</code> into a variable, then <code>print(color, "is a beautiful color!")</code>.
+        </div>
+
+        <!-- Exercise 3 -->
+        <div class="ex-title">
+          <span class="ex-num">3</span>
+          <h3>Full greeting — two inputs</h3>
+        </div>
+        <p>Ask for the user's <strong>first name</strong>, then ask for their <strong>last name</strong>. Print a greeting that uses both.</p>
+        <div class="task-box">
+          <strong>Example run:</strong><br>
+          <code>What is your first name?</code><br>
+          <code>Itay</code><br>
+          <code>What is your last name?</code><br>
+          <code>Levi</code><br>
+          <code>Hello Itay Levi, welcome to Python!</code>
+        </div>
+        <div class="note">
+          <strong>Hint:</strong> You need <strong>two variables</strong> — one for each <code>input()</code>. In the final print, separate the pieces with commas:
+          <code>print("Hello", first_name, last_name, ...)</code>
+        </div>
+
+        <div class="big-result">Submission</div>
+        <div class="card submission">
+          <ol class="task-list">
+            <li><strong>Write the .py programs</strong> in PyCharm.</li>
+            <li><strong>Upload everything to GitHub</strong> and send the link to:<br>
+              <a href="mailto:pythonai080626+hw5@gmail.com">pythonai080626+hw5@gmail.com</a>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ═══ EXERCISE (Hebrew) ═══ -->
+      <section class="card topic-panel rtl" id="topic-exercise-heb" lang="he" dir="rtl">
+        <span class="tag">שיעורי בית</span>
+        <h2 class="step-title">3 תרגילים</h2>
+        <p>לכל תרגיל: <strong>ציירו תרשים זרימה</strong> ב-draw.io, ואז <strong>כתבו את התוכנית בפייתון</strong> ב-PyCharm והריצו עם <span class="kbd">Shift</span> + <span class="kbd">F10</span>.</p>
+
+        <!-- Exercise 1 -->
+        <div class="ex-title">
+          <span class="ex-num">1</span>
+          <h3>הציגו את עצמכם — 3 הדפסות</h3>
+        </div>
+        <p>כתבו תוכנית שמדפיסה <strong>שלוש שורות</strong>: השם שלכם, העיר שלכם, והתחביב האהוב עליכם.</p>
+        <div class="task-box">
+          <strong>פלט צפוי (דוגמה):</strong><br>
+          <code>My name is Itay</code><br>
+          <code>I live in Tel Aviv</code><br>
+          <code>I love playing basketball</code>
+        </div>
+        <div class="note">
+          <strong>רמז:</strong> שלוש תיבות פלט בתרשים ← שלוש שורות <code>print</code> בפייתון
+        </div>
+
+        <!-- Exercise 2 -->
+        <div class="ex-title">
+          <span class="ex-num">2</span>
+          <h3>צבע אהוב</h3>
+        </div>
+        <p>שאלו את המשתמש <em>"?What is your favorite color"</em>, קלטו את התשובה לתוך משתנה, והדפיסו את הצבע בחזרה עם מחמאה.</p>
+        <table class="ex-table">
+          <thead><tr><th>המשתמש מקליד</th><th>התוכנית מדפיסה</th></tr></thead>
+          <tbody>
+            <tr><td>green</td><td>!green is a beautiful color</td></tr>
+            <tr><td>blue</td><td>!blue is a beautiful color</td></tr>
+          </tbody>
+        </table>
+        <!-- Exercise 3 -->
+        <div class="ex-title">
+          <span class="ex-num">3</span>
+          <h3>ברכה מלאה — שני קלטים</h3>
+        </div>
+        <p>בקשו מהמשתמש את <strong>השם הפרטי</strong>, ואז את <strong>שם המשפחה</strong>. הדפיסו ברכה שמשתמשת בשניהם.</p>
+        <div class="task-box">
+          <strong>דוגמת הרצה:</strong><br>
+          <code>What is your first name?</code><br>
+          <code>Itay</code><br>
+          <code>What is your last name?</code><br>
+          <code>Levi</code><br>
+          <code>Hello Itay Levi, welcome to Python!</code>
+        </div>
+        <div class="note">
+          <code>print("Hello", first_name, last_name, ...)</code>
+        </div>
+
+        <div class="big-result">הגשה</div>
+        <div class="card submission">
+          <ol class="task-list">
+            <li><strong>כתבו את קבצי ה-py</strong> ב-PyCharm.</li>
+            <li><strong>העלו הכל ל-GitHub</strong> ושלחו את הקישור ל:<br>
+              <a href="mailto:pythonai080626+hw5@gmail.com">pythonai080626+hw5@gmail.com</a>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <footer class="footer">
+    Python Basics — Lesson 5 · July 6, 2026 · Advanced Flowcharts &amp; First Python Code
+  </footer>
+</div>
+
+<script>
+  const links  = document.querySelectorAll('.topic-link');
+  const panels = document.querySelectorAll('.topic-panel');
+
+  function showTopic(id) {
+    panels.forEach(p => p.classList.toggle('active', p.id === id));
+    links.forEach(l  => l.classList.toggle('active',  l.dataset.target === id));
+  }
+
+  links.forEach(l => {
+    l.addEventListener('click', () => {
+      showTopic(l.dataset.target);
+      location.hash = l.dataset.target;
+    });
+  });
+
+  const hash = location.hash.replace('#', '');
+  if (hash && document.getElementById(hash)) showTopic(hash);
+</script>
+</body>
+</html>

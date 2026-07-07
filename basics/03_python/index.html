@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python Basics - First Steps in PyCharm</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Comic+Neue:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Comic Neue', cursive; }
+    h1, h2, h3, .heading { font-family: 'Baloo 2', cursive; }
+    .clay {
+      border: 3px solid rgba(249,115,22,0.18);
+      box-shadow: 5px 5px 0 rgba(249,115,22,0.22), inset 0 1px 0 rgba(255,255,255,0.65);
+    }
+    .clay-teal {
+      border: 3px solid rgba(13,148,136,0.18);
+      box-shadow: 5px 5px 0 rgba(13,148,136,0.22), inset 0 1px 0 rgba(255,255,255,0.65);
+    }
+    .step-card { transition: transform .2s ease, box-shadow .2s ease; }
+    .step-card:hover { transform: translateY(-4px); }
+
+    .code {
+      background: #0b2517; color: #d2ffe3;
+      border-radius: 14px; border: 1px solid #2f5a3d;
+      padding: 14px 18px; overflow-x: auto; margin: 12px 0 4px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95rem; white-space: pre; line-height: 1.7;
+    }
+    .code .cm { color: #6dbf8a; }
+    .code .fn { color: #ffa657; }
+    .code .str { color: #ffd580; }
+    .code .num { color: #d2a8ff; }
+
+    .console {
+      background: #101418; color: #e6edf3;
+      border-radius: 14px; border: 1px solid #30363d;
+      padding: 12px 18px; overflow-x: auto; margin: 12px 0 4px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92rem; white-space: pre; line-height: 1.7;
+    }
+    .console .usr { color: #7ee787; font-weight: 700; }
+
+    .kbd {
+      display: inline-block; padding: 2px 10px; border-radius: 8px;
+      background: #F0FDFA; border: 2px solid #99F6E4;
+      border-bottom-width: 4px; font-family: Consolas, monospace;
+      font-size: .85rem; color: #0F766E; font-weight: 700;
+    }
+
+    .step-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 44px; height: 44px; border-radius: 14px; flex-shrink: 0;
+      background: #CCFBF1; border: 3px solid #0D9488;
+      color: #0F766E; font-weight: 800; font-size: 1.25rem;
+      font-family: 'Baloo 2', cursive;
+    }
+  </style>
+</head>
+<body class="bg-[#F0FDFA] text-[#134E4A] min-h-screen">
+
+  <nav class="fixed top-4 left-4 right-4 z-50">
+    <div class="max-w-6xl mx-auto bg-white/90 backdrop-blur-md rounded-2xl px-5 py-3 clay-teal flex items-center gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-[#0D9488] hover:text-[#134E4A] transition-colors duration-200">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        <span class="text-sm font-semibold">Python Basics</span>
+      </a>
+      <span class="text-[#134E4A]/25 text-sm">/</span>
+      <span class="heading font-bold text-[#134E4A] text-sm">First Steps in PyCharm</span>
+    </div>
+  </nav>
+
+  <main class="px-4 pt-28 pb-16">
+    <section class="max-w-6xl mx-auto">
+
+      <!-- ═══ HERO ═══ -->
+      <div class="grid lg:grid-cols-[1fr_360px] gap-8 items-center mb-10">
+        <div>
+          <span class="text-xs font-bold tracking-widest uppercase text-[#0D9488] bg-teal-50 border border-teal-200 px-4 py-1.5 rounded-full">Topic 03</span>
+          <h1 class="heading text-5xl md:text-6xl font-extrabold text-[#134E4A] mt-4 mb-4 leading-tight">Python — First Steps 🐍</h1>
+          <p class="text-lg text-[#134E4A]/65 max-w-2xl leading-relaxed">
+            Time to turn flowcharts into real programs! This tutorial walks you through creating your first project in PyCharm,
+            running code with a single shortcut, and the two functions you'll use in every program: <code class="bg-teal-50 px-1 rounded">print</code> and <code class="bg-teal-50 px-1 rounded">input</code>.
+          </p>
+        </div>
+
+        <div class="bg-white rounded-[24px] p-5 clay hidden lg:block">
+          <div class="flex items-center gap-1.5 mb-3">
+            <span class="w-3 h-3 rounded-full bg-red-400"></span>
+            <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
+            <span class="w-3 h-3 rounded-full bg-green-400"></span>
+            <span class="text-xs text-[#134E4A]/40 ml-2 font-mono">hello.py</span>
+          </div>
+          <div class="code" style="margin:0;"><span class="cm"># my first program</span>
+<span class="fn">print</span>(<span class="str">'What is your name?'</span>)
+my_name = <span class="fn">input</span>()
+<span class="fn">print</span>(<span class="str">"Hello"</span>, my_name)</div>
+        </div>
+      </div>
+
+      <!-- ═══ TUTORIAL STEPS ═══ -->
+      <div class="space-y-6">
+
+        <!-- STEP 1 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">1</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">Create a New Project in PyCharm</h2>
+              <p class="text-[#134E4A]/65 mb-4">A <strong>project</strong> is the folder where all your Python files live. You create it once, then add as many files as you want.</p>
+              <ol class="list-decimal pl-6 space-y-2 text-[#134E4A]/75">
+                <li>Open PyCharm and click <strong>File → New Project</strong> (or <strong>New Project</strong> on the welcome screen).</li>
+                <li>Give the project a name — for example <code class="bg-teal-50 px-1 rounded">python_class</code>.</li>
+                <li>Leave the interpreter settings as they are (PyCharm prepares Python for you).</li>
+                <li>Click <strong>Create</strong>.</li>
+              </ol>
+              <div class="bg-[#F0FDFA] border border-teal-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                💡 PyCharm may create a <code>main.py</code> file with sample code inside — you can delete its content or ignore it. We will write our own files.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- STEP 2 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">2</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">Add a Python File</h2>
+              <p class="text-[#134E4A]/65 mb-4">Each program goes in its own <code class="bg-orange-50 px-1 rounded">.py</code> file.</p>
+              <ol class="list-decimal pl-6 space-y-2 text-[#134E4A]/75">
+                <li>In the project panel on the left, <strong>right-click the project folder</strong>.</li>
+                <li>Choose <strong>New → Python File</strong>.</li>
+                <li>Type a name — for example <code class="bg-orange-50 px-1 rounded">hello</code> — and press Enter. PyCharm adds the <code>.py</code> for you.</li>
+              </ol>
+            </div>
+          </div>
+        </article>
+
+        <!-- STEP 3 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">3</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">Run It — <span class="kbd">Shift</span> + <span class="kbd">F10</span></h2>
+              <p class="text-[#134E4A]/65 mb-4">Type one line in your new file, then run it:</p>
+              <div class="code"><span class="fn">print</span>(<span class="str">"Hello Itay!"</span>)</div>
+              <p class="text-[#134E4A]/65 mt-4 mb-2">Three ways to run — pick your favorite:</p>
+              <ul class="list-disc pl-6 space-y-2 text-[#134E4A]/75">
+                <li>Press <span class="kbd">Shift</span> + <span class="kbd">F10</span> — runs the last file you ran.</li>
+                <li>Click the <strong class="text-green-600">green ▶ button</strong> in the top toolbar (or in the gutter next to the code).</li>
+                <li>Right-click inside the file → <strong>Run 'hello'</strong>.</li>
+              </ul>
+              <p class="text-[#134E4A]/65 mt-4 mb-1">The result appears in the <strong>Run window</strong> at the bottom:</p>
+              <div class="console">Hello Itay!
+
+Process finished with exit code 0</div>
+              <div class="bg-[#F0FDFA] border border-teal-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                💡 <strong>"exit code 0"</strong> means the program finished with no errors. You will learn to love that line.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- STEP 4 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">4</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">print() — Show Something on Screen</h2>
+              <p class="text-[#134E4A]/65 mb-4">
+                <code class="bg-orange-50 px-1 rounded">print</code> is the Python version of the flowchart's <strong>output</strong> shape.
+                Each <code class="bg-orange-50 px-1 rounded">print()</code> writes one line.
+              </p>
+              <div class="code"><span class="fn">print</span>(<span class="str">"Hello Itay!"</span>)   <span class="cm"># text goes in quotes</span>
+<span class="fn">print</span>(<span class="num">1</span>)               <span class="cm"># numbers need no quotes</span>
+<span class="fn">print</span>(<span class="num">2</span>)
+<span class="fn">print</span>(<span class="num">3</span>)</div>
+              <div class="console">Hello Itay!
+1
+2
+3</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- STEP 5 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">5</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">Comments — Notes Python Ignores</h2>
+              <p class="text-[#134E4A]/65 mb-4">
+                A line starting with <code class="bg-teal-50 px-1 rounded">#</code> is a <strong>comment</strong> — Python skips it completely.
+                Use comments to explain your code, or to mark the START and STOP of your flowchart.
+              </p>
+              <div class="code"><span class="cm"># START</span>
+
+<span class="fn">print</span>(<span class="str">"only this line runs"</span>)
+
+<span class="cm"># STOP</span></div>
+              <div class="bg-[#F0FDFA] border border-teal-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                ⚡ Select one or more lines and press <span class="kbd">Ctrl</span> + <span class="kbd">/</span> — PyCharm comments or uncomments them all at once.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- STEP 6 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">6</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">input() — Get an Answer from the User</h2>
+              <p class="text-[#134E4A]/65 mb-4">
+                <code class="bg-orange-50 px-1 rounded">input()</code> is the flowchart's <strong>input</strong> shape.
+                It pauses the program, waits for the user to type a line and press Enter, and hands you whatever they typed — which you store in a <strong>variable</strong>.
+              </p>
+              <div class="code"><span class="cm"># START</span>
+
+<span class="fn">print</span>(<span class="str">'What is your name?'</span>)
+my_name = <span class="fn">input</span>()
+
+<span class="fn">print</span>(<span class="str">"Hello"</span>, my_name)
+
+<span class="cm"># STOP</span></div>
+              <div class="console">What is your name?
+<span class="usr">Itay</span>
+Hello Itay</div>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                💡 In <code>print("Hello", my_name)</code> the comma prints both values together, with a space between them.
+              </div>
+            </div>
+          </div>
+        </article>
+
+      </div>
+
+      <!-- ═══ FLOWCHART → PYTHON ═══ -->
+      <section class="bg-white rounded-[24px] p-7 clay-teal mt-8">
+        <h2 class="heading text-3xl font-extrabold mb-3">Flowchart → Python Cheat Sheet</h2>
+        <p class="text-[#134E4A]/65 mb-5">Every shape you learned in <a href="../02_flowcharts/index.html" class="text-[#0D9488] font-bold underline">Flowcharts Basics</a> has a Python translation:</p>
+        <div class="grid md:grid-cols-3 gap-4 text-[#134E4A]/75">
+          <div class="bg-[#F0FDFA] border border-teal-100 rounded-2xl p-4">
+            <div class="heading font-extrabold text-[#0F766E] mb-1">START / STOP oval</div>
+            <code class="text-sm"># START</code> and <code class="text-sm"># STOP</code> comments
+          </div>
+          <div class="bg-[#F0FDFA] border border-teal-100 rounded-2xl p-4">
+            <div class="heading font-extrabold text-[#0F766E] mb-1">Output shape</div>
+            <code class="text-sm">print(...)</code>
+          </div>
+          <div class="bg-[#F0FDFA] border border-teal-100 rounded-2xl p-4">
+            <div class="heading font-extrabold text-[#0F766E] mb-1">Input shape</div>
+            <code class="text-sm">variable = input()</code>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ SHORTCUTS ═══ -->
+      <section class="bg-white rounded-[24px] p-7 clay mt-8">
+        <h2 class="heading text-3xl font-extrabold mb-3">PyCharm Survival Shortcuts</h2>
+        <div class="grid md:grid-cols-2 gap-4 text-[#134E4A]/75">
+          <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 flex items-center gap-4">
+            <span class="whitespace-nowrap"><span class="kbd">Shift</span> + <span class="kbd">F10</span></span>
+            <span>Run the program</span>
+          </div>
+          <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 flex items-center gap-4">
+            <span class="whitespace-nowrap"><span class="kbd">Ctrl</span> + <span class="kbd">/</span></span>
+            <span>Comment / uncomment the selected lines</span>
+          </div>
+        </div>
+      </section>
+
+    </section>
+  </main>
+
+</body>
+</html>
