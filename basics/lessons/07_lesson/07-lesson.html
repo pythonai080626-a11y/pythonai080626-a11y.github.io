@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lesson 7 - While Loops in Python</title>
+  <style>
+    :root {
+      --bg-soft: #ffffff;
+      --green-1: #0f5a2e;
+      --green-2: #1f8f4e;
+      --green-3: #dbf6e5;
+      --mint: #e6fff2;
+      --text: #14281d;
+      --muted: #426654;
+      --border: #aadfbd;
+      --accent-a: #ddfbe7;
+      --accent-b: #fff4d8;
+      --code-bg: #0b2517;
+      --code-text: #d2ffe3;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Lucida Sans", "Segoe UI", sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 15% 10%, #e7fff0 0%, transparent 35%),
+                  radial-gradient(circle at 85% 18%, #fff5d6 0%, transparent 36%),
+                  linear-gradient(180deg, #f4fff6 0%, #ffffff 45%, #edfff4 100%);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    body::before, body::after {
+      content: "";
+      position: fixed;
+      width: 230px;
+      height: 230px;
+      z-index: -1;
+      border-radius: 999px;
+      filter: blur(2px);
+      opacity: 0.32;
+      animation: blobMove 8s ease-in-out infinite alternate;
+    }
+    body::before { background: #bff0d0; top: -30px; left: -40px; }
+    body::after { background: #ffe9a9; bottom: -40px; right: -40px; animation-delay: 1.4s; }
+
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 24px; }
+    .layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .side-nav {
+      position: sticky;
+      top: 14px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 8px 22px rgba(18,102,55,0.1);
+      padding: 12px;
+    }
+    .side-title { margin: 0 0 8px; font-size: 0.9rem; color: var(--green-1); font-weight: 700; }
+    .topic-link {
+      display: block;
+      width: 100%;
+      text-align: left;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      padding: 8px 10px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.89rem;
+      text-transform: lowercase;
+      margin-bottom: 4px;
+      transition: all 0.2s ease;
+    }
+    .topic-link:hover { background: #f0fff4; color: var(--green-1); border-color: var(--border); }
+    .topic-link.active { background: #e8faee; color: var(--green-1); border-color: var(--green-2); font-weight: 700; }
+
+    .hero {
+      background: linear-gradient(135deg, var(--bg-soft) 0%, var(--accent-a) 55%, var(--accent-b) 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 12px 30px rgba(24,110,58,0.12);
+      margin-bottom: 22px;
+      animation: riseIn 0.75s ease both;
+    }
+
+    h1, h2, h3 { margin-top: 0; color: var(--green-1); }
+    h1 { font-size: 2rem; margin-bottom: 8px; }
+    code { color: var(--green-1); font-weight: 700; }
+
+    .tag {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      background: var(--green-3);
+      color: var(--green-1);
+      border: 1px solid var(--border);
+      margin-bottom: 10px;
+    }
+
+    .card {
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 16px;
+      box-shadow: 0 7px 22px rgba(18,102,55,0.08);
+      animation: riseIn 0.65s ease both;
+    }
+
+    .topic-panel { display: none; }
+    .topic-panel.active { display: block; }
+    .step-title { margin: 0 0 12px; font-size: 1.25rem; }
+    .side-divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+    .side-section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--green-2);
+      padding: 4px 4px 6px;
+    }
+    .nav-back {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--green-2);
+      background: #e9fbe8;
+      color: var(--green-1);
+      text-decoration: none;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      width: 100%;
+      text-align: center;
+    }
+    .nav-back:hover { background: #d8f7df; transform: translateY(-1px); }
+
+    .note {
+      background: var(--mint);
+      border-left: 4px solid var(--green-2);
+      padding: 10px 14px;
+      color: var(--muted);
+      margin: 12px 0;
+      border-radius: 6px;
+      font-size: 0.94rem;
+    }
+    .warn {
+      background: #fff6e2;
+      border-left: 4px solid #e0a800;
+      padding: 10px 14px;
+      color: #6b4e00;
+      margin: 12px 0;
+      border-radius: 6px;
+      font-size: 0.94rem;
+    }
+    .big-result { font-size: 1.1rem; margin: 18px 0 8px; color: var(--green-1); font-weight: 700; }
+    .fc-wrap { display: flex; justify-content: center; margin: 18px 0; overflow-x: auto; }
+    .fc-wrap svg {
+      max-width: 92%;
+      min-width: 0;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #fbfffd;
+    }
+
+    .code {
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 10px;
+      border: 1px solid #2f5a3d;
+      padding: 16px 18px;
+      overflow-x: auto;
+      margin: 10px 0 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95rem;
+      white-space: pre;
+      line-height: 1.7;
+    }
+    .code .cm { color: #6dbf8a; }
+    .code .fn { color: #ffa657; }
+    .code .kw { color: #79c0ff; }
+    .code .num { color: #d2a8ff; }
+    .code .str { color: #ffd580; }
+
+    .console {
+      background: #101418;
+      color: #e6edf3;
+      border-radius: 10px;
+      border: 1px solid #30363d;
+      padding: 12px 18px;
+      overflow-x: auto;
+      margin: 10px 0 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92rem;
+      white-space: pre;
+      line-height: 1.7;
+    }
+    .console .usr { color: #7ee787; font-weight: 700; }
+
+    .ex-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .88rem;
+      margin: 10px 0 14px;
+    }
+    .ex-table th {
+      background: var(--green-3);
+      color: var(--green-1);
+      padding: 8px 12px;
+      text-align: left;
+      border: 1px solid var(--border);
+      font-size: .78rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+    .ex-table td { padding: 8px 12px; border: 1px solid var(--border); vertical-align: top; }
+    .ex-table tr:nth-child(even) td { background: #f4fff7; }
+    .task-box {
+      background: var(--mint);
+      border: 2px dashed var(--green-2);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin: 14px 0;
+    }
+    .task-box a {
+      color: var(--green-1);
+      font-weight: 800;
+      font-size: 1.02rem;
+      word-break: break-all;
+    }
+    .footer { text-align: center; color: var(--muted); font-size: 0.86rem; padding: 10px 0 16px; }
+
+    .task-list { padding-left: 22px; margin: 10px 0 0; }
+    .task-list li { margin-bottom: 10px; color: #1a3a2a; }
+    .task-list li strong { color: var(--green-1); }
+
+    .ex-title { display: flex; align-items: center; margin: 22px 0 8px; }
+    .ex-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--green-3); border: 2px solid var(--green-2);
+      color: var(--green-1); font-weight: 800; font-size: .88rem;
+      margin-right: 8px; flex-shrink: 0;
+    }
+    .ex-title h3 { margin: 0; font-size: 1.1rem; }
+
+    .kbd {
+      display: inline-block; padding: 2px 8px; border-radius: 6px;
+      background: #f0fff4; border: 1px solid var(--border);
+      border-bottom-width: 3px; font-family: Consolas, monospace;
+      font-size: .85rem; color: var(--green-1); font-weight: 700;
+    }
+
+    .submission { background: var(--mint); border-color: var(--green-2); margin-top: 0; }
+    .submission a { color: var(--green-1); font-weight: 800; font-size: 1.05rem; word-break: break-all; }
+
+    .rtl { direction: rtl; text-align: right; }
+    .rtl .task-list { padding-left: 0; padding-right: 22px; }
+    .rtl .ex-title { flex-direction: row-reverse; justify-content: flex-end; }
+    .rtl .ex-num { margin-right: 0; margin-left: 8px; }
+    .rtl .ex-table th, .rtl .ex-table td { text-align: right; }
+
+    .shape { fill: #dbf6e5; stroke: #1f8f4e; stroke-width: 2.2; }
+    .shape-alt { fill: #f0fff8; stroke: #1f8f4e; stroke-width: 2.2; }
+    .decision { fill: #e8fff4; stroke: #1f8f4e; stroke-width: 2.5; }
+    .flow { stroke: #1f8f4e; stroke-width: 2.2; fill: none; }
+    .fc-text { font-family: "Trebuchet MS", sans-serif; font-size: 13px; font-weight: 700; fill: #0f5a2e; }
+    .fc-small { font-family: "Trebuchet MS", sans-serif; font-size: 11px; font-weight: 700; fill: #166534; }
+
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes blobMove {
+      from { transform: translate(0, 0) scale(1); }
+      to { transform: translate(24px, 18px) scale(1.06); }
+    }
+
+    @media (max-width: 760px) {
+      .wrap { padding: 14px; }
+      .layout { grid-template-columns: 1fr; }
+      .side-nav { position: static; }
+      h1 { font-size: 1.6rem; }
+      .code { font-size: 0.86rem; }
+      .ex-table { font-size: .8rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <span class="tag">Lesson 7 - July 13, 2026</span>
+    <h1>While Loops in Python</h1>
+    <p>We started by solving homework exercise 2 from lesson 6 (the two-digit number), then wrote our first real <code>while</code> loop in Python — diagram 23, finding the highest grade in a class. After that we turned six more flowcharts into working Python: diagrams 11, 12, 14, 16, 17 and 20.</p>
+  </section>
+
+  <div class="layout">
+    <aside class="side-nav" aria-label="Topic navigation">
+      <h2 class="side-title">Topics</h2>
+      <div class="side-section-label">Homework review</div>
+      <button class="topic-link active" data-target="topic-hw2">hw 6 - targil 2</button>
+      <hr class="side-divider" />
+      <div class="side-section-label">Python code</div>
+      <button class="topic-link" data-target="topic-while">while loop - the idea</button>
+      <button class="topic-link" data-target="topic-d23">diag 23 - max grade</button>
+      <hr class="side-divider" />
+      <div class="side-section-label">While exercises</div>
+      <button class="topic-link" data-target="topic-d11">diag 11 - until negative</button>
+      <button class="topic-link" data-target="topic-d12">diag 12 - sum until 999</button>
+      <button class="topic-link" data-target="topic-d14">diag 14 - multiply no *</button>
+      <button class="topic-link" data-target="topic-d16">diag 16 - factorial</button>
+      <button class="topic-link" data-target="topic-d17">diag 17 - sum of digits</button>
+      <button class="topic-link" data-target="topic-d20">diag 20 - palindrome</button>
+      <hr class="side-divider" />
+      <button class="topic-link" data-target="topic-github">github folder</button>
+      <button class="topic-link" data-target="topic-exercise">exercise</button>
+      <button class="topic-link" data-target="topic-exercise-heb">exercise - עברית</button>
+      <hr class="side-divider" />
+      <div class="side-section-label">Navigation</div>
+      <a class="nav-back" href="../../index.html#lessons">Back to lessons</a>
+    </aside>
+
+    <main>
+      <!-- ═══ HOMEWORK 6 - EXERCISE 2 ═══ -->
+      <section class="card topic-panel active" id="topic-hw2">
+        <span class="tag">Homework 6 · Exercise 2</span>
+        <h2 class="step-title">Two-Digit Number — Tens vs Ones</h2>
+        <p>Read a number from the user. First check it really is a two-digit number (between <code>10</code> and <code>99</code>). If it is, compare the <strong>ones</strong> digit (ahadot / אחדות) with the <strong>tens</strong> digit (asarot / עשרות).</p>
+
+        <div class="note">
+          <strong>The two tricks:</strong><br>
+          <code>a % 10</code> gives the <strong>ones</strong> digit — the remainder after dividing by 10.<br>
+          <code>a // 10</code> gives the <strong>tens</strong> digit — the whole part of the division.<br>
+          For <code>44</code>: <code>44 % 10 = 4</code> and <code>44 // 10 = 4</code> → equal digits.
+        </div>
+
+        <div class="fc-wrap">
+          <svg viewBox="0 0 800 800" width="640" role="img" aria-label="Homework 6 exercise 2 flowchart - two digit number">
+            <defs>
+              <marker id="hw2" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+                <path d="M0,0 L8,4 L0,8 Z" fill="#1f8f4e"/>
+              </marker>
+            </defs>
+            <ellipse cx="400" cy="40" rx="62" ry="26" class="shape"/>
+            <text x="400" y="46" text-anchor="middle" class="fc-text">START</text>
+            <line x1="400" y1="66" x2="400" y2="86" class="flow" marker-end="url(#hw2)"/>
+            <polygon points="350,90 470,90 450,126 330,126" class="shape"/>
+            <text x="400" y="113" text-anchor="middle" class="fc-text">INPUT a</text>
+            <line x1="400" y1="126" x2="400" y2="150" class="flow" marker-end="url(#hw2)"/>
+            <polygon points="400,154 500,224 400,294 300,224" class="decision"/>
+            <text x="400" y="218" text-anchor="middle" class="fc-text">a &gt;= 10 and</text>
+            <text x="400" y="237" text-anchor="middle" class="fc-text">a &lt;= 99 ?</text>
+            <text x="292" y="214" text-anchor="end" class="fc-small">NO</text>
+            <line x1="300" y1="224" x2="205" y2="224" class="flow" marker-end="url(#hw2)"/>
+            <path d="M50,192 h150 v52 q-75 22 -150 0 z" class="shape-alt"/>
+            <text x="125" y="213" text-anchor="middle" class="fc-text">number should be</text>
+            <text x="125" y="231" text-anchor="middle" class="fc-text">between 10-99</text>
+            <line x1="125" y1="258" x2="125" y2="690" class="flow"/>
+            <text x="412" y="314" class="fc-small">YES</text>
+            <line x1="400" y1="294" x2="400" y2="320" class="flow" marker-end="url(#hw2)"/>
+            <rect x="300" y="324" width="200" height="64" class="shape"/>
+            <text x="400" y="349" text-anchor="middle" class="fc-text">ahadot = a % 10</text>
+            <text x="400" y="372" text-anchor="middle" class="fc-text">asarot = a // 10</text>
+            <line x1="400" y1="388" x2="400" y2="410" class="flow" marker-end="url(#hw2)"/>
+            <polygon points="400,414 500,484 400,554 300,484" class="decision"/>
+            <text x="400" y="479" text-anchor="middle" class="fc-text">ahadot ==</text>
+            <text x="400" y="498" text-anchor="middle" class="fc-text">asarot ?</text>
+            <text x="512" y="476" class="fc-small">YES</text>
+            <line x1="500" y1="484" x2="560" y2="484" class="flow" marker-end="url(#hw2)"/>
+            <path d="M565,460 h115 v48 q-58 22 -115 0 z" class="shape-alt"/>
+            <text x="622" y="488" text-anchor="middle" class="fc-text">Equal</text>
+            <line x1="622" y1="520" x2="622" y2="690" class="flow"/>
+            <text x="288" y="476" text-anchor="end" class="fc-small">NO</text>
+            <line x1="300" y1="484" x2="255" y2="484" class="flow" marker-end="url(#hw2)"/>
+            <path d="M120,460 h130 v48 q-65 22 -130 0 z" class="shape-alt"/>
+            <text x="185" y="488" text-anchor="middle" class="fc-text">Not Equal</text>
+            <line x1="185" y1="520" x2="185" y2="690" class="flow"/>
+            <line x1="125" y1="690" x2="622" y2="690" class="flow"/>
+            <line x1="400" y1="690" x2="400" y2="712" class="flow" marker-end="url(#hw2)"/>
+            <ellipse cx="400" cy="742" rx="52" ry="26" class="shape"/>
+            <text x="400" y="748" text-anchor="middle" class="fc-text">END</text>
+          </svg>
+        </div>
+
+        <div class="big-result">The Python code</div>
+        <div class="code"><span class="cm"># START</span>
+
+a = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'enter 2 digit number'</span>))
+
+<span class="kw">if</span> a &gt;= <span class="num">10</span> <span class="kw">and</span> a &lt;= <span class="num">99</span>:
+    ahadot = a % <span class="num">10</span>
+    asarot = a // <span class="num">10</span>
+    <span class="kw">if</span> ahadot == asarot:
+        <span class="fn">print</span>(<span class="str">'equal digits'</span>)
+    <span class="kw">else</span>:
+        <span class="fn">print</span>(<span class="str">'NOT equal digits'</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">'number should be between 10-99'</span>)
+
+<span class="cm"># STOP</span></div>
+
+        <div class="big-result">Output (user types 44)</div>
+        <div class="console">enter 2 digit number<span class="usr">44</span>
+equal digits</div>
+
+        <div class="big-result">Output (user types 5)</div>
+        <div class="console">enter 2 digit number<span class="usr">5</span>
+number should be between 10-99</div>
+
+        <div class="big-result">Examples</div>
+        <table class="ex-table">
+          <thead><tr><th>a</th><th>ahadot (a % 10)</th><th>asarot (a // 10)</th><th>Program prints</th></tr></thead>
+          <tbody>
+            <tr><td>44</td><td>4</td><td>4</td><td>equal digits</td></tr>
+            <tr><td>77</td><td>7</td><td>7</td><td>equal digits</td></tr>
+            <tr><td>23</td><td>3</td><td>2</td><td>NOT equal digits</td></tr>
+            <tr><td>5</td><td colspan="2">not checked — the guard fails first</td><td>number should be between 10-99</td></tr>
+            <tr><td>150</td><td colspan="2">not checked — the guard fails first</td><td>number should be between 10-99</td></tr>
+          </tbody>
+        </table>
+
+        <div class="note">
+          <strong>Nesting again.</strong> The second <code>if</code> lives <em>inside</em> the first one, so it is indented by 8 spaces. Python only reaches it when the number really is between 10 and 99 — that is why we never divide a number that we did not validate.
+        </div>
+      </section>
+
+      <!-- ═══ WHILE LOOP - THE IDEA ═══ -->
+      <section class="card topic-panel" id="topic-while">
+        <span class="tag">Python · while</span>
+        <h2 class="step-title">The <code>while</code> Loop</h2>
+        <p>Until now every line ran <strong>once</strong>. A <code>while</code> loop repeats a block of code <strong>as long as a condition is True</strong>. It is the code version of the loop-shaped arrow we keep drawing in flowcharts.</p>
+
+        <div class="code"><span class="kw">while</span> &lt;condition&gt;:
+    &lt;body — runs again and again&gt;
+
+&lt;this line runs only after the loop finished&gt;</div>
+
+        <div class="note">
+          <strong>How Python runs it:</strong><br>
+          1. Check the condition.<br>
+          2. If it is <code>True</code> → run the indented body, then go back to step 1.<br>
+          3. If it is <code>False</code> → skip the body and continue after the loop.<br>
+          The condition is checked <em>before</em> every round — so a loop can also run <strong>zero</strong> times.
+        </div>
+
+        <div class="big-result">Counting from 1 to 5</div>
+        <div class="code"><span class="cm"># START</span>
+
+i = <span class="num">1</span>
+
+<span class="kw">while</span> i &lt;= <span class="num">5</span>:
+    <span class="fn">print</span>(i)
+    i += <span class="num">1</span>      <span class="cm"># same as: i = i + 1</span>
+
+<span class="fn">print</span>(<span class="str">'done'</span>)
+
+<span class="cm"># STOP</span></div>
+
+        <div class="console">1
+2
+3
+4
+5
+done</div>
+
+        <table class="ex-table">
+          <thead><tr><th>i before</th><th>i &lt;= 5 ?</th><th>prints</th><th>i after</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>True</td><td>1</td><td>2</td></tr>
+            <tr><td>2</td><td>True</td><td>2</td><td>3</td></tr>
+            <tr><td>3</td><td>True</td><td>3</td><td>4</td></tr>
+            <tr><td>4</td><td>True</td><td>4</td><td>5</td></tr>
+            <tr><td>5</td><td>True</td><td>5</td><td>6</td></tr>
+            <tr><td>6</td><td>False</td><td colspan="2">loop stops, <code>done</code> is printed</td></tr>
+          </tbody>
+        </table>
+
+        <div class="warn">
+          <strong>Infinite loop!</strong> If nothing inside the body changes the condition, the loop never stops:
+          <code>while i &lt;= 5: print(i)</code> without <code>i += 1</code> prints <code>1</code> forever. Every <code>while</code> needs something in the body that eventually makes the condition <code>False</code>. In PyCharm you stop a runaway program with the red <strong>Stop</strong> button.
+        </div>
+
+        <div class="note">
+          <strong>A loop condition can use <code>and</code> / <code>or</code> too.</strong> That is exactly what we do in diagram 23: the loop keeps going while there are students left <strong>and</strong> we have not already found a perfect grade.
+        </div>
+      </section>
+
+      <!-- ═══ DIAGRAM 23 ═══ -->
+      <section class="card topic-panel" id="topic-d23">
+        <span class="tag">Diagram 23</span>
+        <h2 class="step-title">Highest Grade in the Class</h2>
+        <p>Input the number of students in the class, then input the grade of each student, and finally print the <strong>highest</strong> grade. A grade must be between <code>0</code> and <code>100</code>; anything else is an <code>illegal grade</code>.</p>
+
+        <div class="note">
+          <strong>The plan:</strong><br>
+          1. Input <code>num_stud</code><br>
+          2. <code>i = 0</code>, <code>max_grade = 0</code><br>
+          3. While <code>i &lt; num_stud</code> <strong>and</strong> <code>max_grade &lt; 100</code>:<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;• <code>i += 1</code><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;• input <code>grade</code><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;• if the grade is illegal (<code>&lt; 0</code> or <code>&gt; 100</code>) → print <code>illegal grade</code><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;• otherwise, if <code>grade &gt; max_grade</code> → <code>max_grade = grade</code><br>
+          4. Print <code>max_grade</code>
+        </div>
+
+        <div class="warn">
+          <strong>Correction to the class diagram:</strong> in the flowchart we drew in class the <code>0-100</code> check was missing. The diagram below is the fixed version — it includes the <code>grade &lt; 0 or grade &gt; 100</code> decision, exactly like the Python code we wrote.
+        </div>
+
+        <div class="fc-wrap">
+          <svg viewBox="0 0 900 1010" width="700" role="img" aria-label="Diagram 23 flowchart - highest grade with while loop">
+            <defs>
+              <marker id="d23" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+                <path d="M0,0 L8,4 L0,8 Z" fill="#1f8f4e"/>
+              </marker>
+            </defs>
+            <ellipse cx="380" cy="40" rx="62" ry="26" class="shape"/>
+            <text x="380" y="46" text-anchor="middle" class="fc-text">START</text>
+            <line x1="380" y1="66" x2="380" y2="86" class="flow" marker-end="url(#d23)"/>
+            <polygon points="300,90 480,90 460,126 280,126" class="shape"/>
+            <text x="380" y="113" text-anchor="middle" class="fc-text">INPUT num_stud</text>
+            <line x1="380" y1="126" x2="380" y2="150" class="flow" marker-end="url(#d23)"/>
+            <rect x="290" y="154" width="180" height="62" class="shape"/>
+            <text x="380" y="179" text-anchor="middle" class="fc-text">i = 0</text>
+            <text x="380" y="202" text-anchor="middle" class="fc-text">max_grade = 0</text>
+            <line x1="380" y1="216" x2="380" y2="240" class="flow" marker-end="url(#d23)"/>
+            <ellipse cx="380" cy="292" rx="120" ry="48" class="decision"/>
+            <text x="380" y="285" text-anchor="middle" class="fc-text">i &lt; num_stud and</text>
+            <text x="380" y="304" text-anchor="middle" class="fc-text">max_grade &lt; 100 ?</text>
+            <text x="512" y="284" class="fc-small">NO</text>
+            <line x1="500" y1="292" x2="700" y2="292" class="flow" marker-end="url(#d23)"/>
+            <path d="M705,268 h150 v50 q-75 22 -150 0 z" class="shape-alt"/>
+            <text x="780" y="296" text-anchor="middle" class="fc-text">print max_grade</text>
+            <line x1="780" y1="330" x2="780" y2="924" class="flow" marker-end="url(#d23)"/>
+            <ellipse cx="780" cy="954" rx="52" ry="26" class="shape"/>
+            <text x="780" y="960" text-anchor="middle" class="fc-text">END</text>
+            <text x="392" y="358" class="fc-small">YES</text>
+            <line x1="380" y1="340" x2="380" y2="362" class="flow" marker-end="url(#d23)"/>
+            <rect x="320" y="366" width="120" height="38" class="shape"/>
+            <text x="380" y="390" text-anchor="middle" class="fc-text">i += 1</text>
+            <line x1="380" y1="404" x2="380" y2="426" class="flow" marker-end="url(#d23)"/>
+            <polygon points="320,430 460,430 440,466 300,466" class="shape"/>
+            <text x="380" y="453" text-anchor="middle" class="fc-text">INPUT grade</text>
+            <line x1="380" y1="466" x2="380" y2="490" class="flow" marker-end="url(#d23)"/>
+            <polygon points="380,494 500,564 380,634 260,564" class="decision"/>
+            <text x="380" y="558" text-anchor="middle" class="fc-text">grade &lt; 0 or</text>
+            <text x="380" y="577" text-anchor="middle" class="fc-text">grade &gt; 100 ?</text>
+            <text x="250" y="556" text-anchor="end" class="fc-small">YES</text>
+            <line x1="260" y1="564" x2="208" y2="564" class="flow" marker-end="url(#d23)"/>
+            <path d="M62,540 h140 v50 q-70 22 -140 0 z" class="shape-alt"/>
+            <text x="132" y="568" text-anchor="middle" class="fc-text">illegal grade</text>
+            <line x1="132" y1="602" x2="132" y2="850" class="flow"/>
+            <text x="392" y="654" class="fc-small">NO</text>
+            <line x1="380" y1="634" x2="380" y2="658" class="flow" marker-end="url(#d23)"/>
+            <polygon points="380,662 490,722 380,782 270,722" class="decision"/>
+            <text x="380" y="717" text-anchor="middle" class="fc-text">grade &gt;</text>
+            <text x="380" y="736" text-anchor="middle" class="fc-text">max_grade ?</text>
+            <text x="502" y="714" class="fc-small">YES</text>
+            <line x1="490" y1="722" x2="541" y2="722" class="flow" marker-end="url(#d23)"/>
+            <rect x="545" y="702" width="170" height="40" class="shape"/>
+            <text x="630" y="727" text-anchor="middle" class="fc-text">max_grade = grade</text>
+            <line x1="630" y1="742" x2="630" y2="850" class="flow"/>
+            <text x="392" y="806" class="fc-small">NO</text>
+            <line x1="380" y1="782" x2="380" y2="850" class="flow"/>
+            <line x1="30" y1="850" x2="630" y2="850" class="flow"/>
+            <line x1="30" y1="850" x2="30" y2="292" class="flow"/>
+            <line x1="30" y1="292" x2="258" y2="292" class="flow" marker-end="url(#d23)"/>
+          </svg>
+        </div>
+
+        <div class="big-result">The Python code</div>
+        <div class="code"><span class="cm"># START</span>
+
+num_stud = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'number of students?'</span>))
+
+i = <span class="num">0</span>
+max_grade = <span class="num">0</span>
+
+<span class="kw">while</span> i &lt; num_stud <span class="kw">and</span> max_grade &lt; <span class="num">100</span>:
+    i += <span class="num">1</span>
+    grade = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'grade?'</span>))
+    <span class="kw">if</span> grade &lt; <span class="num">0</span> <span class="kw">or</span> grade &gt; <span class="num">100</span>:
+        <span class="fn">print</span>(<span class="str">'illegal grade'</span>)
+    <span class="kw">elif</span> grade &gt; max_grade:
+        max_grade = grade
+
+<span class="fn">print</span>(max_grade)
+
+<span class="cm"># STOP</span></div>
+
+        <div class="big-result">Output (3 students: 80, 95, 60)</div>
+        <div class="console">number of students?<span class="usr">3</span>
+grade?<span class="usr">80</span>
+grade?<span class="usr">95</span>
+grade?<span class="usr">60</span>
+95</div>
+
+        <div class="big-result">Trace table (num_stud = 3, grades 80, 95, 60)</div>
+        <table class="ex-table">
+          <thead><tr><th>i</th><th>loop condition</th><th>grade</th><th>what happens</th><th>max_grade</th></tr></thead>
+          <tbody>
+            <tr><td>0</td><td>0 &lt; 3 and 0 &lt; 100 → True</td><td>80</td><td>legal, 80 &gt; 0 → new max</td><td>80</td></tr>
+            <tr><td>1</td><td>1 &lt; 3 and 80 &lt; 100 → True</td><td>95</td><td>legal, 95 &gt; 80 → new max</td><td>95</td></tr>
+            <tr><td>2</td><td>2 &lt; 3 and 95 &lt; 100 → True</td><td>60</td><td>legal, 60 &lt; 95 → no change</td><td>95</td></tr>
+            <tr><td>3</td><td>3 &lt; 3 → False</td><td colspan="2">loop stops, print <strong>95</strong></td><td>95</td></tr>
+          </tbody>
+        </table>
+
+        <div class="note">
+          <strong>Why <code>max_grade &lt; 100</code> in the loop condition?</strong> <code>100</code> is the best grade possible. The moment someone gets a <code>100</code> there is no point asking for more grades — nothing can beat it — so the loop stops early. This is a small <em>optimization</em>: the loop ends when the students run out <strong>or</strong> when a perfect grade shows up, whichever comes first.
+        </div>
+
+        <div class="note">
+          <strong>Why <code>elif</code> and not a second <code>if</code>?</strong> A grade is either illegal <em>or</em> a candidate for the new maximum — never both. <code>elif</code> says "only check this when the previous condition was False", so an illegal grade can never be stored in <code>max_grade</code>.
+        </div>
+
+        <div class="warn">
+          <strong>Careful:</strong> <code>i += 1</code> runs <em>before</em> we know whether the grade is legal, so an illegal grade still uses up one of the students. That is what the class code does; a stricter version would only increase <code>i</code> when the grade was accepted.
+        </div>
+      </section>
+
+      <!-- ═══ DIAGRAM 11 ═══ -->
+      <section class="card topic-panel" id="topic-d11">
+        <span class="tag">Diagram 11</span>
+        <h2 class="step-title">Keep Asking Until a Negative Number</h2>
+        <p>Ask the user for a number again and again. As long as the number is <code>0</code> or bigger, ask again. The moment a <strong>negative</strong> number is entered, the loop stops and the program says goodbye.</p>
+
+        <div class="fc-wrap">
+          <svg viewBox="0 0 700 450" width="600" role="img" aria-label="Diagram 11 flowchart - input until a negative number">
+            <defs>
+              <marker id="d11" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+                <path d="M0,0 L8,4 L0,8 Z" fill="#1f8f4e"/>
+              </marker>
+            </defs>
+            <ellipse cx="300" cy="40" rx="60" ry="25" class="shape"/>
+            <text x="300" y="46" text-anchor="middle" class="fc-text">START</text>
+            <line x1="300" y1="65" x2="300" y2="86" class="flow" marker-end="url(#d11)"/>
+            <polygon points="240,90 380,90 360,126 220,126" class="shape"/>
+            <text x="300" y="113" text-anchor="middle" class="fc-text">INPUT number</text>
+            <line x1="300" y1="126" x2="300" y2="150" class="flow" marker-end="url(#d11)"/>
+            <ellipse cx="300" cy="196" rx="105" ry="44" class="decision"/>
+            <text x="300" y="201" text-anchor="middle" class="fc-text">number &gt;= 0 ?</text>
+            <text x="418" y="188" class="fc-small">NO</text>
+            <line x1="405" y1="196" x2="470" y2="196" class="flow" marker-end="url(#d11)"/>
+            <path d="M475,166 h180 v56 q-90 24 -180 0 z" class="shape-alt"/>
+            <text x="565" y="190" text-anchor="middle" class="fc-text">Negative number</text>
+            <text x="565" y="208" text-anchor="middle" class="fc-text">was entered</text>
+            <line x1="565" y1="232" x2="565" y2="313" class="flow" marker-end="url(#d11)"/>
+            <ellipse cx="565" cy="340" rx="52" ry="25" class="shape"/>
+            <text x="565" y="346" text-anchor="middle" class="fc-text">END</text>
+            <text x="312" y="258" class="fc-small">YES</text>
+            <line x1="300" y1="240" x2="300" y2="262" class="flow" marker-end="url(#d11)"/>
+            <path d="M195,266 h210 v52 q-105 22 -210 0 z" class="shape-alt"/>
+            <text x="300" y="289" text-anchor="middle" class="fc-text">Enter negative number</text>
+            <text x="300" y="307" text-anchor="middle" class="fc-text">to exit</text>
+            <line x1="300" y1="328" x2="300" y2="350" class="flow" marker-end="url(#d11)"/>
+            <polygon points="240,354 380,354 360,390 220,390" class="shape"/>
+            <text x="300" y="377" text-anchor="middle" class="fc-text">INPUT number</text>
+            <polyline points="300,390 300,414 150,414 150,196 193,196" class="flow" marker-end="url(#d11)"/>
+          </svg>
+        </div>
+
+        <div class="code"><span class="cm"># START</span>
+
+number = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'number?'</span>))
+
+<span class="kw">while</span> number &gt;= <span class="num">0</span>:
+    <span class="fn">print</span>(<span class="str">'Enter negative number to exit'</span>)
+    number = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'number?'</span>))
+
+<span class="fn">print</span>(<span class="str">'Negative number was entered'</span>)
+
+<span class="cm"># STOP</span></div>
+
+        <div class="big-result">Output</div>
+        <div class="console">number?<span class="usr">1</span>
+Enter negative number to exit
+number?<span class="usr">2</span>
+Enter negative number to exit
+number?<span class="usr">3</span>
+Enter negative number to exit
+number?<span class="usr">-4</span>
+Negative number was entered</div>
+
+        <div class="note">
+          <strong>Two inputs, on purpose.</strong> The first <code>input</code> happens <em>before</em> the loop — otherwise the condition would have nothing to test. The second one is the <strong>last line of the body</strong>, so every round brings a fresh number to check. This "input before, input again at the end" shape comes back in almost every loop that reads from the user.
+        </div>
+
+        <div class="note">
+          <code>number &gt;= 0</code> and <code>not number &lt; 0</code> are the same condition written two ways — the flowchart shows both.
+        </div>
+      </section>
+
+      <!-- ═══ DIAGRAM 12 ═══ -->
+      <section class="card topic-panel" id="topic-d12">
+        <span class="tag">Diagram 12</span>
+        <h2 class="step-title">Sum Numbers Until 999</h2>
+        <p>Read numbers from the user until they type <code>999</code>, then print the <strong>sum</strong> of everything they typed. The <code>999</code> itself is <em>not</em> part of the sum — it is only the signal to stop. For the input <code>1, 10, 999</code> the answer is <code>11</code>.</p>
+
+        <div class="fc-wrap">
+          <svg viewBox="0 0 700 500" width="600" role="img" aria-label="Diagram 12 flowchart - sum numbers until 999">
+            <defs>
+              <marker id="d12" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+                <path d="M0,0 L8,4 L0,8 Z" fill="#1f8f4e"/>
+              </marker>
+            </defs>
+            <ellipse cx="300" cy="40" rx="60" ry="25" class="shape"/>
+            <text x="300" y="46" text-anchor="middle" class="fc-text">START</text>
+            <line x1="300" y1="65" x2="300" y2="86" class="flow" marker-end="url(#d12)"/>
+            <polygon points="240,90 380,90 360,126 220,126" class="shape"/>
+            <text x="300" y="113" text-anchor="middle" class="fc-text">INPUT number</text>
+            <line x1="300" y1="126" x2="300" y2="150" class="flow" marker-end="url(#d12)"/>
+            <rect x="240" y="154" width="120" height="40" class="shape"/>
+            <text x="300" y="179" text-anchor="middle" class="fc-text">sum = 0</text>
+            <line x1="300" y1="194" x2="300" y2="216" class="flow" marker-end="url(#d12)"/>
+            <ellipse cx="300" cy="262" rx="105" ry="44" class="decision"/>
+            <text x="300" y="267" text-anchor="middle" class="fc-text">number != 999 ?</text>
+            <text x="418" y="254" class="fc-small">NO</text>
+            <line x1="405" y1="262" x2="470" y2="262" class="flow" marker-end="url(#d12)"/>
+            <path d="M475,238 h140 v48 q-70 22 -140 0 z" class="shape-alt"/>
+            <text x="545" y="266" text-anchor="middle" class="fc-text">print sum</text>
+            <line x1="545" y1="300" x2="545" y2="378" class="flow" marker-end="url(#d12)"/>
+            <ellipse cx="545" cy="406" rx="52" ry="25" class="shape"/>
+            <text x="545" y="412" text-anchor="middle" class="fc-text">END</text>
+            <text x="312" y="324" class="fc-small">YES</text>
+            <line x1="300" y1="306" x2="300" y2="328" class="flow" marker-end="url(#d12)"/>
+            <rect x="215" y="332" width="170" height="40" class="shape"/>
+            <text x="300" y="357" text-anchor="middle" class="fc-text">sum += number</text>
+            <line x1="300" y1="372" x2="300" y2="396" class="flow" marker-end="url(#d12)"/>
+            <polygon points="240,400 380,400 360,436 220,436" class="shape"/>
+            <text x="300" y="423" text-anchor="middle" class="fc-text">INPUT number</text>
+            <polyline points="300,436 300,462 150,462 150,262 193,262" class="flow" marker-end="url(#d12)"/>
+          </svg>
+        </div>
+
+        <div class="code"><span class="cm"># START</span>
+
+number = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'number?'</span>))
+total = <span class="num">0</span>
+
+<span class="kw">while</span> number != <span class="num">999</span>:
+    total += number
+    number = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'number?'</span>))
+
+<span class="fn">print</span>(total)
+
+<span class="cm"># STOP</span></div>
+
+        <div class="big-result">Output (1, 10, 999)</div>
+        <div class="console">number?<span class="usr">1</span>
+number?<span class="usr">10</span>
+number?<span class="usr">999</span>
+11</div>
+
+        <div class="big-result">Trace table</div>
+        <table class="ex-table">
+          <thead><tr><th>number</th><th>number != 999 ?</th><th>total before</th><th>total after</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>True</td><td>0</td><td>1</td></tr>
+            <tr><td>10</td><td>True</td><td>1</td><td>11</td></tr>
+            <tr><td>999</td><td>False</td><td colspan="2">loop stops, print <strong>11</strong></td></tr>
+          </tbody>
+        </table>
+
+        <div class="note">
+          <strong>999 is a "sentinel" — a stop value.</strong> Because <code>total += number</code> happens <em>inside</em> the loop and the loop already ended when <code>999</code> arrives, the <code>999</code> is never added. That is exactly why the input line sits at the <strong>end</strong> of the body.
+        </div>
+
+        <div class="warn">
+          Do not call the variable <code>sum</code> — that is the name of a built-in Python function. Use <code>total</code> instead.
+        </div>
+      </section>
+
+      <!-- ═══ DIAGRAM 14 ═══ -->
+      <section class="card topic-panel" id="topic-d14">
+        <span class="tag">Diagram 14</span>
+        <h2 class="step-title">Multiply Without Using <code>*</code></h2>
+        <p>Input two positive numbers <code>a</code> and <code>b</code> and print <code>a * b</code> — but the <code>*</code> operator is <strong>not allowed</strong>. The trick: multiplication is just repeated addition. <code>5 * 3</code> means <code>5 + 5 + 5</code>, so add <code>a</code> to a total <code>b</code> times.</p>
+
+        <div class="fc-wrap">
+          <svg viewBox="0 0 700 570" width="600" role="img" aria-label="Diagram 14 flowchart - multiply by repeated addition">
+            <defs>
+              <marker id="d14" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+                <path d="M0,0 L8,4 L0,8 Z" fill="#1f8f4e"/>
+              </marker>
+            </defs>
+            <ellipse cx="300" cy="40" rx="60" ry="25" class="shape"/>
+            <text x="300" y="46" text-anchor="middle" class="fc-text">START</text>
+            <line x1="300" y1="65" x2="300" y2="86" class="flow" marker-end="url(#d14)"/>
+            <polygon points="255,90 365,90 345,126 235,126" class="shape"/>
+            <text x="300" y="113" text-anchor="middle" class="fc-text">INPUT a</text>
+            <line x1="300" y1="126" x2="300" y2="150" class="flow" marker-end="url(#d14)"/>
+            <polygon points="255,154 365,154 345,190 235,190" class="shape"/>
+            <text x="300" y="177" text-anchor="middle" class="fc-text">INPUT b</text>
+            <line x1="300" y1="190" x2="300" y2="214" class="flow" marker-end="url(#d14)"/>
+            <rect x="240" y="218" width="120" height="40" class="shape"/>
+            <text x="300" y="243" text-anchor="middle" class="fc-text">sum = 0</text>
+            <line x1="300" y1="258" x2="300" y2="280" class="flow" marker-end="url(#d14)"/>
+            <ellipse cx="300" cy="328" rx="100" ry="46" class="decision"/>
+            <text x="300" y="322" text-anchor="middle" class="fc-text">a &gt; 0 and</text>
+            <text x="300" y="341" text-anchor="middle" class="fc-text">b &gt; 0 ?</text>
+            <text x="412" y="320" class="fc-small">NO</text>
+            <line x1="400" y1="328" x2="465" y2="328" class="flow" marker-end="url(#d14)"/>
+            <path d="M470,304 h140 v48 q-70 22 -140 0 z" class="shape-alt"/>
+            <text x="540" y="332" text-anchor="middle" class="fc-text">print sum</text>
+            <line x1="540" y1="366" x2="540" y2="440" class="flow" marker-end="url(#d14)"/>
+            <ellipse cx="540" cy="468" rx="52" ry="25" class="shape"/>
+            <text x="540" y="474" text-anchor="middle" class="fc-text">END</text>
+            <text x="312" y="392" class="fc-small">YES</text>
+            <line x1="300" y1="374" x2="300" y2="396" class="flow" marker-end="url(#d14)"/>
+            <rect x="230" y="400" width="140" height="38" class="shape"/>
+            <text x="300" y="424" text-anchor="middle" class="fc-text">sum += a</text>
+            <line x1="300" y1="438" x2="300" y2="460" class="flow" marker-end="url(#d14)"/>
+            <rect x="240" y="464" width="120" height="38" class="shape"/>
+            <text x="300" y="488" text-anchor="middle" class="fc-text">b -= 1</text>
+            <polyline points="300,502 300,528 160,528 160,328 198,328" class="flow" marker-end="url(#d14)"/>
+          </svg>
+        </div>
+
+        <div class="code"><span class="cm"># START</span>
+
+a = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'a?'</span>))
+b = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'b?'</span>))
+
+total = <span class="num">0</span>
+
+<span class="kw">while</span> a &gt; <span class="num">0</span> <span class="kw">and</span> b &gt; <span class="num">0</span>:
+    total += a
+    b -= <span class="num">1</span>
+
+<span class="fn">print</span>(total)
+
+<span class="cm"># STOP</span></div>
+
+        <div class="big-result">Output (a = 5, b = 3)</div>
+        <div class="console">a?<span class="usr">5</span>
+b?<span class="usr">3</span>
+15</div>
+
+        <div class="big-result">Trace table (a = 5, b = 3)</div>
+        <table class="ex-table">
+          <thead><tr><th>a</th><th>b</th><th>a &gt; 0 and b &gt; 0 ?</th><th>total after</th></tr></thead>
+          <tbody>
+            <tr><td>5</td><td>3</td><td>True</td><td>0 + 5 = 5</td></tr>
+            <tr><td>5</td><td>2</td><td>True</td><td>5 + 5 = 10</td></tr>
+            <tr><td>5</td><td>1</td><td>True</td><td>10 + 5 = 15</td></tr>
+            <tr><td>5</td><td>0</td><td>False</td><td>loop stops, print <strong>15</strong></td></tr>
+          </tbody>
+        </table>
+
+        <div class="note">
+          <strong>What makes the condition False?</strong> <code>b -= 1</code>. Each round burns one <code>b</code>, so after exactly <code>b</code> rounds the loop ends — and <code>a</code> was added exactly <code>b</code> times. Checking <code>a &gt; 0</code> too means a zero or negative <code>a</code> gives <code>0</code> straight away, without ever entering the loop.
+        </div>
+      </section>
+
+      <!-- ═══ DIAGRAM 16 ═══ -->
+      <section class="card topic-panel" id="topic-d16">
+        <span class="tag">Diagram 16</span>
+        <h2 class="step-title">Factorial (atzeret / עצרת)</h2>
+        <p>The <strong>factorial</strong> of a number means: take every whole number from <code>1</code> up to that number, and <strong>multiply them all together</strong>.<br>
+           In maths it is written with an exclamation mark — <code>5!</code> is read "five factorial".</p>
+
+        <div class="note">
+          <strong>See it grow:</strong><br>
+          <code>1! = 1</code> = <strong>1</strong><br>
+          <code>2! = 1 * 2</code> = <strong>2</strong><br>
+          <code>3! = 1 * 2 * 3</code> = <strong>6</strong><br>
+          <code>4! = 1 * 2 * 3 * 4</code> = <strong>24</strong><br>
+          <code>5! = 1 * 2 * 3 * 4 * 5</code> = <strong>120</strong><br>
+          <br>
+          Notice that each answer is just the <em>previous</em> answer multiplied by the new number:<br>
+          <code>5! = 4! * 5 = 24 * 5 = 120</code>. That is exactly what the loop does — one multiplication per round.
+        </div>
+
+        <p><strong>So how do we build it in code?</strong><br>
+           We need two variables:<br>
+           • <code>result</code> — the answer we are building, starting at <code>1</code><br>
+           • <code>i</code> — the number we are currently multiplying by, also starting at <code>1</code><br>
+           <br>
+           Then, while <code>i</code> has not reached the number yet, we push <code>i</code> one step up and multiply it into <code>result</code>. When <code>i</code> finally equals the number, every factor from <code>1</code> to <code>number</code> has been used — and <code>result</code> holds the factorial.</p>
+
+        <div class="fc-wrap">
+          <svg viewBox="0 0 700 520" width="600" role="img" aria-label="Diagram 16 flowchart - factorial">
+            <defs>
+              <marker id="d16" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+                <path d="M0,0 L8,4 L0,8 Z" fill="#1f8f4e"/>
+              </marker>
+            </defs>
+            <ellipse cx="300" cy="40" rx="60" ry="25" class="shape"/>
+            <text x="300" y="46" text-anchor="middle" class="fc-text">START</text>
+            <line x1="300" y1="65" x2="300" y2="86" class="flow" marker-end="url(#d16)"/>
+            <polygon points="240,90 380,90 360,126 220,126" class="shape"/>
+            <text x="300" y="113" text-anchor="middle" class="fc-text">INPUT number</text>
+            <line x1="300" y1="126" x2="300" y2="150" class="flow" marker-end="url(#d16)"/>
+            <rect x="235" y="154" width="130" height="62" class="shape"/>
+            <text x="300" y="179" text-anchor="middle" class="fc-text">i = 1</text>
+            <text x="300" y="201" text-anchor="middle" class="fc-text">result = 1</text>
+            <line x1="300" y1="216" x2="300" y2="240" class="flow" marker-end="url(#d16)"/>
+            <ellipse cx="300" cy="286" rx="95" ry="42" class="decision"/>
+            <text x="300" y="291" text-anchor="middle" class="fc-text">i &lt; number ?</text>
+            <text x="408" y="278" class="fc-small">NO</text>
+            <line x1="395" y1="286" x2="460" y2="286" class="flow" marker-end="url(#d16)"/>
+            <path d="M465,262 h145 v48 q-73 22 -145 0 z" class="shape-alt"/>
+            <text x="537" y="290" text-anchor="middle" class="fc-text">print result</text>
+            <line x1="537" y1="324" x2="537" y2="400" class="flow" marker-end="url(#d16)"/>
+            <ellipse cx="537" cy="428" rx="52" ry="25" class="shape"/>
+            <text x="537" y="434" text-anchor="middle" class="fc-text">END</text>
+            <text x="312" y="348" class="fc-small">YES</text>
+            <line x1="300" y1="328" x2="300" y2="352" class="flow" marker-end="url(#d16)"/>
+            <rect x="245" y="356" width="110" height="38" class="shape"/>
+            <text x="300" y="380" text-anchor="middle" class="fc-text">i += 1</text>
+            <line x1="300" y1="394" x2="300" y2="416" class="flow" marker-end="url(#d16)"/>
+            <rect x="215" y="420" width="170" height="38" class="shape"/>
+            <text x="300" y="444" text-anchor="middle" class="fc-text">result = result * i</text>
+            <polyline points="300,458 300,484 160,484 160,286 205,286" class="flow" marker-end="url(#d16)"/>
+          </svg>
+        </div>
+
+        <div class="code"><span class="cm"># START</span>
+
+number = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'number?'</span>))
+
+i = <span class="num">1</span>
+result = <span class="num">1</span>
+
+<span class="kw">while</span> i &lt; number:
+    i += <span class="num">1</span>
+    result = result * i
+
+<span class="fn">print</span>(result)
+
+<span class="cm"># STOP</span></div>
+
+        <div class="big-result">Output (number = 5)</div>
+        <div class="console">number?<span class="usr">5</span>
+120</div>
+
+        <div class="big-result">Trace table (number = 5)</div>
+        <table class="ex-table">
+          <thead><tr><th>i &lt; 5 ?</th><th>i becomes</th><th>result</th></tr></thead>
+          <tbody>
+            <tr><td>1 &lt; 5 → True</td><td>2</td><td>1 * 2 = 2</td></tr>
+            <tr><td>2 &lt; 5 → True</td><td>3</td><td>2 * 3 = 6</td></tr>
+            <tr><td>3 &lt; 5 → True</td><td>4</td><td>6 * 4 = 24</td></tr>
+            <tr><td>4 &lt; 5 → True</td><td>5</td><td>24 * 5 = 120</td></tr>
+            <tr><td>5 &lt; 5 → False</td><td colspan="2">loop stops, print <strong>120</strong></td></tr>
+          </tbody>
+        </table>
+
+        <div class="note">
+          <strong>Why <code>result = 1</code> and not <code>0</code>?</strong> Because we <em>multiply</em> into it. Anything times <code>0</code> stays <code>0</code> forever. <code>1</code> is the neutral starting point for multiplication, exactly like <code>0</code> is for addition.
+        </div>
+
+        <div class="note">
+          For <code>number = 1</code> the condition <code>1 &lt; 1</code> is False immediately, the loop runs <strong>zero</strong> times, and the program prints the correct answer <code>1</code>.
+        </div>
+      </section>
+
+      <!-- ═══ DIAGRAM 17 ═══ -->
+      <section class="card topic-panel" id="topic-d17">
+        <span class="tag">Diagram 17</span>
+        <h2 class="step-title">Sum of the Digits</h2>
+        <p>Input a number and print the <strong>sum of its digits</strong> — not the number itself, but the digits it is made of, added together.<br>
+           <code>123</code> → <code>1 + 2 + 3</code> = <strong>6</strong><br>
+           <code>456</code> → <code>4 + 5 + 6</code> = <strong>15</strong></p>
+
+        <p><strong>The problem:</strong> a number is not a list of digits — Python sees <code>456</code> as one single value. So we have to <em>pull the digits out ourselves</em>, one at a time. Luckily we already met the two operators that can do it:</p>
+
+        <div class="note">
+          <strong>The two tools:</strong><br>
+          <code>number % 10</code> — the remainder of dividing by 10. It <strong>reads</strong> the last digit.<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<code>456 % 10 = 6</code><br>
+          <code>number // 10</code> — whole division by 10. It <strong>throws the last digit away</strong>.<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<code>456 // 10 = 45</code>
+        </div>
+
+        <p><strong>The idea:</strong> use them together, again and again. Each round of the loop takes the last digit, adds it to a running total, and then chops that digit off the number:<br>
+           <code>456</code> → take <code>6</code>, left with <code>45</code><br>
+           <code>45</code> → take <code>5</code>, left with <code>4</code><br>
+           <code>4</code> → take <code>4</code>, left with <code>0</code><br>
+           <br>
+           The number keeps shrinking, and once it reaches <code>0</code> there are no digits left — that is what stops the loop. The total by then is <code>6 + 5 + 4 = 15</code>.</p>
+
+        <div class="fc-wrap">
+          <svg viewBox="0 0 700 560" width="600" role="img" aria-label="Diagram 17 flowchart - sum of digits">
+            <defs>
+              <marker id="d17" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+                <path d="M0,0 L8,4 L0,8 Z" fill="#1f8f4e"/>
+              </marker>
+            </defs>
+            <ellipse cx="300" cy="40" rx="60" ry="25" class="shape"/>
+            <text x="300" y="46" text-anchor="middle" class="fc-text">START</text>
+            <line x1="300" y1="65" x2="300" y2="86" class="flow" marker-end="url(#d17)"/>
+            <polygon points="240,90 380,90 360,126 220,126" class="shape"/>
+            <text x="300" y="113" text-anchor="middle" class="fc-text">INPUT number</text>
+            <line x1="300" y1="126" x2="300" y2="150" class="flow" marker-end="url(#d17)"/>
+            <rect x="240" y="154" width="120" height="40" class="shape"/>
+            <text x="300" y="179" text-anchor="middle" class="fc-text">sum = 0</text>
+            <line x1="300" y1="194" x2="300" y2="216" class="flow" marker-end="url(#d17)"/>
+            <ellipse cx="300" cy="262" rx="95" ry="42" class="decision"/>
+            <text x="300" y="267" text-anchor="middle" class="fc-text">number &gt; 0 ?</text>
+            <text x="408" y="254" class="fc-small">NO</text>
+            <line x1="395" y1="262" x2="460" y2="262" class="flow" marker-end="url(#d17)"/>
+            <path d="M465,238 h140 v48 q-70 22 -140 0 z" class="shape-alt"/>
+            <text x="535" y="266" text-anchor="middle" class="fc-text">print sum</text>
+            <line x1="535" y1="300" x2="535" y2="436" class="flow" marker-end="url(#d17)"/>
+            <ellipse cx="535" cy="464" rx="52" ry="25" class="shape"/>
+            <text x="535" y="470" text-anchor="middle" class="fc-text">END</text>
+            <text x="312" y="324" class="fc-small">YES</text>
+            <line x1="300" y1="304" x2="300" y2="326" class="flow" marker-end="url(#d17)"/>
+            <rect x="205" y="330" width="190" height="38" class="shape"/>
+            <text x="300" y="354" text-anchor="middle" class="fc-text">digit = number % 10</text>
+            <line x1="300" y1="368" x2="300" y2="390" class="flow" marker-end="url(#d17)"/>
+            <rect x="230" y="394" width="140" height="38" class="shape"/>
+            <text x="300" y="418" text-anchor="middle" class="fc-text">sum += digit</text>
+            <line x1="300" y1="432" x2="300" y2="454" class="flow" marker-end="url(#d17)"/>
+            <rect x="195" y="458" width="210" height="38" class="shape"/>
+            <text x="300" y="482" text-anchor="middle" class="fc-text">number = number // 10</text>
+            <polyline points="300,496 300,522 150,522 150,262 205,262" class="flow" marker-end="url(#d17)"/>
+          </svg>
+        </div>
+
+        <div class="code"><span class="cm"># START</span>
+
+number = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'number?'</span>))
+
+total = <span class="num">0</span>
+
+<span class="kw">while</span> number &gt; <span class="num">0</span>:
+    digit = number % <span class="num">10</span>      <span class="cm"># the last digit</span>
+    total += digit
+    number = number // <span class="num">10</span>   <span class="cm"># cut the last digit off</span>
+
+<span class="fn">print</span>(total)
+
+<span class="cm"># STOP</span></div>
+
+        <div class="big-result">Output (number = 456)</div>
+        <div class="console">number?<span class="usr">456</span>
+15</div>
+
+        <div class="big-result">Trace table (number = 456)</div>
+        <table class="ex-table">
+          <thead><tr><th>number before</th><th>digit (% 10)</th><th>total</th><th>number after (// 10)</th></tr></thead>
+          <tbody>
+            <tr><td>456</td><td>6</td><td>0 + 6 = 6</td><td>45</td></tr>
+            <tr><td>45</td><td>5</td><td>6 + 5 = 11</td><td>4</td></tr>
+            <tr><td>4</td><td>4</td><td>11 + 4 = 15</td><td>0</td></tr>
+            <tr><td>0</td><td colspan="3"><code>0 &gt; 0</code> is False → loop stops, print <strong>15</strong></td></tr>
+          </tbody>
+        </table>
+
+        <div class="note">
+          <strong>The digit-peeling pattern.</strong> <code>% 10</code> <em>reads</em> the last digit, <code>// 10</code> <em>removes</em> it. Together they walk through a number digit by digit, and <code>number</code> shrinks to <code>0</code> — which is what ends the loop. Remember this pair: the palindrome exercise uses exactly the same two lines.
+        </div>
+      </section>
+
+      <!-- ═══ DIAGRAM 20 ═══ -->
+      <section class="card topic-panel" id="topic-d20">
+        <span class="tag">Diagram 20</span>
+        <h2 class="step-title">Palindrome Number</h2>
+        <p>A <strong>palindrome</strong> reads the same forwards and backwards. Words can be palindromes too — like "level" or "racecar" — and so can numbers:<br>
+           <code>2332</code> reversed is <code>2332</code> → <strong>palindrome</strong> ✅<br>
+           <code>232</code> reversed is <code>232</code> → <strong>palindrome</strong> ✅<br>
+           <code>7</code> reversed is <code>7</code> → <strong>palindrome</strong> ✅<br>
+           <code>23</code> reversed is <code>32</code> → <strong>not a palindrome</strong> ❌</p>
+
+        <p><strong>The problem:</strong> Python cannot simply "read a number backwards" — so we have to <em>build</em> the reversed number ourselves, digit by digit, using the very same peeling trick from diagram 17: <code>% 10</code> reads the last digit, <code>// 10</code> chops it off.</p>
+
+        <div class="note">
+          <strong>Reversing 2332, one digit at a time:</strong><br>
+          Start with <code>reversed = 0</code>.<br>
+          Each round we move what we already built one place to the left (multiply by <code>10</code>) and drop the new digit into the empty spot on the right:<br>
+          <br>
+          take <code>2</code> → <code>0 * 10 + 2</code> = <strong>2</strong><br>
+          take <code>3</code> → <code>2 * 10 + 3</code> = <strong>23</strong><br>
+          take <code>3</code> → <code>23 * 10 + 3</code> = <strong>233</strong><br>
+          take <code>2</code> → <code>233 * 10 + 2</code> = <strong>2332</strong>
+        </div>
+
+        <p><strong>One catch:</strong> the loop <em>eats</em> the number — by the end <code>num</code> has shrunk all the way to <code>0</code>, so there is nothing left to compare with. That is why, <strong>before</strong> the loop starts, we save a copy in <code>original</code>. When the loop finishes we simply ask: is <code>original</code> equal to the reversed number?</p>
+
+        <div class="fc-wrap">
+          <svg viewBox="0 0 820 950" width="640" role="img" aria-label="Diagram 20 flowchart - palindrome number">
+            <defs>
+              <marker id="d20" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+                <path d="M0,0 L8,4 L0,8 Z" fill="#1f8f4e"/>
+              </marker>
+            </defs>
+            <ellipse cx="380" cy="40" rx="62" ry="26" class="shape"/>
+            <text x="380" y="46" text-anchor="middle" class="fc-text">START</text>
+            <line x1="380" y1="66" x2="380" y2="86" class="flow" marker-end="url(#d20)"/>
+            <polygon points="320,90 460,90 440,132 300,132" class="shape"/>
+            <text x="380" y="117" text-anchor="middle" class="fc-text">INPUT num</text>
+            <line x1="380" y1="132" x2="380" y2="154" class="flow" marker-end="url(#d20)"/>
+            <polygon points="380,158 458,220 380,282 302,220" class="decision"/>
+            <text x="380" y="226" text-anchor="middle" class="fc-text">num &lt; 1 ?</text>
+            <text x="293" y="210" text-anchor="end" class="fc-small">YES</text>
+            <line x1="302" y1="220" x2="214" y2="220" class="flow" marker-end="url(#d20)"/>
+            <path d="M84,196 h124 v48 q-62 22 -124 0 z" class="shape-alt"/>
+            <text x="146" y="214" text-anchor="middle" class="fc-text">Enter positive</text>
+            <text x="146" y="231" text-anchor="middle" class="fc-text">number</text>
+            <line x1="146" y1="256" x2="146" y2="860" class="flow"/>
+            <text x="392" y="300" class="fc-small">NO</text>
+            <line x1="380" y1="282" x2="380" y2="302" class="flow" marker-end="url(#d20)"/>
+            <rect x="290" y="306" width="180" height="64" class="shape"/>
+            <text x="380" y="331" text-anchor="middle" class="fc-text">original = num</text>
+            <text x="380" y="354" text-anchor="middle" class="fc-text">reversed = 0</text>
+            <line x1="380" y1="370" x2="380" y2="390" class="flow" marker-end="url(#d20)"/>
+            <ellipse cx="380" cy="434" rx="90" ry="40" class="decision"/>
+            <text x="380" y="440" text-anchor="middle" class="fc-text">num &gt; 0 ?</text>
+            <text x="392" y="492" class="fc-small">YES</text>
+            <line x1="380" y1="474" x2="380" y2="494" class="flow" marker-end="url(#d20)"/>
+            <rect x="270" y="498" width="220" height="38" class="shape"/>
+            <text x="380" y="522" text-anchor="middle" class="fc-text">last_digit = num % 10</text>
+            <line x1="380" y1="536" x2="380" y2="556" class="flow" marker-end="url(#d20)"/>
+            <rect x="230" y="560" width="300" height="38" class="shape"/>
+            <text x="380" y="584" text-anchor="middle" class="fc-text">reversed = reversed * 10 + last_digit</text>
+            <line x1="380" y1="598" x2="380" y2="618" class="flow" marker-end="url(#d20)"/>
+            <rect x="280" y="622" width="200" height="38" class="shape"/>
+            <text x="380" y="646" text-anchor="middle" class="fc-text">num = num // 10</text>
+            <polyline points="280,641 212,641 212,434 286,434" class="flow" marker-end="url(#d20)"/>
+            <text x="478" y="426" class="fc-small">NO</text>
+            <line x1="470" y1="434" x2="521" y2="434" class="flow" marker-end="url(#d20)"/>
+            <polygon points="605,372 685,434 605,496 525,434" class="decision"/>
+            <text x="605" y="429" text-anchor="middle" class="fc-text">original ==</text>
+            <text x="605" y="447" text-anchor="middle" class="fc-text">reversed ?</text>
+            <text x="617" y="522" class="fc-small">YES</text>
+            <line x1="605" y1="496" x2="605" y2="518" class="flow" marker-end="url(#d20)"/>
+            <path d="M550,522 h110 v44 q-55 22 -110 0 z" class="shape-alt"/>
+            <text x="605" y="548" text-anchor="middle" class="fc-text">Palindrome</text>
+            <text x="692" y="426" class="fc-small">NO</text>
+            <polyline points="685,434 740,434 740,518" class="flow" marker-end="url(#d20)"/>
+            <path d="M675,522 h130 v44 q-65 22 -130 0 z" class="shape-alt"/>
+            <text x="740" y="548" text-anchor="middle" class="fc-text">Not Palindrome</text>
+            <line x1="605" y1="579" x2="605" y2="860" class="flow"/>
+            <line x1="740" y1="579" x2="740" y2="860" class="flow"/>
+            <line x1="146" y1="860" x2="740" y2="860" class="flow"/>
+            <line x1="430" y1="860" x2="430" y2="878" class="flow" marker-end="url(#d20)"/>
+            <ellipse cx="430" cy="908" rx="52" ry="26" class="shape"/>
+            <text x="430" y="914" text-anchor="middle" class="fc-text">END</text>
+          </svg>
+        </div>
+
+        <div class="code"><span class="cm"># START</span>
+
+num = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'number?'</span>))
+
+<span class="kw">if</span> num &lt; <span class="num">1</span>:
+    <span class="fn">print</span>(<span class="str">'enter positive number'</span>)
+<span class="kw">else</span>:
+    original = num
+    reversed_num = <span class="num">0</span>
+    <span class="kw">while</span> num &gt; <span class="num">0</span>:
+        last_digit = num % <span class="num">10</span>
+        reversed_num = reversed_num * <span class="num">10</span> + last_digit
+        num = num // <span class="num">10</span>
+    <span class="kw">if</span> original == reversed_num:
+        <span class="fn">print</span>(<span class="str">'palindrom'</span>)
+    <span class="kw">else</span>:
+        <span class="fn">print</span>(<span class="str">'not-palindrome'</span>)
+
+<span class="cm"># STOP</span></div>
+
+        <div class="big-result">Output (num = 2332)</div>
+        <div class="console">number?<span class="usr">2332</span>
+palindrom</div>
+
+        <div class="big-result">Output (num = 23)</div>
+        <div class="console">number?<span class="usr">23</span>
+not-palindrome</div>
+
+        <div class="big-result">Trace table (num = 2332)</div>
+        <table class="ex-table">
+          <thead><tr><th>num before</th><th>last_digit</th><th>reversed_num after</th><th>num after</th></tr></thead>
+          <tbody>
+            <tr><td>2332</td><td>2</td><td>0 * 10 + 2 = 2</td><td>233</td></tr>
+            <tr><td>233</td><td>3</td><td>2 * 10 + 3 = 23</td><td>23</td></tr>
+            <tr><td>23</td><td>3</td><td>23 * 10 + 3 = 233</td><td>2</td></tr>
+            <tr><td>2</td><td>2</td><td>233 * 10 + 2 = 2332</td><td>0</td></tr>
+            <tr><td>0</td><td colspan="3">loop stops · <code>original == reversed_num</code> → <strong>palindrom</strong></td></tr>
+          </tbody>
+        </table>
+
+        <div class="note">
+          <strong>Why keep <code>original</code>?</strong> The loop <em>destroys</em> <code>num</code> — it shrinks to <code>0</code>. Without a copy taken before the loop there would be nothing left to compare against. Saving a variable before a loop eats it is a habit worth building.
+        </div>
+
+        <div class="note">
+          <strong>Building the reversed number:</strong> <code>reversed_num * 10</code> pushes what we already have one place to the left, and <code>+ last_digit</code> drops the new digit into the empty spot on the right.
+        </div>
+
+        <div class="warn">
+          In Python <code>reversed</code> is the name of a built-in function, so the code uses <code>reversed_num</code>. The flowchart still says <code>reversed</code> — flowcharts do not care, Python does.
+        </div>
+      </section>
+
+      <!-- ═══ GITHUB ═══ -->
+      <section class="card topic-panel" id="topic-github">
+        <span class="tag">GitHub</span>
+        <h2 class="step-title">Lesson 7 GitHub Folder</h2>
+        <p>All the code and diagrams from today's lesson:</p>
+        <div class="task-box">
+          <strong>Lesson folder:</strong><br>
+          <a href="https://github.com/pythonai080626-a11y/13_july_2026" target="_blank" rel="noopener">
+            https://github.com/pythonai080626-a11y/13_july_2026
+          </a>
+        </div>
+      </section>
+
+      <!-- ═══ EXERCISE (English) ═══ -->
+      <section class="card topic-panel" id="topic-exercise">
+        <span class="tag">Homework</span>
+        <h2 class="step-title">2 Exercises</h2>
+        <p>Both exercises are <strong>Python only</strong> — no flowchart needed this time. Write each one as a <code>.py</code> file in PyCharm and run it with <span class="kbd">Shift</span> + <span class="kbd">F10</span>.</p>
+
+        <!-- Exercise 1 -->
+        <div class="ex-title">
+          <span class="ex-num">1</span>
+          <h3>The lowest grade</h3>
+        </div>
+        <p>Input the <strong>number of students</strong> in the class, then input the <strong>grade</strong> of each student.<br>
+           When all the grades have been entered, print the <strong>lowest</strong> grade in the class.</p>
+        <div class="console">number of students?<span class="usr">4</span>
+grade?<span class="usr">80</span>
+grade?<span class="usr">55</span>
+grade?<span class="usr">91</span>
+grade?<span class="usr">73</span>
+55</div>
+        <div class="note">
+          <strong>Hint:</strong> this is diagram 23 turned upside down. Use a counter <code>i</code> and a <code>while</code> loop that runs <code>num_stud</code> times, and keep the answer in a variable such as <code>min_grade</code>.<br>
+          <br>
+          <strong>Careful with the starting value!</strong> For the <em>highest</em> grade we started at <code>0</code>, because every grade is <code>&gt;= 0</code>. For the <em>lowest</em> grade, starting at <code>0</code> would be a bug — no grade would ever be smaller than <code>0</code>, so the answer would always come out <code>0</code>. Think about what starting value <em>can</em> be beaten by any real grade.
+        </div>
+
+        <!-- Exercise 2 -->
+        <div class="ex-title">
+          <span class="ex-num">2</span>
+          <h3>Sum until 999</h3>
+        </div>
+        <p>Input numbers from the user, one after another, until the user types <code>999</code>.<br>
+           When <code>999</code> arrives, print the <strong>sum of all the numbers</strong> that were entered and finish. The <code>999</code> itself is <strong>not</strong> part of the sum — it is only the signal to stop.</p>
+        <table class="ex-table">
+          <thead><tr><th>User types</th><th>Program prints</th></tr></thead>
+          <tbody>
+            <tr><td>1, 10, 999</td><td>11</td></tr>
+            <tr><td>5, 5, 5, 999</td><td>15</td></tr>
+            <tr><td>999</td><td>0</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          <strong>Hint:</strong> we do not know in advance <em>how many</em> numbers will be entered, so there is no counter here — the loop condition is about the <strong>value</strong>: <code>while number != 999:</code>.<br>
+          <br>
+          The trick is <em>where</em> you read the input: once <strong>before</strong> the loop (so the condition has something to test), and once again as the <strong>last line inside</strong> the loop.
+        </div>
+
+        <div class="big-result">Submission</div>
+        <div class="card submission">
+          <ol class="task-list">
+            <li><strong>Write the .py programs</strong> in PyCharm.</li>
+            <li><strong>Upload everything to GitHub</strong> and send the link to:<br>
+              <a href="mailto:pythonai080626+hw7@gmail.com">pythonai080626+hw7@gmail.com</a>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ═══ EXERCISE (Hebrew) ═══ -->
+      <section class="card topic-panel rtl" id="topic-exercise-heb" lang="he" dir="rtl">
+        <span class="tag">שיעורי בית</span>
+        <h2 class="step-title">2 תרגילים</h2>
+        <p>שני התרגילים הם <strong>בפייתון בלבד</strong> — הפעם אין צורך בתרשים זרימה. כתבו כל תרגיל בקובץ <code>.py</code> ב-PyCharm והריצו עם <span class="kbd">Shift</span> + <span class="kbd">F10</span>.</p>
+
+        <!-- Exercise 1 -->
+        <div class="ex-title">
+          <span class="ex-num">1</span>
+          <h3>הציון הנמוך ביותר</h3>
+        </div>
+        <p>קלטו את <strong>מספר התלמידים</strong> בכיתה, ואז קלטו את <strong>הציון</strong> של כל תלמיד.<br>
+           בסוף, הדפיסו את <strong>הציון הנמוך ביותר</strong> בכיתה.</p>
+        <div class="console" dir="ltr">number of students?<span class="usr">4</span>
+grade?<span class="usr">80</span>
+grade?<span class="usr">55</span>
+grade?<span class="usr">91</span>
+grade?<span class="usr">73</span>
+55</div>
+        <div class="note">
+          <strong>רמז:</strong> זה בדיוק תרשים 23 — רק הפוך. השתמשו במונה <code>i</code> ובלולאת <code>while</code> שרצה <code>num_stud</code> פעמים, ושמרו את התשובה במשתנה כמו <code>min_grade</code>.<br>
+          <br>
+          <strong>שימו לב לערך ההתחלתי!</strong> בציון ה<em>גבוה</em> התחלנו מ-<code>0</code>, כי כל ציון גדול או שווה ל-<code>0</code>. בציון ה<em>נמוך</em> התחלה מ-<code>0</code> היא באג — אף ציון לא יהיה קטן מ-<code>0</code>, ולכן התשובה תמיד תצא <code>0</code>. חשבו איזה ערך התחלתי כן אפשר "לנצח" עם ציון אמיתי.
+        </div>
+
+        <!-- Exercise 2 -->
+        <div class="ex-title">
+          <span class="ex-num">2</span>
+          <h3>סכום עד 999</h3>
+        </div>
+        <p>קלטו מספרים מהמשתמש, אחד אחרי השני, עד שהמשתמש מקליד <code>999</code>.<br>
+           כשמגיע <code>999</code> — הדפיסו את <strong>סכום כל המספרים</strong> שהוקלדו וסיימו. המספר <code>999</code> <strong>לא</strong> נכלל בסכום, הוא רק הסימן לעצור.</p>
+        <table class="ex-table">
+          <thead><tr><th>המשתמש מקליד</th><th>התוכנית מדפיסה</th></tr></thead>
+          <tbody>
+            <tr><td>1, 10, 999</td><td>11</td></tr>
+            <tr><td>5, 5, 5, 999</td><td>15</td></tr>
+            <tr><td>999</td><td>0</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          <strong>רמז:</strong> אנחנו לא יודעים מראש <em>כמה</em> מספרים יוקלדו, ולכן אין כאן מונה — תנאי הלולאה הוא על ה<strong>ערך</strong>: <code>while number != 999:</code>.<br>
+          <br>
+          הטריק הוא <em>איפה</em> קוראים את הקלט: פעם אחת <strong>לפני</strong> הלולאה (כדי שיהיה מה לבדוק בתנאי), ופעם נוספת כ<strong>שורה האחרונה בתוך</strong> הלולאה.
+        </div>
+
+        <div class="big-result">הגשה</div>
+        <div class="card submission">
+          <ol class="task-list">
+            <li><strong>כתבו את קבצי ה-py</strong> ב-PyCharm.</li>
+            <li><strong>העלו הכל ל-GitHub</strong> ושלחו את הקישור ל:<br>
+              <a href="mailto:pythonai080626+hw7@gmail.com">pythonai080626+hw7@gmail.com</a>
+            </li>
+          </ol>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="footer">
+    Python Basics - Lesson 7 - July 13, 2026 - While Loops in Python
+  </footer>
+</div>
+
+<script>
+  const links = document.querySelectorAll('.topic-link');
+  const panels = document.querySelectorAll('.topic-panel');
+
+  function showTopic(id) {
+    panels.forEach(panel => panel.classList.toggle('active', panel.id === id));
+    links.forEach(link => link.classList.toggle('active', link.dataset.target === id));
+  }
+
+  links.forEach(link => {
+    link.addEventListener('click', () => {
+      showTopic(link.dataset.target);
+      location.hash = link.dataset.target;
+    });
+  });
+
+  const hash = location.hash.replace('#', '');
+  if (hash && document.getElementById(hash)) showTopic(hash);
+</script>
+</body>
+</html>
