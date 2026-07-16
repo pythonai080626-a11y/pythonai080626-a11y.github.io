@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lesson 8 - while True, break &amp; continue</title>
+  <style>
+    :root {
+      --bg-soft: #ffffff;
+      --green-1: #0f5a2e;
+      --green-2: #1f8f4e;
+      --green-3: #dbf6e5;
+      --mint: #e6fff2;
+      --text: #14281d;
+      --muted: #426654;
+      --border: #aadfbd;
+      --accent-a: #ddfbe7;
+      --accent-b: #fff4d8;
+      --code-bg: #0b2517;
+      --code-text: #d2ffe3;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Lucida Sans", "Segoe UI", sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 15% 10%, #e7fff0 0%, transparent 35%),
+                  radial-gradient(circle at 85% 18%, #fff5d6 0%, transparent 36%),
+                  linear-gradient(180deg, #f4fff6 0%, #ffffff 45%, #edfff4 100%);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    body::before, body::after {
+      content: "";
+      position: fixed;
+      width: 230px;
+      height: 230px;
+      z-index: -1;
+      border-radius: 999px;
+      filter: blur(2px);
+      opacity: 0.32;
+      animation: blobMove 8s ease-in-out infinite alternate;
+    }
+    body::before { background: #bff0d0; top: -30px; left: -40px; }
+    body::after { background: #ffe9a9; bottom: -40px; right: -40px; animation-delay: 1.4s; }
+
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 24px; }
+    .layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .side-nav {
+      position: sticky;
+      top: 14px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 8px 22px rgba(18,102,55,0.1);
+      padding: 12px;
+    }
+    .side-title { margin: 0 0 8px; font-size: 0.9rem; color: var(--green-1); font-weight: 700; }
+    .topic-link {
+      display: block;
+      width: 100%;
+      text-align: left;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      padding: 8px 10px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.89rem;
+      text-transform: lowercase;
+      margin-bottom: 4px;
+      transition: all 0.2s ease;
+    }
+    .topic-link:hover { background: #f0fff4; color: var(--green-1); border-color: var(--border); }
+    .topic-link.active { background: #e8faee; color: var(--green-1); border-color: var(--green-2); font-weight: 700; }
+
+    .hero {
+      background: linear-gradient(135deg, var(--bg-soft) 0%, var(--accent-a) 55%, var(--accent-b) 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 12px 30px rgba(24,110,58,0.12);
+      margin-bottom: 22px;
+      animation: riseIn 0.75s ease both;
+    }
+
+    h1, h2, h3 { margin-top: 0; color: var(--green-1); }
+    h1 { font-size: 2rem; margin-bottom: 8px; }
+    code { color: var(--green-1); font-weight: 700; }
+
+    .tag {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      background: var(--green-3);
+      color: var(--green-1);
+      border: 1px solid var(--border);
+      margin-bottom: 10px;
+    }
+
+    .card {
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 16px;
+      box-shadow: 0 7px 22px rgba(18,102,55,0.08);
+      animation: riseIn 0.65s ease both;
+    }
+
+    .topic-panel { display: none; }
+    .topic-panel.active { display: block; }
+    .step-title { margin: 0 0 12px; font-size: 1.25rem; }
+    .side-divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+    .side-section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--green-2);
+      padding: 4px 4px 6px;
+    }
+    .nav-back {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--green-2);
+      background: #e9fbe8;
+      color: var(--green-1);
+      text-decoration: none;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      width: 100%;
+      text-align: center;
+    }
+    .nav-back:hover { background: #d8f7df; transform: translateY(-1px); }
+
+    .note {
+      background: var(--mint);
+      border-left: 4px solid var(--green-2);
+      padding: 10px 14px;
+      color: var(--muted);
+      margin: 12px 0;
+      border-radius: 6px;
+      font-size: 0.94rem;
+    }
+    .warn {
+      background: #fff6e2;
+      border-left: 4px solid #e0a800;
+      padding: 10px 14px;
+      color: #6b4e00;
+      margin: 12px 0;
+      border-radius: 6px;
+      font-size: 0.94rem;
+    }
+    .big-result { font-size: 1.1rem; margin: 18px 0 8px; color: var(--green-1); font-weight: 700; }
+
+    .code {
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 10px;
+      border: 1px solid #2f5a3d;
+      padding: 16px 18px;
+      overflow-x: auto;
+      margin: 10px 0 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95rem;
+      white-space: pre;
+      line-height: 1.7;
+    }
+    .code .cm { color: #6dbf8a; }
+    .code .fn { color: #ffa657; }
+    .code .kw { color: #79c0ff; }
+    .code .num { color: #d2a8ff; }
+    .code .str { color: #ffd580; }
+    .code .hl { background: rgba(125,231,135,0.16); border-radius: 4px; }
+    .code .bad { background: rgba(248,113,113,0.16); border-radius: 4px; }
+
+    .console {
+      background: #101418;
+      color: #e6edf3;
+      border-radius: 10px;
+      border: 1px solid #30363d;
+      padding: 12px 18px;
+      overflow-x: auto;
+      margin: 10px 0 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92rem;
+      white-space: pre;
+      line-height: 1.7;
+    }
+    .console .usr { color: #7ee787; font-weight: 700; }
+
+    .ex-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .88rem;
+      margin: 10px 0 14px;
+    }
+    .ex-table th {
+      background: var(--green-3);
+      color: var(--green-1);
+      padding: 8px 12px;
+      text-align: left;
+      border: 1px solid var(--border);
+      font-size: .78rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+    .ex-table td { padding: 8px 12px; border: 1px solid var(--border); vertical-align: top; }
+    .ex-table tr:nth-child(even) td { background: #f4fff7; }
+    .task-box {
+      background: var(--mint);
+      border: 2px dashed var(--green-2);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin: 14px 0;
+    }
+    .task-box a {
+      color: var(--green-1);
+      font-weight: 800;
+      font-size: 1.02rem;
+      word-break: break-all;
+    }
+    .footer { text-align: center; color: var(--muted); font-size: 0.86rem; padding: 10px 0 16px; }
+
+    .task-list { padding-left: 22px; margin: 10px 0 0; }
+    .task-list li { margin-bottom: 10px; color: #1a3a2a; }
+    .task-list li strong { color: var(--green-1); }
+
+    .ex-title { display: flex; align-items: center; margin: 22px 0 8px; }
+    .ex-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--green-3); border: 2px solid var(--green-2);
+      color: var(--green-1); font-weight: 800; font-size: .88rem;
+      margin-right: 8px; flex-shrink: 0;
+    }
+    .ex-title h3 { margin: 0; font-size: 1.1rem; }
+
+    .kbd {
+      display: inline-block; padding: 2px 8px; border-radius: 6px;
+      background: #f0fff4; border: 1px solid var(--border);
+      border-bottom-width: 3px; font-family: Consolas, monospace;
+      font-size: .85rem; color: var(--green-1); font-weight: 700;
+    }
+
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 6px; }
+    .pill {
+      display: inline-block; padding: 4px 12px; border-radius: 999px;
+      background: #eafcef; border: 1px solid var(--border);
+      color: var(--green-1); font-weight: 700; font-size: .82rem;
+    }
+
+    /* ── Flowchart (same look as lesson 7) ── */
+    .fc-wrap { display: flex; justify-content: center; margin: 18px 0; overflow-x: auto; }
+    .fc-wrap svg {
+      max-width: 96%;
+      min-width: 0;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #fbfffd;
+    }
+    .shape { fill: #dbf6e5; stroke: #1f8f4e; stroke-width: 2.2; }
+    .shape-alt { fill: #f0fff8; stroke: #1f8f4e; stroke-width: 2.2; }
+    .decision { fill: #e8fff4; stroke: #1f8f4e; stroke-width: 2.5; }
+    .flow { stroke: #1f8f4e; stroke-width: 2.2; fill: none; }
+    .fc-text { font-family: "Trebuchet MS", sans-serif; font-size: 13px; font-weight: 700; fill: #0f5a2e; }
+    .fc-small { font-family: "Trebuchet MS", sans-serif; font-size: 11px; font-weight: 700; fill: #166534; }
+
+    /* ── continue jump highlight + overlay arrow ── */
+    .code .jump { background: rgba(217,130,43,0.24); border-radius: 4px; padding: 0 2px; }
+    .code-flow { position: relative; }
+    .code-flow .jump-arrow {
+      position: absolute; top: 0; left: 0;
+      overflow: visible; pointer-events: none;
+    }
+    .code-flow .jump-arrow .jline { fill: none; stroke: #e0872b; stroke-width: 2.3; }
+    .code-flow .jump-arrow .lbl {
+      font-family: "Trebuchet MS", sans-serif; font-size: 11px; font-weight: 700; fill: #b4530f;
+    }
+
+    /* ── Fun triangle gallery ── */
+    .tri-gallery { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; margin: 18px 0 6px; }
+    .tri-card {
+      background: #f7fffb; border: 1px solid var(--border); border-radius: 14px;
+      padding: 14px 14px 12px; width: 232px; text-align: center;
+      box-shadow: 0 6px 16px rgba(18,102,55,0.08);
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .tri-card:hover { transform: translateY(-4px); box-shadow: 0 12px 22px rgba(18,102,55,0.16); }
+    .tri-card .cap { font-weight: 800; color: var(--green-1); font-size: .92rem; margin-top: 8px; }
+    .tri-card .sub { font-size: .75rem; color: var(--muted); white-space: nowrap; }
+    .tri-card.bad { background: #fff6ef; border-color: #f0c6a0; }
+    .tri-card.bad .cap { color: #b4530f; }
+
+    /* ── Fun login mockup ── */
+    .login-wrap { display: flex; justify-content: center; margin: 20px 0 6px; }
+    .login-ui {
+      width: 320px; max-width: 100%;
+      background: linear-gradient(160deg, #ffffff 0%, #eafcf2 100%);
+      border: 1px solid var(--border); border-radius: 20px; padding: 24px 22px 20px;
+      box-shadow: 0 16px 34px rgba(18,102,55,0.16); text-align: center;
+    }
+    .login-ui .avatar {
+      width: 66px; height: 66px; margin: 0 auto 12px; border-radius: 50%;
+      background: linear-gradient(160deg, #2dd4bf, #0d9488);
+      display: flex; align-items: center; justify-content: center; color: #fff;
+      box-shadow: 0 8px 16px rgba(13,148,136,0.38);
+      animation: loginFloat 3.4s ease-in-out infinite;
+    }
+    .login-ui h3 { margin: 0 0 2px; font-size: 1.3rem; }
+    .login-ui .lead { color: var(--muted); font-size: .84rem; margin: 0 0 14px; }
+    .login-alert {
+      display: flex; align-items: center; gap: 7px; justify-content: center;
+      background: #fdecea; border: 1px solid #f3b7ad; color: #b42318;
+      border-radius: 10px; padding: 7px 10px; margin: 0 0 14px;
+      font-size: .82rem; font-weight: 700;
+      animation: loginShake 2.6s ease-in-out infinite;
+    }
+    .login-field {
+      display: flex; align-items: center; gap: 10px;
+      background: #ffffff; border: 2px solid var(--border); border-radius: 12px;
+      padding: 11px 12px; margin-bottom: 12px; text-align: left;
+    }
+    .login-field .lead-ic { color: #0d9488; flex: 0 0 auto; }
+    .login-field .tail-ic { color: #8aa79a; flex: 0 0 auto; margin-left: auto; }
+    .login-field .val { font-family: Consolas, monospace; color: #14281d; font-weight: 700; font-size: .95rem; }
+    .login-field .dots { letter-spacing: 4px; color: #14281d; font-weight: 800; font-size: 1.1rem; }
+    .login-field .caret { color: #0d9488; font-weight: 700; animation: loginBlink 1s steps(1) infinite; }
+    .login-btn {
+      width: 100%; border: none; border-radius: 12px; padding: 12px;
+      font-family: "Trebuchet MS", sans-serif; font-weight: 800; font-size: .98rem; color: #fff;
+      background: linear-gradient(135deg, #0d9488, #0f766e);
+      box-shadow: 0 8px 16px rgba(13,148,136,0.36);
+      display: flex; align-items: center; justify-content: center; gap: 8px; cursor: default;
+    }
+    .login-hint { font-size: .76rem; color: var(--muted); margin: 12px 0 0; }
+    .login-hint code { color: #0f766e; }
+    @keyframes loginFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+    @keyframes loginBlink { 50% { opacity: 0; } }
+    @keyframes loginShake {
+      0%, 82%, 100% { transform: translateX(0); }
+      86% { transform: translateX(-5px); }
+      90% { transform: translateX(5px); }
+      94% { transform: translateX(-3px); }
+      98% { transform: translateX(2px); }
+    }
+
+    .submission { background: var(--mint); border-color: var(--green-2); margin-top: 0; }
+    .submission a { color: var(--green-1); font-weight: 800; font-size: 1.05rem; word-break: break-all; }
+
+    .rtl { direction: rtl; text-align: right; }
+    .rtl .task-list { padding-left: 0; padding-right: 22px; }
+    .rtl .ex-title { flex-direction: row-reverse; justify-content: flex-end; }
+    .rtl .ex-num { margin-right: 0; margin-left: 8px; }
+    .rtl .ex-table th, .rtl .ex-table td { text-align: right; }
+
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes blobMove {
+      from { transform: translate(0, 0) scale(1); }
+      to { transform: translate(24px, 18px) scale(1.06); }
+    }
+
+    @media (max-width: 760px) {
+      .wrap { padding: 14px; }
+      .layout { grid-template-columns: 1fr; }
+      .side-nav { position: static; }
+      h1 { font-size: 1.6rem; }
+      .code { font-size: 0.86rem; }
+      .ex-table { font-size: .8rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <span class="tag">Lesson 8 - July 16, 2026</span>
+    <h1>while True, break &amp; continue</h1>
+    <p>Last lesson every <code>while</code> loop ended by itself when its condition turned <code>False</code>. Today we learn a second way out: a loop that says <code>while True</code> — it would run forever — and a <code>break</code> statement that jumps out of it from <em>inside</em> the body. We start with the classic <strong>FizzBuzz</strong>, then meet <code>while True</code> + <code>break</code>, and finish with <code>continue</code> — the command that skips the rest of a round without leaving the loop.</p>
+  </section>
+
+  <div class="layout">
+    <aside class="side-nav" aria-label="Topic navigation">
+      <h2 class="side-title">Topics</h2>
+      <div class="side-section-label">1 · Warm-up</div>
+      <button class="topic-link active" data-target="topic-fizzbuzz">fizzbuzz</button>
+      <hr class="side-divider" />
+      <div class="side-section-label">2 · while True + break</div>
+      <button class="topic-link" data-target="topic-idea">while True — the idea</button>
+      <button class="topic-link" data-target="topic-triangle">triangle checker</button>
+      <button class="topic-link" data-target="topic-login">login screen</button>
+      <button class="topic-link" data-target="topic-maxgrade">max grade + break</button>
+      <hr class="side-divider" />
+      <div class="side-section-label">3 · continue</div>
+      <button class="topic-link" data-target="topic-continue">while + continue</button>
+      <hr class="side-divider" />
+      <button class="topic-link" data-target="topic-github">github folder</button>
+      <button class="topic-link" data-target="topic-exercise">exercise</button>
+      <button class="topic-link" data-target="topic-exercise-heb">exercise - עברית</button>
+      <hr class="side-divider" />
+      <div class="side-section-label">Navigation</div>
+      <a class="nav-back" href="../../index.html#lessons">Back to lessons</a>
+    </aside>
+
+    <main>
+      <!-- ═══ 1 · FIZZBUZZ ═══ -->
+      <section class="card topic-panel active" id="topic-fizzbuzz">
+        <span class="tag">FizzBuzz</span>
+        <h2 class="step-title">Count 1..N — but Fizz, Buzz, FizzBuzz</h2>
+        <p>The most famous beginner loop in the world. Count from <code>1</code> up to a number the user picks, and for each number:</p>
+        <div class="pill-row">
+          <span class="pill">divisible by 3 → Fizz</span>
+          <span class="pill">divisible by 5 → Buzz</span>
+          <span class="pill">divisible by both → FizzBuzz</span>
+          <span class="pill">otherwise → the number itself</span>
+        </div>
+        <p>Everything hangs on the <strong>modulus</strong> operator <code>%</code> — the remainder of a division. <code>i % 3 == 0</code> means "<code>i</code> divides evenly by 3", i.e. it is a multiple of 3.</p>
+
+        <div class="big-result">First — the flowchart</div>
+        <p>Read it top-to-bottom. The loop-back arrow on the far left is the <code>while</code>: after printing a space it jumps up and checks <code>i &lt;= max_number</code> again.</p>
+        <div class="fc-wrap">
+          <svg viewBox="0 0 860 1000" width="720" role="img" aria-label="FizzBuzz flowchart">
+            <defs>
+              <marker id="fb" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+                <path d="M0,0 L8,4 L0,8 Z" fill="#1f8f4e"/>
+              </marker>
+            </defs>
+
+            <!-- start -->
+            <ellipse cx="340" cy="42" rx="60" ry="26" class="shape"/>
+            <text x="340" y="48" text-anchor="middle" class="fc-text">START</text>
+            <line x1="340" y1="68" x2="340" y2="90" class="flow" marker-end="url(#fb)"/>
+
+            <!-- input -->
+            <polygon points="270,94 460,94 440,132 250,132" class="shape"/>
+            <text x="340" y="118" text-anchor="middle" class="fc-text">INPUT max_number</text>
+            <line x1="340" y1="132" x2="340" y2="156" class="flow" marker-end="url(#fb)"/>
+
+            <!-- i = 1 -->
+            <rect x="280" y="160" width="120" height="40" class="shape"/>
+            <text x="340" y="185" text-anchor="middle" class="fc-text">i = 1</text>
+            <line x1="340" y1="200" x2="340" y2="224" class="flow" marker-end="url(#fb)"/>
+
+            <!-- loop condition -->
+            <ellipse cx="340" cy="272" rx="122" ry="46" class="decision"/>
+            <text x="340" y="277" text-anchor="middle" class="fc-text">i &lt;= max_number ?</text>
+            <text x="476" y="262" class="fc-small">NO</text>
+            <line x1="462" y1="272" x2="648" y2="272" class="flow" marker-end="url(#fb)"/>
+            <path d="M652,246 h158 v52 q-79 22 -158 0 z" class="shape-alt"/>
+            <text x="731" y="278" text-anchor="middle" class="fc-text">print 'bye bye'</text>
+            <line x1="731" y1="298" x2="731" y2="436" class="flow" marker-end="url(#fb)"/>
+            <ellipse cx="731" cy="468" rx="52" ry="26" class="shape"/>
+            <text x="731" y="474" text-anchor="middle" class="fc-text">END</text>
+            <text x="352" y="344" class="fc-small">YES</text>
+            <line x1="340" y1="318" x2="340" y2="348" class="flow" marker-end="url(#fb)"/>
+
+            <!-- not-multiple decision (diamond, 3 lines) -->
+            <polygon points="340,348 500,420 340,492 180,420" class="decision"/>
+            <text x="340" y="406" text-anchor="middle" class="fc-text">i % 3 != 0</text>
+            <text x="340" y="425" text-anchor="middle" class="fc-small">AND</text>
+            <text x="340" y="444" text-anchor="middle" class="fc-text">i % 5 != 0</text>
+            <text x="508" y="410" class="fc-small">YES</text>
+            <line x1="500" y1="420" x2="558" y2="420" class="flow" marker-end="url(#fb)"/>
+            <path d="M562,398 h138 v46 q-69 20 -138 0 z" class="shape-alt"/>
+            <text x="631" y="425" text-anchor="middle" class="fc-text">print i</text>
+            <polyline points="631,446 631,772 342,772" class="flow"/>
+            <text x="352" y="514" class="fc-small">NO</text>
+            <line x1="340" y1="492" x2="340" y2="526" class="flow" marker-end="url(#fb)"/>
+
+            <!-- i % 3 == 0 ? (diamond) -->
+            <polygon points="340,526 445,572 340,618 235,572" class="decision"/>
+            <text x="340" y="577" text-anchor="middle" class="fc-text">i % 3 == 0 ?</text>
+            <text x="230" y="562" text-anchor="end" class="fc-small">YES</text>
+            <line x1="235" y1="572" x2="176" y2="572" class="flow" marker-end="url(#fb)"/>
+            <path d="M36,548 h140 v48 q-70 22 -140 0 z" class="shape-alt"/>
+            <text x="106" y="576" text-anchor="middle" class="fc-text">print 'Fizz'</text>
+            <polyline points="106,596 106,656 340,656" class="flow"/>
+            <text x="352" y="640" class="fc-small">NO</text>
+            <line x1="340" y1="618" x2="340" y2="666" class="flow" marker-end="url(#fb)"/>
+
+            <!-- i % 5 == 0 ? (diamond) -->
+            <polygon points="340,666 445,712 340,758 235,712" class="decision"/>
+            <text x="340" y="717" text-anchor="middle" class="fc-text">i % 5 == 0 ?</text>
+            <text x="230" y="702" text-anchor="end" class="fc-small">YES</text>
+            <line x1="235" y1="712" x2="176" y2="712" class="flow" marker-end="url(#fb)"/>
+            <path d="M36,688 h140 v48 q-70 22 -140 0 z" class="shape-alt"/>
+            <text x="106" y="716" text-anchor="middle" class="fc-text">print 'Buzz'</text>
+            <polyline points="106,736 106,792 340,792" class="flow"/>
+            <text x="352" y="784" class="fc-small">NO</text>
+
+            <!-- down to i += 1 -->
+            <line x1="340" y1="758" x2="340" y2="812" class="flow" marker-end="url(#fb)"/>
+            <rect x="280" y="812" width="120" height="40" class="shape"/>
+            <text x="340" y="837" text-anchor="middle" class="fc-text">i += 1</text>
+            <line x1="340" y1="852" x2="340" y2="872" class="flow" marker-end="url(#fb)"/>
+
+            <!-- print ' ' -->
+            <polygon points="272,876 408,876 390,914 254,914" class="shape"/>
+            <text x="340" y="899" text-anchor="middle" class="fc-text">print ' '</text>
+
+            <!-- loop back -->
+            <polyline points="340,914 340,954 24,954 24,272 216,272" class="flow" marker-end="url(#fb)"/>
+            <text x="30" y="642" class="fc-small" transform="rotate(-90 30 642)">back to the while</text>
+          </svg>
+        </div>
+
+        <div class="big-result">The Python code</div>
+        <div class="code"><span class="cm"># START</span>
+
+max_number = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'max number?'</span>))
+
+i = <span class="num">1</span>
+
+<span class="kw">while</span> i &lt;= max_number:
+    <span class="kw">if</span> i % <span class="num">3</span> != <span class="num">0</span> <span class="kw">and</span> i % <span class="num">5</span> != <span class="num">0</span>:   <span class="cm"># not a multiple of 3 or 5</span>
+        <span class="fn">print</span>(i, end=<span class="str">""</span>)
+    <span class="kw">else</span>:
+        <span class="kw">if</span> i % <span class="num">3</span> == <span class="num">0</span>:                    <span class="cm"># multiple of 3 → Fizz</span>
+            <span class="fn">print</span>(<span class="str">'Fizz'</span>, end=<span class="str">""</span>)
+        <span class="kw">if</span> i % <span class="num">5</span> == <span class="num">0</span>:                    <span class="cm"># multiple of 5 → Buzz</span>
+            <span class="fn">print</span>(<span class="str">'Buzz'</span>, end=<span class="str">""</span>)
+    i += <span class="num">1</span>                              <span class="cm"># the loop counter — never forget it!</span>
+    <span class="fn">print</span>(<span class="str">' '</span>, end=<span class="str">""</span>)                    <span class="cm"># one space between items</span>
+
+<span class="fn">print</span>(<span class="str">'bye bye'</span>)
+
+<span class="cm"># STOP</span></div>
+
+        <div class="big-result">Output (max number = 15)</div>
+        <div class="console">max number?<span class="usr">15</span>
+1 2 Fizz 4 Buzz Fizz 7 8 Fizz Buzz 11 Fizz 13 14 FizzBuzz bye bye</div>
+
+        <div class="note">
+          <strong>Why <code>end=""</code>?</strong> By default <code>print</code> jumps to a new line after every call. <code>end=""</code> tells it "do not move to a new line" — so all the numbers land on one row, separated only by the space we print ourselves.
+        </div>
+        <div class="note">
+          <strong>Why does "FizzBuzz" come out for 15?</strong> When <code>i</code> is 15 both <code>if</code>s inside the <code>else</code> are True — so <code>Fizz</code> is printed <em>and then</em> <code>Buzz</code>, right next to each other. Two separate <code>if</code>s (not <code>elif</code>) is exactly what lets both fire.
+        </div>
+        <div class="warn">
+          <strong>Watch the multiples of 3 <em>and</em> 5.</strong> The first condition asks for <code>i % 3 != 0 <b>and</b> i % 5 != 0</code> — "not a multiple of 3 <em>and</em> not a multiple of 5". Only then do we print the number as-is. If it fails, at least one of Fizz / Buzz applies.
+        </div>
+
+        <div class="big-result">Trace table (first 6 numbers)</div>
+        <table class="ex-table">
+          <thead><tr><th>i</th><th>i % 3</th><th>i % 5</th><th>prints</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>1</td><td>1</td><td>1</td></tr>
+            <tr><td>2</td><td>2</td><td>2</td><td>2</td></tr>
+            <tr><td>3</td><td>0</td><td>3</td><td>Fizz</td></tr>
+            <tr><td>4</td><td>1</td><td>4</td><td>4</td></tr>
+            <tr><td>5</td><td>2</td><td>0</td><td>Buzz</td></tr>
+            <tr><td>6</td><td>0</td><td>1</td><td>Fizz</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- ═══ 2 · WHILE TRUE - THE IDEA ═══ -->
+      <section class="card topic-panel" id="topic-idea">
+        <span class="tag">while True</span>
+        <h2 class="step-title">A Loop That Never Ends — On Purpose</h2>
+        <p>Sometimes we do not know the stop condition <em>before</em> the loop starts — it only becomes clear <strong>in the middle</strong> of a round. For that we write a loop whose condition is simply <code>True</code>. <code>True</code> is always true, so the loop would run forever… unless something inside it uses <code>break</code> to jump out.</p>
+
+        <div class="code"><span class="kw">while</span> <span class="kw">True</span>:
+    &lt;do some work&gt;
+    <span class="kw">if</span> &lt;time to stop&gt;:
+        <span class="kw">break</span>          <span class="cm"># leave the loop right now</span>
+    &lt;more work&gt;
+
+&lt;the program continues here after break&gt;</div>
+
+        <div class="note">
+          <strong><code>break</code> = emergency exit.</strong> The moment Python runs <code>break</code>, it stops the loop instantly and continues on the first line <em>after</em> the loop — even if we were in the middle of the body. The condition <code>True</code> is never re-checked, because we never go back up.
+        </div>
+
+        <p>Here is the same "count 1 to 3" written both ways — with a normal condition, and with <code>while True</code> + <code>break</code>. They print exactly the same thing:</p>
+
+        <div class="code">number = <span class="num">1</span>
+
+<span class="cm"># classic while — the condition guards the top</span>
+<span class="kw">while</span> number &lt;= <span class="num">3</span>:
+    <span class="fn">print</span>(number)
+    number += <span class="num">1</span>
+
+number = <span class="num">1</span>
+
+<span class="cm"># while True — we break out from the inside</span>
+<span class="kw">while</span> <span class="kw">True</span>:
+    <span class="fn">print</span>(number)
+    <span class="kw">if</span> number &gt;= <span class="num">3</span>:
+        <span class="kw">break</span>
+    number += <span class="num">1</span>
+
+<span class="fn">print</span>(<span class="str">'Finish'</span>)</div>
+
+        <div class="console">1
+2
+3
+1
+2
+3
+Finish</div>
+
+        <div class="note">
+          <strong>Old friends by other names.</strong> Other languages call this shape <code>do…while</code> or <code>repeat…until</code> — a loop that always runs <strong>at least once</strong> and checks the stop condition at the bottom. Python has no <code>do…while</code>; <code>while True</code> + <code>break</code> is how we build it.
+        </div>
+        <div class="warn">
+          <strong>Every <code>while True</code> needs a reachable <code>break</code>.</strong> If no <code>break</code> can ever run, you have written an infinite loop on purpose but with no exit — the program hangs. Stop it with the red <strong>Stop</strong> button in PyCharm (or <span class="kbd">Ctrl</span> + <span class="kbd">C</span> in a terminal).
+        </div>
+      </section>
+
+      <!-- ═══ TRIANGLE ═══ -->
+      <section class="card topic-panel" id="topic-triangle">
+        <span class="tag">while True · example 1</span>
+        <h2 class="step-title">Triangle Checker — Keep Going Until a Bad One</h2>
+        <p>Read the three sides <code>a</code>, <code>b</code>, <code>c</code> of a triangle and print its perimeter (the sum of the sides). Then ask for the next triangle, again and again. Stop only when the sides do <strong>not</strong> make a valid triangle.</p>
+
+        <div class="note">
+          <strong>When is a triangle valid?</strong><br>
+          (1) every side is positive: <code>a &gt; 0</code>, <code>b &gt; 0</code>, <code>c &gt; 0</code><br>
+          (2) each pair of sides is longer than the third:
+          <code>a + b &gt; c</code>, <code>a + c &gt; b</code>, <code>b + c &gt; a</code>
+        </div>
+
+        <div class="tri-gallery">
+          <!-- Happy equilateral -->
+          <div class="tri-card">
+            <svg viewBox="0 0 150 140" width="150" role="img" aria-label="A happy equilateral triangle">
+              <defs>
+                <linearGradient id="triA" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#7be6a4"/><stop offset="1" stop-color="#31b26a"/>
+                </linearGradient>
+              </defs>
+              <polygon points="75,16 132,120 18,120" fill="url(#triA)" stroke="#1f8f4e" stroke-width="3" stroke-linejoin="round"/>
+              <circle cx="62" cy="86" r="9" fill="#fff"/><circle cx="88" cy="86" r="9" fill="#fff"/>
+              <circle cx="64" cy="88" r="4" fill="#14281d"/><circle cx="90" cy="88" r="4" fill="#14281d"/>
+              <path d="M60,102 Q75,116 90,102" fill="none" stroke="#14281d" stroke-width="3" stroke-linecap="round"/>
+              <path d="M43,120 L107,120" stroke="#0f5a2e" stroke-width="0"/>
+            </svg>
+            <div class="cap">equilateral ✓</div>
+            <div class="sub">5, 5, 5 — every side equal</div>
+          </div>
+
+          <!-- Happy right triangle 3-4-5 -->
+          <div class="tri-card">
+            <svg viewBox="0 0 150 140" width="150" role="img" aria-label="A happy 3-4-5 right triangle">
+              <defs>
+                <linearGradient id="triB" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#8ff0cf"/><stop offset="1" stop-color="#25a58c"/>
+                </linearGradient>
+              </defs>
+              <polygon points="30,20 30,120 126,120" fill="url(#triB)" stroke="#0d9488" stroke-width="3" stroke-linejoin="round"/>
+              <rect x="30" y="106" width="14" height="14" fill="none" stroke="#0d9488" stroke-width="2"/>
+              <circle cx="55" cy="92" r="8" fill="#fff"/><circle cx="79" cy="92" r="8" fill="#fff"/>
+              <circle cx="57" cy="94" r="3.5" fill="#14281d"/><circle cx="81" cy="94" r="3.5" fill="#14281d"/>
+              <path d="M54,106 Q68,118 82,106" fill="none" stroke="#14281d" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+            <div class="cap">right triangle ✓</div>
+            <div class="sub">3, 4, 5 — the classic</div>
+          </div>
+
+          <!-- Sad impossible flat triangle -->
+          <div class="tri-card bad">
+            <svg viewBox="0 0 150 140" width="150" role="img" aria-label="A sad, impossibly flat triangle">
+              <defs>
+                <linearGradient id="triC" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#ffcf9e"/><stop offset="1" stop-color="#f08a3c"/>
+                </linearGradient>
+              </defs>
+              <polygon points="75,86 132,120 18,120" fill="url(#triC)" stroke="#c2410c" stroke-width="3" stroke-linejoin="round"/>
+              <circle cx="60" cy="108" r="6" fill="#fff"/><circle cx="90" cy="108" r="6" fill="#fff"/>
+              <circle cx="60" cy="109" r="2.6" fill="#14281d"/><circle cx="90" cy="109" r="2.6" fill="#14281d"/>
+              <path d="M62,118 Q75,110 88,118" fill="none" stroke="#7a2e0c" stroke-width="2.6" stroke-linecap="round"/>
+              <text x="75" y="44" text-anchor="middle" font-family="'Trebuchet MS',sans-serif" font-size="30" font-weight="800" fill="#c2410c">✗</text>
+            </svg>
+            <div class="cap">too flat ✗</div>
+            <div class="sub">2, 2, 10 — 2 + 2 can't reach 10</div>
+          </div>
+        </div>
+        <p class="text-[#134E4A]/60" style="text-align:center; font-size:.85rem; color:var(--muted); margin:0 0 4px;">
+          The first two are real triangles → the loop prints their perimeter. The flat one fails the rule → <code>break</code>.
+        </p>
+
+        <div class="code"><span class="cm"># input triangle sides a, b, c — valid ? print perimeter : stop</span>
+<span class="cm"># this is a do-while / repeat-until built with while True</span>
+
+<span class="kw">while</span> <span class="kw">True</span>:
+    a = <span class="fn">float</span>(<span class="fn">input</span>(<span class="str">'side a?'</span>))   <span class="cm"># float, so 2.5 is allowed too</span>
+    b = <span class="fn">float</span>(<span class="fn">input</span>(<span class="str">'side b?'</span>))
+    c = <span class="fn">float</span>(<span class="fn">input</span>(<span class="str">'side c?'</span>))
+
+    <span class="kw">if</span> a &lt;= <span class="num">0</span> <span class="kw">or</span> b &lt;= <span class="num">0</span> <span class="kw">or</span> c &lt;= <span class="num">0</span>:
+        <span class="kw">break</span>                            <span class="cm"># a side is not positive → stop</span>
+    <span class="kw">if</span> a + b &lt;= c <span class="kw">or</span> a + c &lt;= b <span class="kw">or</span> b + c &lt;= a:
+        <span class="kw">break</span>                            <span class="cm"># fails the triangle rule → stop</span>
+
+    <span class="fn">print</span>(<span class="str">'sum of sides:'</span>, a + b + c)
+    <span class="fn">print</span>(<span class="str">'next triangle ...'</span>)
+
+<span class="fn">print</span>(<span class="str">'bye bye'</span>)</div>
+
+        <div class="big-result">Output</div>
+        <div class="console">side a?<span class="usr">3</span>
+side b?<span class="usr">4</span>
+side c?<span class="usr">5</span>
+sum of sides: 12.0
+next triangle ...
+side a?<span class="usr">2</span>
+side b?<span class="usr">2</span>
+side c?<span class="usr">10</span>
+bye bye</div>
+
+        <div class="note">
+          <strong>Two <code>break</code>s, two reasons to stop.</strong> A <code>while True</code> can have as many exits as you like. The second triangle (2, 2, 10) breaks the rule <code>a + b &gt; c</code> — <code>2 + 2 = 4</code> is not greater than <code>10</code> — so the second <code>break</code> fires and we never print its perimeter.
+        </div>
+      </section>
+
+      <!-- ═══ LOGIN ═══ -->
+      <section class="card topic-panel" id="topic-login">
+        <span class="tag">while True · example 2</span>
+        <h2 class="step-title">Login Screen — Ask Until Correct</h2>
+        <p>Keep asking for a username and password until the user finally types the right pair. This is the everyday face of <code>while True</code>: retry until success, then break out.</p>
+
+        <div class="login-wrap">
+          <div class="login-ui" role="img" aria-label="A login screen mockup showing a wrong-credentials message">
+            <div class="avatar">
+              <!-- padlock -->
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="4.5" y="10.5" width="15" height="9.5" rx="2.2"/>
+                <path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/>
+                <circle cx="12" cy="15" r="1.4" fill="currentColor" stroke="none"/>
+              </svg>
+            </div>
+            <h3>Sign in 👋</h3>
+            <p class="lead">Enter your username and password</p>
+
+            <div class="login-alert">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/>
+              </svg>
+              Wrong credentials...
+            </div>
+
+            <div class="login-field">
+              <!-- user icon -->
+              <svg class="lead-ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c0-4 3.6-6 7.5-6s7.5 2 7.5 6"/>
+              </svg>
+              <span class="val">admin</span>
+              <span class="caret">|</span>
+            </div>
+
+            <div class="login-field">
+              <!-- lock icon -->
+              <svg class="lead-ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="4.5" y="10.5" width="15" height="9.5" rx="2.2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/>
+              </svg>
+              <span class="dots">••••</span>
+              <!-- eye icon -->
+              <svg class="tail-ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.6"/>
+              </svg>
+            </div>
+
+            <div class="login-btn">
+              Log in
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M5 12h13"/><path d="M12 5l7 7-7 7"/>
+              </svg>
+            </div>
+
+            <p class="login-hint">🔑 Type <code>admin</code> / <code>1234</code> to <code>break</code> out of the loop</p>
+          </div>
+        </div>
+
+        <div class="code"><span class="cm"># START</span>
+
+<span class="kw">while</span> <span class="kw">True</span>:
+    user = <span class="fn">input</span>(<span class="str">'username?'</span>)
+    pwd = <span class="fn">input</span>(<span class="str">'password?'</span>)
+    <span class="kw">if</span> user == <span class="str">"admin"</span> <span class="kw">and</span> pwd == <span class="str">"1234"</span>:
+        <span class="kw">break</span>                       <span class="cm"># correct → get out of the loop</span>
+    <span class="kw">else</span>:
+        <span class="fn">print</span>(<span class="str">'Wrong credentials...'</span>)   <span class="cm"># wrong → loop asks again</span>
+
+<span class="cm"># STOP</span></div>
+
+        <div class="big-result">Output</div>
+        <div class="console">username?<span class="usr">guest</span>
+password?<span class="usr">0000</span>
+Wrong credentials...
+username?<span class="usr">admin</span>
+password?<span class="usr">1234</span></div>
+
+        <div class="note">
+          <strong>Notice the break happens on <em>success</em>, not on failure.</strong> While the credentials are wrong the <code>else</code> runs and the loop simply spins again. Only the correct pair reaches <code>break</code>, and that is the single door out.
+        </div>
+        <div class="warn">
+          Passwords compared with <code>==</code> like this are only for learning — real programs never store or compare passwords in plain text.
+        </div>
+      </section>
+
+      <!-- ═══ MAX GRADE + BREAK ═══ -->
+      <section class="card topic-panel" id="topic-maxgrade">
+        <span class="tag">while True · example 3</span>
+        <h2 class="step-title">Highest Grade — Now With <code>break</code></h2>
+        <p>Remember diagram 23 from last lesson? Find the highest grade in a class. Last time the loop condition did two jobs at once: <code>while i &lt; num_stud and max_grade &lt; 100</code>. Today we rewrite it as a <code>while True</code> with two separate <code>break</code>s — often easier to read than a long <code>and</code> condition.</p>
+
+        <div class="code"><span class="cm"># find the highest grade — stop early if someone scores 100</span>
+
+num_stud = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'number of students?'</span>))
+
+i = <span class="num">0</span>
+max_grade = <span class="num">0</span>
+
+<span class="kw">while</span> <span class="kw">True</span>:
+    i += <span class="num">1</span>
+    grade = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'grade?'</span>))
+    <span class="kw">if</span> grade &lt; <span class="num">0</span> <span class="kw">or</span> grade &gt; <span class="num">100</span>:
+        <span class="fn">print</span>(<span class="str">'illegal grade'</span>)
+    <span class="kw">elif</span> grade &gt; max_grade:
+        max_grade = grade
+        <span class="kw">if</span> max_grade == <span class="num">100</span>:
+            <span class="kw">break</span>            <span class="cm"># perfect grade — nothing can beat it, stop</span>
+
+    <span class="kw">if</span> i &gt;= num_stud:
+        <span class="kw">break</span>                <span class="cm"># asked everyone — stop</span>
+
+<span class="fn">print</span>(max_grade)</div>
+
+        <div class="big-result">Output (4 students, someone scores 100)</div>
+        <div class="console">number of students?<span class="usr">4</span>
+grade?<span class="usr">80</span>
+grade?<span class="usr">100</span>
+100</div>
+
+        <div class="note">
+          <strong>The condition moved <em>inside</em>.</strong> Instead of the header carrying both stop-reasons, each <code>break</code> now owns one: "a perfect grade appeared" and "we asked every student". Same behaviour as the <code>and</code> version — just spelled out step by step.
+        </div>
+        <div class="warn">
+          <strong>Same catch as before:</strong> <code>i += 1</code> runs at the top of every round, so an illegal grade still uses up one of the students. That is the class version; a stricter one would count a student only after a valid grade.
+        </div>
+      </section>
+
+      <!-- ═══ 3 · CONTINUE ═══ -->
+      <section class="card topic-panel" id="topic-continue">
+        <span class="tag">continue</span>
+        <h2 class="step-title">Skip a Round — <code>continue</code></h2>
+        <p><code>break</code> leaves the loop for good. <code>continue</code> is gentler: it drops the <strong>rest of the current round</strong> and jumps straight back up to the loop — the loop keeps going. Perfect for "if this input is junk, ignore it and ask for the next one".</p>
+
+        <div class="note">
+          <strong>break vs continue in one line:</strong><br>
+          <code>break</code> → leave the loop entirely.<br>
+          <code>continue</code> → skip to the <em>next</em> round of the same loop.
+        </div>
+
+        <p>The task: read grades and print the class <strong>average</strong>. <code>999</code> means "no more grades" (stop). Any grade outside <code>0–100</code> is invalid — we warn and <strong>ignore</strong> it, without letting it spoil the average.</p>
+
+        <div class="code-flow">
+          <svg class="jump-arrow" width="56" height="430" aria-hidden="true">
+            <defs>
+              <marker id="ja" markerWidth="8" markerHeight="6" refX="6.5" refY="3" orient="auto">
+                <path d="M0,0 L8,3 L0,6 Z" fill="#e0872b"/>
+              </marker>
+            </defs>
+            <circle cx="50" cy="366" r="3.6" fill="#e0872b"/>
+            <path class="jline" d="M50,366 C 6,352 6,198 46,178" marker-end="url(#ja)"/>
+            <text class="lbl" x="15" y="276" text-anchor="middle" transform="rotate(-90 15 276)">continue jumps back up</text>
+          </svg>
+          <div class="code" style="margin-top:0; padding-left:56px;"><span class="cm"># read grades until 999, ignore invalid ones, print the average</span>
+
+number_of_students = <span class="num">0</span>
+total = <span class="num">0</span>
+
+<span class="kw">while</span> <span class="jump kw">True</span>:
+    grade = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'Grade?'</span>))
+
+    <span class="kw">if</span> grade == <span class="num">999</span>:
+        <span class="kw">break</span>                       <span class="cm"># stop signal — leave the loop</span>
+
+    <span class="kw">if</span> grade &lt; <span class="num">0</span> <span class="kw">or</span> grade &gt; <span class="num">100</span>:
+        <span class="fn">print</span>(<span class="str">'Invalid grade, ignored'</span>)
+        <span class="jump kw">continue</span>                    <span class="cm"># skip the two lines below, ask again</span>
+
+    total += grade                   <span class="cm"># only valid grades reach here</span>
+    number_of_students += <span class="num">1</span>
+
+<span class="fn">print</span>(<span class="str">'Students:'</span>, number_of_students)
+
+<span class="kw">if</span> number_of_students &gt; <span class="num">0</span>:
+    <span class="fn">print</span>(<span class="str">'Average grade:'</span>, total / number_of_students)</div>
+        </div>
+
+        <div class="big-result">Output</div>
+        <div class="console">Grade?<span class="usr">80</span>
+Grade?<span class="usr">200</span>
+Invalid grade, ignored
+Grade?<span class="usr">90</span>
+Grade?<span class="usr">999</span>
+Students: 2
+Average grade: 85.0</div>
+
+        <div class="big-result">Trace table</div>
+        <table class="ex-table">
+          <thead><tr><th>grade</th><th>what happens</th><th>total</th><th>students</th></tr></thead>
+          <tbody>
+            <tr><td>80</td><td>valid → added</td><td>80</td><td>1</td></tr>
+            <tr><td>200</td><td>invalid → <code>continue</code>, skipped</td><td>80</td><td>1</td></tr>
+            <tr><td>90</td><td>valid → added</td><td>170</td><td>2</td></tr>
+            <tr><td>999</td><td><code>break</code> → loop ends</td><td>170</td><td>2</td></tr>
+          </tbody>
+        </table>
+
+        <div class="note">
+          <strong>Why the last <code>if number_of_students &gt; 0</code>?</strong> If the very first thing typed is <code>999</code>, no grades were counted. Dividing by <code>0</code> would crash the program, so we only compute the average when at least one grade was accepted.
+        </div>
+        <div class="warn">
+          The GitHub file names this variable <code>sum</code>. <code>sum</code> is a built-in Python function, so here we renamed it <code>total</code> — a small, safe improvement.
+        </div>
+      </section>
+
+      <!-- ═══ GITHUB ═══ -->
+      <section class="card topic-panel" id="topic-github">
+        <span class="tag">GitHub</span>
+        <h2 class="step-title">Lesson 8 GitHub Folder</h2>
+        <p>All the code from today's lesson — FizzBuzz, the <code>while True</code> examples, and the <code>continue</code> average:</p>
+        <div class="task-box">
+          <strong>Lesson folder:</strong><br>
+          <a href="https://github.com/pythonai080626-a11y/16.07.2026" target="_blank" rel="noopener">
+            https://github.com/pythonai080626-a11y/16.07.2026
+          </a>
+        </div>
+        <table class="ex-table">
+          <thead><tr><th>File</th><th>What it shows</th></tr></thead>
+          <tbody>
+            <tr><td>main.py</td><td>FizzBuzz</td></tr>
+            <tr><td>while_true2.py</td><td>while vs while True + break</td></tr>
+            <tr><td>while_true1.py</td><td>triangle checker (repeat-until)</td></tr>
+            <tr><td>while_true4.py</td><td>login screen</td></tr>
+            <tr><td>while_true3.py</td><td>highest grade with break</td></tr>
+            <tr><td>while_continue.py</td><td>average with break + continue</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- ═══ EXERCISE (English) ═══ -->
+      <section class="card topic-panel" id="topic-exercise">
+        <span class="tag">Homework</span>
+        <h2 class="step-title">1 Exercise</h2>
+        <p>This exercise is <strong>Python only</strong><br>
+           Write it as a <code>.py</code> file in PyCharm and run it with <span class="kbd">Shift</span> + <span class="kbd">F10</span><br>
+           It should use <code>while True</code>.</p>
+
+        <!-- Exercise 1 -->
+        <div class="ex-title">
+          <span class="ex-num">1</span>
+          <h3>Movie ratings</h3>
+        </div>
+        <p>Ask the user for a movie rating again and again. Stop only when they type <code>-1</code>. For every rating:</p>
+        <ul class="task-list">
+          <li>if the number is <strong>not</strong> between <code>1</code> and <code>5</code> → <strong>ignore</strong> it (invalid score)</li>
+          <li>a score of <code>1</code> or <code>2</code> → add <code>1</code> to <code>low_rate</code></li>
+          <li>a score of <code>3</code> → add <code>1</code> to <code>medium_rate</code></li>
+          <li>a score of <code>4</code> or <code>5</code> → add <code>1</code> to <code>high_rate</code></li>
+        </ul>
+        <p>At the end, print how many <strong>valid</strong> scores were given in total, and how many were <strong>low</strong>, <strong>medium</strong> and <strong>high</strong>.</p>
+
+        <div class="big-result">Example</div>
+        <div class="console">rating?<span class="usr">5</span>
+rating?<span class="usr">3</span>
+rating?<span class="usr">2</span>
+rating?<span class="usr">9</span>
+rating?<span class="usr">4</span>
+rating?<span class="usr">1</span>
+rating?<span class="usr">-1</span>
+Valid ratings: 5
+Low (1-2): 2
+Medium (3): 1
+High (4-5): 2</div>
+        <div class="note">
+          <strong>Why 5 valid?</strong> Six numbers were typed before <code>-1</code>, but <code>9</code> is outside <code>1</code>–<code>5</code> so it is ignored. The five valid ones split into low <code>2</code> + medium <code>1</code> + high <code>2</code> = <code>5</code>.
+        </div>
+        <div class="note">
+          <strong>Hint:</strong> a <code>while True</code> loop — <code>break</code> when the number is <code>-1</code>, and <code>continue</code> to skip an invalid score (outside <code>1</code>–<code>5</code>). Start four counters at <code>0</code> before the loop: <code>valid</code>, <code>low_rate</code>, <code>medium_rate</code>, <code>high_rate</code> (or just add the three rate counters — they sum to the valid count).
+        </div>
+
+        <div class="big-result">Submission</div>
+        <div class="card submission">
+          <ol class="task-list">
+            <li><strong>Write the .py program</strong> in PyCharm.</li>
+            <li><strong>Upload it to GitHub</strong> and send the link to:<br>
+              <a href="mailto:pythonai080626+hw8@gmail.com">pythonai080626+hw8@gmail.com</a>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ═══ EXERCISE (Hebrew) ═══ -->
+      <section class="card topic-panel rtl" id="topic-exercise-heb" lang="he" dir="rtl">
+        <span class="tag">שיעורי בית</span>
+        <h2 class="step-title">תרגיל 1</h2>
+        <p>התרגיל הוא <strong>בפייתון בלבד</strong><br>
+           כתבו אותו בקובץ <code>.py</code> ב-PyCharm והריצו עם <span class="kbd">Shift</span> + <span class="kbd">F10</span><br>
+           השתמשו ב-<code>while True</code>.</p>
+
+        <!-- Exercise 1 -->
+        <div class="ex-title">
+          <span class="ex-num">1</span>
+          <h3>דירוגי סרטים</h3>
+        </div>
+        <p>בקשו מהמשתמש דירוג של סרט שוב ושוב. עצרו רק כאשר יוקלד <code>-1</code>. עבור כל דירוג:</p>
+        <ul class="task-list">
+          <li>אם המספר <strong>אינו</strong> בין <code>1</code> ל-<code>5</code> ← <strong>התעלמו</strong> ממנו (ציון לא חוקי)</li>
+          <li>ציון <code>1</code> או <code>2</code> ← הוסיפו <code>1</code> ל-<code>low_rate</code></li>
+          <li>ציון <code>3</code> ← הוסיפו <code>1</code> ל-<code>medium_rate</code></li>
+          <li>ציון <code>4</code> או <code>5</code> ← הוסיפו <code>1</code> ל-<code>high_rate</code></li>
+        </ul>
+        <p>בסוף, הדפיסו כמה ציונים <strong>חוקיים</strong> ניתנו בסך הכל, וכמה היו <strong>נמוכים</strong>, <strong>בינוניים</strong> ו<strong>גבוהים</strong>.</p>
+
+        <div class="big-result">דוגמה</div>
+        <div class="console" dir="ltr">rating?<span class="usr">5</span>
+rating?<span class="usr">3</span>
+rating?<span class="usr">2</span>
+rating?<span class="usr">9</span>
+rating?<span class="usr">4</span>
+rating?<span class="usr">1</span>
+rating?<span class="usr">-1</span>
+Valid ratings: 5
+Low (1-2): 2
+Medium (3): 1
+High (4-5): 2</div>
+        <div class="note">
+          <strong>למה 5 חוקיים?</strong> הוקלדו שישה מספרים לפני <code>-1</code>, אבל <code>9</code> נמצא מחוץ לטווח <code>1</code>–<code>5</code> ולכן מתעלמים ממנו. חמשת החוקיים מתחלקים ל-נמוך <code>2</code> + בינוני <code>1</code> + גבוה <code>2</code> = <code>5</code>.
+        </div>
+        <div class="note">
+          <strong>רמז:</strong> לולאת <code>while True</code> — <code>break</code> כאשר המספר הוא <code>-1</code>, ו-<code>continue</code> כדי לדלג על ציון לא חוקי (מחוץ לטווח <code>1</code>–<code>5</code>). התחילו ארבעה מונים מ-<code>0</code> לפני הלולאה: <code>valid</code>, <code>low_rate</code>, <code>medium_rate</code>, <code>high_rate</code> (או פשוט חברו את שלושת מוני הדירוג — הם מסתכמים למספר החוקיים).
+        </div>
+
+        <div class="big-result">הגשה</div>
+        <div class="card submission">
+          <ol class="task-list">
+            <li><strong>כתבו את תוכנית ה-py</strong> ב-PyCharm.</li>
+            <li><strong>העלו אותה ל-GitHub</strong> ושלחו את הקישור ל:<br>
+              <a href="mailto:pythonai080626+hw8@gmail.com">pythonai080626+hw8@gmail.com</a>
+            </li>
+          </ol>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="footer">
+    Python Basics - Lesson 8 - July 16, 2026 - while True, break &amp; continue
+  </footer>
+</div>
+
+<script>
+  const links = document.querySelectorAll('.topic-link');
+  const panels = document.querySelectorAll('.topic-panel');
+
+  function showTopic(id) {
+    panels.forEach(panel => panel.classList.toggle('active', panel.id === id));
+    links.forEach(link => link.classList.toggle('active', link.dataset.target === id));
+  }
+
+  links.forEach(link => {
+    link.addEventListener('click', () => {
+      showTopic(link.dataset.target);
+      location.hash = link.dataset.target;
+    });
+  });
+
+  const hash = location.hash.replace('#', '');
+  if (hash && document.getElementById(hash)) showTopic(hash);
+</script>
+</body>
+</html>

@@ -96,7 +96,8 @@
           <p class="text-lg text-[#134E4A]/65 max-w-2xl leading-relaxed">
             Until now every line ran <strong>once</strong>. A <code class="bg-teal-50 px-1 rounded">while</code> loop repeats a block of code
             <strong>as long as a condition is True</strong> — it is the Python version of the arrow that goes
-            <em>back up</em> in a flowchart. Learn the loop counter, the accumulator, and how to avoid the dreaded infinite loop.
+            <em>back up</em> in a flowchart. Learn the loop counter, the accumulator, <code class="bg-teal-50 px-1 rounded">while True</code>,
+            and how to jump out with <code class="bg-teal-50 px-1 rounded">break</code> &amp; <code class="bg-teal-50 px-1 rounded">continue</code>.
           </p>
         </div>
 
@@ -292,6 +293,72 @@ grade?<span class="usr">60</span>
           </div>
         </article>
 
+        <!-- STEP 6 — WHILE TRUE + BREAK -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">6</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">while True + <code>break</code> — Exit From the Inside ♾️→🚪</h2>
+              <p class="text-[#134E4A]/65 mb-4">
+                Sometimes the reason to stop only appears <strong>in the middle</strong> of a round. Write the loop as
+                <code class="bg-teal-50 px-1 rounded">while True</code> — it would run forever — and use <code class="bg-teal-50 px-1 rounded">break</code>
+                to jump out the moment you are done. This is Python's version of a <em>do-while</em> / <em>repeat-until</em>: the body always runs at least once.
+              </p>
+              <div class="code"><span class="kw">while</span> <span class="kw">True</span>:
+<span class="ind">    user = <span class="fn">input</span>(<span class="str">'username?'</span>)
+    pwd = <span class="fn">input</span>(<span class="str">'password?'</span>)
+    <span class="kw">if</span> user == <span class="str">"admin"</span> <span class="kw">and</span> pwd == <span class="str">"1234"</span>:
+        <span class="kw">break</span>      <span class="cm"># correct → leave the loop</span>
+    <span class="kw">else</span>:
+        <span class="fn">print</span>(<span class="str">'Wrong credentials...'</span>)</span></div>
+              <div class="console">username?<span class="usr">guest</span>
+password?<span class="usr">0000</span>
+Wrong credentials...
+username?<span class="usr">admin</span>
+password?<span class="usr">1234</span></div>
+              <div class="bg-[#F0FDFA] border border-teal-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                🚪 <strong><code>break</code> stops the loop instantly</strong> and continues on the first line <em>after</em> it — the
+                <code>True</code> condition is never re-checked. Every <code>while True</code> needs a <code>break</code> that can actually run, or it hangs forever.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- STEP 7 — CONTINUE -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">7</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">Skip a Round — <code>continue</code> ⏭️</h2>
+              <p class="text-[#134E4A]/65 mb-4">
+                <code class="bg-teal-50 px-1 rounded">break</code> leaves the loop for good. <code class="bg-teal-50 px-1 rounded">continue</code> is gentler:
+                it drops the <strong>rest of the current round</strong> and jumps back up to the loop — which keeps going. Great for
+                "if this input is junk, ignore it and ask for the next one".
+              </p>
+              <div class="code">total = <span class="num">0</span>
+count = <span class="num">0</span>
+
+<span class="kw">while</span> <span class="kw">True</span>:
+<span class="ind">    grade = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'Grade?'</span>))
+    <span class="kw">if</span> grade == <span class="num">999</span>:
+        <span class="kw">break</span>                       <span class="cm"># stop signal → leave</span>
+    <span class="kw">if</span> grade &lt; <span class="num">0</span> <span class="kw">or</span> grade &gt; <span class="num">100</span>:
+        <span class="fn">print</span>(<span class="str">'ignored'</span>)
+        <span class="kw">continue</span>                    <span class="cm"># skip the two lines below</span>
+    total += grade
+    count += <span class="num">1</span></span></div>
+              <div class="grid md:grid-cols-2 gap-4 mt-4">
+                <div class="bg-[#F0FDFA] border border-teal-100 rounded-2xl p-4 text-sm text-[#134E4A]/70">
+                  🚪 <strong><code>break</code></strong> → leave the loop entirely.
+                </div>
+                <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 text-sm text-[#134E4A]/70">
+                  ⏭️ <strong><code>continue</code></strong> → skip to the <em>next</em> round of the same loop.
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
       </div>
 
       <!-- ═══ IF vs WHILE ═══ -->
@@ -341,7 +408,9 @@ grade?<span class="usr">60</span>
         </div>
         <p class="text-[#134E4A]/60 mt-6">
           Ready to practice? See <code>while</code> in action in
-          <a href="../lessons/07_lesson/07-lesson.html" class="text-[#0D9488] font-bold underline">Lesson 7</a>.
+          <a href="../lessons/07_lesson/07-lesson.html" class="text-[#0D9488] font-bold underline">Lesson 7</a>,
+          then master <code>while True</code>, <code>break</code> &amp; <code>continue</code> in
+          <a href="../lessons/08_lesson/08-lesson.html" class="text-[#0D9488] font-bold underline">Lesson 8</a>.
         </p>
       </section>
 
