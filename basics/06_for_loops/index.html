@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python For Loops - for &amp; range</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Comic+Neue:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Comic Neue', cursive; }
+    h1, h2, h3, .heading { font-family: 'Baloo 2', cursive; }
+    .clay {
+      border: 3px solid rgba(249,115,22,0.18);
+      box-shadow: 5px 5px 0 rgba(249,115,22,0.22), inset 0 1px 0 rgba(255,255,255,0.65);
+    }
+    .clay-teal {
+      border: 3px solid rgba(13,148,136,0.18);
+      box-shadow: 5px 5px 0 rgba(13,148,136,0.22), inset 0 1px 0 rgba(255,255,255,0.65);
+    }
+    .step-card { transition: transform .2s ease, box-shadow .2s ease; }
+    .step-card:hover { transform: translateY(-4px); }
+
+    .code {
+      background: #0b2517; color: #d2ffe3;
+      border-radius: 14px; border: 1px solid #2f5a3d;
+      padding: 14px 18px; overflow-x: auto; margin: 12px 0 4px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95rem; white-space: pre; line-height: 1.7;
+    }
+    .code .cm { color: #6dbf8a; }
+    .code .fn { color: #ffa657; }
+    .code .kw { color: #79c0ff; }
+    .code .str { color: #ffd580; }
+    .code .num { color: #d2a8ff; }
+    .code .ind { background: rgba(125,231,135,0.14); border-radius: 4px; }
+    .code .bad { background: rgba(248,113,113,0.16); border-radius: 4px; }
+
+    .console {
+      background: #101418; color: #e6edf3;
+      border-radius: 14px; border: 1px solid #30363d;
+      padding: 12px 18px; overflow-x: auto; margin: 12px 0 4px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92rem; white-space: pre; line-height: 1.7;
+    }
+    .console .usr { color: #7ee787; font-weight: 700; }
+
+    .kbd {
+      display: inline-block; padding: 2px 10px; border-radius: 8px;
+      background: #FFF7ED; border: 2px solid #FED7AA;
+      border-bottom-width: 4px; font-family: Consolas, monospace;
+      font-size: .85rem; color: #C2410C; font-weight: 700;
+    }
+
+    .step-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 44px; height: 44px; border-radius: 14px; flex-shrink: 0;
+      background: #FFEDD5; border: 3px solid #F97316;
+      color: #C2410C; font-weight: 800; font-size: 1.25rem;
+      font-family: 'Baloo 2', cursive;
+    }
+
+    .trace { width: 100%; border-collapse: collapse; font-size: .9rem; margin-top: 12px; }
+    .trace th {
+      background: #FFEDD5; color: #C2410C; text-align: left;
+      padding: 8px 12px; border: 2px solid #FED7AA;
+      font-size: .75rem; letter-spacing: .06em; text-transform: uppercase;
+      font-family: 'Baloo 2', cursive;
+    }
+    .trace td { padding: 8px 12px; border: 2px solid #FFEDD5; color: #134E4A; }
+    .trace tr:nth-child(even) td { background: #FFF7ED; }
+  </style>
+</head>
+<body class="bg-[#FFFBF5] text-[#134E4A] min-h-screen">
+
+  <nav class="fixed top-4 left-4 right-4 z-50">
+    <div class="max-w-6xl mx-auto bg-white/90 backdrop-blur-md rounded-2xl px-5 py-3 clay flex items-center gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-[#F97316] hover:text-[#134E4A] transition-colors duration-200">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        <span class="text-sm font-semibold">Python Basics</span>
+      </a>
+      <span class="text-[#134E4A]/25 text-sm">/</span>
+      <span class="heading font-bold text-[#134E4A] text-sm">For Loops</span>
+    </div>
+  </nav>
+
+  <main class="px-4 pt-28 pb-16">
+    <section class="max-w-6xl mx-auto">
+
+      <!-- ═══ HERO ═══ -->
+      <div class="grid lg:grid-cols-[1fr_360px] gap-8 items-center mb-10">
+        <div>
+          <span class="text-xs font-bold tracking-widest uppercase text-[#F97316] bg-orange-50 border border-orange-200 px-4 py-1.5 rounded-full">Topic 06</span>
+          <h1 class="heading text-5xl md:text-6xl font-extrabold text-[#134E4A] mt-4 mb-4 leading-tight">Loops — for 🔢</h1>
+          <p class="text-lg text-[#134E4A]/65 max-w-2xl leading-relaxed">
+            A <code class="bg-orange-50 px-1 rounded">while</code> loop stops when a condition turns False. A
+            <code class="bg-orange-50 px-1 rounded">for</code> loop is for the other case — when you already know
+            <strong>how many rounds</strong> you need. It packs the counter's <em>start</em>, <em>test</em> and <em>change</em>
+            into one short line with <code class="bg-orange-50 px-1 rounded">range()</code>, and never forgets the <code>i += 1</code>.
+          </p>
+        </div>
+
+        <div class="bg-white rounded-[24px] p-5 clay-teal hidden lg:block">
+          <div class="flex items-center gap-1.5 mb-3">
+            <span class="w-3 h-3 rounded-full bg-red-400"></span>
+            <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
+            <span class="w-3 h-3 rounded-full bg-green-400"></span>
+            <span class="text-xs text-[#134E4A]/40 ml-2 font-mono">count.py</span>
+          </div>
+          <div class="code" style="margin:0;"><span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">5</span> + <span class="num">1</span>):
+<span class="ind">    <span class="fn">print</span>(i)</span>
+<span class="fn">print</span>(<span class="str">'done'</span>)</div>
+        </div>
+      </div>
+
+      <!-- ═══ TUTORIAL STEPS ═══ -->
+      <div class="space-y-6">
+
+        <!-- STEP 1 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">1</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">Same Loop, Three Lines Shorter</h2>
+              <p class="text-[#134E4A]/65 mb-4">
+                Every counting <code>while</code> loop has the same three parts, scattered across the code:
+                <strong>start</strong> the counter, <strong>test</strong> it, <strong>change</strong> it. A <code>for</code> loop
+                puts all three on one line — and does the change automatically.
+              </p>
+              <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                  <div class="heading font-extrabold text-[#0F766E] mb-1">while — three places</div>
+                  <div class="code" style="margin-top:6px;">i = <span class="num">1</span>            <span class="cm"># ① start</span>
+<span class="kw">while</span> i &lt;= <span class="num">10</span>:    <span class="cm"># ② test</span>
+<span class="ind">    <span class="fn">print</span>(i, end=<span class="str">" "</span>)
+    i += <span class="num">1</span>        <span class="cm"># ③ change</span></span></div>
+                </div>
+                <div>
+                  <div class="heading font-extrabold text-[#C2410C] mb-1">for — one place</div>
+                  <div class="code" style="margin-top:6px;"><span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">10</span> + <span class="num">1</span>, +<span class="num">1</span>):
+<span class="ind">    <span class="fn">print</span>(i, end=<span class="str">" "</span>)</span>
+<span class="cm">#   ① start ② stop  ③ step</span></div>
+                </div>
+              </div>
+              <div class="console">while loop: 1 2 3 4 5 6 7 8 9 10
+for loop:   1 2 3 4 5 6 7 8 9 10</div>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                ✅ Because <code>range</code> owns the counter, a <code>for</code> loop <strong>cannot</strong> run forever by accident —
+                the infinite-loop bug simply does not exist here.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- STEP 2 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">2</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">range(start, stop, step)</h2>
+              <p class="text-[#134E4A]/65 mb-4">
+                Three numbers, and each one matches a part of the <code>while</code> loop you already know:
+              </p>
+              <table class="trace">
+                <thead><tr><th>Part</th><th>Meaning</th><th>while equivalent</th></tr></thead>
+                <tbody>
+                  <tr><td><code>start</code></td><td>the first value <code>i</code> gets</td><td><code>i = start</code></td></tr>
+                  <tr><td><code>stop</code></td><td>where to stop — <strong>never reached</strong></td><td><code>while i &lt; stop</code></td></tr>
+                  <tr><td><code>step</code></td><td>how much to add each round</td><td><code>i += step</code></td></tr>
+                </tbody>
+              </table>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                ⚠️ <strong>The stop is exclusive.</strong> <code>range(1, 10)</code> gives <code>1..9</code> — <em>not</em> <code>10</code>.
+                To include <code>10</code>, write <code>range(1, 11)</code>. Writing it as <code>range(1, 10 + 1)</code> is a nice habit:
+                the number you actually want stays visible.
+              </div>
+              <div class="bg-[#F0FDFA] border border-teal-100 rounded-2xl p-4 mt-3 text-sm text-[#134E4A]/70">
+                💡 The step defaults to <code>1</code> and the start to <code>0</code>, so
+                <code>range(1, 11, 1)</code> = <code>range(1, 11)</code>, and <code>range(10)</code> means <code>0 1 2 ... 9</code>.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- STEP 3 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">3</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">Any Step You Like — Even Backwards ⬇️</h2>
+              <p class="text-[#134E4A]/65 mb-4">
+                The step is what makes <code>range</code> flexible. Skip in threes, or count down with a
+                <strong>negative</strong> step:
+              </p>
+              <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                  <div class="heading font-extrabold text-[#C2410C] mb-1">Multiples of 3, up to 30</div>
+                  <div class="code" style="margin-top:6px;"><span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">3</span>, <span class="num">30</span> + <span class="num">3</span>, +<span class="num">3</span>):
+<span class="ind">    <span class="fn">print</span>(i, end=<span class="str">" "</span>)</span></div>
+                  <div class="console" style="margin-top:6px;">3 6 9 12 15 18 21 24 27 30 </div>
+                </div>
+                <div>
+                  <div class="heading font-extrabold text-[#0F766E] mb-1">10 down to 1</div>
+                  <div class="code" style="margin-top:6px;"><span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">10</span>, <span class="num">1</span> - <span class="num">1</span>, -<span class="num">1</span>):
+<span class="ind">    <span class="fn">print</span>(i, end=<span class="str">" "</span>)</span></div>
+                  <div class="console" style="margin-top:6px;">10 9 8 7 6 5 4 3 2 1 </div>
+                </div>
+              </div>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                🧭 The stop must always be <strong>one step past</strong> the last value you want — above it going up
+                (<code>30 + 3</code>), below it going down (<code>1 - 1</code>).
+              </div>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-3 text-sm text-[#134E4A]/70">
+                🕳️ Forgetting the negative step gives an <strong>empty</strong> range: <code>range(10, 0)</code> counts
+                <em>up</em> from 10 to 0, which is nothing at all — so the body never runs and nothing is printed. No error, no output.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- STEP 4 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">4</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">Collecting a Result — and break / continue</h2>
+              <p class="text-[#134E4A]/65 mb-4">
+                Everything you learned with <code>while</code> still applies: the accumulator lives
+                <strong>outside</strong> the loop, and <code>break</code> / <code>continue</code> behave exactly the same.
+              </p>
+              <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                  <div class="heading font-extrabold text-[#0F766E] mb-1">Sum of 5 numbers</div>
+                  <div class="code" style="margin-top:6px;">total = <span class="num">0</span>
+
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">5</span>):
+<span class="ind">    n = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'number?'</span>))
+    total += n</span>
+
+<span class="fn">print</span>(total)</div>
+                </div>
+                <div>
+                  <div class="heading font-extrabold text-[#C2410C] mb-1">Stop early on a 0</div>
+                  <div class="code" style="margin-top:6px;">total = <span class="num">0</span>
+
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">5</span>):
+<span class="ind">    n = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'number?'</span>))
+    <span class="kw">if</span> n == <span class="num">0</span>:
+        <span class="kw">break</span>
+    <span class="kw">if</span> n &lt; <span class="num">0</span>:
+        <span class="kw">continue</span>   <span class="cm"># ignore it</span>
+    total += n</span></div>
+                </div>
+              </div>
+              <div class="bg-[#F0FDFA] border border-teal-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                💡 If the counter is only there to repeat something N times and you never use its value, the loop still
+                needs a name for it — <code>for i in range(5)</code>. Just ignore <code>i</code> in the body.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- STEP 5 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">5</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">Nested for — Rows &amp; Columns 🔢</h2>
+              <p class="text-[#134E4A]/65 mb-4">
+                Nested loops get much shorter with <code>for</code>: the inner <code>range</code> is rebuilt on every outer
+                round, so the counter <strong>resets by itself</strong> — the classic "I forgot <code>j = 0</code>" bug is gone.
+              </p>
+              <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                  <div class="code" style="margin-top:6px;"><span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">0</span>, <span class="num">9</span> + <span class="num">1</span>):
+<span class="ind">    <span class="kw">for</span> j <span class="kw">in</span> <span class="fn">range</span>(<span class="num">0</span>, i):   <span class="cm"># row stops at i</span>
+        <span class="fn">print</span>(j, end=<span class="str">" "</span>)
+    <span class="fn">print</span>()              <span class="cm"># end the row</span></span></div>
+                </div>
+                <div>
+                  <div class="console" style="margin-top:6px;">
+0
+0 1
+0 1 2
+0 1 2 3
+0 1 2 3 4
+0 1 2 3 4 5
+0 1 2 3 4 5 6
+0 1 2 3 4 5 6 7
+0 1 2 3 4 5 6 7 8</div>
+                </div>
+              </div>
+              <div class="bg-[#F0FDFA] border border-teal-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                🧠 Outer loop = <strong>row</strong>. Inner loop = <strong>column</strong>. <code>print(j, end=" ")</code> keeps the row
+                on one line, and the bare <code>print()</code> — in the <em>outer</em> body — ends it.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- STEP 6 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">6</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">The Times Table — and Lining Up Columns</h2>
+              <p class="text-[#134E4A]/65 mb-4">
+                The classic nested-<code>for</code> program. Inside an f-string, <code>:4</code> means
+                "<strong>pad to a width of 4</strong>" — numbers pad on the left, so the columns come out right-aligned.
+              </p>
+              <div class="code"><span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">10</span> + <span class="num">1</span>):
+<span class="ind">    <span class="kw">for</span> j <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">10</span> + <span class="num">1</span>):
+        <span class="fn">print</span>(<span class="str">f"{i * j:4}"</span>, end=<span class="str">" "</span>)
+    <span class="fn">print</span>()</span></div>
+              <div class="console">   1    2    3    4    5    6    7    8    9   10
+   2    4    6    8   10   12   14   16   18   20
+   3    6    9   12   15   18   21   24   27   30
+   4    8   12   16   20   24   28   32   36   40
+   5   10   15   20   25   30   35   40   45   50
+   6   12   18   24   30   36   42   48   54   60
+   7   14   21   28   35   42   49   56   63   70
+   8   16   24   32   40   48   56   64   72   80
+   9   18   27   36   45   54   63   72   81   90
+  10   20   30   40   50   60   70   80   90  100</div>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                🪄 Without <code>:4</code> the same program prints the right numbers in a crooked mess —
+                <code>7</code> is one character wide and <code>100</code> is three.
+              </div>
+            </div>
+          </div>
+        </article>
+
+      </div>
+
+      <!-- ═══ FOR vs WHILE ═══ -->
+      <section class="bg-white rounded-[24px] p-7 clay mt-8">
+        <h2 class="heading text-3xl font-extrabold mb-3">for  vs  while — Which One?</h2>
+        <p class="text-[#134E4A]/65 mb-5">Both repeat. The question is <strong>what makes them stop</strong>:</p>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4">
+            <div class="heading font-extrabold text-[#C2410C] mb-1">Use a <code>for</code> when you know the count</div>
+            "10 times" · "1 to N" · "every third number" · "from 10 down to 1".
+            <div class="code" style="margin-top:8px;"><span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, n + <span class="num">1</span>):
+<span class="ind">    <span class="fn">print</span>(i)</span></div>
+          </div>
+          <div class="bg-[#F0FDFA] border border-teal-100 rounded-2xl p-4">
+            <div class="heading font-extrabold text-[#0F766E] mb-1">Use a <code>while</code> when you know the condition</div>
+            "until the user types 999" · "until the password is correct" · "while there is still fuel".
+            <div class="code" style="margin-top:8px;"><span class="kw">while</span> <span class="kw">True</span>:
+<span class="ind">    n = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'?'</span>))
+    <span class="kw">if</span> n == <span class="num">999</span>:
+        <span class="kw">break</span></span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ CHEAT SHEET ═══ -->
+      <section class="bg-white rounded-[24px] p-7 clay-teal mt-8">
+        <h2 class="heading text-3xl font-extrabold mb-3">Quick Reference</h2>
+        <div class="grid md:grid-cols-2 gap-4 text-[#134E4A]/75">
+          <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4">
+            <div class="heading font-extrabold text-[#C2410C] mb-1">range(start, stop, step)</div>
+            start · where to stop (<strong>never reached</strong>) · how much to add each round.
+          </div>
+          <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4">
+            <div class="heading font-extrabold text-[#C2410C] mb-1">Include the last number</div>
+            <code class="text-sm">range(1, 10 + 1)</code> → <code class="text-sm">1..10</code>. Plain <code class="text-sm">range(1, 10)</code> stops at <code class="text-sm">9</code>.
+          </div>
+          <div class="bg-[#F0FDFA] border border-teal-100 rounded-2xl p-4">
+            <div class="heading font-extrabold text-[#0F766E] mb-1">Counting down</div>
+            Negative step, and a stop <em>below</em> the last value: <code class="text-sm">range(10, 0, -1)</code>.
+          </div>
+          <div class="bg-[#F0FDFA] border border-teal-100 rounded-2xl p-4">
+            <div class="heading font-extrabold text-[#0F766E] mb-1">Nested for</div>
+            Outer = rows, inner = columns. The inner counter resets by itself every outer round.
+          </div>
+        </div>
+        <p class="text-[#134E4A]/60 mt-6">
+          Coming from <code>while</code>? Start with
+          <a href="../05_loops/index.html" class="text-[#0D9488] font-bold underline">Loops — while</a>,
+          then see <code>for</code>, <code>range</code> and nested loops in action in
+          <a href="../lessons/09_lesson/09-lesson.html" class="text-[#F97316] font-bold underline">Lesson 9</a>.
+        </p>
+      </section>
+
+    </section>
+  </main>
+
+</body>
+</html>

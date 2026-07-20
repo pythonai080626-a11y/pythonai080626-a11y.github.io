@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lesson 9 - nested loops &amp; the for loop</title>
+  <style>
+    :root {
+      --bg-soft: #ffffff;
+      --green-1: #0f5a2e;
+      --green-2: #1f8f4e;
+      --green-3: #dbf6e5;
+      --mint: #e6fff2;
+      --text: #14281d;
+      --muted: #426654;
+      --border: #aadfbd;
+      --accent-a: #ddfbe7;
+      --accent-b: #fff4d8;
+      --code-bg: #0b2517;
+      --code-text: #d2ffe3;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Lucida Sans", "Segoe UI", sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 15% 10%, #e7fff0 0%, transparent 35%),
+                  radial-gradient(circle at 85% 18%, #fff5d6 0%, transparent 36%),
+                  linear-gradient(180deg, #f4fff6 0%, #ffffff 45%, #edfff4 100%);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    body::before, body::after {
+      content: "";
+      position: fixed;
+      width: 230px;
+      height: 230px;
+      z-index: -1;
+      border-radius: 999px;
+      filter: blur(2px);
+      opacity: 0.32;
+      animation: blobMove 8s ease-in-out infinite alternate;
+    }
+    body::before { background: #bff0d0; top: -30px; left: -40px; }
+    body::after { background: #ffe9a9; bottom: -40px; right: -40px; animation-delay: 1.4s; }
+
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 24px; }
+    .layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .side-nav {
+      position: sticky;
+      top: 14px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 8px 22px rgba(18,102,55,0.1);
+      padding: 12px;
+    }
+    .side-title { margin: 0 0 8px; font-size: 0.9rem; color: var(--green-1); font-weight: 700; }
+    .topic-link {
+      display: block;
+      width: 100%;
+      text-align: left;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      padding: 8px 10px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.89rem;
+      text-transform: lowercase;
+      margin-bottom: 4px;
+      transition: all 0.2s ease;
+    }
+    .topic-link:hover { background: #f0fff4; color: var(--green-1); border-color: var(--border); }
+    .topic-link.active { background: #e8faee; color: var(--green-1); border-color: var(--green-2); font-weight: 700; }
+
+    .hero {
+      background: linear-gradient(135deg, var(--bg-soft) 0%, var(--accent-a) 55%, var(--accent-b) 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 12px 30px rgba(24,110,58,0.12);
+      margin-bottom: 22px;
+      animation: riseIn 0.75s ease both;
+    }
+
+    h1, h2, h3 { margin-top: 0; color: var(--green-1); }
+    h1 { font-size: 2rem; margin-bottom: 8px; }
+    code { color: var(--green-1); font-weight: 700; }
+
+    .tag {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      background: var(--green-3);
+      color: var(--green-1);
+      border: 1px solid var(--border);
+      margin-bottom: 10px;
+    }
+
+    .card {
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 16px;
+      box-shadow: 0 7px 22px rgba(18,102,55,0.08);
+      animation: riseIn 0.65s ease both;
+    }
+
+    .topic-panel { display: none; }
+    .topic-panel.active { display: block; }
+    .step-title { margin: 0 0 12px; font-size: 1.25rem; }
+    .side-divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+    .side-section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--green-2);
+      padding: 4px 4px 6px;
+    }
+    .nav-back {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--green-2);
+      background: #e9fbe8;
+      color: var(--green-1);
+      text-decoration: none;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      width: 100%;
+      text-align: center;
+    }
+    .nav-back:hover { background: #d8f7df; transform: translateY(-1px); }
+
+    .note {
+      background: var(--mint);
+      border-left: 4px solid var(--green-2);
+      padding: 10px 14px;
+      color: var(--muted);
+      margin: 12px 0;
+      border-radius: 6px;
+      font-size: 0.94rem;
+    }
+    .warn {
+      background: #fff6e2;
+      border-left: 4px solid #e0a800;
+      padding: 10px 14px;
+      color: #6b4e00;
+      margin: 12px 0;
+      border-radius: 6px;
+      font-size: 0.94rem;
+    }
+    .big-result { font-size: 1.1rem; margin: 18px 0 8px; color: var(--green-1); font-weight: 700; }
+
+    .code {
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 10px;
+      border: 1px solid #2f5a3d;
+      padding: 16px 18px;
+      overflow-x: auto;
+      margin: 10px 0 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95rem;
+      white-space: pre;
+      line-height: 1.7;
+    }
+    .code .cm { color: #6dbf8a; }
+    .code .fn { color: #ffa657; }
+    .code .kw { color: #79c0ff; }
+    .code .num { color: #d2a8ff; }
+    .code .str { color: #ffd580; }
+    .code .hl { background: rgba(125,231,135,0.16); border-radius: 4px; }
+    .code .bad { background: rgba(248,113,113,0.16); border-radius: 4px; }
+
+    .console {
+      background: #101418;
+      color: #e6edf3;
+      border-radius: 10px;
+      border: 1px solid #30363d;
+      padding: 12px 18px;
+      overflow-x: auto;
+      margin: 10px 0 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92rem;
+      white-space: pre;
+      line-height: 1.7;
+    }
+    .console .usr { color: #7ee787; font-weight: 700; }
+
+    .ex-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .88rem;
+      margin: 10px 0 14px;
+    }
+    .ex-table th {
+      background: var(--green-3);
+      color: var(--green-1);
+      padding: 8px 12px;
+      text-align: left;
+      border: 1px solid var(--border);
+      font-size: .78rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+    .ex-table td { padding: 8px 12px; border: 1px solid var(--border); vertical-align: top; }
+    .ex-table tr:nth-child(even) td { background: #f4fff7; }
+    .task-box {
+      background: var(--mint);
+      border: 2px dashed var(--green-2);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin: 14px 0;
+    }
+    .task-box a {
+      color: var(--green-1);
+      font-weight: 800;
+      font-size: 1.02rem;
+      word-break: break-all;
+    }
+    .footer { text-align: center; color: var(--muted); font-size: 0.86rem; padding: 10px 0 16px; }
+
+    .task-list { padding-left: 22px; margin: 10px 0 0; }
+    .task-list li { margin-bottom: 10px; color: #1a3a2a; }
+    .task-list li strong { color: var(--green-1); }
+
+    .ex-title { display: flex; align-items: center; margin: 22px 0 8px; }
+    .ex-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--green-3); border: 2px solid var(--green-2);
+      color: var(--green-1); font-weight: 800; font-size: .88rem;
+      margin-right: 8px; flex-shrink: 0;
+    }
+    .ex-title h3 { margin: 0; font-size: 1.1rem; }
+
+    .kbd {
+      display: inline-block; padding: 2px 8px; border-radius: 6px;
+      background: #f0fff4; border: 1px solid var(--border);
+      border-bottom-width: 3px; font-family: Consolas, monospace;
+      font-size: .85rem; color: var(--green-1); font-weight: 700;
+    }
+
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 6px; }
+    .pill {
+      display: inline-block; padding: 4px 12px; border-radius: 999px;
+      background: #eafcef; border: 1px solid var(--border);
+      color: var(--green-1); font-weight: 700; font-size: .82rem;
+    }
+
+    /* ── Flowchart (same look as lesson 7) ── */
+    .fc-wrap { display: flex; justify-content: center; margin: 18px 0; overflow-x: auto; }
+    .fc-wrap svg {
+      max-width: 96%;
+      min-width: 0;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #fbfffd;
+    }
+    .shape { fill: #dbf6e5; stroke: #1f8f4e; stroke-width: 2.2; }
+    .shape-alt { fill: #f0fff8; stroke: #1f8f4e; stroke-width: 2.2; }
+    .decision { fill: #e8fff4; stroke: #1f8f4e; stroke-width: 2.5; }
+    .flow { stroke: #1f8f4e; stroke-width: 2.2; fill: none; }
+    .fc-text { font-family: "Trebuchet MS", sans-serif; font-size: 13px; font-weight: 700; fill: #0f5a2e; }
+    .fc-small { font-family: "Trebuchet MS", sans-serif; font-size: 11px; font-weight: 700; fill: #166534; }
+
+    /* ── continue jump highlight + overlay arrow ── */
+    .code .jump { background: rgba(217,130,43,0.24); border-radius: 4px; padding: 0 2px; }
+    .code-flow { position: relative; }
+    .code-flow .jump-arrow {
+      position: absolute; top: 0; left: 0;
+      overflow: visible; pointer-events: none;
+    }
+    .code-flow .jump-arrow .jline { fill: none; stroke: #e0872b; stroke-width: 2.3; }
+    .code-flow .jump-arrow .lbl {
+      font-family: "Trebuchet MS", sans-serif; font-size: 11px; font-weight: 700; fill: #b4530f;
+    }
+
+    /* ── Fun triangle gallery ── */
+    .tri-gallery { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; margin: 18px 0 6px; }
+    .tri-card {
+      background: #f7fffb; border: 1px solid var(--border); border-radius: 14px;
+      padding: 14px 14px 12px; width: 232px; text-align: center;
+      box-shadow: 0 6px 16px rgba(18,102,55,0.08);
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .tri-card:hover { transform: translateY(-4px); box-shadow: 0 12px 22px rgba(18,102,55,0.16); }
+    .tri-card .cap { font-weight: 800; color: var(--green-1); font-size: .92rem; margin-top: 8px; }
+    .tri-card .sub { font-size: .75rem; color: var(--muted); white-space: nowrap; }
+    .tri-card.bad { background: #fff6ef; border-color: #f0c6a0; }
+    .tri-card.bad .cap { color: #b4530f; }
+
+    /* ── Fun login mockup ── */
+    .login-wrap { display: flex; justify-content: center; margin: 20px 0 6px; }
+    .login-ui {
+      width: 320px; max-width: 100%;
+      background: linear-gradient(160deg, #ffffff 0%, #eafcf2 100%);
+      border: 1px solid var(--border); border-radius: 20px; padding: 24px 22px 20px;
+      box-shadow: 0 16px 34px rgba(18,102,55,0.16); text-align: center;
+    }
+    .login-ui .avatar {
+      width: 66px; height: 66px; margin: 0 auto 12px; border-radius: 50%;
+      background: linear-gradient(160deg, #2dd4bf, #0d9488);
+      display: flex; align-items: center; justify-content: center; color: #fff;
+      box-shadow: 0 8px 16px rgba(13,148,136,0.38);
+      animation: loginFloat 3.4s ease-in-out infinite;
+    }
+    .login-ui h3 { margin: 0 0 2px; font-size: 1.3rem; }
+    .login-ui .lead { color: var(--muted); font-size: .84rem; margin: 0 0 14px; }
+    .login-alert {
+      display: flex; align-items: center; gap: 7px; justify-content: center;
+      background: #fdecea; border: 1px solid #f3b7ad; color: #b42318;
+      border-radius: 10px; padding: 7px 10px; margin: 0 0 14px;
+      font-size: .82rem; font-weight: 700;
+      animation: loginShake 2.6s ease-in-out infinite;
+    }
+    .login-field {
+      display: flex; align-items: center; gap: 10px;
+      background: #ffffff; border: 2px solid var(--border); border-radius: 12px;
+      padding: 11px 12px; margin-bottom: 12px; text-align: left;
+    }
+    .login-field .lead-ic { color: #0d9488; flex: 0 0 auto; }
+    .login-field .tail-ic { color: #8aa79a; flex: 0 0 auto; margin-left: auto; }
+    .login-field .val { font-family: Consolas, monospace; color: #14281d; font-weight: 700; font-size: .95rem; }
+    .login-field .dots { letter-spacing: 4px; color: #14281d; font-weight: 800; font-size: 1.1rem; }
+    .login-field .caret { color: #0d9488; font-weight: 700; animation: loginBlink 1s steps(1) infinite; }
+    .login-btn {
+      width: 100%; border: none; border-radius: 12px; padding: 12px;
+      font-family: "Trebuchet MS", sans-serif; font-weight: 800; font-size: .98rem; color: #fff;
+      background: linear-gradient(135deg, #0d9488, #0f766e);
+      box-shadow: 0 8px 16px rgba(13,148,136,0.36);
+      display: flex; align-items: center; justify-content: center; gap: 8px; cursor: default;
+    }
+    .login-hint { font-size: .76rem; color: var(--muted); margin: 12px 0 0; }
+    .login-hint code { color: #0f766e; }
+    @keyframes loginFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+    @keyframes loginBlink { 50% { opacity: 0; } }
+    @keyframes loginShake {
+      0%, 82%, 100% { transform: translateX(0); }
+      86% { transform: translateX(-5px); }
+      90% { transform: translateX(5px); }
+      94% { transform: translateX(-3px); }
+      98% { transform: translateX(2px); }
+    }
+
+    .submission { background: var(--mint); border-color: var(--green-2); margin-top: 0; }
+    .submission a { color: var(--green-1); font-weight: 800; font-size: 1.05rem; word-break: break-all; }
+
+    .rtl { direction: rtl; text-align: right; }
+    .rtl .task-list { padding-left: 0; padding-right: 22px; }
+    .rtl .ex-title { flex-direction: row-reverse; justify-content: flex-end; }
+    .rtl .ex-num { margin-right: 0; margin-left: 8px; }
+    .rtl .ex-table th, .rtl .ex-table td { text-align: right; }
+
+    /* ── Triangle number-tile visual ── */
+    .tri-viz {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      background: #f5fff9;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin: 12px 0 14px;
+      overflow-x: auto;
+    }
+    .tri-viz .cap {
+      font-size: .78rem; font-weight: 700; letter-spacing: .04em;
+      text-transform: uppercase; color: var(--green-2); margin-bottom: 2px;
+    }
+    .tri-row { display: flex; gap: 5px; min-height: 30px; align-items: center; }
+    .tri-cell {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 30px; height: 30px; flex-shrink: 0;
+      border-radius: 8px;
+      font-family: Consolas, "Courier New", monospace;
+      font-weight: 700; font-size: .9rem;
+      color: #08351d;
+      background: linear-gradient(160deg, #d6f8e4, #a9ecc6);
+      border: 1px solid #7fd6a3;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+    }
+    .tri-row.peak .tri-cell {
+      background: linear-gradient(160deg, #ffe9a9, #ffd873);
+      border-color: #e6b800;
+    }
+    .tri-empty { font-size: .72rem; color: var(--muted); font-style: italic; opacity: .7; }
+
+    /* ── Graphic multiplication table ── */
+    .mult-wrap { overflow-x: auto; margin: 14px 0; }
+    .mult-table { border-collapse: separate; border-spacing: 4px; font-family: Consolas, "Courier New", monospace; }
+    .mult-table td, .mult-table th {
+      width: 40px; height: 40px; text-align: center; vertical-align: middle;
+      border-radius: 9px; font-size: .86rem; font-weight: 700;
+    }
+    .mult-table th.corner {
+      background: #0f5a2e; color: #eafff2;
+      box-shadow: 0 3px 8px rgba(15,90,46,0.3);
+    }
+    .mult-table th.head {
+      background: linear-gradient(160deg, #1f8f4e, #12703b);
+      color: #ffffff;
+      box-shadow: 0 3px 8px rgba(18,102,55,0.28);
+    }
+    .mult-table th.side {
+      background: linear-gradient(160deg, #ffe9a9, #ffd873);
+      color: #6b4e00;
+      box-shadow: 0 3px 8px rgba(224,168,0,0.28);
+    }
+    .mult-table td.cell {
+      color: #08351d;
+      border: 1px solid rgba(127,214,163,0.55);
+      transition: transform .12s ease, box-shadow .12s ease;
+    }
+    .mult-table td.cell:hover { transform: scale(1.14); box-shadow: 0 6px 14px rgba(18,102,55,0.28); z-index: 2; position: relative; }
+    .mult-table td.diag { outline: 2px solid #1f8f4e; outline-offset: -2px; font-weight: 800; }
+
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes blobMove {
+      from { transform: translate(0, 0) scale(1); }
+      to { transform: translate(24px, 18px) scale(1.06); }
+    }
+
+    @media (max-width: 760px) {
+      .wrap { padding: 14px; }
+      .layout { grid-template-columns: 1fr; }
+      .side-nav { position: static; }
+      h1 { font-size: 1.6rem; }
+      .code { font-size: 0.86rem; }
+      .ex-table { font-size: .8rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <span class="tag">Lesson 9 - July 20, 2026</span>
+    <h1>Nested Loops &amp; the <code>for</code> Loop</h1>
+    <p>We start by fixing last lesson's homework together, then we put <strong>a loop inside a loop</strong> — the tool behind every table, grid and pattern you will ever print. Finally we meet the <code>for</code> loop: the same three parts of a <code>while</code> (start, test, change) packed into one short line with <code>range()</code>.</p>
+  </section>
+
+  <div class="layout">
+    <aside class="side-nav" aria-label="Topic navigation">
+      <div class="side-title">Lesson 9 topics</div>
+
+      <div class="side-section-label">1 · Homework 8</div>
+      <button class="topic-link active" data-target="topic-hw">homework solution</button>
+
+      <div class="side-section-label">2 · Nested loops</div>
+      <button class="topic-link" data-target="topic-nested-idea">a loop inside a loop</button>
+      <button class="topic-link" data-target="topic-nested-1">nested loops 1 — patterns</button>
+      <button class="topic-link" data-target="topic-nested-2">nested loops 2 — class averages</button>
+
+      <div class="side-section-label">3 · for loop</div>
+      <button class="topic-link" data-target="topic-for">for + range</button>
+      <button class="topic-link" data-target="topic-for-nested">nested for + times table</button>
+
+      <hr class="side-divider">
+      <button class="topic-link" data-target="topic-github">github folder</button>
+      <button class="topic-link" data-target="topic-exercise">exercise</button>
+      <button class="topic-link" data-target="topic-exercise-heb">exercise - עברית</button>
+
+      <div class="side-section-label">Navigation</div>
+      <a class="nav-back" href="../../index.html#lessons">Back to lessons</a>
+    </aside>
+
+    <main>
+      <!-- ═══ 1 · HOMEWORK SOLUTION ═══ -->
+      <section class="card topic-panel active" id="topic-hw">
+        <span class="tag">Homework 8</span>
+        <h2 class="step-title">Movie Ratings — The Solution</h2>
+        <p>The task: ask for a rating again and again, stop on <code>-1</code>, ignore anything outside <code>1</code>–<code>5</code>, and count how many were low (<code>1</code>–<code>2</code>), medium (<code>3</code>) and high (<code>4</code>–<code>5</code>).</p>
+
+        <div class="pill-row">
+          <span class="pill">while True → keep asking</span>
+          <span class="pill">break → the -1 stop signal</span>
+          <span class="pill">continue → skip an invalid score</span>
+          <span class="pill">3 counters → low / medium / high</span>
+        </div>
+
+        <div class="big-result">The full program</div>
+        <div class="code"><span class="fn">print</span>(<span class="str">'Welcome to the movie rating program! Enter ratings 1-5. Type -1 to finish'</span>)
+
+low_rate = <span class="num">0</span>          <span class="cm"># three counters — created BEFORE the loop</span>
+medium_rate = <span class="num">0</span>
+high_rate = <span class="num">0</span>
+
+<span class="kw">while</span> <span class="kw">True</span>:
+    rating = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'rating?'</span>))
+
+    <span class="kw">if</span> rating == -<span class="num">1</span>:
+        <span class="kw">break</span>                      <span class="cm"># stop signal → leave the loop</span>
+
+    <span class="kw">if</span> <span class="kw">not</span> <span class="num">1</span> &lt;= rating &lt;= <span class="num">5</span>:
+        <span class="fn">print</span>(<span class="str">'invalid rating'</span>)
+        <span class="kw">continue</span>                   <span class="cm"># junk → skip the counting below</span>
+
+<span class="hl">    <span class="kw">if</span> rating &lt;= <span class="num">2</span>:
+        low_rate += <span class="num">1</span>
+    <span class="kw">elif</span> rating == <span class="num">3</span>:
+        medium_rate += <span class="num">1</span>
+    <span class="kw">else</span>:
+        high_rate += <span class="num">1</span></span>
+
+<span class="fn">print</span>(<span class="str">'Valid ratings:'</span>, low_rate + medium_rate + high_rate)
+<span class="fn">print</span>(<span class="str">'Low (1-2):'</span>, low_rate)
+<span class="fn">print</span>(<span class="str">'Medium (3):'</span>, medium_rate)
+<span class="fn">print</span>(<span class="str">'High (4-5):'</span>, high_rate)</div>
+
+        <div class="console">rating?<span class="usr">5</span>
+rating?<span class="usr">3</span>
+rating?<span class="usr">2</span>
+rating?<span class="usr">9</span>
+invalid rating
+rating?<span class="usr">4</span>
+rating?<span class="usr">1</span>
+rating?<span class="usr">-1</span>
+Valid ratings: 5
+Low (1-2): 2
+Medium (3): 1
+High (4-5): 2</div>
+
+        <div class="big-result">Two bugs almost everybody had</div>
+        <table class="ex-table">
+          <thead><tr><th>Wrong</th><th>Why it breaks</th><th>Right</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>medium_rate = rating</code></td>
+              <td>That <strong>overwrites</strong> the counter with the score itself. Rate <code>3</code> once → the counter is <code>3</code>. Rate <code>3</code> ten times → it is still <code>3</code>.</td>
+              <td><code>medium_rate += 1</code></td>
+            </tr>
+            <tr>
+              <td>three separate <code>if</code>s with one <code>else</code></td>
+              <td>The <code>else</code> belongs only to the <em>last</em> <code>if</code>. A score of <code>1</code> is then counted as low <strong>and</strong> as high — because <code>1 != 3</code> sends it into the <code>else</code>.</td>
+              <td>one <code>if</code> / <code>elif</code> / <code>else</code> chain</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="note">
+          <strong>The rule:</strong> when the cases are <em>mutually exclusive</em> — a score is low <strong>or</strong> medium <strong>or</strong> high, never two of them — use one <code>if</code> / <code>elif</code> / <code>else</code> chain. Separate <code>if</code>s are for independent questions.
+        </div>
+        <div class="note">
+          <strong>No fourth counter needed:</strong> every valid score lands in exactly one of the three counters, so <code>low + medium + high</code> <em>is</em> the number of valid ratings.
+        </div>
+      </section>
+
+      <!-- ═══ 2 · NESTED IDEA ═══ -->
+      <section class="card topic-panel" id="topic-nested-idea">
+        <span class="tag">Nested loops</span>
+        <h2 class="step-title">A Loop Inside a Loop</h2>
+        <p>There is no new keyword here. A loop body is just code, and a loop is just code — so a loop can go inside a loop. What <em>is</em> new is how to read it:</p>
+        <div class="note">
+          The <strong>inner</strong> loop runs <em>completely</em>, from start to finish, on <strong>every single round</strong> of the outer loop.
+        </div>
+        <div class="code"><span class="kw">while</span> &lt;outer condition&gt;:     <span class="cm"># runs 3 times</span>
+    ...
+<span class="hl">    <span class="kw">while</span> &lt;inner condition&gt;:  <span class="cm"># runs 10 times — for EACH outer round</span>
+        ...</span>
+    ...
+
+<span class="cm"># the inner body ran 3 × 10 = 30 times</span></div>
+
+        <div class="big-result">The clock in your kitchen</div>
+        <p>A digital clock is a nested loop: the <strong>minutes</strong> are the outer loop, the <strong>seconds</strong> the inner one. For every single minute the seconds run all the way from <code>0</code> to <code>59</code> — and then start again from <code>0</code>.</p>
+        <div class="code">minute = <span class="num">0</span>
+<span class="kw">while</span> minute &lt; <span class="num">60</span>:
+<span class="hl">    second = <span class="num">0</span>              <span class="cm"># ⚠ RESET inside the outer loop!</span>
+    <span class="kw">while</span> second &lt; <span class="num">60</span>:
+        <span class="fn">print</span>(minute, <span class="str">':'</span>, second)
+        second += <span class="num">1</span></span>
+    minute += <span class="num">1</span></div>
+        <div class="warn">
+          <strong>The #1 nested-loop bug:</strong> resetting the inner counter <em>before</em> the outer loop instead of <em>inside</em> it. Then the inner loop runs fully on the first round and <strong>zero</strong> times on every round after — its counter is already past the finish line and nobody sent it back to <code>0</code>.
+        </div>
+
+        <div class="big-result">Two tools for printing on one line</div>
+        <table class="ex-table">
+          <thead><tr><th>Code</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><td><code>print(j)</code></td><td>prints <code>j</code> and moves to a <strong>new line</strong> (the default)</td></tr>
+            <tr><td><code>print(j, end=" ")</code></td><td>prints <code>j</code> and ends with a <strong>space</strong> instead of a new line → everything stays on one row</td></tr>
+            <tr><td><code>print()</code></td><td>prints nothing and just moves to a new line → <strong>ends the row</strong></td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          In a nested pattern the <code>print()</code> that ends a row belongs to the <strong>outer</strong> loop — one new line per row, after the inner loop finished printing that row.
+        </div>
+      </section>
+
+      <!-- ═══ 3 · NESTED 1 ═══ -->
+      <section class="card topic-panel" id="topic-nested-1">
+        <span class="tag">nested_1.py</span>
+        <h2 class="step-title">Nested Loops 1 — Building Patterns Step by Step</h2>
+        <p>Five tasks, each one a tiny step above the previous. This is exactly how you build any pattern: get <strong>one row</strong> right first, then wrap it in a second loop.</p>
+
+        <div class="ex-title"><span class="ex-num">1</span><h3>Print 0..9 — one per line</h3></div>
+        <div class="code">i = <span class="num">0</span>
+<span class="kw">while</span> i &lt; <span class="num">10</span>:
+    <span class="fn">print</span>(i)
+    i += <span class="num">1</span></div>
+        <div class="console">0
+1
+2
+3
+4
+5
+6
+7
+8
+9</div>
+
+        <div class="ex-title"><span class="ex-num">2</span><h3>The same numbers — on one row</h3></div>
+        <p>Only one thing changed: <code>end=" "</code>. Now <code>print</code> ends with a space instead of a new line.</p>
+        <div class="code">j = <span class="num">0</span>
+<span class="kw">while</span> j &lt; <span class="num">10</span>:
+    <span class="fn">print</span>(j, <span class="hl">end=<span class="str">" "</span></span>)
+    j += <span class="num">1</span></div>
+        <div class="console">0 1 2 3 4 5 6 7 8 9 </div>
+
+        <div class="ex-title"><span class="ex-num">3</span><h3>Ten identical rows — the first nested loop</h3></div>
+        <p>Task 2 printed <strong>one</strong> row. To get ten rows, wrap it in another loop that runs ten times. Note the two extra jobs of the outer loop: <strong>reset <code>j = 0</code></strong>, and call <strong><code>print()</code></strong> to end the row.</p>
+        <div class="code">i = <span class="num">0</span>
+<span class="kw">while</span> i &lt; <span class="num">10</span>:              <span class="cm"># outer — one round per ROW</span>
+    i += <span class="num">1</span>
+<span class="hl">    j = <span class="num">0</span>                  <span class="cm"># reset the row counter</span>
+    <span class="kw">while</span> j &lt; <span class="num">10</span>:          <span class="cm"># inner — one round per NUMBER</span>
+        <span class="fn">print</span>(j, end=<span class="str">" "</span>)
+        j += <span class="num">1</span></span>
+    <span class="fn">print</span>()                <span class="cm"># end of the row</span></div>
+        <div class="console">0 1 2 3 4 5 6 7 8 9
+0 1 2 3 4 5 6 7 8 9
+0 1 2 3 4 5 6 7 8 9
+0 1 2 3 4 5 6 7 8 9
+0 1 2 3 4 5 6 7 8 9
+0 1 2 3 4 5 6 7 8 9
+0 1 2 3 4 5 6 7 8 9
+0 1 2 3 4 5 6 7 8 9
+0 1 2 3 4 5 6 7 8 9
+0 1 2 3 4 5 6 7 8 9</div>
+        <div class="note">
+          The inner <code>print</code> ran <code>10 × 10 = 100</code> times. The outer <code>print()</code> ran <code>10</code> times — once per row.
+        </div>
+
+        <div class="ex-title"><span class="ex-num">4</span><h3>BONUS — a shrinking triangle</h3></div>
+        <p>Same shape, one character different: the inner loop starts at <code>j = i</code> instead of <code>j = 0</code>. The outer counter now <strong>decides where each row starts</strong> — that is the whole trick behind every triangle.</p>
+        <div class="code">i = <span class="num">0</span>
+<span class="kw">while</span> i &lt; <span class="num">10</span>:
+<span class="hl">    j = i</span>                  <span class="cm"># ← the row starts where the outer counter is</span>
+    <span class="kw">while</span> j &lt; <span class="num">10</span>:
+        <span class="fn">print</span>(j, end=<span class="str">" "</span>)
+        j += <span class="num">1</span>
+    <span class="fn">print</span>()
+    i += <span class="num">1</span></div>
+        <div class="console">0 1 2 3 4 5 6 7 8 9
+1 2 3 4 5 6 7 8 9
+2 3 4 5 6 7 8 9
+3 4 5 6 7 8 9
+4 5 6 7 8 9
+5 6 7 8 9
+6 7 8 9
+7 8 9
+8 9
+9</div>
+
+        <div class="ex-title"><span class="ex-num">5</span><h3>BONUS — growing, then shrinking</h3></div>
+        <p>This time the row always starts at <code>0</code>, but the outer counter decides <strong>where it stops</strong>: <code>while j &lt; i</code>. When <code>i</code> is <code>0</code> the row is empty; when <code>i</code> is <code>5</code> the row is <code>0 1 2 3 4</code>.</p>
+        <div class="code">i = <span class="num">0</span>
+<span class="kw">while</span> i &lt; <span class="num">10</span>:            <span class="cm"># growing: 0, 1, 2 ... 9</span>
+    j = <span class="num">0</span>
+<span class="hl">    <span class="kw">while</span> j &lt; i:</span>          <span class="cm"># ← the row STOPS at the outer counter</span>
+        <span class="fn">print</span>(j, end=<span class="str">" "</span>)
+        j += <span class="num">1</span>
+    <span class="fn">print</span>()
+    i += <span class="num">1</span>
+
+<span class="kw">while</span> i &gt; <span class="num">0</span>:             <span class="cm"># shrinking: i is now 10 → count back down</span>
+    j = <span class="num">0</span>
+    <span class="kw">while</span> j &lt; i:
+        <span class="fn">print</span>(j, end=<span class="str">" "</span>)
+        j += <span class="num">1</span>
+    <span class="fn">print</span>()
+<span class="hl">    i -= <span class="num">1</span></span>              <span class="cm"># ← counting DOWN this time</span></div>
+        <div class="console">
+0
+0 1
+0 1 2
+0 1 2 3
+0 1 2 3 4
+0 1 2 3 4 5
+0 1 2 3 4 5 6
+0 1 2 3 4 5 6 7
+0 1 2 3 4 5 6 7 8
+0 1 2 3 4 5 6 7 8 9
+0 1 2 3 4 5 6 7 8
+0 1 2 3 4 5 6 7
+0 1 2 3 4 5 6
+0 1 2 3 4 5
+0 1 2 3 4
+0 1 2 3
+0 1 2
+0 1
+0</div>
+        <div class="note">
+          The very first line is <strong>empty</strong>: on the first round <code>i</code> is <code>0</code>, so <code>j &lt; 0</code> is False immediately and the inner loop runs zero times — only the outer <code>print()</code> happens. A loop that runs zero times is not a bug, it is the condition doing its job.
+        </div>
+        <div class="warn">
+          The second loop counts with <code>i -= 1</code>, not <code>i += 1</code>. And notice it never resets <code>i</code>: the first loop <strong>left <code>i</code> at 10</strong>, and the second one continues from there. Variables keep their value after a loop ends.
+        </div>
+      </section>
+
+      <!-- ═══ 4 · NESTED 2 ═══ -->
+      <section class="card topic-panel" id="topic-nested-2">
+        <span class="tag">nested_2.py</span>
+        <h2 class="step-title">Nested Loops 2 — An Average Per Class</h2>
+        <p>Patterns are pretty, but <em>this</em> is what nested loops are really for. In Lesson 8 we wrote a loop that reads grades until <code>999</code> and prints one average. Now the school has <strong>several classes</strong> — so we wrap that whole program in a second loop.</p>
+
+        <div class="pill-row">
+          <span class="pill">outer = classes</span>
+          <span class="pill">inner = the students of one class</span>
+          <span class="pill">999 ends a class</span>
+        </div>
+
+        <div class="code">number_of_classes = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'how many classes?'</span>))
+
+i = <span class="num">1</span>
+<span class="kw">while</span> i &lt;= number_of_classes:          <span class="cm"># OUTER — one round per class</span>
+<span class="hl">    number_of_students = <span class="num">0</span>            <span class="cm"># ⚠ reset for EVERY class</span>
+    sum_grades = <span class="num">0</span></span>
+
+    <span class="kw">while</span> <span class="kw">True</span>:                        <span class="cm"># INNER — the Lesson 8 program</span>
+        grade = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'grade [999 to exit]: '</span>))
+        <span class="kw">if</span> grade == <span class="num">999</span>:
+            <span class="kw">break</span>                     <span class="cm"># ends the INNER loop only</span>
+
+        <span class="kw">if</span> grade &lt; <span class="num">0</span> <span class="kw">or</span> grade &gt; <span class="num">100</span>:
+            <span class="fn">print</span>(<span class="str">'invalid grade'</span>)
+            <span class="kw">continue</span>
+
+        sum_grades += grade
+        number_of_students += <span class="num">1</span>
+
+    <span class="kw">if</span> number_of_students == <span class="num">0</span>:
+        <span class="fn">print</span>(<span class="str">'no students'</span>)          <span class="cm"># protects against ÷ 0</span>
+    <span class="kw">else</span>:
+        avg = sum_grades / number_of_students
+        <span class="fn">print</span>(<span class="str">'class number:'</span>, i)
+        <span class="fn">print</span>(<span class="str">'average grade of class ...'</span>, avg)
+    i += <span class="num">1</span>
+
+<span class="fn">print</span>(<span class="str">'goodbye'</span>)</div>
+
+        <div class="console">how many classes?<span class="usr">2</span>
+grade [999 to exit]: <span class="usr">80</span>
+grade [999 to exit]: <span class="usr">90</span>
+grade [999 to exit]: <span class="usr">140</span>
+invalid grade
+grade [999 to exit]: <span class="usr">999</span>
+class number: 1
+average grade of class ... 85.0
+grade [999 to exit]: <span class="usr">70</span>
+grade [999 to exit]: <span class="usr">999</span>
+class number: 2
+average grade of class ... 70.0
+goodbye</div>
+
+        <div class="big-result">Three lines worth staring at</div>
+        <table class="ex-table">
+          <thead><tr><th>Line</th><th>Why it is there</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>sum_grades = 0</code> <em>inside</em> the outer loop</td>
+              <td>Every class starts counting from scratch. Move these two lines <strong>above</strong> the outer loop and class 2's average silently includes class 1's grades.</td>
+            </tr>
+            <tr>
+              <td><code>break</code></td>
+              <td><code>break</code> leaves <strong>one</strong> loop — the closest one around it. Here it ends the current class and lands back in the outer loop, which moves on to the next class. It does <em>not</em> end the program.</td>
+            </tr>
+            <tr>
+              <td><code>if number_of_students == 0</code></td>
+              <td>If the user types <code>999</code> straight away, dividing by <code>0</code> crashes with <code>ZeroDivisionError</code>. Always check the divisor before dividing.</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="note">
+          <strong>The recipe for any nested-loop program:</strong> write the inner program first and make it work for <em>one</em> case. Only then wrap it in an outer loop — and move every variable that must start fresh <em>inside</em>.
+        </div>
+      </section>
+
+      <!-- ═══ 5 · FOR LOOP ═══ -->
+      <section class="card topic-panel" id="topic-for">
+        <span class="tag">for_loop.py</span>
+        <h2 class="step-title">The <code>for</code> Loop — All Three Parts in One Line</h2>
+        <p>Every counting <code>while</code> loop we have written has the same three parts, scattered over three different places in the code:</p>
+        <div class="code">i = <span class="num">1</span>              <span class="cm"># ① start</span>
+<span class="kw">while</span> i &lt;= <span class="num">10</span>:      <span class="cm"># ② test</span>
+    <span class="fn">print</span>(i, end=<span class="str">" "</span>)
+    i += <span class="num">1</span>          <span class="cm"># ③ change — forget it and the loop runs forever</span></div>
+        <p>A <code>for</code> loop packs all three into a single line, and does the <code>i += 1</code> <strong>for you</strong>:</p>
+        <div class="code"><span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">10</span> + <span class="num">1</span>, +<span class="num">1</span>):   <span class="cm"># start, stop, step</span>
+    <span class="fn">print</span>(i, end=<span class="str">" "</span>)
+    <span class="cm"># no i += 1 needed — range does it</span></div>
+        <div class="console">while loop: 1 2 3 4 5 6 7 8 9 10
+for loop:   1 2 3 4 5 6 7 8 9 10</div>
+
+        <div class="big-result"><code>range(start, stop, step)</code></div>
+        <table class="ex-table">
+          <thead><tr><th>Part</th><th>Meaning</th><th>while equivalent</th></tr></thead>
+          <tbody>
+            <tr><td><code>start</code></td><td>the first value <code>i</code> gets</td><td><code>i = start</code></td></tr>
+            <tr><td><code>stop</code></td><td>where to stop — <strong>never reached</strong></td><td><code>while i &lt; stop</code></td></tr>
+            <tr><td><code>step</code></td><td>how much to add each round</td><td><code>i += step</code></td></tr>
+          </tbody>
+        </table>
+        <div class="warn">
+          <strong>The stop is exclusive.</strong> <code>range(1, 10)</code> gives <code>1..9</code> — not <code>10</code>. To include <code>10</code>, write <code>range(1, 11)</code>. Writing it as <code>range(1, 10 + 1)</code> is a nice habit: the <code>10</code> you actually want stays visible in the code.
+        </div>
+        <div class="note">
+          <code>range(1, 11, 1)</code>, <code>range(1, 11)</code> and <code>range(1, 11, +1)</code> are all the same thing — the step defaults to <code>1</code>. A start of <code>0</code> can be dropped too: <code>range(10)</code> means <code>0 1 2 ... 9</code>.
+        </div>
+
+        <div class="big-result">Counting in threes</div>
+        <p>Print the multiples of 3 from 3 to 30. With a <code>while</code> you would write <code>i += 3</code>; with a <code>for</code> the step goes straight into <code>range</code>:</p>
+        <div class="code"><span class="cm"># 3 6 9 12 15 18 21 24 27 30</span>
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">3</span>, <span class="num">30</span> + <span class="num">3</span>, +<span class="num">3</span>):
+    <span class="fn">print</span>(i, end=<span class="str">" "</span>)</div>
+        <div class="console">3 6 9 12 15 18 21 24 27 30 </div>
+        <div class="note">
+          Why <code>30 + 3</code>? The stop is never reached, so it must be <em>past</em> the last value you want. One full step past <code>30</code> is <code>33</code> — and writing it as <code>30 + 3</code> keeps the real goal readable.
+        </div>
+
+        <div class="big-result">Counting backwards — a negative step</div>
+        <div class="code"><span class="cm"># 10 9 8 7 6 5 4 3 2 1</span>
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">10</span>, <span class="num">1</span> - <span class="num">1</span>, <span class="hl">-<span class="num">1</span></span>):
+    <span class="fn">print</span>(i, end=<span class="str">" "</span>)</div>
+        <div class="console">10 9 8 7 6 5 4 3 2 1 </div>
+        <div class="warn">
+          Going down, the stop must be <strong>below</strong> the last value — <code>1 - 1</code> is <code>0</code>, so the loop ends after printing <code>1</code>. And do not forget the <code>-1</code> step: <code>range(10, 0)</code> with the default <code>+1</code> step is <strong>empty</strong>, so the body never runs at all.
+        </div>
+
+        <div class="big-result">for or while — which one?</div>
+        <table class="ex-table">
+          <thead><tr><th>Use a <code>for</code> when…</th><th>Use a <code>while</code> when…</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>you know <strong>how many rounds</strong> before you start — "10 times", "1 to N", "every third number".</td>
+              <td>you stop on a <strong>condition</strong>, not a count — "until the user types 999", "until the password is correct".</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="note">
+          <code>break</code> and <code>continue</code> work exactly the same inside a <code>for</code> loop.
+        </div>
+      </section>
+
+      <!-- ═══ 6 · NESTED FOR ═══ -->
+      <section class="card topic-panel" id="topic-for-nested">
+        <span class="tag">for_loop.py</span>
+        <h2 class="step-title">Nested <code>for</code> + The Times Table</h2>
+        <p>Everything from the nested <code>while</code> section works with <code>for</code> — and gets much shorter, because the reset and the <code>+= 1</code> disappear. Here are the two triangles again:</p>
+        <div class="code"><span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">0</span>, <span class="num">9</span> + <span class="num">1</span>, +<span class="num">1</span>):
+    <span class="kw">for</span> j <span class="kw">in</span> <span class="fn">range</span>(<span class="num">0</span>, i, +<span class="num">1</span>):     <span class="cm"># the row stops at i</span>
+        <span class="fn">print</span>(j, end=<span class="str">" "</span>)
+    <span class="fn">print</span>()
+
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">10</span>, <span class="num">0</span>, -<span class="num">1</span>):        <span class="cm"># and back down again</span>
+    <span class="kw">for</span> j <span class="kw">in</span> <span class="fn">range</span>(<span class="num">0</span>, i, +<span class="num">1</span>):
+        <span class="fn">print</span>(j, end=<span class="str">" "</span>)
+    <span class="fn">print</span>()</div>
+
+        <div class="big-result">The shape it draws 🔺🔻</div>
+        <div class="tri-viz">
+          <div class="cap">first loop — grows: range(0, 10), row stops at i</div>
+          <div class="tri-row"><span class="tri-empty">(empty — the inner loop runs 0 times)</span></div>
+          <div class="tri-row"><span class="tri-cell">0</span></div>
+          <div class="tri-row"><span class="tri-cell">0</span><span class="tri-cell">1</span></div>
+          <div class="tri-row"><span class="tri-cell">0</span><span class="tri-cell">1</span><span class="tri-cell">2</span></div>
+          <div class="tri-row"><span class="tri-cell">0</span><span class="tri-cell">1</span><span class="tri-cell">2</span><span class="tri-cell">3</span></div>
+          <div class="tri-row"><span class="tri-cell">0</span><span class="tri-cell">1</span><span class="tri-cell">2</span><span class="tri-cell">3</span><span class="tri-cell">4</span></div>
+          <div class="tri-row"><span class="tri-cell">0</span><span class="tri-cell">1</span><span class="tri-cell">2</span><span class="tri-cell">3</span><span class="tri-cell">4</span><span class="tri-cell">5</span></div>
+          <div class="tri-row"><span class="tri-cell">0</span><span class="tri-cell">1</span><span class="tri-cell">2</span><span class="tri-cell">3</span><span class="tri-cell">4</span><span class="tri-cell">5</span><span class="tri-cell">6</span></div>
+          <div class="tri-row"><span class="tri-cell">0</span><span class="tri-cell">1</span><span class="tri-cell">2</span><span class="tri-cell">3</span><span class="tri-cell">4</span><span class="tri-cell">5</span><span class="tri-cell">6</span><span class="tri-cell">7</span></div>
+          <div class="tri-row"><span class="tri-cell">0</span><span class="tri-cell">1</span><span class="tri-cell">2</span><span class="tri-cell">3</span><span class="tri-cell">4</span><span class="tri-cell">5</span><span class="tri-cell">6</span><span class="tri-cell">7</span><span class="tri-cell">8</span></div>
+          <div class="cap" style="margin-top:8px;">second loop — shrinks: range(10, 0, -1), widest row first</div>
+          <div class="tri-row peak"><span class="tri-cell">0</span><span class="tri-cell">1</span><span class="tri-cell">2</span><span class="tri-cell">3</span><span class="tri-cell">4</span><span class="tri-cell">5</span><span class="tri-cell">6</span><span class="tri-cell">7</span><span class="tri-cell">8</span><span class="tri-cell">9</span></div>
+          <div class="tri-row"><span class="tri-cell">0</span><span class="tri-cell">1</span><span class="tri-cell">2</span><span class="tri-cell">3</span><span class="tri-cell">4</span><span class="tri-cell">5</span><span class="tri-cell">6</span><span class="tri-cell">7</span><span class="tri-cell">8</span></div>
+          <div class="tri-row"><span class="tri-cell">0</span><span class="tri-cell">1</span><span class="tri-cell">2</span><span class="tri-cell">3</span><span class="tri-cell">4</span><span class="tri-cell">5</span><span class="tri-cell">6</span><span class="tri-cell">7</span></div>
+          <div class="tri-row"><span class="tri-cell">0</span><span class="tri-cell">1</span><span class="tri-cell">2</span><span class="tri-cell">3</span><span class="tri-cell">4</span><span class="tri-cell">5</span><span class="tri-cell">6</span></div>
+          <div class="tri-row"><span class="tri-cell">0</span><span class="tri-cell">1</span><span class="tri-cell">2</span><span class="tri-cell">3</span><span class="tri-cell">4</span><span class="tri-cell">5</span></div>
+          <div class="tri-row"><span class="tri-cell">0</span><span class="tri-cell">1</span><span class="tri-cell">2</span><span class="tri-cell">3</span><span class="tri-cell">4</span></div>
+          <div class="tri-row"><span class="tri-cell">0</span><span class="tri-cell">1</span><span class="tri-cell">2</span><span class="tri-cell">3</span></div>
+          <div class="tri-row"><span class="tri-cell">0</span><span class="tri-cell">1</span><span class="tri-cell">2</span></div>
+          <div class="tri-row"><span class="tri-cell">0</span><span class="tri-cell">1</span></div>
+          <div class="tri-row"><span class="tri-cell">0</span></div>
+        </div>
+
+        <div class="note">
+          Compare with the <code>while</code> version in <em>nested loops 1</em>: same output, but no <code>j = 0</code> reset and no <code>j += 1</code>. The inner <code>range(0, i)</code> is built fresh on every outer round, so the reset is automatic.
+        </div>
+
+        <div class="big-result">The multiplication table</div>
+        <p>The classic nested-loop program: for every row <code>i</code>, print <code>i × j</code> for every column <code>j</code>. First the plain version:</p>
+        <div class="code"><span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">10</span> + <span class="num">1</span>, +<span class="num">1</span>):
+    <span class="fn">print</span>(i, end=<span class="str">" "</span>)                 <span class="cm"># the row label</span>
+    <span class="kw">for</span> j <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">10</span> + <span class="num">1</span>, +<span class="num">1</span>):
+        <span class="fn">print</span>(i * j, end=<span class="str">" "</span>)
+    <span class="fn">print</span>()</div>
+        <div class="console">1 1 2 3 4 5 6 7 8 9 10
+2 2 4 6 8 10 12 14 16 18 20
+3 3 6 9 12 15 18 21 24 27 30
+4 4 8 12 16 20 24 28 32 36 40
+5 5 10 15 20 25 30 35 40 45 50
+6 6 12 18 24 30 36 42 48 54 60
+7 7 14 21 28 35 42 49 56 63 70
+8 8 16 24 32 40 48 56 64 72 80
+9 9 18 27 36 45 54 63 72 81 90
+10 10 20 30 40 50 60 70 80 90 100</div>
+        <div class="warn">
+          It is <strong>correct</strong> but unreadable — <code>7</code> takes one character and <code>100</code> takes three, so the columns do not line up.
+        </div>
+
+        <div class="big-result">Lining up the columns — <code>f"{value:4}"</code></div>
+        <p>Inside an f-string, <code>:4</code> means "<strong>pad this to a width of 4 characters</strong>". Numbers are padded on the left, so they come out right-aligned — exactly what a table of numbers needs.</p>
+        <div class="code"><span class="fn">print</span>(<span class="str">"  x"</span>, end=<span class="str">""</span>)                      <span class="cm"># header row</span>
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">10</span> + <span class="num">1</span>, +<span class="num">1</span>):
+    <span class="fn">print</span>(<span class="str">f"{i:4}"</span>, end=<span class="str">" "</span>)
+<span class="fn">print</span>()
+
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">10</span> + <span class="num">1</span>, +<span class="num">1</span>):
+    <span class="kw">if</span> i &lt; <span class="num">10</span>:                          <span class="cm"># keep the row labels aligned too</span>
+        <span class="fn">print</span>(i, end=<span class="str">"  "</span>)
+    <span class="kw">else</span>:
+        <span class="fn">print</span>(i, end=<span class="str">" "</span>)
+    <span class="kw">for</span> j <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">10</span> + <span class="num">1</span>, +<span class="num">1</span>):
+        <span class="fn">print</span>(<span class="str">f"{j * i:4}"</span>, end=<span class="str">" "</span>)
+    <span class="fn">print</span>()</div>
+        <div class="console">  x     1    2    3    4    5    6    7    8    9   10
+1      1    2    3    4    5    6    7    8    9   10
+2      2    4    6    8   10   12   14   16   18   20
+3      3    6    9   12   15   18   21   24   27   30
+4      4    8   12   16   20   24   28   32   36   40
+5      5   10   15   20   25   30   35   40   45   50
+6      6   12   18   24   30   36   42   48   54   60
+7      7   14   21   28   35   42   49   56   63   70
+8      8   16   24   32   40   48   56   64   72   80
+9      9   18   27   36   45   54   63   72   81   90
+10    10   20   30   40   50   60   70   80   90  100</div>
+        <div class="big-result">The table it builds — as a grid 🎨</div>
+        <p>Each cell is <code>i × j</code>. The green <strong>header row</strong> is <code>j</code> (the columns), the yellow <strong>side column</strong> is <code>i</code> (the rows), and the outlined diagonal is where <code>i == j</code> — the square numbers. The colour deepens as the product grows.</p>
+        <div class="mult-wrap">
+        <table class="mult-table">
+          <tr><th class="corner">×</th><th class="head">1</th><th class="head">2</th><th class="head">3</th><th class="head">4</th><th class="head">5</th><th class="head">6</th><th class="head">7</th><th class="head">8</th><th class="head">9</th><th class="head">10</th></tr>
+          <tr><th class="side">1</th><td class="cell diag" style="background:#e9fbef">1</td><td class="cell" style="background:#e8faee">2</td><td class="cell" style="background:#e7faee">3</td><td class="cell" style="background:#e6faed">4</td><td class="cell" style="background:#e5f9ed">5</td><td class="cell" style="background:#e5f9ec">6</td><td class="cell" style="background:#e4f9ec">7</td><td class="cell" style="background:#e3f9eb">8</td><td class="cell" style="background:#e2f8eb">9</td><td class="cell" style="background:#e2f8ea">10</td></tr>
+          <tr><th class="side">2</th><td class="cell" style="background:#e8faee">2</td><td class="cell diag" style="background:#e6faed">4</td><td class="cell" style="background:#e5f9ec">6</td><td class="cell" style="background:#e3f9eb">8</td><td class="cell" style="background:#e2f8ea">10</td><td class="cell" style="background:#e0f8e9">12</td><td class="cell" style="background:#dff7e8">14</td><td class="cell" style="background:#ddf6e7">16</td><td class="cell" style="background:#dbf6e6">18</td><td class="cell" style="background:#daf5e5">20</td></tr>
+          <tr><th class="side">3</th><td class="cell" style="background:#e7faee">3</td><td class="cell" style="background:#e5f9ec">6</td><td class="cell diag" style="background:#e2f8eb">9</td><td class="cell" style="background:#e0f8e9">12</td><td class="cell" style="background:#def7e8">15</td><td class="cell" style="background:#dbf6e6">18</td><td class="cell" style="background:#d9f5e5">21</td><td class="cell" style="background:#d7f4e3">24</td><td class="cell" style="background:#d5f3e2">27</td><td class="cell" style="background:#d2f3e0">30</td></tr>
+          <tr><th class="side">4</th><td class="cell" style="background:#e6faed">4</td><td class="cell" style="background:#e3f9eb">8</td><td class="cell" style="background:#e0f8e9">12</td><td class="cell diag" style="background:#ddf6e7">16</td><td class="cell" style="background:#daf5e5">20</td><td class="cell" style="background:#d7f4e3">24</td><td class="cell" style="background:#d4f3e1">28</td><td class="cell" style="background:#d1f2df">32</td><td class="cell" style="background:#cef1de">36</td><td class="cell" style="background:#cbf0dc">40</td></tr>
+          <tr><th class="side">5</th><td class="cell" style="background:#e5f9ed">5</td><td class="cell" style="background:#e2f8ea">10</td><td class="cell" style="background:#def7e8">15</td><td class="cell" style="background:#daf5e5">20</td><td class="cell diag" style="background:#d6f4e3">25</td><td class="cell" style="background:#d2f3e0">30</td><td class="cell" style="background:#cef1de">35</td><td class="cell" style="background:#cbf0dc">40</td><td class="cell" style="background:#c7efd9">45</td><td class="cell" style="background:#c3edd7">50</td></tr>
+          <tr><th class="side">6</th><td class="cell" style="background:#e5f9ec">6</td><td class="cell" style="background:#e0f8e9">12</td><td class="cell" style="background:#dbf6e6">18</td><td class="cell" style="background:#d7f4e3">24</td><td class="cell" style="background:#d2f3e0">30</td><td class="cell diag" style="background:#cef1de">36</td><td class="cell" style="background:#c9efdb">42</td><td class="cell" style="background:#c4eed8">48</td><td class="cell" style="background:#c0ecd5">54</td><td class="cell" style="background:#bbead2">60</td></tr>
+          <tr><th class="side">7</th><td class="cell" style="background:#e4f9ec">7</td><td class="cell" style="background:#dff7e8">14</td><td class="cell" style="background:#d9f5e5">21</td><td class="cell" style="background:#d4f3e1">28</td><td class="cell" style="background:#cef1de">35</td><td class="cell" style="background:#c9efdb">42</td><td class="cell diag" style="background:#c4edd7">49</td><td class="cell" style="background:#beecd4">56</td><td class="cell" style="background:#b9ead0">63</td><td class="cell" style="background:#b4e8cd">70</td></tr>
+          <tr><th class="side">8</th><td class="cell" style="background:#e3f9eb">8</td><td class="cell" style="background:#ddf6e7">16</td><td class="cell" style="background:#d7f4e3">24</td><td class="cell" style="background:#d1f2df">32</td><td class="cell" style="background:#cbf0dc">40</td><td class="cell" style="background:#c4eed8">48</td><td class="cell" style="background:#beecd4">56</td><td class="cell diag" style="background:#b8e9d0">64</td><td class="cell" style="background:#b2e7cc">72</td><td class="cell" style="background:#ace5c8">80</td></tr>
+          <tr><th class="side">9</th><td class="cell" style="background:#e2f8eb">9</td><td class="cell" style="background:#dbf6e6">18</td><td class="cell" style="background:#d5f3e2">27</td><td class="cell" style="background:#cef1de">36</td><td class="cell" style="background:#c7efd9">45</td><td class="cell" style="background:#c0ecd5">54</td><td class="cell" style="background:#b9ead0">63</td><td class="cell" style="background:#b2e7cc">72</td><td class="cell diag" style="background:#abe5c8">81</td><td class="cell" style="background:#a4e2c3">90</td></tr>
+          <tr><th class="side">10</th><td class="cell" style="background:#e2f8ea">10</td><td class="cell" style="background:#daf5e5">20</td><td class="cell" style="background:#d2f3e0">30</td><td class="cell" style="background:#cbf0dc">40</td><td class="cell" style="background:#c3edd7">50</td><td class="cell" style="background:#bbead2">60</td><td class="cell" style="background:#b4e8cd">70</td><td class="cell" style="background:#ace5c8">80</td><td class="cell" style="background:#a4e2c3">90</td><td class="cell diag" style="background:#9de0bf">100</td></tr>
+        </table>
+        </div>
+
+        <div class="note">
+          <strong>Reading a nested loop:</strong> the outer <code>i</code> is the <em>row</em>, the inner <code>j</code> is the <em>column</em>. The inner loop printed <code>10 × 10 = 100</code> numbers; the outer <code>print()</code> ended <code>10</code> rows.
+        </div>
+      </section>
+
+      <!-- ═══ GITHUB ═══ -->
+      <section class="card topic-panel" id="topic-github">
+        <span class="tag">GitHub</span>
+        <h2 class="step-title">Lesson 9 GitHub Folder</h2>
+        <p>All the code from today's lesson — the homework solution, both nested-loop files and the <code>for</code> loop examples:</p>
+        <div class="task-box">
+          <strong>Lesson folder:</strong><br>
+          <a href="https://github.com/pythonai080626-a11y/20.07.2026" target="_blank" rel="noopener">
+            https://github.com/pythonai080626-a11y/20.07.2026
+          </a>
+        </div>
+        <table class="ex-table">
+          <thead><tr><th>File</th><th>What it shows</th></tr></thead>
+          <tbody>
+            <tr><td>hw.py</td><td>homework 8 — movie ratings</td></tr>
+            <tr><td>nested_1.py</td><td>nested while loops — rows &amp; triangles</td></tr>
+            <tr><td>nested_2.py</td><td>nested while loops — an average per class</td></tr>
+            <tr><td>for_loop.py</td><td>for + range, nested for, the times table</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- ═══ EXERCISE (English) ═══ -->
+      <section class="card topic-panel" id="topic-exercise">
+        <span class="tag">Homework</span>
+        <h2 class="step-title">2 Exercises</h2>
+        <p>These exercises are <strong>Python only</strong><br>
+           Write them as <code>.py</code> files in PyCharm and run with <span class="kbd">Shift</span> + <span class="kbd">F10</span><br>
+           Both must use <code>for</code> loops — no <code>while</code>.</p>
+
+        <!-- Exercise 1 -->
+        <div class="ex-title">
+          <span class="ex-num">1</span>
+          <h3>A pyramid of stars</h3>
+        </div>
+        <p>Ask the user for a height, then print a pyramid of <code>*</code> of that height using <strong>nested <code>for</code> loops</strong>. Row number <code>i</code> holds <code>i</code> stars.</p>
+        <div class="console">height?<span class="usr">5</span>
+*
+* *
+* * *
+* * * *
+* * * * *</div>
+        <div class="note">
+          <strong>Hint:</strong> the outer loop runs over the rows — <code>for i in range(1, height + 1)</code>. The inner loop prints one row: <code>i</code> stars with <code>print('*', end=' ')</code>. After the inner loop, one empty <code>print()</code> ends the row.
+        </div>
+        <div class="note">
+          <strong>Bonus:</strong> after the pyramid, print it upside down (<code>5</code> stars down to <code>1</code>) — that needs only a negative step in the outer <code>range</code>.
+        </div>
+
+        <!-- Exercise 2 -->
+        <div class="ex-title">
+          <span class="ex-num">2</span>
+          <h3>A times table of your own size</h3>
+        </div>
+        <p>Ask the user for a number <code>n</code>, then print the multiplication table from <code>1</code> to <code>n</code> — the same table we built in class, but any size. Use <code>f"{value:4}"</code> so the columns line up.</p>
+        <div class="console">table size?<span class="usr">4</span>
+   1    2    3    4
+   2    4    6    8
+   3    6    9   12
+   4    8   12   16</div>
+        <div class="note">
+          <strong>Hint:</strong> two <code>for</code> loops, both <code>range(1, n + 1)</code>. Inside the inner one: <code>print(f"{i * j:4}", end=" ")</code>. Inside the outer one, after the inner loop: <code>print()</code>.
+        </div>
+
+        <div class="big-result">Submission</div>
+        <div class="card submission">
+          <ol class="task-list">
+            <li><strong>Write the two .py programs</strong> in PyCharm.</li>
+            <li><strong>Upload them to GitHub</strong> and send the link to:<br>
+              <a href="mailto:pythonai080626+hw9@gmail.com">pythonai080626+hw9@gmail.com</a>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ═══ EXERCISE (Hebrew) ═══ -->
+      <section class="card topic-panel rtl" id="topic-exercise-heb" lang="he" dir="rtl">
+        <span class="tag">שיעורי בית</span>
+        <h2 class="step-title">2 תרגילים</h2>
+        <p>התרגילים הם <strong>בפייתון בלבד</strong><br>
+           כתבו אותם בקבצי <code>.py</code> ב-PyCharm והריצו עם <span class="kbd">Shift</span> + <span class="kbd">F10</span><br>
+           בשניהם חובה להשתמש בלולאות <code>for</code> — בלי <code>while</code>.</p>
+
+        <!-- Exercise 1 -->
+        <div class="ex-title">
+          <span class="ex-num">1</span>
+          <h3>פירמידת כוכביות</h3>
+        </div>
+        <p>בקשו מהמשתמש גובה, ואז הדפיסו פירמידה של <code>*</code> בגובה הזה בעזרת <strong>לולאות <code>for</code> מקוננות</strong>. בשורה מספר <code>i</code> יש <code>i</code> כוכביות.</p>
+        <div class="console" dir="ltr">height?<span class="usr">5</span>
+*
+* *
+* * *
+* * * *
+* * * * *</div>
+        <div class="note">
+          <strong>רמז:</strong> הלולאה החיצונית עוברת על השורות — <code>for i in range(1, height + 1)</code>. הלולאה הפנימית מדפיסה שורה אחת: <code>i</code> כוכביות עם <code>print('*', end=' ')</code>. אחרי הלולאה הפנימית, <code>print()</code> ריק מסיים את השורה.
+        </div>
+        <div class="note">
+          <strong>בונוס:</strong> אחרי הפירמידה, הדפיסו אותה הפוכה (מ-<code>5</code> כוכביות ל-<code>1</code>) — צריך רק צעד שלילי ב-<code>range</code> החיצוני.
+        </div>
+
+        <!-- Exercise 2 -->
+        <div class="ex-title">
+          <span class="ex-num">2</span>
+          <h3>לוח כפל בגודל שלכם</h3>
+        </div>
+        <p>בקשו מהמשתמש מספר <code>n</code>, והדפיסו את לוח הכפל מ-<code>1</code> עד <code>n</code> — אותו לוח שבנינו בשיעור, אבל בכל גודל. השתמשו ב-<code>f"{value:4}"</code> כדי שהעמודות יהיו מיושרות.</p>
+        <div class="console" dir="ltr">table size?<span class="usr">4</span>
+   1    2    3    4
+   2    4    6    8
+   3    6    9   12
+   4    8   12   16</div>
+        <div class="note">
+          <strong>רמז:</strong> שתי לולאות <code>for</code>, שתיהן <code>range(1, n + 1)</code>. בתוך הפנימית: <code>print(f"{i * j:4}", end=" ")</code>. בתוך החיצונית, אחרי הלולאה הפנימית: <code>print()</code>.
+        </div>
+
+        <div class="big-result">הגשה</div>
+        <div class="card submission">
+          <ol class="task-list">
+            <li><strong>כתבו את שתי התוכניות</strong> ב-PyCharm.</li>
+            <li><strong>העלו אותן ל-GitHub</strong> ושלחו את הקישור ל:<br>
+              <a href="mailto:pythonai080626+hw9@gmail.com">pythonai080626+hw9@gmail.com</a>
+            </li>
+          </ol>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="footer">
+    Python Basics - Lesson 9 - July 20, 2026 - nested loops &amp; the for loop
+  </footer>
+</div>
+
+<script>
+  const links = document.querySelectorAll('.topic-link');
+  const panels = document.querySelectorAll('.topic-panel');
+
+  function showTopic(id) {
+    panels.forEach(panel => panel.classList.toggle('active', panel.id === id));
+    links.forEach(link => link.classList.toggle('active', link.dataset.target === id));
+  }
+
+  links.forEach(link => {
+    link.addEventListener('click', () => {
+      showTopic(link.dataset.target);
+      location.hash = link.dataset.target;
+    });
+  });
+
+  const hash = location.hash.replace('#', '');
+  if (hash && document.getElementById(hash)) showTopic(hash);
+</script>
+</body>
+</html>

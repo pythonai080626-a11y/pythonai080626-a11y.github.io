@@ -97,7 +97,8 @@
             Until now every line ran <strong>once</strong>. A <code class="bg-teal-50 px-1 rounded">while</code> loop repeats a block of code
             <strong>as long as a condition is True</strong> — it is the Python version of the arrow that goes
             <em>back up</em> in a flowchart. Learn the loop counter, the accumulator, <code class="bg-teal-50 px-1 rounded">while True</code>,
-            and how to jump out with <code class="bg-teal-50 px-1 rounded">break</code> &amp; <code class="bg-teal-50 px-1 rounded">continue</code>.
+            how to jump out with <code class="bg-teal-50 px-1 rounded">break</code> &amp; <code class="bg-teal-50 px-1 rounded">continue</code>,
+            and how to put a loop <strong>inside</strong> a loop.
           </p>
         </div>
 
@@ -359,6 +360,67 @@ count = <span class="num">0</span>
           </div>
         </article>
 
+        <!-- STEP 8 — NESTED LOOPS -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">8</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">Nested Loops — A Loop Inside a Loop 🔁🔁</h2>
+              <p class="text-[#134E4A]/65 mb-4">
+                No new keyword here: a loop body is just code, and a loop is just code. What matters is how you read it —
+                the <strong>inner</strong> loop runs <em>completely</em>, start to finish, on <strong>every single round</strong> of the outer one.
+                Think of a digital clock: for each minute, the seconds run all the way from <code>0</code> to <code>59</code>, then start over.
+              </p>
+              <div class="code">minute = <span class="num">0</span>
+<span class="kw">while</span> minute &lt; <span class="num">60</span>:          <span class="cm"># outer</span>
+<span class="ind">    second = <span class="num">0</span>            <span class="cm"># ⚠ reset INSIDE the outer loop</span>
+    <span class="kw">while</span> second &lt; <span class="num">60</span>:      <span class="cm"># inner — runs 60 times per minute</span>
+        <span class="fn">print</span>(minute, <span class="str">':'</span>, second)
+        second += <span class="num">1</span>
+    minute += <span class="num">1</span></span></div>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                ⚠️ <strong>The #1 nested-loop bug:</strong> resetting the inner counter <em>before</em> the outer loop instead of inside it.
+                Then the inner loop runs fully on the first round and <strong>zero</strong> times on every round after.
+              </div>
+
+              <div class="heading font-extrabold text-[#0F766E] mt-6 mb-1">Printing a grid — rows &amp; columns</div>
+              <p class="text-[#134E4A]/65 mb-2">
+                The outer loop is the <strong>row</strong>, the inner loop is the <strong>column</strong>.
+                <code>print(j, end=" ")</code> keeps everything on one line; the bare <code>print()</code> — in the <em>outer</em> loop — ends the row.
+              </p>
+              <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                  <div class="code" style="margin-top:6px;">i = <span class="num">0</span>
+<span class="kw">while</span> i &lt; <span class="num">10</span>:
+<span class="ind">    j = <span class="num">0</span>
+    <span class="kw">while</span> j &lt; i:      <span class="cm"># row stops at i</span>
+        <span class="fn">print</span>(j, end=<span class="str">" "</span>)
+        j += <span class="num">1</span>
+    <span class="fn">print</span>()          <span class="cm"># end the row</span>
+    i += <span class="num">1</span></span></div>
+                </div>
+                <div>
+                  <div class="console" style="margin-top:6px;">
+0
+0 1
+0 1 2
+0 1 2 3
+0 1 2 3 4
+0 1 2 3 4 5
+0 1 2 3 4 5 6
+0 1 2 3 4 5 6 7
+0 1 2 3 4 5 6 7 8</div>
+                </div>
+              </div>
+              <div class="bg-[#F0FDFA] border border-teal-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                🧠 <strong>The recipe:</strong> get <em>one row</em> right first with a single loop. Only then wrap it in a second loop —
+                and move everything that must start fresh each row <strong>inside</strong> the outer body.
+                <code>break</code> inside the inner loop leaves the <strong>inner</strong> loop only.
+              </div>
+            </div>
+          </div>
+        </article>
+
       </div>
 
       <!-- ═══ IF vs WHILE ═══ -->
@@ -410,7 +472,11 @@ count = <span class="num">0</span>
           Ready to practice? See <code>while</code> in action in
           <a href="../lessons/07_lesson/07-lesson.html" class="text-[#0D9488] font-bold underline">Lesson 7</a>,
           then master <code>while True</code>, <code>break</code> &amp; <code>continue</code> in
-          <a href="../lessons/08_lesson/08-lesson.html" class="text-[#0D9488] font-bold underline">Lesson 8</a>.
+          <a href="../lessons/08_lesson/08-lesson.html" class="text-[#0D9488] font-bold underline">Lesson 8</a>,
+          and nested loops in
+          <a href="../lessons/09_lesson/09-lesson.html" class="text-[#0D9488] font-bold underline">Lesson 9</a>.
+          Counting a known number of rounds? That is the
+          <a href="../06_for_loops/index.html" class="text-[#F97316] font-bold underline">for loop</a>.
         </p>
       </section>
 
