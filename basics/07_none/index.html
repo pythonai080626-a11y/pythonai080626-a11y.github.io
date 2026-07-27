@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python None &amp; the Throwaway _</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Comic+Neue:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Comic Neue', cursive; }
+    h1, h2, h3, .heading { font-family: 'Baloo 2', cursive; }
+    .clay {
+      border: 3px solid rgba(249,115,22,0.18);
+      box-shadow: 5px 5px 0 rgba(249,115,22,0.22), inset 0 1px 0 rgba(255,255,255,0.65);
+    }
+    .clay-teal {
+      border: 3px solid rgba(13,148,136,0.18);
+      box-shadow: 5px 5px 0 rgba(13,148,136,0.22), inset 0 1px 0 rgba(255,255,255,0.65);
+    }
+    .step-card { transition: transform .2s ease, box-shadow .2s ease; }
+    .step-card:hover { transform: translateY(-4px); }
+
+    .code {
+      background: #0b2517; color: #d2ffe3;
+      border-radius: 14px; border: 1px solid #2f5a3d;
+      padding: 14px 18px; overflow-x: auto; margin: 12px 0 4px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95rem; white-space: pre; line-height: 1.7;
+    }
+    .code .cm { color: #6dbf8a; }
+    .code .fn { color: #ffa657; }
+    .code .kw { color: #79c0ff; }
+    .code .str { color: #ffd580; }
+    .code .num { color: #d2a8ff; }
+    .code .ind { background: rgba(125,231,135,0.14); border-radius: 4px; }
+    .code .bad { background: rgba(248,113,113,0.16); border-radius: 4px; }
+
+    .console {
+      background: #101418; color: #e6edf3;
+      border-radius: 14px; border: 1px solid #30363d;
+      padding: 12px 18px; overflow-x: auto; margin: 12px 0 4px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92rem; white-space: pre; line-height: 1.7;
+    }
+    .console .usr { color: #7ee787; font-weight: 700; }
+    .console .err { color: #ff9f9f; }
+
+    .kbd {
+      display: inline-block; padding: 2px 10px; border-radius: 8px;
+      background: #F0FDFA; border: 2px solid #99F6E4;
+      border-bottom-width: 4px; font-family: Consolas, monospace;
+      font-size: .85rem; color: #0F766E; font-weight: 700;
+    }
+
+    .step-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 44px; height: 44px; border-radius: 14px; flex-shrink: 0;
+      background: #CCFBF1; border: 3px solid #0D9488;
+      color: #0F766E; font-weight: 800; font-size: 1.25rem;
+      font-family: 'Baloo 2', cursive;
+    }
+
+    .trace { width: 100%; border-collapse: collapse; font-size: .9rem; margin-top: 12px; }
+    .trace th {
+      background: #CCFBF1; color: #0F766E; text-align: left;
+      padding: 8px 12px; border: 2px solid #99F6E4;
+      font-size: .75rem; letter-spacing: .06em; text-transform: uppercase;
+      font-family: 'Baloo 2', cursive;
+    }
+    .trace td { padding: 8px 12px; border: 2px solid #CCFBF1; color: #134E4A; }
+    .trace tr:nth-child(even) td { background: #F0FDFA; }
+
+    /* ── variable boxes ── */
+    .var-strip { display: flex; flex-wrap: wrap; gap: 14px; }
+    .var-box { text-align: center; min-width: 116px; }
+    .var-box .vname { font-family: Consolas, monospace; font-size: .78rem; font-weight: 700; color: #0F766E; margin-bottom: 5px; }
+    .var-box .vval {
+      display: flex; align-items: center; justify-content: center; height: 48px;
+      border-radius: 12px; font-family: Consolas, monospace; font-weight: 800; font-size: 1rem;
+      background: #CCFBF1; border: 2px solid #0D9488; color: #134E4A;
+    }
+    .var-box.empty .vval {
+      background: repeating-linear-gradient(135deg, #f6f8f8 0 8px, #eaefef 8px 16px);
+      border: 2px dashed #94a8a8; color: #6b7d7d; font-style: italic;
+    }
+    .var-box.wrongv .vval { background: #FFE4D5; border-color: #F97316; color: #9A3412; }
+    .var-box .vcap { font-size: .72rem; color: #134E4A; opacity: .6; margin-top: 5px; line-height: 1.35; }
+  </style>
+</head>
+<body class="bg-[#F0FDFA] text-[#134E4A] min-h-screen">
+
+  <nav class="fixed top-4 left-4 right-4 z-50">
+    <div class="max-w-6xl mx-auto bg-white/90 backdrop-blur-md rounded-2xl px-5 py-3 clay-teal flex items-center gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-[#0D9488] hover:text-[#134E4A] transition-colors duration-200">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        <span class="text-sm font-semibold">Python Basics</span>
+      </a>
+      <span class="text-[#134E4A]/25 text-sm">/</span>
+      <span class="heading font-bold text-[#134E4A] text-sm">None &amp; _</span>
+    </div>
+  </nav>
+
+  <main class="px-4 pt-28 pb-16">
+    <section class="max-w-6xl mx-auto">
+
+      <!-- ═══ HERO ═══ -->
+      <div class="grid lg:grid-cols-[1fr_360px] gap-8 items-center mb-10">
+        <div>
+          <span class="text-xs font-bold tracking-widest uppercase text-[#0D9488] bg-teal-50 border border-teal-200 px-4 py-1.5 rounded-full">Topic 07</span>
+          <h1 class="heading text-5xl md:text-6xl font-extrabold text-[#134E4A] mt-4 mb-4 leading-tight">None &amp; the _ 🕳️</h1>
+          <p class="text-lg text-[#134E4A]/65 max-w-2xl leading-relaxed">
+            Every tracker needs a starting value — but what do you start at when <strong>any</strong> number is possible?
+            <code class="bg-teal-50 px-1 rounded">None</code> is Python's official word for <em>"there is nothing here yet"</em>,
+            and it is what separates a program that <strong>lies</strong> (<code>max = 0</code>) from one that tells the truth.
+            Along the way, meet <code class="bg-teal-50 px-1 rounded">_</code> — the variable name that means
+            "I will never look at this".
+          </p>
+        </div>
+
+        <div class="bg-white rounded-[24px] p-5 clay hidden lg:block">
+          <div class="flex items-center gap-1.5 mb-3">
+            <span class="w-3 h-3 rounded-full bg-red-400"></span>
+            <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
+            <span class="w-3 h-3 rounded-full bg-green-400"></span>
+            <span class="text-xs text-[#134E4A]/40 ml-2 font-mono">max.py</span>
+          </div>
+          <div class="code" style="margin:0;">best = <span class="kw">None</span>
+
+<span class="kw">if</span> best <span class="kw">is</span> <span class="kw">None</span> <span class="kw">or</span> n &gt; best:
+<span class="ind">    best = n</span></div>
+        </div>
+      </div>
+
+      <!-- ═══ TUTORIAL STEPS ═══ -->
+      <div class="space-y-6">
+
+        <!-- STEP 1 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">1</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">The Problem: What Do You Start At?</h2>
+              <p class="text-[#134E4A]/65 mb-4">
+                To find the largest number the user types, you keep a tracker and replace it whenever something bigger
+                comes along. But the tracker needs a value <em>before</em> the first number arrives — and every number
+                you could pick might turn out to be a real answer.
+              </p>
+              <div class="var-strip mb-4">
+                <div class="var-box wrongv"><div class="vname">best = 0</div><div class="vval">0</div><div class="vcap">every input is negative →<br>prints a 0 nobody typed</div></div>
+                <div class="var-box wrongv"><div class="vname">best = -1</div><div class="vval">-1</div><div class="vcap">only works if the numbers<br>can never go below -1</div></div>
+                <div class="var-box empty"><div class="vname">best = None</div><div class="vval">None</div><div class="vcap">honest — and it works<br>for any range at all</div></div>
+              </div>
+              <div class="bg-[#F0FDFA] border border-teal-100 rounded-2xl p-4 text-sm text-[#134E4A]/70">
+                💡 When the possible values are <strong>bounded</strong> — a grade is always <code>0..100</code> — a sentinel like
+                <code>max_grade = -1</code> is fine. <code>None</code> is what you reach for when they are not.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- STEP 2 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">2</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">None Is Not Zero, and Not ""</h2>
+              <p class="text-[#134E4A]/65 mb-4">
+                <code>None</code> is a value of its own kind. It means <em>the absence of a value</em> — which is a very
+                different thing from the number zero or an empty piece of text.
+              </p>
+              <table class="trace">
+                <thead><tr><th>Value</th><th>What it is</th><th>Can you do maths with it?</th></tr></thead>
+                <tbody>
+                  <tr><td><code>0</code></td><td>a number — a real, countable amount</td><td>yes: <code>0 + 1</code> → <code>1</code></td></tr>
+                  <tr><td><code>""</code></td><td>a string with no characters in it</td><td>no, but it is still text</td></tr>
+                  <tr><td><code>None</code></td><td>nothing at all — "not set yet"</td><td><strong>no</strong>: <code>None + 1</code> crashes</td></tr>
+                </tbody>
+              </table>
+              <div class="console">&gt;&gt;&gt; None + 1
+<span class="err">TypeError: unsupported operand type(s) for +: 'NoneType' and 'int'</span>
+&gt;&gt;&gt; None &gt; 5
+<span class="err">TypeError: '&gt;' not supported between instances of 'NoneType' and 'int'</span>
+&gt;&gt;&gt; print(None)
+None</div>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                ⚠️ Capital <code>N</code>, always. <code>none</code> is an undefined name (<code>NameError</code>) and
+                <code>"None"</code> in quotes is just a five-letter string.
+              </div>
+              <div class="bg-[#F0FDFA] border border-teal-100 rounded-2xl p-4 mt-3 text-sm text-[#134E4A]/70">
+                🖨️ Printing it is perfectly fine — <code>print(None)</code> shows <code>None</code>. If nothing ever
+                happened, saying <em>None</em> out loud is exactly the right report.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- STEP 3 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">3</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">Testing for It — <code>is None</code></h2>
+              <p class="text-[#134E4A]/65 mb-4">
+                There is only ever <strong>one</strong> <code>None</code> inside a running Python program, so the question
+                "is this variable empty?" is asked with <code>is</code>, not <code>==</code>.
+              </p>
+              <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                  <div class="heading font-extrabold text-[#0F766E] mb-1">✅ the Python way</div>
+                  <div class="code" style="margin-top:6px;"><span class="kw">if</span> best <span class="kw">is</span> <span class="kw">None</span>:
+<span class="ind">    <span class="fn">print</span>(<span class="str">'nothing yet'</span>)</span>
+
+<span class="kw">if</span> best <span class="kw">is</span> <span class="kw">not</span> <span class="kw">None</span>:
+<span class="ind">    <span class="fn">print</span>(best)</span></div>
+                </div>
+                <div>
+                  <div class="heading font-extrabold text-[#C2410C] mb-1">works, but nobody writes it</div>
+                  <div class="code" style="margin-top:6px;"><span class="kw">if</span> best == <span class="kw">None</span>:
+<span class="ind">    <span class="fn">print</span>(<span class="str">'nothing yet'</span>)</span>
+
+<span class="kw">if</span> best != <span class="kw">None</span>:
+<span class="ind">    <span class="fn">print</span>(best)</span></div>
+                </div>
+              </div>
+              <div class="bg-[#F0FDFA] border border-teal-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                🧠 <code>==</code> asks "<em>same value?</em>". <code>is</code> asks "<em>literally the same object?</em>".
+                For <code>None</code> those are the same question, and <code>is None</code> is the style every Python
+                programmer expects to read.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- STEP 4 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">4</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">The Pattern: <code>is None or</code> …</h2>
+              <p class="text-[#134E4A]/65 mb-4">
+                Here is the shape you will write for the rest of your programming life — a max tracker that starts empty:
+              </p>
+              <div class="code">max_number = <span class="kw">None</span>
+
+<span class="kw">while</span> <span class="kw">True</span>:
+<span class="ind">    num = <span class="fn">input</span>(<span class="str">'number?'</span>)
+    <span class="kw">if</span> num == <span class="str">'exit'</span>:
+        <span class="kw">break</span>
+    num = <span class="fn">int</span>(num)
+
+    <span class="kw">if</span> max_number <span class="kw">is</span> <span class="kw">None</span> <span class="kw">or</span> num &gt; max_number:
+        max_number = num</span>
+
+<span class="fn">print</span>(<span class="str">f'max: {max_number}'</span>)</div>
+              <div class="console">number?<span class="usr">-4</span>
+number?<span class="usr">-9</span>
+number?<span class="usr">exit</span>
+max: -4</div>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                ⚠️ <strong>The order of the two tests is not decoration.</strong> Python evaluates <code>or</code> left to
+                right and stops the moment one side is <code>True</code>, so on the first round it never reaches
+                <code>num &gt; max_number</code>. Write them the other way around and you get
+                <code>TypeError: '&gt;' not supported between instances of 'int' and 'NoneType'</code>.
+              </div>
+              <div class="bg-[#F0FDFA] border border-teal-100 rounded-2xl p-4 mt-3 text-sm text-[#134E4A]/70">
+                💡 That behaviour is called <strong>short-circuit evaluation</strong> — the same rule that lets you write
+                <code>if n != 0 and 100 / n &gt; 5:</code> without ever dividing by zero.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- STEP 5 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">5</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">A Sum That Starts at Nothing</h2>
+              <p class="text-[#134E4A]/65 mb-4">
+                A sum is easier: <code>total = 0</code> is usually right, because the sum of no numbers <em>is</em> zero.
+                Use <code>None</code> only when the task demands that "no numbers at all" look different from "they added up to 0".
+              </p>
+              <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                  <div class="heading font-extrabold text-[#0F766E] mb-1">empty sum = 0</div>
+                  <div class="code" style="margin-top:6px;">total = <span class="num">0</span>
+
+<span class="cm"># in the loop:</span>
+total += num</div>
+                </div>
+                <div>
+                  <div class="heading font-extrabold text-[#C2410C] mb-1">empty sum = None</div>
+                  <div class="code" style="margin-top:6px;">total = <span class="kw">None</span>
+
+<span class="cm"># in the loop:</span>
+<span class="kw">if</span> total <span class="kw">is</span> <span class="kw">None</span>:
+<span class="ind">    total = num</span>
+<span class="kw">else</span>:
+<span class="ind">    total += num</span></div>
+                </div>
+              </div>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                ⚠️ You cannot write <code>total += num</code> on the first round when <code>total</code> is <code>None</code> —
+                that is a <code>TypeError</code>. The whole <code>if</code>/<code>else</code> exists to handle that one round.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- STEP 6 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">6</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">The Throwaway <code>_</code> 🗑️</h2>
+              <p class="text-[#134E4A]/65 mb-4">
+                A <code>for</code> loop must name its counter, even when the loop is pure repetition. When the body never
+                looks at that counter, name it <code>_</code>: an ordinary variable name that carries a message —
+                <em>"I am not going to use this"</em>.
+              </p>
+              <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                  <div class="heading font-extrabold text-[#C2410C] mb-1">the counter matters</div>
+                  <div class="code" style="margin-top:6px;"><span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">4</span>):
+<span class="ind">    <span class="fn">print</span>(<span class="str">f'round {i}'</span>)</span></div>
+                  <div class="console" style="margin-top:6px;">round 1
+round 2
+round 3</div>
+                </div>
+                <div>
+                  <div class="heading font-extrabold text-[#0F766E] mb-1">just repeat 3 times</div>
+                  <div class="code" style="margin-top:6px;"><span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="num">3</span>):
+<span class="ind">    <span class="fn">print</span>(<span class="str">'hello'</span>)</span></div>
+                  <div class="console" style="margin-top:6px;">hello
+hello
+hello</div>
+                </div>
+              </div>
+              <div class="bg-[#F0FDFA] border border-teal-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                💡 Nothing about <code>_</code> is magic — Python treats it like any other name. It is a convention, and a
+                good one: your editor stops warning about an unused variable, and a reader knows at a glance that this
+                loop is only counting rounds.
+              </div>
+            </div>
+          </div>
+        </article>
+
+      </div>
+
+      <!-- ═══ CHEAT SHEET ═══ -->
+      <section class="bg-white rounded-[24px] p-7 clay-teal mt-8">
+        <h2 class="heading text-3xl font-extrabold mb-3">Quick Reference</h2>
+        <div class="grid md:grid-cols-2 gap-4 text-[#134E4A]/75">
+          <div class="bg-[#F0FDFA] border border-teal-100 rounded-2xl p-4">
+            <div class="heading font-extrabold text-[#0F766E] mb-1">Start empty</div>
+            <code class="text-sm">best = None</code> — when any value is possible and there is no safe sentinel.
+          </div>
+          <div class="bg-[#F0FDFA] border border-teal-100 rounded-2xl p-4">
+            <div class="heading font-extrabold text-[#0F766E] mb-1">Test it</div>
+            <code class="text-sm">if x is None:</code> / <code class="text-sm">if x is not None:</code> — never <code class="text-sm">== None</code>.
+          </div>
+          <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4">
+            <div class="heading font-extrabold text-[#C2410C] mb-1">The max pattern</div>
+            <code class="text-sm">if best is None or n &gt; best:</code> — the <code class="text-sm">None</code> test must come first.
+          </div>
+          <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4">
+            <div class="heading font-extrabold text-[#C2410C] mb-1">Throwaway counter</div>
+            <code class="text-sm">for _ in range(n):</code> — "do this n times", the counter is never read.
+          </div>
+        </div>
+        <p class="text-[#134E4A]/60 mt-6">
+          See both of these used in real programs in
+          <a href="../lessons/10_lesson/10-lesson.html" class="text-[#0D9488] font-bold underline">Lesson 10</a>,
+          then put <code>_</code> to work with
+          <a href="../08_random/index.html" class="text-[#F97316] font-bold underline">Random &amp; Modules</a>.
+        </p>
+      </section>
+
+    </section>
+  </main>
+
+</body>
+</html>

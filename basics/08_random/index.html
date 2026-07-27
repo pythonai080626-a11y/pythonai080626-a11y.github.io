@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python Random &amp; Modules - import random</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Comic+Neue:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Comic Neue', cursive; }
+    h1, h2, h3, .heading { font-family: 'Baloo 2', cursive; }
+    .clay {
+      border: 3px solid rgba(249,115,22,0.18);
+      box-shadow: 5px 5px 0 rgba(249,115,22,0.22), inset 0 1px 0 rgba(255,255,255,0.65);
+    }
+    .clay-teal {
+      border: 3px solid rgba(13,148,136,0.18);
+      box-shadow: 5px 5px 0 rgba(13,148,136,0.22), inset 0 1px 0 rgba(255,255,255,0.65);
+    }
+    .step-card { transition: transform .2s ease, box-shadow .2s ease; }
+    .step-card:hover { transform: translateY(-4px); }
+
+    .code {
+      background: #0b2517; color: #d2ffe3;
+      border-radius: 14px; border: 1px solid #2f5a3d;
+      padding: 14px 18px; overflow-x: auto; margin: 12px 0 4px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95rem; white-space: pre; line-height: 1.7;
+    }
+    .code .cm { color: #6dbf8a; }
+    .code .fn { color: #ffa657; }
+    .code .kw { color: #79c0ff; }
+    .code .str { color: #ffd580; }
+    .code .num { color: #d2a8ff; }
+    .code .ind { background: rgba(125,231,135,0.14); border-radius: 4px; }
+    .code .hl { background: rgba(125,231,135,0.16); border-radius: 4px; }
+    .code .bad { background: rgba(248,113,113,0.16); border-radius: 4px; }
+
+    .console {
+      background: #101418; color: #e6edf3;
+      border-radius: 14px; border: 1px solid #30363d;
+      padding: 12px 18px; overflow-x: auto; margin: 12px 0 4px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92rem; white-space: pre; line-height: 1.7;
+    }
+    .console .usr { color: #7ee787; font-weight: 700; }
+    .console .dim { color: #8b949e; }
+    .console .err { color: #ff9f9f; }
+    .console.wrapme { white-space: pre-wrap; word-break: break-word; font-size: .82rem; }
+
+    .kbd {
+      display: inline-block; padding: 2px 10px; border-radius: 8px;
+      background: #FFF7ED; border: 2px solid #FED7AA;
+      border-bottom-width: 4px; font-family: Consolas, monospace;
+      font-size: .85rem; color: #C2410C; font-weight: 700;
+    }
+
+    .step-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 44px; height: 44px; border-radius: 14px; flex-shrink: 0;
+      background: #FFEDD5; border: 3px solid #F97316;
+      color: #C2410C; font-weight: 800; font-size: 1.25rem;
+      font-family: 'Baloo 2', cursive;
+    }
+
+    .trace { width: 100%; border-collapse: collapse; font-size: .9rem; margin-top: 12px; }
+    .trace th {
+      background: #FFEDD5; color: #C2410C; text-align: left;
+      padding: 8px 12px; border: 2px solid #FED7AA;
+      font-size: .75rem; letter-spacing: .06em; text-transform: uppercase;
+      font-family: 'Baloo 2', cursive;
+    }
+    .trace td { padding: 8px 12px; border: 2px solid #FFEDD5; color: #134E4A; }
+    .trace tr:nth-child(even) td { background: #FFF7ED; }
+
+    /* ── dice ── */
+    .dice-strip { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    .die {
+      width: 52px; height: 52px; border-radius: 13px; flex-shrink: 0;
+      background: linear-gradient(160deg, #ffffff, #FFF7ED);
+      border: 3px solid #F97316;
+      box-shadow: 0 6px 0 rgba(249,115,22,0.25);
+      display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr);
+      padding: 7px; animation: dieTumble 3.6s ease-in-out infinite;
+    }
+    .die i { width: 8px; height: 8px; border-radius: 50%; background: #C2410C; align-self: center; justify-self: center; }
+    .die i.off { visibility: hidden; }
+    .die:nth-child(2) { animation-delay: .3s; }
+    .die:nth-child(3) { animation-delay: .6s; }
+    .die:nth-child(4) { animation-delay: .9s; }
+    .die:nth-child(5) { animation-delay: 1.2s; }
+    @keyframes dieTumble {
+      0%, 70%, 100% { transform: rotate(0deg); }
+      78% { transform: rotate(-9deg) translateY(-5px); }
+      86% { transform: rotate(8deg) translateY(-2px); }
+      94% { transform: rotate(-3deg); }
+    }
+
+    /* ── lottery balls ── */
+    .balls { display: flex; flex-wrap: wrap; gap: 10px; }
+    .ball {
+      width: 46px; height: 46px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: Consolas, monospace; font-weight: 800; font-size: .95rem; color: #7C2D12;
+      background: radial-gradient(circle at 32% 28%, #ffffff 0%, #FFDCC2 46%, #FDBA74 100%);
+      border: 2px solid #F97316;
+      box-shadow: 0 6px 14px rgba(249,115,22,0.28);
+      animation: ballFloat 3.2s ease-in-out infinite;
+    }
+    .ball:nth-child(even) { animation-delay: .5s; }
+    .ball.dup { background: radial-gradient(circle at 32% 28%, #ffffff 0%, #fecaca 46%, #f87171 100%); border-color: #dc2626; color: #7f1d1d; }
+    @keyframes ballFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+
+    /* ── module toolbox ── */
+    .tool-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tool {
+      font-family: Consolas, monospace; font-size: .82rem; font-weight: 700;
+      background: #ffffff; border: 2px solid #FED7AA; border-bottom-width: 4px;
+      border-radius: 11px; padding: 7px 12px; color: #C2410C;
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .tool:hover { transform: translateY(-3px); box-shadow: 0 8px 14px rgba(249,115,22,0.2); }
+    .tool small { display: block; font-family: 'Comic Neue', cursive; font-weight: 400; color: #134E4A; opacity: .6; font-size: .74rem; }
+  </style>
+</head>
+<body class="bg-[#FFFBF5] text-[#134E4A] min-h-screen">
+
+  <nav class="fixed top-4 left-4 right-4 z-50">
+    <div class="max-w-6xl mx-auto bg-white/90 backdrop-blur-md rounded-2xl px-5 py-3 clay flex items-center gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-[#F97316] hover:text-[#134E4A] transition-colors duration-200">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        <span class="text-sm font-semibold">Python Basics</span>
+      </a>
+      <span class="text-[#134E4A]/25 text-sm">/</span>
+      <span class="heading font-bold text-[#134E4A] text-sm">Random &amp; Modules</span>
+    </div>
+  </nav>
+
+  <main class="px-4 pt-28 pb-16">
+    <section class="max-w-6xl mx-auto">
+
+      <!-- ═══ HERO ═══ -->
+      <div class="grid lg:grid-cols-[1fr_360px] gap-8 items-center mb-10">
+        <div>
+          <span class="text-xs font-bold tracking-widest uppercase text-[#F97316] bg-orange-50 border border-orange-200 px-4 py-1.5 rounded-full">Topic 08</span>
+          <h1 class="heading text-5xl md:text-6xl font-extrabold text-[#134E4A] mt-4 mb-4 leading-tight">Random &amp; Modules 🎲</h1>
+          <p class="text-lg text-[#134E4A]/65 max-w-2xl leading-relaxed">
+            Every tool you have used so far — <code class="bg-orange-50 px-1 rounded">print</code>,
+            <code class="bg-orange-50 px-1 rounded">input</code>, <code class="bg-orange-50 px-1 rounded">range</code> — was built in.
+            <code class="bg-orange-50 px-1 rounded">import</code> unlocks the rest of Python: hundreds of ready-made toolboxes
+            called <strong>modules</strong>. Open the first one, <code class="bg-orange-50 px-1 rounded">random</code>,
+            and your programs can finally roll dice, deal cards and draw a lottery.
+          </p>
+        </div>
+
+        <div class="bg-white rounded-[24px] p-5 clay-teal hidden lg:block">
+          <div class="flex items-center gap-1.5 mb-3">
+            <span class="w-3 h-3 rounded-full bg-red-400"></span>
+            <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
+            <span class="w-3 h-3 rounded-full bg-green-400"></span>
+            <span class="text-xs text-[#134E4A]/40 ml-2 font-mono">dice.py</span>
+          </div>
+          <div class="code" style="margin:0;"><span class="kw">import</span> random
+
+<span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="num">3</span>):
+<span class="ind">    <span class="fn">print</span>(random.randint(<span class="num">1</span>, <span class="num">6</span>))</span></div>
+        </div>
+      </div>
+
+      <!-- ═══ TUTORIAL STEPS ═══ -->
+      <div class="space-y-6">
+
+        <!-- STEP 1 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">1</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">import — Borrowing a Toolbox</h2>
+              <p class="text-[#134E4A]/65 mb-4">
+                A <strong>module</strong> is a file full of ready-written code that ships with Python but is not loaded
+                until you ask for it. One line, at the <strong>top</strong> of your file, once:
+              </p>
+              <div class="code"><span class="kw">import</span> random</div>
+              <p class="text-[#134E4A]/65 mt-4 mb-2">That single name is now the handle to everything inside:</p>
+              <div class="tool-grid">
+                <span class="tool">random.randint<small>whole number in a range</small></span>
+                <span class="tool">random.random<small>float 0.0 → 0.999…</small></span>
+                <span class="tool">random.choice<small>pick one item</small></span>
+                <span class="tool">random.randrange<small>pick from a range with a step</small></span>
+                <span class="tool">random.sample<small>several, no repeats</small></span>
+                <span class="tool">random.seed<small>make it repeatable</small></span>
+              </div>
+              <div class="code" style="margin-top:14px;">num = <span class="hl">random.</span>randint(<span class="num">1</span>, <span class="num">6</span>)   <span class="cm">#  module . function</span></div>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                ⚠️ <code>import random</code> does <strong>not</strong> pour the names into your program — it creates the one
+                name <code>random</code>. Calling <code>randint(1, 6)</code> without the dot is a <code>NameError</code>.
+              </div>
+              <table class="trace">
+                <thead><tr><th>Mistake</th><th>What Python says</th><th>Fix</th></tr></thead>
+                <tbody>
+                  <tr><td>no <code>import</code> line</td><td><code>NameError: name 'random' is not defined</code></td><td>add <code>import random</code> at the top</td></tr>
+                  <tr><td><code>randint(1, 6)</code></td><td><code>NameError: name 'randint' is not defined</code></td><td><code>random.randint(1, 6)</code></td></tr>
+                  <tr><td>your file is <code>random.py</code></td><td>strange errors — Python imports <em>your</em> file instead of the real module</td><td>rename it, e.g. <code>01_random.py</code></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </article>
+
+        <!-- STEP 2 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">2</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">help() — The Manual, Inside Python</h2>
+              <p class="text-[#134E4A]/65 mb-4">
+                Not sure whether <code>randint(1, 6)</code> can actually return <code>6</code>? Do not guess — ask:
+              </p>
+              <div class="code"><span class="kw">import</span> random
+
+<span class="fn">help</span>(random.randint)</div>
+              <div class="console"><span class="dim">Help on method randint in module random:
+
+randint(a, b) method of random.Random instance
+    Return random integer in range [a, b], including both end points.</span></div>
+              <div class="bg-[#F0FDFA] border border-teal-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                💡 "<strong>including both end points</strong>" — question answered, in the one place that can never be out of
+                date. <code>help()</code> works on anything: <code>help(print)</code>, <code>help(str)</code>,
+                <code>help(random)</code> for the whole module. In PyCharm, <span class="kbd">Ctrl</span>+<span class="kbd">Q</span>
+                on a name shows the same text in a popup.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- STEP 3 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">3</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">randint — Rolling Dice 🎲</h2>
+              <p class="text-[#134E4A]/65 mb-4">
+                <code>random.randint(a, b)</code> gives a whole number between <code>a</code> and <code>b</code>,
+                <strong>both included</strong>.
+              </p>
+              <div class="code">x = random.randint(<span class="num">10</span>, <span class="num">20</span>)   <span class="cm"># 10, 11, 12 ... 19 or 20</span>
+<span class="fn">print</span>(x)</div>
+              <div class="dice-strip mt-4 mb-1">
+                <div class="die"><i></i><i class="off"></i><i class="off"></i><i class="off"></i><i></i><i class="off"></i><i class="off"></i><i class="off"></i><i></i></div>
+                <div class="die"><i></i><i class="off"></i><i></i><i class="off"></i><i class="off"></i><i class="off"></i><i></i><i class="off"></i><i></i></div>
+                <div class="die"><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i><i></i><i class="off"></i><i class="off"></i><i class="off"></i><i class="off"></i></div>
+                <div class="die"><i></i><i class="off"></i><i></i><i></i><i class="off"></i><i></i><i></i><i class="off"></i><i></i></div>
+                <div class="die"><i></i><i class="off"></i><i></i><i class="off"></i><i></i><i class="off"></i><i></i><i class="off"></i><i></i></div>
+                <span class="font-mono text-sm text-[#C2410C] font-bold">← <code>random.randint(1, 6)</code>, five times</span>
+              </div>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                ⚠️ <strong>randint includes the top; range does not.</strong> <code>random.randint(1, 6)</code> can return
+                <code>6</code>, while <code>range(1, 6)</code> stops at <code>5</code>. Two functions, two rules — this is the
+                classic mix-up.
+              </div>
+              <p class="text-[#134E4A]/65 mt-4 mb-2">Many numbers at once — with a throwaway <code>_</code>:</p>
+              <div class="code"><span class="cm"># print 50 random numbers between 1 and 36</span>
+<span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="num">50</span>):
+<span class="ind">    num = random.randint(<span class="num">1</span>, <span class="num">36</span>)
+    <span class="fn">print</span>(num, end=<span class="str">' '</span>)</span>
+<span class="fn">print</span>()</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- STEP 4 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">4</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">seed — The Same "Random" Every Run</h2>
+              <p class="text-[#134E4A]/65 mb-4">
+                Computers cannot really be random. They run a formula whose output <em>looks</em> random, and the formula
+                needs a starting point — the <strong>seed</strong>. Python normally takes it from the clock, so every run
+                differs. Set it yourself and the whole sequence repeats exactly:
+              </p>
+              <div class="code"><span class="hl">random.seed(<span class="num">42</span>)</span>
+
+<span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="num">50</span>):
+<span class="ind">    <span class="fn">print</span>(random.randint(<span class="num">1</span>, <span class="num">36</span>), end=<span class="str">' '</span>)</span></div>
+              <div class="grid md:grid-cols-2 gap-4 mt-3">
+                <div>
+                  <div class="heading font-extrabold text-[#0F766E] mb-1">run #1 — seed 42</div>
+                  <div class="console wrapme">8 2 18 16 15 9 7 35 6 28 3 2 6 14 15 33 2 36 13 35 27 15 29 18 1 11 28 22 18 10 14 22 7 6 25 7 23 23 17 3 30 35 8 25 6 36 19 24 13 5</div>
+                </div>
+                <div>
+                  <div class="heading font-extrabold text-[#0F766E] mb-1">run #2 — seed 42</div>
+                  <div class="console wrapme">8 2 18 16 15 9 7 35 6 28 3 2 6 14 15 33 2 36 13 35 27 15 29 18 1 11 28 22 18 10 14 22 7 6 25 7 23 23 17 3 30 35 8 25 6 36 19 24 13 5</div>
+                </div>
+              </div>
+              <table class="trace">
+                <thead><tr><th>Situation</th><th>Seed it?</th></tr></thead>
+                <tbody>
+                  <tr><td>a real game — dice, cards, lottery</td><td><strong>no.</strong> Let the clock decide, so every game differs.</td></tr>
+                  <tr><td>chasing a bug that only appears "sometimes"</td><td><strong>yes.</strong> Same numbers every run = a bug you can reproduce.</td></tr>
+                  <tr><td>homework whose output must match the teacher's</td><td><strong>yes.</strong> Everyone gets identical output.</td></tr>
+                </tbody>
+              </table>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                ⚠️ Call <code>random.seed()</code> <strong>once</strong>, at the start. Inside a loop it restarts the sequence
+                on every round — and you get the same number over and over.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- STEP 5 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">5</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">random() and choice() — Floats and Non-Numbers</h2>
+              <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                  <div class="heading font-extrabold text-[#C2410C] mb-1">random() — a float 0.0 … 0.999…</div>
+                  <div class="code" style="margin-top:6px;">f = random.random()
+<span class="fn">print</span>(f)</div>
+                  <div class="console" style="margin-top:6px;">0.6394267984578837</div>
+                </div>
+                <div>
+                  <div class="heading font-extrabold text-[#0F766E] mb-1">choice() — one item from a group</div>
+                  <div class="code" style="margin-top:6px;"><span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="num">10</span>):
+<span class="ind">    <span class="fn">print</span>(random.choice([<span class="num">1</span>, <span class="num">3</span>, <span class="num">5</span>, <span class="kw">None</span>,
+                        -<span class="num">2</span>, <span class="num">7</span>, <span class="str">"hello"</span>]), end=<span class="str">" "</span>)</span></div>
+                  <div class="console" style="margin-top:6px;">5 3 None 7 1 1 hello -2 1 5 </div>
+                </div>
+              </div>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                🎯 <code>random.random()</code> takes <strong>no arguments</strong> and always spans the same range —
+                <code>0.0</code> is possible, <code>1.0</code> never is. It is perfect for chances:
+                <code>if random.random() &lt; 0.3:</code> happens roughly 30% of the time.
+              </div>
+              <div class="bg-[#F0FDFA] border border-teal-100 rounded-2xl p-4 mt-3 text-sm text-[#134E4A]/70">
+                💡 <code>choice</code> is the one that escapes numbers — words, <code>None</code>, anything you list in
+                <code>[ ]</code>. Items can repeat between calls (<code>1</code> came out three times above), and the
+                square brackets make a <strong>list</strong>, the subject of a whole future lesson.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- STEP 6 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">6</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">randrange() and sample() — Steps and No Repeats</h2>
+              <p class="text-[#134E4A]/65 mb-4">
+                <code>randrange</code> takes the same three numbers as <code>range()</code> and hands you <strong>one</strong>
+                of its members:
+              </p>
+              <div class="code"><span class="cm"># the members of range(3, 30 + 3, 3) → 3 6 9 12 15 18 21 24 27 30</span>
+<span class="cm"># identical to random.choice([3, 6, 9, 12, 15, 18, 21, 24, 27, 30])</span>
+<span class="fn">print</span>(random.randrange(<span class="num">3</span>, <span class="num">30</span> + <span class="num">3</span>, <span class="num">3</span>))</div>
+              <div class="console">18</div>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                🧭 <code>rand<strong>range</strong></code> follows the <code>range</code> rule — the stop is
+                <strong>excluded</strong>. <code>randint</code> does not. Remember it by the name.
+              </div>
+
+              <p class="text-[#134E4A]/65 mt-5 mb-2">
+                Call <code>randint</code> six times for a lottery and the same ball eventually comes out twice.
+                <code>sample</code> is the function that cannot repeat itself:
+              </p>
+              <div class="code"><span class="cm"># no repetition - 1 time each number</span>
+<span class="fn">print</span>(random.sample(<span class="fn">range</span>(<span class="num">1</span>, <span class="num">10</span> + <span class="num">1</span>), <span class="num">10</span>))</div>
+              <div class="console">[6, 3, 7, 10, 1, 8, 5, 2, 4, 9]</div>
+              <div class="balls mt-3">
+                <span class="ball">6</span><span class="ball">3</span><span class="ball">7</span><span class="ball">10</span><span class="ball">1</span>
+                <span class="ball">8</span><span class="ball">5</span><span class="ball">2</span><span class="ball">4</span><span class="ball">9</span>
+              </div>
+              <div class="bg-[#F0FDFA] border border-teal-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                💡 All ten numbers came out, each exactly once, in a shuffled order — <code>sample</code> with
+                <code>k</code> equal to the group size <em>is</em> a shuffle. Ask for fewer and you get a draw:
+                <code>random.sample(range(1, 37), 6)</code> is a lottery ticket.
+              </div>
+              <div class="console mt-3">&gt;&gt;&gt; random.sample(range(1, 5), 10)
+<span class="err">ValueError: Sample larger than population or is negative</span></div>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-3 text-sm text-[#134E4A]/70">
+                ⚠️ There are only 4 numbers in <code>range(1, 5)</code> — no way to hand out 10 different ones.
+              </div>
+            </div>
+          </div>
+        </article>
+
+      </div>
+
+      <!-- ═══ CHEAT SHEET ═══ -->
+      <section class="bg-white rounded-[24px] p-7 clay mt-8">
+        <h2 class="heading text-3xl font-extrabold mb-3">Quick Reference</h2>
+        <table class="trace">
+          <thead><tr><th>Call</th><th>Gives you</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><code>import random</code></td><td>opens the toolbox — top of the file, once</td><td>—</td></tr>
+            <tr><td><code>random.randint(1, 6)</code></td><td>whole number, <strong>both ends included</strong></td><td><code>4</code></td></tr>
+            <tr><td><code>random.random()</code></td><td>float from <code>0.0</code> to just under <code>1.0</code></td><td><code>0.639…</code></td></tr>
+            <tr><td><code>random.choice([...])</code></td><td>one item from the group — any kind</td><td><code>'hello'</code></td></tr>
+            <tr><td><code>random.randrange(3, 33, 3)</code></td><td>one member of that range — <strong>stop excluded</strong></td><td><code>18</code></td></tr>
+            <tr><td><code>random.sample(range(1, 11), 10)</code></td><td><code>k</code> items, never the same one twice</td><td><code>[6, 3, 7, …]</code></td></tr>
+            <tr><td><code>random.seed(42)</code></td><td>nothing — it makes everything above repeatable</td><td>—</td></tr>
+            <tr><td><code>help(random.randint)</code></td><td>the official manual, printed in your console</td><td>—</td></tr>
+          </tbody>
+        </table>
+        <p class="text-[#134E4A]/60 mt-6">
+          The <code>_</code> in <code>for _ in range(50)</code> comes from
+          <a href="../07_none/index.html" class="text-[#0D9488] font-bold underline">None &amp; the _</a>, and every example
+          here was written live in
+          <a href="../lessons/10_lesson/10-lesson.html" class="text-[#F97316] font-bold underline">Lesson 10</a>.
+        </p>
+      </section>
+
+    </section>
+  </main>
+
+</body>
+</html>

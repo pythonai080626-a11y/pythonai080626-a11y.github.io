@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lesson 10 - None, modules &amp; random</title>
+  <style>
+    :root {
+      --bg-soft: #ffffff;
+      --green-1: #0f5a2e;
+      --green-2: #1f8f4e;
+      --green-3: #dbf6e5;
+      --mint: #e6fff2;
+      --text: #14281d;
+      --muted: #426654;
+      --border: #aadfbd;
+      --accent-a: #ddfbe7;
+      --accent-b: #fff4d8;
+      --code-bg: #0b2517;
+      --code-text: #d2ffe3;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Lucida Sans", "Segoe UI", sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 15% 10%, #e7fff0 0%, transparent 35%),
+                  radial-gradient(circle at 85% 18%, #fff5d6 0%, transparent 36%),
+                  linear-gradient(180deg, #f4fff6 0%, #ffffff 45%, #edfff4 100%);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    body::before, body::after {
+      content: "";
+      position: fixed;
+      width: 230px;
+      height: 230px;
+      z-index: -1;
+      border-radius: 999px;
+      filter: blur(2px);
+      opacity: 0.32;
+      animation: blobMove 8s ease-in-out infinite alternate;
+    }
+    body::before { background: #bff0d0; top: -30px; left: -40px; }
+    body::after { background: #ffe9a9; bottom: -40px; right: -40px; animation-delay: 1.4s; }
+
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 24px; }
+    .layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .side-nav {
+      position: sticky;
+      top: 14px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 8px 22px rgba(18,102,55,0.1);
+      padding: 12px;
+    }
+    .side-title { margin: 0 0 8px; font-size: 0.9rem; color: var(--green-1); font-weight: 700; }
+    .topic-link {
+      display: block;
+      width: 100%;
+      text-align: left;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      padding: 8px 10px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.89rem;
+      text-transform: lowercase;
+      margin-bottom: 4px;
+      transition: all 0.2s ease;
+    }
+    .topic-link:hover { background: #f0fff4; color: var(--green-1); border-color: var(--border); }
+    .topic-link.active { background: #e8faee; color: var(--green-1); border-color: var(--green-2); font-weight: 700; }
+
+    .hero {
+      background: linear-gradient(135deg, var(--bg-soft) 0%, var(--accent-a) 55%, var(--accent-b) 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 12px 30px rgba(24,110,58,0.12);
+      margin-bottom: 22px;
+      animation: riseIn 0.75s ease both;
+    }
+
+    h1, h2, h3 { margin-top: 0; color: var(--green-1); }
+    h1 { font-size: 2rem; margin-bottom: 8px; }
+    code { color: var(--green-1); font-weight: 700; }
+
+    .tag {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      background: var(--green-3);
+      color: var(--green-1);
+      border: 1px solid var(--border);
+      margin-bottom: 10px;
+    }
+
+    .card {
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 16px;
+      box-shadow: 0 7px 22px rgba(18,102,55,0.08);
+      animation: riseIn 0.65s ease both;
+    }
+
+    .topic-panel { display: none; }
+    .topic-panel.active { display: block; }
+    .step-title { margin: 0 0 12px; font-size: 1.25rem; }
+    .side-divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+    .side-section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--green-2);
+      padding: 4px 4px 6px;
+    }
+    .nav-back {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--green-2);
+      background: #e9fbe8;
+      color: var(--green-1);
+      text-decoration: none;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      width: 100%;
+      text-align: center;
+    }
+    .nav-back:hover { background: #d8f7df; transform: translateY(-1px); }
+
+    .note {
+      background: var(--mint);
+      border-left: 4px solid var(--green-2);
+      padding: 10px 14px;
+      color: var(--muted);
+      margin: 12px 0;
+      border-radius: 6px;
+      font-size: 0.94rem;
+    }
+    .warn {
+      background: #fff6e2;
+      border-left: 4px solid #e0a800;
+      padding: 10px 14px;
+      color: #6b4e00;
+      margin: 12px 0;
+      border-radius: 6px;
+      font-size: 0.94rem;
+    }
+    .big-result { font-size: 1.1rem; margin: 18px 0 8px; color: var(--green-1); font-weight: 700; }
+
+    .code {
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 10px;
+      border: 1px solid #2f5a3d;
+      padding: 16px 18px;
+      overflow-x: auto;
+      margin: 10px 0 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95rem;
+      white-space: pre;
+      line-height: 1.7;
+    }
+    .code .cm { color: #6dbf8a; }
+    .code .fn { color: #ffa657; }
+    .code .kw { color: #79c0ff; }
+    .code .num { color: #d2a8ff; }
+    .code .str { color: #ffd580; }
+    .code .hl { background: rgba(125,231,135,0.16); border-radius: 4px; }
+    .code .bad { background: rgba(248,113,113,0.16); border-radius: 4px; }
+
+    .console {
+      background: #101418;
+      color: #e6edf3;
+      border-radius: 10px;
+      border: 1px solid #30363d;
+      padding: 12px 18px;
+      overflow-x: auto;
+      margin: 10px 0 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92rem;
+      white-space: pre;
+      line-height: 1.7;
+    }
+    .console .usr { color: #7ee787; font-weight: 700; }
+    .console .dim { color: #8b949e; }
+
+    .ex-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .88rem;
+      margin: 10px 0 14px;
+    }
+    .ex-table th {
+      background: var(--green-3);
+      color: var(--green-1);
+      padding: 8px 12px;
+      text-align: left;
+      border: 1px solid var(--border);
+      font-size: .78rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+    .ex-table td { padding: 8px 12px; border: 1px solid var(--border); vertical-align: top; }
+    .ex-table tr:nth-child(even) td { background: #f4fff7; }
+    .task-box {
+      background: var(--mint);
+      border: 2px dashed var(--green-2);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin: 14px 0;
+    }
+    .task-box a {
+      color: var(--green-1);
+      font-weight: 800;
+      font-size: 1.02rem;
+      word-break: break-all;
+    }
+    .footer { text-align: center; color: var(--muted); font-size: 0.86rem; padding: 10px 0 16px; }
+
+    .task-list { padding-left: 22px; margin: 10px 0 0; }
+    .task-list li { margin-bottom: 10px; color: #1a3a2a; }
+    .task-list li strong { color: var(--green-1); }
+
+    .ex-title { display: flex; align-items: center; margin: 22px 0 8px; }
+    .ex-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--green-3); border: 2px solid var(--green-2);
+      color: var(--green-1); font-weight: 800; font-size: .88rem;
+      margin-right: 8px; flex-shrink: 0;
+    }
+    .ex-title h3 { margin: 0; font-size: 1.1rem; }
+
+    .kbd {
+      display: inline-block; padding: 2px 8px; border-radius: 6px;
+      background: #f0fff4; border: 1px solid var(--border);
+      border-bottom-width: 3px; font-family: Consolas, monospace;
+      font-size: .85rem; color: var(--green-1); font-weight: 700;
+    }
+
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 6px; }
+    .pill {
+      display: inline-block; padding: 4px 12px; border-radius: 999px;
+      background: #eafcef; border: 1px solid var(--border);
+      color: var(--green-1); font-weight: 700; font-size: .82rem;
+    }
+
+    .submission { background: var(--mint); border-color: var(--green-2); margin-top: 0; }
+    .submission a { color: var(--green-1); font-weight: 800; font-size: 1.05rem; word-break: break-all; }
+
+    .rtl { direction: rtl; text-align: right; }
+    .rtl .task-list { padding-left: 0; padding-right: 22px; }
+    .rtl .ex-title { flex-direction: row-reverse; justify-content: flex-end; }
+    .rtl .ex-num { margin-right: 0; margin-left: 8px; }
+    .rtl .ex-table th, .rtl .ex-table td { text-align: right; }
+    .rtl .pill-row { justify-content: flex-start; }
+
+    /* ── Variable boxes (None visual) ── */
+    .var-strip {
+      display: flex; flex-wrap: wrap; gap: 14px;
+      background: #f5fff9; border: 1px solid var(--border);
+      border-radius: 12px; padding: 16px 18px; margin: 12px 0 14px;
+    }
+    .var-box { text-align: center; min-width: 108px; }
+    .var-box .vname {
+      font-family: Consolas, monospace; font-size: .8rem; font-weight: 700;
+      color: var(--muted); margin-bottom: 5px;
+    }
+    .var-box .vval {
+      display: flex; align-items: center; justify-content: center;
+      height: 46px; border-radius: 10px;
+      font-family: Consolas, monospace; font-weight: 800; font-size: 1rem;
+      background: linear-gradient(160deg, #d6f8e4, #a9ecc6);
+      border: 1px solid #7fd6a3; color: #08351d;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+    }
+    .var-box.empty .vval {
+      background: repeating-linear-gradient(135deg, #f4f7f5 0 8px, #e9efeb 8px 16px);
+      border: 1px dashed #9fb5a8; color: #6d8479; font-style: italic;
+    }
+    .var-box.wrongv .vval {
+      background: linear-gradient(160deg, #ffe0d6, #ffc7b3);
+      border-color: #f0a184; color: #8c3312;
+    }
+    .var-box .vcap { font-size: .72rem; color: var(--muted); margin-top: 5px; }
+
+    /* ── Module toolbox ── */
+    .toolbox {
+      background: #f7fffb; border: 1px solid var(--border);
+      border-radius: 14px; padding: 16px 18px; margin: 14px 0;
+    }
+    .toolbox .tb-head {
+      display: flex; align-items: center; gap: 8px;
+      font-weight: 800; color: var(--green-1); margin-bottom: 10px;
+    }
+    .toolbox .tb-head .tb-ic {
+      width: 30px; height: 30px; border-radius: 9px; flex-shrink: 0;
+      background: linear-gradient(160deg, #2dd4bf, #0d9488);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 1rem;
+    }
+    .tool-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tool {
+      font-family: Consolas, monospace; font-size: .82rem; font-weight: 700;
+      background: #ffffff; border: 1px solid var(--border);
+      border-bottom-width: 3px; border-radius: 9px;
+      padding: 6px 11px; color: var(--green-1);
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .tool:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(18,102,55,0.16); }
+    .tool small { display: block; font-family: "Trebuchet MS", sans-serif; font-weight: 400; color: var(--muted); font-size: .72rem; }
+
+    /* ── Dice strip ── */
+    .dice-strip {
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+      background: #f5fff9; border: 1px solid var(--border);
+      border-radius: 12px; padding: 16px 18px; margin: 12px 0 14px;
+    }
+    .die {
+      width: 46px; height: 46px; border-radius: 11px; flex-shrink: 0;
+      background: linear-gradient(160deg, #ffffff, #eafcf2);
+      border: 2px solid var(--green-2);
+      box-shadow: 0 5px 12px rgba(18,102,55,0.18);
+      display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr);
+      padding: 6px; animation: dieTumble 3.6s ease-in-out infinite;
+    }
+    .die i { width: 7px; height: 7px; border-radius: 50%; background: #0f5a2e; align-self: center; justify-self: center; }
+    .die:nth-child(2) { animation-delay: .3s; }
+    .die:nth-child(3) { animation-delay: .6s; }
+    .die:nth-child(4) { animation-delay: .9s; }
+    .die:nth-child(5) { animation-delay: 1.2s; }
+    @keyframes dieTumble {
+      0%, 70%, 100% { transform: rotate(0deg); }
+      78% { transform: rotate(-9deg) translateY(-4px); }
+      86% { transform: rotate(8deg) translateY(-2px); }
+      94% { transform: rotate(-3deg); }
+    }
+
+    /* ── Two-run comparison ── */
+    .runs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0 14px; }
+    .run-pane { min-width: 0; }
+    .run-pane .run-cap {
+      font-size: .78rem; font-weight: 800; letter-spacing: .04em;
+      text-transform: uppercase; color: var(--green-2); margin-bottom: 4px;
+    }
+    .run-pane .console { margin: 0; font-size: .8rem; white-space: pre-wrap; word-break: break-word; }
+    .run-pane.diff .run-cap { color: #b4530f; }
+    @media (max-width: 700px) { .runs { grid-template-columns: 1fr; } }
+
+    /* ── Lottery balls ── */
+    .balls { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0 14px; justify-content: center; }
+    .ball {
+      width: 44px; height: 44px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: Consolas, monospace; font-weight: 800; font-size: .95rem;
+      color: #08351d;
+      background: radial-gradient(circle at 32% 28%, #ffffff 0%, #b9edd0 46%, #7fd6a3 100%);
+      border: 2px solid #4fbd82;
+      box-shadow: 0 6px 14px rgba(18,102,55,0.22);
+      animation: ballFloat 3.2s ease-in-out infinite;
+    }
+    .ball:nth-child(even) { animation-delay: .5s; }
+    .ball.dup {
+      background: radial-gradient(circle at 32% 28%, #ffffff 0%, #ffdcc9 46%, #ffb894 100%);
+      border-color: #ef9163; color: #8c3312;
+    }
+    @keyframes ballFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+
+    /* ── One-at-a-time slides with prev / next ── */
+    .slide { display: none; animation: riseIn 0.4s ease both; }
+    .slide.active { display: block; }
+    .slide-nav {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border);
+    }
+    .sbtn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 18px; border-radius: 10px;
+      border: 1px solid var(--green-2); background: #e9fbe8;
+      color: var(--green-1); font-family: inherit; font-weight: 700; font-size: .92rem;
+      cursor: pointer; transition: all 0.2s ease;
+    }
+    .sbtn:hover:not(:disabled) { background: #d8f7df; transform: translateY(-1px); }
+    .sbtn:disabled { opacity: .35; cursor: default; }
+    .slide-dots { display: flex; align-items: center; gap: 7px; }
+    .sdot {
+      width: 11px; height: 11px; border-radius: 50%; padding: 0;
+      border: 1px solid var(--green-2); background: #ffffff;
+      cursor: pointer; transition: all 0.2s ease;
+    }
+    .sdot:hover { background: #cdf3da; }
+    .sdot.active { background: var(--green-2); transform: scale(1.25); }
+    .slide-count { font-size: .8rem; font-weight: 700; color: var(--muted); }
+    .slide .ex-title { margin-top: 0; }
+
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes blobMove {
+      from { transform: translate(0, 0) scale(1); }
+      to { transform: translate(24px, 18px) scale(1.06); }
+    }
+
+    @media (max-width: 760px) {
+      .wrap { padding: 14px; }
+      .layout { grid-template-columns: 1fr; }
+      .side-nav { position: static; }
+      h1 { font-size: 1.6rem; }
+      .code { font-size: 0.86rem; }
+      .ex-table { font-size: .8rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <span class="tag">Lesson 10 - July 27, 2026</span>
+    <h1><code>None</code>, Modules &amp; <code>random</code> 🎲</h1>
+    <p>We open with three classroom programs that mix everything so far — a <code>for</code> loop with a <code>while</code> inside it, and two programs that must answer <em>"what if there was nothing at all?"</em>. That question introduces <strong><code>None</code></strong>, Python's official word for "no value yet". Then we meet the throwaway <strong><code>_</code></strong>, learn what <code>import</code> really does, and finish by teaching the computer to <strong>roll dice</strong>.</p>
+  </section>
+
+  <div class="layout">
+    <aside class="side-nav" aria-label="Topic navigation">
+      <div class="side-title">Lesson 10 topics</div>
+
+      <div class="side-section-label">1 · Classroom</div>
+      <button class="topic-link active" data-target="topic-grades">class 1 - max, min &amp; avg</button>
+      <button class="topic-link" data-target="topic-fstring">printing with f-strings</button>
+      <button class="topic-link" data-target="topic-none">None - the empty value</button>
+      <button class="topic-link" data-target="topic-sum">class 2 - sum &amp; max with None</button>
+      <button class="topic-link" data-target="topic-evenodd">class 3 - max even &amp; odd</button>
+
+      <div class="side-section-label">2 · for loop extra</div>
+      <button class="topic-link" data-target="topic-underscore">the _ throwaway</button>
+
+      <div class="side-section-label">3 · Modules</div>
+      <button class="topic-link" data-target="topic-import">import in python</button>
+
+      <div class="side-section-label">4 · random</div>
+      <button class="topic-link" data-target="topic-randint">randint &amp; seed</button>
+      <button class="topic-link" data-target="topic-more-random">random, choice, randrange, sample</button>
+
+      <hr class="side-divider">
+      <button class="topic-link" data-target="topic-github">github folder</button>
+      <button class="topic-link" data-target="topic-exercise">exercise</button>
+      <button class="topic-link" data-target="topic-exercise-heb">exercise - עברית</button>
+
+      <div class="side-section-label">Navigation</div>
+      <a class="nav-back" href="../../index.html#lessons">Back to lessons</a>
+    </aside>
+
+    <main>
+      <!-- ═══ 1 · CLASS EXERCISE 1 ═══ -->
+      <section class="card topic-panel active" id="topic-grades">
+        <span class="tag">class_room.py</span>
+        <h2 class="step-title">Classroom 1 — Max, Min and Average</h2>
+        <p>The task: ask how many students are in the class, then read that many grades. Every grade must be between <code>0</code> and <code>100</code> — anything else is rejected and asked again. At the end print the <strong>highest</strong> grade, the <strong>lowest</strong> grade and the <strong>average</strong>.</p>
+
+        <div class="pill-row">
+          <span class="pill">for → we know how many students</span>
+          <span class="pill">while → we do NOT know how many mistakes</span>
+          <span class="pill">3 trackers: max / min / sum</span>
+        </div>
+
+        <div class="big-result">The full program</div>
+        <div class="code">max_grade = -<span class="num">1</span>             <span class="cm"># lower than any legal grade</span>
+min_grade = <span class="num">101</span>            <span class="cm"># higher than any legal grade</span>
+sum_grade = <span class="num">0</span>
+
+num_students = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'number of students: '</span>))
+
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(num_students):        <span class="cm"># ① exactly num_students rounds</span>
+    grade = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'grade?'</span>))
+
+<span class="hl">    <span class="kw">while</span> grade &lt; <span class="num">0</span> <span class="kw">or</span> grade &gt; <span class="num">100</span>:   <span class="cm"># ② while it is NOT valid</span>
+        <span class="fn">print</span>(<span class="str">'Illegal grade, must be between 0-100'</span>)
+        grade = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'grade?'</span>))     <span class="cm"># ask again!</span></span>
+
+    <span class="kw">if</span> grade &gt;= max_grade:
+        max_grade = grade
+    <span class="kw">if</span> grade &lt;= min_grade:
+        min_grade = grade
+    sum_grade += grade
+
+<span class="fn">print</span>(<span class="str">f'max grade: {max_grade}'</span>)
+<span class="fn">print</span>(<span class="str">f'min grade: {min_grade}'</span>)
+<span class="fn">print</span>(<span class="str">f'avg grade: {sum_grade / num_students}'</span>)</div>
+
+        <div class="console">number of students: <span class="usr">3</span>
+grade?<span class="usr">80</span>
+grade?<span class="usr">140</span>
+Illegal grade, must be between 0-100
+grade?<span class="usr">-5</span>
+Illegal grade, must be between 0-100
+grade?<span class="usr">90</span>
+grade?<span class="usr">70</span>
+max grade: 90
+min grade: 70
+avg grade: 80.0</div>
+
+        <div class="big-result">A <code>for</code> and a <code>while</code> in the same program</div>
+        <p>This is the first time the two loops work <strong>together</strong>, and each one is doing the job it is good at:</p>
+        <table class="ex-table">
+          <thead><tr><th>Loop</th><th>Its job</th><th>Why that loop</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>for i in range(num_students)</code></td>
+              <td>read one grade per student</td>
+              <td>we know the count <em>before</em> we start — the user just told us</td>
+            </tr>
+            <tr>
+              <td><code>while grade &lt; 0 or grade &gt; 100</code></td>
+              <td>keep asking until the grade is legal</td>
+              <td>nobody knows how many times the user will type junk — it could be zero times or ten</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="note">
+          <strong>Read the <code>while</code> out loud:</strong> "<em>while the grade is not valid — complain and ask again</em>". If the first grade was already fine, the condition is <code>False</code> immediately and the loop body runs <strong>zero</strong> times. That is not a bug — that is the normal, happy case.
+        </div>
+        <div class="warn">
+          <strong>The trap:</strong> forgetting the second <code>input</code> <em>inside</em> the <code>while</code>. Without it <code>grade</code> never changes, the condition stays <code>True</code> forever, and the program prints <code>Illegal grade</code> until you kill it. Every <code>while</code> needs something in its body that can make the condition become <code>False</code>.
+        </div>
+
+      </section>
+
+      <!-- ═══ 1b · F-STRINGS ═══ -->
+      <section class="card topic-panel" id="topic-fstring">
+        <span class="tag">class_room.py</span>
+        <h2 class="step-title">Printing with an f-string</h2>
+        <p>Two ways to print the same sentence — the second one is what we will use from now on:</p>
+        <div class="code">a = <span class="num">1</span>
+b = <span class="num">2</span>
+c = <span class="num">3</span>
+
+<span class="fn">print</span>(a, <span class="str">'+'</span>, b, <span class="str">'='</span>, c)   <span class="cm"># commas: print adds a space between the pieces</span>
+<span class="fn">print</span>(<span class="str">f'{a} + {b} = {c}'</span>)   <span class="cm"># f-string: one sentence, values in { }</span></div>
+        <div class="console">1 + 2 = 3
+1 + 2 = 3</div>
+        <div class="note">
+          The <code>f</code> before the quote turns the string into a <strong>f</strong>ormatted string. Anything inside <code>{ }</code> is <em>evaluated</em> and its value dropped into place — even an expression: <code>f'sum: {a + b}'</code> prints <code>sum: 3</code>. Without the <code>f</code> you get the literal text <code>{a} + {b}</code>.
+        </div>
+      </section>
+
+      <!-- ═══ 2 · NONE ═══ -->
+      <section class="card topic-panel" id="topic-none">
+        <span class="tag">New</span>
+        <h2 class="step-title"><code>None</code> — The Value That Means "Nothing Yet"</h2>
+        <p>Every tracker so far had to start at some number, and we had to <em>invent</em> that number: <code>max_grade = -1</code>, <code>min_grade = 101</code>. It works when you know the legal range. But what is the starting value for "the largest number the user will type" when the user may type <strong>any</strong> number, positive or negative?</p>
+
+        <div class="warn">
+          There is no such number. <code>max_number = 0</code> is wrong the moment every input is negative — the program would proudly announce a maximum of <code>0</code>, a number the user never typed.
+        </div>
+
+        <p>Python has a value for exactly this situation:</p>
+        <div class="code">max_number = <span class="kw">None</span>     <span class="cm"># "there is no maximum yet"</span></div>
+
+        <div class="var-strip">
+          <div class="var-box empty"><div class="vname">max_number</div><div class="vval">None</div><div class="vcap">honest: nothing yet</div></div>
+          <div class="var-box wrongv"><div class="vname">max_number</div><div class="vval">0</div><div class="vcap">a lie: 0 is a real number<br>the user never typed</div></div>
+          <div class="var-box"><div class="vname">max_number</div><div class="vval">-5</div><div class="vcap">after the first input<br>— now it is real</div></div>
+        </div>
+
+        <div class="big-result">Three things to know about <code>None</code></div>
+        <table class="ex-table">
+          <thead><tr><th>Fact</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td>Capital <code>N</code></td><td><code>None</code> — not <code>none</code>, not <code>NONE</code>, not <code>"None"</code>. Python is case-sensitive and <code>none</code> gives a <code>NameError</code>.</td></tr>
+            <tr><td>It is <strong>not</strong> <code>0</code></td><td><code>0</code> is a number you can add. <code>None</code> is the <em>absence</em> of a value. <code>None + 1</code> is a <code>TypeError</code>, not <code>1</code>.</td></tr>
+            <tr><td>It is <strong>not</strong> <code>""</code></td><td>An empty string is still a string. <code>None</code> is not a string at all.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="big-result">Testing for <code>None</code> — use <code>is</code></div>
+        <div class="code"><span class="kw">if</span> max_number <span class="hl"><span class="kw">is</span> <span class="kw">None</span></span>:          <span class="cm"># ✅ the Python way</span>
+    ...
+
+<span class="kw">if</span> max_number == <span class="kw">None</span>:          <span class="cm"># works, but nobody writes it</span>
+    ...</div>
+        <div class="note">
+          <code>==</code> asks "<em>do these two have the same value?</em>". <code>is</code> asks "<em>are these literally the same thing?</em>". There is only ever <strong>one</strong> <code>None</code> in a running Python program, so <code>is None</code> is both faster and the accepted style. Its opposite is <code>is not None</code>.
+        </div>
+
+        <div class="big-result">The pattern you will use forever</div>
+        <p>Start at <code>None</code>, then on every round ask <em>"is this the first value, or is it bigger than the best so far?"</em>:</p>
+        <div class="code">max_number = <span class="kw">None</span>
+
+<span class="cm"># ... inside the loop ...</span>
+<span class="kw">if</span> max_number <span class="kw">is</span> <span class="kw">None</span> <span class="kw">or</span> num &gt; max_number:
+    max_number = num</div>
+        <div class="warn">
+          <strong>The order of the two tests matters.</strong> Python reads <code>or</code> left to right and stops as soon as one side is <code>True</code> — so when <code>max_number is None</code> is <code>True</code>, the comparison <code>num &gt; max_number</code> is <strong>never executed</strong>. Swap the two sides and the program crashes on the very first round with<br><code>TypeError: '&gt;' not supported between instances of 'int' and 'NoneType'</code>.
+        </div>
+        <div class="note">
+          This is called <strong>short-circuit evaluation</strong>, and you have been using it since the <code>and</code>/<code>or</code> lesson. Here it stops being a curiosity and becomes the thing that keeps your program alive.
+        </div>
+
+        <div class="big-result">Printing <code>None</code> is fine</div>
+        <div class="code"><span class="fn">print</span>(<span class="str">f'max: {max_number}'</span>)</div>
+        <div class="console">max: None</div>
+        <div class="note">
+          If the loop never ran, the variable is still <code>None</code> and the program says so — an honest <code>None</code> instead of a made-up <code>0</code>. That is exactly the report we want.
+        </div>
+      </section>
+
+      <!-- ═══ 3 · CLASS EXERCISE 2 ═══ -->
+      <section class="card topic-panel" id="topic-sum">
+        <span class="tag">class_room.py</span>
+        <h2 class="step-title">Classroom 2 — Sum &amp; Max, With Nothing Allowed</h2>
+        <p>The task: read numbers until the user types <code>exit</code>, then print their <strong>sum</strong> and the <strong>largest</strong> one. The twist: if the user types <code>exit</code> straight away, both answers must be <code>None</code> — not <code>0</code>.</p>
+
+        <div class="pill-row">
+          <span class="pill">while True + break</span>
+          <span class="pill">exit is text → convert after the check</span>
+          <span class="pill">both trackers start at None</span>
+        </div>
+
+        <div class="code">sum_num = <span class="kw">None</span>
+max_number = <span class="kw">None</span>
+
+<span class="kw">while</span> <span class="kw">True</span>:
+<span class="hl">    num = <span class="fn">input</span>(<span class="str">'number?'</span>)      <span class="cm"># ← input(), NOT int(input())</span>
+    <span class="kw">if</span> num == <span class="str">'exit'</span>:
+        <span class="kw">break</span>
+    num = <span class="fn">int</span>(num)              <span class="cm"># now it is safe to convert</span></span>
+
+    <span class="kw">if</span> max_number <span class="kw">is</span> <span class="kw">None</span> <span class="kw">or</span> num &gt; max_number:
+        max_number = num
+
+    <span class="kw">if</span> sum_num <span class="kw">is</span> <span class="kw">None</span>:
+        sum_num = num                <span class="cm"># first number — start the sum</span>
+    <span class="kw">else</span>:
+        sum_num += num               <span class="cm"># every number after — add to it</span>
+
+<span class="fn">print</span>(<span class="str">'sum='</span>, sum_num)
+<span class="fn">print</span>(<span class="str">'max='</span>, max_number)</div>
+
+        <div class="runs">
+          <div class="run-pane">
+            <div class="run-cap">some numbers</div>
+            <div class="console">number?<span class="usr">4</span>
+number?<span class="usr">-9</span>
+number?<span class="usr">12</span>
+number?<span class="usr">exit</span>
+sum= 7
+max= 12</div>
+          </div>
+          <div class="run-pane diff">
+            <div class="run-cap">nothing at all</div>
+            <div class="console">number?<span class="usr">exit</span>
+sum= None
+max= None</div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ═══ 4 · CLASS EXERCISE 3 ═══ -->
+      <section class="card topic-panel" id="topic-evenodd">
+        <span class="tag">class_room.py</span>
+        <h2 class="step-title">Classroom 3 — Biggest Even, Biggest Odd</h2>
+        <p>Read numbers until <code>0</code>. Print the largest <strong>even</strong> number and the largest <strong>odd</strong> number. If one of the groups stayed empty — print <code>None</code> for it.</p>
+
+        <div class="code">max_even = <span class="kw">None</span>   <span class="cm"># Zugi</span>
+max_odd = <span class="kw">None</span>    <span class="cm"># e-Zugi</span>
+
+<span class="kw">while</span> <span class="kw">True</span>:
+    num = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'number [0 to exit]?'</span>))
+    <span class="kw">if</span> num == <span class="num">0</span>:
+        <span class="kw">break</span>
+
+    <span class="kw">if</span> num % <span class="num">2</span> == <span class="num">0</span>:
+        <span class="kw">if</span> max_even <span class="kw">is</span> <span class="kw">None</span> <span class="kw">or</span> num &gt; max_even:
+            max_even = num
+
+    <span class="kw">if</span> num % <span class="num">2</span> == <span class="num">1</span>:
+        <span class="kw">if</span> max_odd <span class="kw">is</span> <span class="kw">None</span> <span class="kw">or</span> num &gt; max_odd:
+            max_odd = num
+
+<span class="fn">print</span>(<span class="str">f'max even: {max_even}'</span>)
+<span class="fn">print</span>(<span class="str">f'max odd: {max_odd}'</span>)</div>
+
+        <div class="big-result">Three runs from the whiteboard</div>
+        <table class="ex-table">
+          <thead><tr><th>Input</th><th>max even</th><th>max odd</th><th>Why</th></tr></thead>
+          <tbody>
+            <tr><td><code>0</code></td><td><code>None</code></td><td><code>None</code></td><td>both groups are empty — nothing was ever typed</td>
+            </tr>
+            <tr><td><code>8 12 4 0</code></td><td><code>12</code></td><td><code>None</code></td><td>every number was even, so the odd tracker was never touched</td></tr>
+            <tr><td><code>4 8 -5 -7 30 0</code></td><td><code>30</code></td><td><code>-5</code></td><td>the only odd numbers are negative — a <code>max_odd = 0</code> start would have printed <code>0</code>, which is wrong <em>and</em> even</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          The third row is the whole reason <code>None</code> exists in this program. With two <strong>separate</strong> <code>if</code>s (not <code>elif</code>) each group asks its own independent question, and each keeps its own independent "nothing yet".
+        </div>
+
+      </section>
+
+      <!-- ═══ 5 · UNDERSCORE ═══ -->
+      <section class="card topic-panel" id="topic-underscore">
+        <span class="tag">New</span>
+        <h2 class="step-title">The Throwaway Variable <code>_</code></h2>
+        <p>A <code>for</code> loop always needs a name for its counter, even when the loop is only there to repeat something. Look at these two — they do the exact same thing:</p>
+
+        <div class="runs">
+          <div class="run-pane">
+            <div class="run-cap">i is used</div>
+            <div class="code" style="margin:0;"><span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">5</span>):
+    <span class="fn">print</span>(<span class="str">f'round {i}'</span>) <span class="cm"># i matters</span></div>
+          </div>
+          <div class="run-pane">
+            <div class="run-cap">i is never used</div>
+            <div class="code" style="margin:0;"><span class="kw">for</span> <span class="hl">_</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="num">5</span>):
+    <span class="fn">print</span>(<span class="str">'hello'</span>) <span class="cm"># repeat 5×</span></div>
+          </div>
+        </div>
+
+        <div class="note">
+          <code>_</code> is an ordinary variable name — nothing magic. Python does not treat it specially. What is special is the <strong>message it sends to the reader</strong>: "<em>this loop needs a counter, but I am never going to look at it</em>".
+        </div>
+
+        <div class="big-result">Read it as "do this N times"</div>
+        <div class="code"><span class="cm"># print 50 random numbers between 1 and 36</span>
+<span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="num">50</span>):
+    num = random.randint(<span class="num">1</span>, <span class="num">36</span>)
+    <span class="fn">print</span>(num, end=<span class="str">' '</span>)
+<span class="fn">print</span>()</div>
+        <div class="note">
+          Nothing inside the body mentions the counter — the loop is pure repetition. Using <code>_</code> makes that obvious at a glance, and it also stops the editor from warning you about an unused variable.
+        </div>
+
+        <table class="ex-table">
+          <thead><tr><th>Write</th><th>When</th></tr></thead>
+          <tbody>
+            <tr><td><code>for i in range(n):</code></td><td>the body uses <code>i</code> — as a row number, a counter, a value to print</td></tr>
+            <tr><td><code>for _ in range(n):</code></td><td>the body ignores the counter — "just do it <code>n</code> times"</td></tr>
+          </tbody>
+        </table>
+        <div class="warn">
+          Both are correct code. Using <code>i</code> and ignoring it is not an error — but a reader who sees <code>i</code> starts hunting for where it is used. <code>_</code> saves them the search.
+        </div>
+      </section>
+
+      <!-- ═══ 6 · IMPORT ═══ -->
+      <section class="card topic-panel" id="topic-import">
+        <span class="tag">New</span>
+        <h2 class="step-title"><code>import</code> — Borrowing Code Someone Else Wrote</h2>
+        <p>Until today every tool we used — <code>print</code>, <code>input</code>, <code>int</code>, <code>range</code> — was <strong>built in</strong>: always there, no setup. But Python ships with hundreds more tools that are <em>not</em> loaded by default. They live in <strong>modules</strong>, and you ask for one with <code>import</code>.</p>
+
+        <div class="code"><span class="kw">import</span> random     <span class="cm"># at the TOP of the file, once</span></div>
+
+        <div class="toolbox">
+          <div class="tb-head"><span class="tb-ic">🧰</span> what <code>import random</code> puts on your desk</div>
+          <div class="tool-grid">
+            <span class="tool">random.randint<small>whole number in a range</small></span>
+            <span class="tool">random.random<small>float 0.0 → 0.999…</small></span>
+            <span class="tool">random.choice<small>pick one item</small></span>
+            <span class="tool">random.randrange<small>pick from a range with a step</small></span>
+            <span class="tool">random.sample<small>several, no repeats</small></span>
+            <span class="tool">random.seed<small>make it repeatable</small></span>
+          </div>
+        </div>
+
+        <div class="big-result">Why the dot?</div>
+        <p><code>import random</code> does <strong>not</strong> dump the names into your program. It creates one name — <code>random</code> — and everything inside is reached through it:</p>
+        <div class="code">num = <span class="hl">random.</span>randint(<span class="num">1</span>, <span class="num">6</span>)   <span class="cm">#  module . function</span></div>
+        <div class="note">
+          Drop the dot and Python has never heard of the name: <code>randint(1, 6)</code> gives <code>NameError: name 'randint' is not defined</code>. Forget the <code>import</code> line and you get the same error about <code>random</code> itself.
+        </div>
+        <div class="warn">
+          <strong>Never name your file after a module you import.</strong> A file called <code>random.py</code> makes Python import <em>your</em> file instead of the real one — <code>math.py</code> and <code>time.py</code> are the same landmine.
+        </div>
+
+        <div class="big-result">Reading the manual without leaving Python — <code>help()</code></div>
+        <p>Do not remember whether <code>randint(1, 6)</code> can return <code>6</code>? Ask Python itself:</p>
+        <div class="code"><span class="kw">import</span> random
+
+<span class="fn">help</span>(random.randint)</div>
+        <div class="console"><span class="dim">Help on method randint in module random:
+
+randint(a, b) method of random.Random instance
+    Return random integer in range [a, b], including both end points.</span></div>
+        <div class="note">
+          <strong>"including both end points"</strong> — that one sentence answers the question. Note how different this is from <code>range(1, 6)</code>, which stops at <code>5</code>. Write <code>help(random.random)</code>, <code>help(print)</code>, <code>help(str)</code> — every built-in tool carries its own documentation. In PyCharm, <span class="kbd">Ctrl</span>+<span class="kbd">Q</span> on a function name shows the same text in a popup.
+        </div>
+      </section>
+
+      <!-- ═══ 7 · RANDINT & SEED ═══ -->
+      <section class="card topic-panel" id="topic-randint">
+        <span class="tag">01_random.py</span>
+        <h2 class="step-title"><code>randint</code> — Rolling Dice, and <code>seed</code> — Rolling the Same Dice Twice</h2>
+        <p>The whole point of a game is that you cannot predict it. <code>random.randint(a, b)</code> gives a whole number between <code>a</code> and <code>b</code>, <strong>both included</strong>:</p>
+
+        <div class="code"><span class="kw">import</span> random
+
+x = random.randint(<span class="num">10</span>, <span class="num">20</span>)   <span class="cm"># 10, 11, 12 ... 19 or 20</span>
+<span class="fn">print</span>(x)</div>
+
+        <div class="dice-strip">
+          <div class="die"><i></i><i style="visibility:hidden"></i><i style="visibility:hidden"></i><i style="visibility:hidden"></i><i></i><i style="visibility:hidden"></i><i style="visibility:hidden"></i><i style="visibility:hidden"></i><i></i></div>
+          <div class="die"><i></i><i style="visibility:hidden"></i><i></i><i style="visibility:hidden"></i><i style="visibility:hidden"></i><i style="visibility:hidden"></i><i></i><i style="visibility:hidden"></i><i></i></div>
+          <div class="die"><i style="visibility:hidden"></i><i style="visibility:hidden"></i><i style="visibility:hidden"></i><i style="visibility:hidden"></i><i></i><i style="visibility:hidden"></i><i style="visibility:hidden"></i><i style="visibility:hidden"></i><i style="visibility:hidden"></i></div>
+          <div class="die"><i></i><i style="visibility:hidden"></i><i></i><i></i><i style="visibility:hidden"></i><i></i><i></i><i style="visibility:hidden"></i><i></i></div>
+          <div class="die"><i></i><i style="visibility:hidden"></i><i></i><i style="visibility:hidden"></i><i></i><i style="visibility:hidden"></i><i></i><i style="visibility:hidden"></i><i></i></div>
+          <span style="font-family:Consolas,monospace;font-weight:700;color:#0f5a2e;">← <code>random.randint(1, 6)</code>, five times</span>
+        </div>
+
+        <div class="warn">
+          <strong><code>randint</code> includes the top, <code>range</code> does not.</strong> <code>random.randint(1, 6)</code> can return <code>6</code>. <code>range(1, 6)</code> stops at <code>5</code>. Two functions, two different rules — this is the single most common mix-up of the lesson.
+        </div>
+
+        <div class="big-result">Many numbers — <code>_</code> and <code>randint</code> together</div>
+        <div class="code"><span class="cm"># print 50 random numbers between 1 and 36</span>
+<span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="num">50</span>):
+    num = random.randint(<span class="num">1</span>, <span class="num">36</span>)
+    <span class="fn">print</span>(num, end=<span class="str">' '</span>)
+<span class="fn">print</span>()</div>
+        <div class="note">
+          Run it twice and you get 50 completely different numbers. Which is wonderful for a game — and a nightmare when you are trying to <em>debug</em> one.
+        </div>
+
+        <div class="big-result"><code>random.seed()</code> — the same "random" every time</div>
+        <p>Computers cannot actually be random. They run a formula that produces numbers that <em>look</em> random, and that formula needs a starting point — the <strong>seed</strong>. Normally Python picks the seed from the clock, so every run differs. Choose the seed yourself and the whole sequence becomes repeatable:</p>
+        <div class="code"><span class="kw">import</span> random
+
+<span class="hl">random.seed(<span class="num">42</span>)</span>
+
+<span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="num">50</span>):
+    num = random.randint(<span class="num">1</span>, <span class="num">36</span>)
+    <span class="fn">print</span>(num, end=<span class="str">' '</span>)
+<span class="fn">print</span>()</div>
+
+        <div class="runs">
+          <div class="run-pane">
+            <div class="run-cap">run #1 — seed 42</div>
+            <div class="console">8 2 18 16 15 9 7 35 6 28 3 2 6 14 15 33 2 36 13 35 27 15 29 18 1 11 28 22 18 10 14 22 7 6 25 7 23 23 17 3 30 35 8 25 6 36 19 24 13 5</div>
+          </div>
+          <div class="run-pane">
+            <div class="run-cap">run #2 — seed 42</div>
+            <div class="console">8 2 18 16 15 9 7 35 6 28 3 2 6 14 15 33 2 36 13 35 27 15 29 18 1 11 28 22 18 10 14 22 7 6 25 7 23 23 17 3 30 35 8 25 6 36 19 24 13 5</div>
+          </div>
+        </div>
+        <p>Change only the range and the sequence changes with it — but it is still the <em>same</em> sequence on every run:</p>
+        <div class="runs">
+          <div class="run-pane diff">
+            <div class="run-cap">seed 42 · randint(1, 5)</div>
+            <div class="console">1 1 3 2 2 2 1 5 1 5 4 1 1 1 2 2 5 5 1 5 2 5 4 2 4 5 3 1 2 4 3 3 2 2 3 1 1 4 1 3 3 5 3 1 4 5 1 4 1 5</div>
+          </div>
+          <div class="run-pane diff">
+            <div class="run-cap">seed 42 · randint(1, 10)</div>
+            <div class="console">2 1 5 4 4 3 2 9 2 10 7 1 1 2 4 4 9 10 1 9 4 9 7 4 8 10 5 1 3 7 6 5 3 4 6 2 2 7 2 6 6 10 5 1 8 9 2 7 2 9</div>
+          </div>
+        </div>
+
+        <table class="ex-table">
+          <thead><tr><th>Situation</th><th>Seed or not?</th></tr></thead>
+          <tbody>
+            <tr><td>a real game — dice, cards, lottery</td><td><strong>no seed.</strong> Let the clock decide, so every game is different.</td></tr>
+            <tr><td>hunting a bug that only shows up "sometimes"</td><td><strong>seed it.</strong> Same numbers every run = a bug you can reproduce.</td></tr>
+            <tr><td>a homework whose output the teacher must match</td><td><strong>seed it.</strong> Everyone gets identical output.</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          <code>42</code> is not magic — any number works, and a different seed gives a different (but equally repeatable) sequence. Call <code>random.seed()</code> <strong>once</strong>, at the start. Calling it inside a loop re-starts the sequence every round and you get the same number over and over.
+        </div>
+      </section>
+
+      <!-- ═══ 8 · MORE RANDOM ═══ -->
+      <section class="card topic-panel" id="topic-more-random">
+        <span class="tag">01_random.py</span>
+        <h2 class="step-title">Four More Tools from the <code>random</code> Box</h2>
+        <p>One tool at a time — use <strong>next</strong> and <strong>prev</strong> at the bottom to move through them.</p>
+
+        <div class="slides" id="random-slides">
+
+        <div class="slide active">
+        <div class="ex-title"><span class="ex-num">1</span><h3><code>random.random()</code> — a float between 0 and 1</h3></div>
+        <div class="code"><span class="fn">help</span>(random.random)
+
+float_rnd = random.random()
+<span class="fn">print</span>(float_rnd)   <span class="cm"># 0.0 up to 0.999999...</span></div>
+        <div class="console">0.6394267984578837</div>
+        <div class="note">
+          Note the empty parentheses — <code>random.random()</code> takes <strong>no arguments</strong>. It always gives the same range: <code>0.0</code> is possible, <code>1.0</code> never is. It is the raw material every other function in the module is built on, and it is what you want for percentages: <code>if random.random() &lt; 0.3:</code> happens roughly 30% of the time.
+        </div>
+        </div>
+
+        <div class="slide">
+        <div class="ex-title"><span class="ex-num">2</span><h3><code>random.choice(...)</code> — pick one out of a group</h3></div>
+        <p><code>randint</code> only gives numbers. <code>choice</code> picks one item out of a group you write yourself — numbers, text, even <code>None</code>:</p>
+        <div class="code"><span class="cm"># random between choices: [1, 3, 5, None, -2, 7, "hello"]</span>
+<span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="num">10</span>):
+    <span class="fn">print</span>(random.choice([<span class="num">1</span>, <span class="num">3</span>, <span class="num">5</span>, <span class="kw">None</span>, -<span class="num">2</span>, <span class="num">7</span>, <span class="str">"hello"</span>]), end=<span class="str">" "</span>)
+<span class="fn">print</span>()</div>
+        <div class="console">5 3 None 7 1 1 hello -2 1 5 </div>
+        <div class="note">
+          The square brackets make a <strong>list</strong> — the subject of a whole future lesson. For today just read it as "one of these". Notice items can repeat (<code>1</code> came out three times) and that a list can hold different kinds of things at once, <code>None</code> included.
+        </div>
+        </div>
+
+        <div class="slide">
+        <div class="ex-title"><span class="ex-num">3</span><h3><code>random.randrange(start, stop, step)</code> — a random member of a <code>range</code></h3></div>
+        <p>Same three numbers as <code>range()</code>, same rules — but instead of walking through them all, it hands you <strong>one</strong> at random:</p>
+        <div class="code"><span class="cm"># the numbers of: for _ in range(3, 30 + 3, 3)  →  3 6 9 12 15 18 21 24 27 30</span>
+<span class="cm"># identical to: random.choice([3, 6, 9, 12, 15, 18, 21, 24, 27, 30])</span>
+<span class="fn">print</span>(random.randrange(<span class="num">3</span>, <span class="num">30</span> + <span class="num">3</span>, <span class="num">3</span>))</div>
+        <div class="console">18</div>
+        <table class="ex-table">
+          <thead><tr><th>Function</th><th>Top value</th><th>Step</th></tr></thead>
+          <tbody>
+            <tr><td><code>random.randint(1, 6)</code></td><td><strong>included</strong> — <code>6</code> can come out</td><td>always 1</td></tr>
+            <tr><td><code>random.randrange(1, 6)</code></td><td><strong>excluded</strong> — never <code>6</code></td><td>any step you like</td></tr>
+          </tbody>
+        </table>
+        <div class="warn">
+          <code>randrange</code> follows the <code>range</code> rule (stop excluded), <code>randint</code> does not. Remember it as: <em>rand<strong>range</strong> behaves like <strong>range</strong></em>.
+        </div>
+        </div>
+
+        <div class="slide">
+        <div class="ex-title"><span class="ex-num">4</span><h3><code>random.sample(group, k)</code> — several, with no repeats</h3></div>
+        <p>Call <code>randint</code> six times for a lottery draw and sooner or later the same ball comes out twice. <code>sample</code> is the function that cannot do that — it takes <code>k</code> different items:</p>
+        <div class="code"><span class="cm"># no repetition - 1 time each number</span>
+<span class="fn">print</span>(random.sample(<span class="fn">range</span>(<span class="num">1</span>, <span class="num">10</span> + <span class="num">1</span>), <span class="num">10</span>))</div>
+        <div class="console">[6, 3, 7, 10, 1, 8, 5, 2, 4, 9]</div>
+        <div class="balls">
+          <span class="ball">6</span><span class="ball">3</span><span class="ball">7</span><span class="ball">10</span><span class="ball">1</span>
+          <span class="ball">8</span><span class="ball">5</span><span class="ball">2</span><span class="ball">4</span><span class="ball">9</span>
+        </div>
+        <div class="note">
+          All ten numbers <code>1..10</code> came out, each exactly once, in a shuffled order — <code>sample</code> with <code>k</code> equal to the group size is a <strong>shuffle</strong>. Ask for fewer and you get a draw: <code>random.sample(range(1, 37), 6)</code> is a lottery ticket.
+        </div>
+        <div class="warn">
+          Asking for more than exists — <code>random.sample(range(1, 5), 10)</code> — raises <code>ValueError: Sample larger than population</code>. There simply are not 10 different numbers to give you.
+        </div>
+        </div>
+
+        <div class="slide">
+        <div class="ex-title"><span class="ex-num">5</span><h3>The whole box on one page</h3></div>
+        <table class="ex-table">
+          <thead><tr><th>Call</th><th>Gives you</th><th>Example result</th></tr></thead>
+          <tbody>
+            <tr><td><code>random.randint(1, 6)</code></td><td>whole number, both ends included</td><td><code>4</code></td></tr>
+            <tr><td><code>random.random()</code></td><td>float from <code>0.0</code> to just under <code>1.0</code></td><td><code>0.639…</code></td></tr>
+            <tr><td><code>random.choice([...])</code></td><td>one item from the group</td><td><code>'hello'</code></td></tr>
+            <tr><td><code>random.randrange(3, 33, 3)</code></td><td>one member of that range</td><td><code>18</code></td></tr>
+            <tr><td><code>random.sample(range(1, 11), 10)</code></td><td><code>k</code> items, never the same one twice</td><td><code>[6, 3, 7, …]</code></td></tr>
+            <tr><td><code>random.seed(42)</code></td><td>nothing — it makes everything above repeatable</td><td>—</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="slide-nav">
+          <button class="sbtn" id="slide-prev" type="button">‹ prev</button>
+          <div class="slide-dots" id="slide-dots"></div>
+          <span class="slide-count" id="slide-count"></span>
+          <button class="sbtn" id="slide-next" type="button">next ›</button>
+        </div>
+
+        </div>
+      </section>
+
+      <!-- ═══ GITHUB ═══ -->
+      <section class="card topic-panel" id="topic-github">
+        <span class="tag">GitHub</span>
+        <h2 class="step-title">Lesson 10 GitHub Folder</h2>
+        <p>All the code from today's lesson — the three classroom programs and every <code>random</code> example:</p>
+        <div class="task-box">
+          <strong>Lesson folder:</strong><br>
+          <a href="https://github.com/pythonai080626-a11y/27.07.2026" target="_blank" rel="noopener">
+            https://github.com/pythonai080626-a11y/27.07.2026
+          </a>
+        </div>
+        <table class="ex-table">
+          <thead><tr><th>File</th><th>What it shows</th></tr></thead>
+          <tbody>
+            <tr><td>class_room.py</td><td>max / min / average with <code>for</code> + <code>while</code>, f-strings, and the two <code>None</code> programs (sum &amp; max, biggest even &amp; odd)</td></tr>
+            <tr><td>01_random.py</td><td><code>import random</code>, <code>help()</code>, <code>randint</code>, <code>seed</code>, <code>random()</code>, <code>choice</code>, <code>randrange</code>, <code>sample</code> — and <code>for _ in range(...)</code></td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          Related topic pages: <a href="../../07_none/index.html">None &amp; the Underscore</a> and <a href="../../08_random/index.html">Random &amp; Modules</a>.
+        </div>
+      </section>
+
+      <!-- ═══ EXERCISE (English) ═══ -->
+      <section class="card topic-panel" id="topic-exercise">
+        <span class="tag">Homework</span>
+        <h2 class="step-title">1 Exercise</h2>
+        <p>This exercise is <strong>Python only</strong><br>
+           Write it as a <code>.py</code> file in PyCharm and run with <span class="kbd">Shift</span> + <span class="kbd">F10</span><br>
+           It needs <code>import random</code> at the top of the file.</p>
+
+        <!-- Exercise 1 -->
+        <div class="ex-title">
+          <span class="ex-num">1</span>
+          <h3>Guess the number 🎯</h3>
+        </div>
+        <p>The computer picks a secret number with <code>random.randint(1, 100)</code>. The player guesses again and again; after every guess print <strong>too high</strong> or <strong>too low</strong>, until the guess is right. Then print how many guesses it took.</p>
+        <div class="console">I picked a number between 1 and 100
+guess?<span class="usr">50</span>
+too high
+guess?<span class="usr">25</span>
+too low
+guess?<span class="usr">37</span>
+too low
+guess?<span class="usr">43</span>
+correct! it took you 4 guesses</div>
+        <div class="note">
+          <strong>Hint:</strong> you do not know how many guesses the player needs → this is a <code>while True</code> with a <code>break</code>, not a <code>for</code>. Keep a counter that starts at <code>0</code> and does <code>+= 1</code> on every guess.
+        </div>
+        <div class="note">
+          <strong>Bonus — use <code>None</code>:</strong> wrap the whole game in an outer loop so the player can play again. Keep <code>best_score = None</code> <em>outside</em> that loop and update it with <code>if best_score is None or guesses &lt; best_score:</code>. At the end print the best score — and <code>None</code> if no game was ever finished.
+        </div>
+        <div class="note">
+          <strong>Bonus 2:</strong> add <code>random.seed(1)</code> as the first line while you are testing. The secret number stops changing, so you can check your <em>too high / too low</em> logic without re-guessing every run — then delete the line when the game works.
+        </div>
+
+        <div class="big-result">Submission</div>
+        <div class="card submission">
+          <ol class="task-list">
+            <li><strong>Write the .py program</strong> in PyCharm.</li>
+            <li><strong>Upload it to GitHub</strong> and send the link to:<br>
+              <a href="mailto:pythonai080626+hw10@gmail.com">pythonai080626+hw10@gmail.com</a>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ═══ EXERCISE (Hebrew) ═══ -->
+      <section class="card topic-panel rtl" id="topic-exercise-heb" lang="he" dir="rtl">
+        <span class="tag">שיעורי בית</span>
+        <h2 class="step-title">תרגיל 1</h2>
+        <p>התרגיל הוא <strong>בפייתון בלבד</strong><br>
+           כתבו אותו בקובץ <code>.py</code> ב-PyCharm והריצו עם <span class="kbd">Shift</span> + <span class="kbd">F10</span><br>
+           צריך <code>import random</code> בראש הקובץ.</p>
+
+        <!-- Exercise 1 -->
+        <div class="ex-title">
+          <span class="ex-num">1</span>
+          <h3>נחשו את המספר 🎯</h3>
+        </div>
+        <p>המחשב בוחר מספר סודי עם <code>random.randint(1, 100)</code>. השחקן מנחש שוב ושוב; אחרי כל ניחוש הדפיסו <strong>too high</strong> או <strong>too low</strong>, עד שהניחוש נכון. בסוף הדפיסו כמה ניחושים לקח.</p>
+        <div class="console" dir="ltr">I picked a number between 1 and 100
+guess?<span class="usr">50</span>
+too high
+guess?<span class="usr">25</span>
+too low
+guess?<span class="usr">37</span>
+too low
+guess?<span class="usr">43</span>
+correct! it took you 4 guesses</div>
+        <div class="note">
+          <strong>רמז:</strong> אתם לא יודעים כמה ניחושים יידרשו → זו לולאת <code>while True</code> עם <code>break</code>, לא <code>for</code>. החזיקו מונה שמתחיל ב-<code>0</code> ועושה <code>+= 1</code> בכל ניחוש.
+        </div>
+        <div class="note">
+          <strong>בונוס — שימוש ב-<code>None</code>:</strong> עטפו את כל המשחק בלולאה חיצונית כדי לאפשר משחק נוסף. שמרו <code>best_score = None</code> <em>מחוץ</em> ללולאה הזו ועדכנו עם <code>if best_score is None or guesses &lt; best_score:</code>. בסוף הדפיסו את התוצאה הטובה ביותר — ו-<code>None</code> אם אף משחק לא הסתיים.
+        </div>
+        <div class="note">
+          <strong>בונוס 2:</strong> הוסיפו <code>random.seed(1)</code> כשורה הראשונה בזמן הבדיקות. המספר הסודי מפסיק להשתנות, כך שאפשר לבדוק את הלוגיקה של <em>too high / too low</em> בלי לנחש מחדש בכל הרצה — ואז מוחקים את השורה כשהמשחק עובד.
+        </div>
+
+        <div class="big-result">הגשה</div>
+        <div class="card submission">
+          <ol class="task-list">
+            <li><strong>כתבו את התוכנית</strong> ב-PyCharm.</li>
+            <li><strong>העלו אותה ל-GitHub</strong> ושלחו את הקישור ל:<br>
+              <a href="mailto:pythonai080626+hw10@gmail.com">pythonai080626+hw10@gmail.com</a>
+            </li>
+          </ol>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="footer">
+    Python Basics - Lesson 10 - July 27, 2026 - None, modules &amp; random
+  </footer>
+</div>
+
+<script>
+  const links = document.querySelectorAll('.topic-link');
+  const panels = document.querySelectorAll('.topic-panel');
+
+  function showTopic(id) {
+    panels.forEach(panel => panel.classList.toggle('active', panel.id === id));
+    links.forEach(link => link.classList.toggle('active', link.dataset.target === id));
+  }
+
+  links.forEach(link => {
+    link.addEventListener('click', () => {
+      showTopic(link.dataset.target);
+      location.hash = link.dataset.target;
+    });
+  });
+
+  const hash = location.hash.replace('#', '');
+  if (hash && document.getElementById(hash)) showTopic(hash);
+
+  // ── one-at-a-time slides inside the "more random" panel ──
+  const slides = document.querySelectorAll('#random-slides .slide');
+  const prevBtn = document.getElementById('slide-prev');
+  const nextBtn = document.getElementById('slide-next');
+  const dotsBox = document.getElementById('slide-dots');
+  const countEl = document.getElementById('slide-count');
+  let current = 0;
+
+  slides.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.type = 'button';
+    dot.className = 'sdot';
+    dot.setAttribute('aria-label', 'go to slide ' + (i + 1));
+    dot.addEventListener('click', () => showSlide(i));
+    dotsBox.appendChild(dot);
+  });
+  const dots = dotsBox.querySelectorAll('.sdot');
+
+  function showSlide(n) {
+    current = Math.max(0, Math.min(n, slides.length - 1));
+    slides.forEach((s, i) => s.classList.toggle('active', i === current));
+    dots.forEach((d, i) => d.classList.toggle('active', i === current));
+    countEl.textContent = (current + 1) + ' / ' + slides.length;
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === slides.length - 1;
+  }
+
+  prevBtn.addEventListener('click', () => showSlide(current - 1));
+  nextBtn.addEventListener('click', () => showSlide(current + 1));
+  showSlide(0);
+</script>
+</body>
+</html>
