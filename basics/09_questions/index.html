@@ -1,0 +1,1877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>מאגר שאלות · Python Question Bank</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Comic+Neue:wght@300;400;700&family=Heebo:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Comic Neue', cursive; }
+    h1, h2, h3, h4, .heading { font-family: 'Baloo 2', cursive; }
+
+    /* ── Hebrew / RTL ── */
+    .rtl { direction: rtl; text-align: right; font-family: 'Heebo', 'Comic Neue', sans-serif; }
+    .rtl h1, .rtl h2, .rtl h3, .rtl .heading { font-family: 'Heebo', 'Baloo 2', sans-serif; }
+    .rtl ul, .rtl ol { padding-right: 22px; padding-left: 0; }
+    .rtl .chip-row { justify-content: flex-start; }
+
+    body[data-lang="en"] [data-he] { display: none !important; }
+    body[data-lang="he"] [data-en] { display: none !important; }
+
+    /* ── Claymorphism ── */
+    .clay {
+      border: 3px solid rgba(13,148,136,0.18);
+      box-shadow: 5px 5px 0 rgba(13,148,136,0.22), inset 0 1px 0 rgba(255,255,255,0.65);
+    }
+    .clay-orange {
+      border: 3px solid rgba(249,115,22,0.18);
+      box-shadow: 5px 5px 0 rgba(249,115,22,0.22), inset 0 1px 0 rgba(255,255,255,0.65);
+    }
+    .clay-card {
+      border: 3px solid rgba(13,148,136,0.15);
+      box-shadow: 8px 8px 0 rgba(13,148,136,0.16), inset 0 1px 0 rgba(255,255,255,0.7);
+    }
+    .clay-card-orange {
+      border: 3px solid rgba(249,115,22,0.15);
+      box-shadow: 8px 8px 0 rgba(249,115,22,0.16), inset 0 1px 0 rgba(255,255,255,0.7);
+    }
+
+    .hero-bg {
+      background: linear-gradient(135deg, #F0FDFA 0%, #CCFBF1 35%, #A7F3D0 60%, #FFF7ED 85%, #F0FDFA 100%);
+      background-size: 300% 300%;
+      animation: gradShift 10s ease infinite;
+    }
+    @keyframes gradShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+    .float  { animation: float 4s ease-in-out infinite; }
+    .float2 { animation: float 4s ease-in-out 1.3s infinite; }
+    .float3 { animation: float 4s ease-in-out 2.6s infinite; }
+
+    @keyframes riseIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+    /* ── Console / code ── */
+    .console {
+      background: #101418; color: #e6edf3;
+      border-radius: 14px; border: 1px solid #30363d;
+      padding: 12px 16px; overflow-x: auto; margin: 0;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.86rem; white-space: pre; line-height: 1.7;
+      direction: ltr; text-align: left;
+    }
+    .console .usr { color: #7ee787; font-weight: 700; }
+    .console .dim { color: #8b949e; }
+    .console .err { color: #ff9f9f; }
+    code.inl {
+      font-family: Consolas, monospace; font-weight: 700;
+      background: #F0FDFA; border: 1px solid #99F6E4;
+      border-radius: 6px; padding: 0 6px; color: #0F766E;
+      direction: ltr; display: inline-block;
+    }
+    .q-orange code.inl { background: #FFF7ED; border-color: #FED7AA; color: #C2410C; }
+
+    /* ── Tool chips ── */
+    .chip-row { display: flex; flex-wrap: wrap; gap: 7px; }
+    .chip {
+      font-family: Consolas, monospace; font-size: .78rem; font-weight: 700;
+      background: #fff; border: 2px solid #99F6E4; border-bottom-width: 4px;
+      border-radius: 10px; padding: 4px 11px; color: #0F766E;
+      transition: transform .15s ease, box-shadow .15s ease;
+      direction: ltr;
+    }
+    .chip:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(13,148,136,.18); }
+    .chip.op { border-color: #FED7AA; color: #C2410C; }
+    .chip.ban { border-color: #FCA5A5; color: #B91C1C; text-decoration: line-through; }
+
+    /* ── Run demo panes ── */
+    .runs { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 14px; }
+    .run-pane { min-width: 0; }
+    .run-cap {
+      font-size: .74rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase;
+      color: #0D9488; margin-bottom: 5px; display: flex; align-items: center; gap: 6px;
+    }
+    .run-pane.edge .run-cap { color: #C2410C; }
+    .run-dot { width: 9px; height: 9px; border-radius: 50%; background: #0D9488; flex-shrink: 0; }
+    .run-pane.edge .run-dot { background: #F97316; animation: blink 1.6s ease-in-out infinite; }
+    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: .25; } }
+
+    /* ── Slides ── */
+    .q-slide { display: none; }
+    .q-slide.active { display: block; animation: riseIn .45s ease both; }
+
+    .dot {
+      width: 30px; height: 30px; border-radius: 10px; padding: 0;
+      border: 2px solid #99F6E4; background: #fff; cursor: pointer;
+      font-family: 'Baloo 2', cursive; font-weight: 800; font-size: .8rem; color: #0F766E;
+      transition: all .18s ease;
+    }
+    .dot:hover { background: #CCFBF1; transform: translateY(-2px); }
+    .dot.active { background: #0D9488; color: #fff; border-color: #0D9488; transform: scale(1.12); }
+    .dot.locked { opacity: .35; cursor: not-allowed; border-style: dashed; }
+    .dot.locked:hover { background: #fff; transform: none; }
+
+    .navbtn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 11px 22px; border-radius: 14px;
+      border: 3px solid rgba(13,148,136,.25); background: #fff;
+      box-shadow: 4px 4px 0 rgba(13,148,136,.18);
+      font-family: 'Baloo 2', cursive; font-weight: 700; font-size: 1rem; color: #0F766E;
+      cursor: pointer; transition: all .18s ease;
+    }
+    .navbtn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 6px 8px 0 rgba(13,148,136,.24); background: #F0FDFA; }
+    .navbtn:disabled { opacity: .35; cursor: default; box-shadow: 2px 2px 0 rgba(13,148,136,.12); }
+    .navbtn.primary { background: #0D9488; color: #fff; border-color: #0D9488; box-shadow: 4px 4px 0 rgba(15,118,110,.35); }
+    .navbtn.primary:hover:not(:disabled) { background: #0F766E; }
+
+    .langbtn {
+      padding: 6px 16px; border-radius: 999px; cursor: pointer;
+      font-family: 'Baloo 2', cursive; font-weight: 700; font-size: .88rem;
+      border: 2px solid #99F6E4; background: #fff; color: #0F766E; transition: all .18s ease;
+    }
+    .langbtn.active { background: #0D9488; color: #fff; border-color: #0D9488; }
+
+    .progress-track { height: 10px; border-radius: 999px; background: #CCFBF1; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #0D9488, #2DD4BF, #F97316); transition: width .35s ease; }
+
+    /* ── Q art panel ── */
+    .q-art { border-radius: 20px; overflow: hidden; position: relative; }
+
+    /* pizza */
+    @keyframes spinSlow { to { transform: rotate(360deg); } }
+    .pizza-spin { transform-origin: 100px 100px; animation: spinSlow 22s linear infinite; }
+    /* thermometer */
+    @keyframes mercury { 0%,100% { height: 26px; y: 118px; } 50% { height: 78px; y: 66px; } }
+    .mercury { animation: mercury 5s ease-in-out infinite; }
+    @keyframes sunRay { 0%,100% { opacity: .35; } 50% { opacity: 1; } }
+    .ray { animation: sunRay 2.4s ease-in-out infinite; }
+    /* rocket */
+    @keyframes rocketUp { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+    .rocket-body { animation: rocketUp 3s ease-in-out infinite; }
+    @keyframes flame { 0%,100% { transform: scaleY(.7); opacity: .75; } 50% { transform: scaleY(1.25); opacity: 1; } }
+    .flame { transform-origin: 100px 138px; animation: flame .35s ease-in-out infinite; }
+    @keyframes starDrift { from { transform: translateY(-16px); opacity: 0; } 30% { opacity: 1; } to { transform: translateY(60px); opacity: 0; } }
+    .star-d { animation: starDrift 3s linear infinite; }
+    /* vending */
+    @keyframes coinDrop { 0% { transform: translateY(-34px) rotate(0deg); opacity: 0; } 20% { opacity: 1; } 70% { transform: translateY(34px) rotate(180deg); opacity: 1; } 100% { transform: translateY(34px) rotate(180deg); opacity: 0; } }
+    .coin { animation: coinDrop 2.6s ease-in infinite; }
+    @keyframes snackPop { 0%, 70%, 100% { transform: translateY(0); } 80% { transform: translateY(4px); } }
+    .snack { animation: snackPop 2.6s ease-in-out infinite; }
+    /* digits */
+    @keyframes reelFlip { 0%, 60%, 100% { transform: translateY(0); } 70% { transform: translateY(-9px); } 80% { transform: translateY(5px); } }
+    .reel { animation: reelFlip 2.8s ease-in-out infinite; }
+    .reel:nth-of-type(2) { animation-delay: .25s; }
+    .reel:nth-of-type(3) { animation-delay: .5s; }
+    .reel:nth-of-type(4) { animation-delay: .75s; }
+
+    /* camera flash (Q6) */
+    @keyframes flashPop { 0%, 80%, 100% { opacity: .35; r: 5; } 88% { opacity: 1; r: 9; } }
+    .flash { animation: flashPop 2.4s ease-in-out infinite; }
+    @keyframes lineWobble { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(6px); } }
+    .lineup { animation: lineWobble 3.4s ease-in-out infinite; }
+    /* fibonacci squares (Q7) */
+    @keyframes fibPop { 0%, 70%, 100% { transform: scale(1); } 82% { transform: scale(1.12); } }
+    .fib { transform-origin: center; transform-box: fill-box; animation: fibPop 3.2s ease-in-out infinite; }
+    .fib:nth-of-type(2) { animation-delay: .18s; }
+    .fib:nth-of-type(3) { animation-delay: .36s; }
+    .fib:nth-of-type(4) { animation-delay: .54s; }
+    .fib:nth-of-type(5) { animation-delay: .72s; }
+    /* pyramid twinkle (Q8) */
+    @keyframes twinkle { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
+    .tw { animation: twinkle 2.6s ease-in-out infinite; }
+    .tw:nth-of-type(even) { animation-delay: .8s; }
+    /* cart items (Q9) */
+    @keyframes cartBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+    .cartitem { animation: cartBob 2.8s ease-in-out infinite; }
+    /* stopwatch hand (Q10) */
+    @keyframes tick { to { transform: rotate(360deg); } }
+    .hand { transform-origin: center; animation: tick 6s steps(60) infinite; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: 150ms !important; }
+    }
+  </style>
+</head>
+<body class="bg-[#F0FDFA] text-[#134E4A] min-h-screen" data-lang="he">
+
+  <!-- ═══════════════ NAVBAR ═══════════════ -->
+  <nav class="fixed top-3 left-3 right-3 z-50">
+    <div class="max-w-5xl mx-auto bg-white/90 backdrop-blur-md rounded-2xl px-5 py-2.5 clay flex items-center justify-between gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-[#0D9488] font-bold text-sm hover:gap-3 transition-all">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16l-4-4m0 0l4-4m-4 4h18"/></svg>
+        <span data-en>Back</span><span data-he>חזרה</span>
+      </a>
+      <span class="heading font-bold text-base text-[#134E4A] truncate">מאגר שאלות · Question Bank</span>
+      <div class="flex gap-1.5 flex-shrink-0">
+        <button class="langbtn" data-setlang="en" type="button">EN</button>
+        <button class="langbtn active" data-setlang="he" type="button">עב</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ═══════════════ HERO ═══════════════ -->
+  <header class="hero-bg pt-24 pb-12 px-4 relative overflow-hidden">
+    <div class="absolute top-16 left-10 w-36 h-36 bg-[#0D9488]/10 rounded-full blur-3xl float pointer-events-none"></div>
+    <div class="absolute bottom-6 right-14 w-44 h-44 bg-[#F97316]/10 rounded-full blur-3xl float2 pointer-events-none"></div>
+
+    <div class="max-w-5xl mx-auto text-center relative">
+      <div class="flex justify-center mb-5">
+        <div class="w-20 h-20 bg-white rounded-[24px] clay flex items-center justify-center float text-4xl">🧠</div>
+      </div>
+      <h1 class="heading text-4xl md:text-6xl font-extrabold text-[#134E4A] leading-tight mb-3">
+        <span data-en>Question Bank</span><span data-he>מאגר שאלות</span>
+      </h1>
+      <p class="text-base md:text-lg text-[#134E4A]/70 max-w-2xl mx-auto mb-7">
+        <span data-en>10 fun challenges. Every one mixes a <strong>loop</strong> with <strong>conditions</strong> — and every one comes with real run demos so you can check yourself.</span>
+        <span data-he class="rtl inline-block">10 אתגרים מהנים. בכל אחד יש <strong>לולאה</strong> יחד עם <strong>תנאים</strong> — ולכל שאלה יש הרצות לדוגמה כדי שתוכלו לבדוק את עצמכם.</span>
+      </p>
+
+      <div class="flex justify-center gap-3 flex-wrap mb-7">
+        <div class="bg-white/90 rounded-2xl px-5 py-3 clay inline-flex items-center gap-2">
+          <span class="heading text-2xl font-extrabold text-[#0D9488]" id="stat-ready">10</span>
+          <span class="text-xs text-[#134E4A]/60 font-semibold leading-tight"><span data-en>Questions<br>ready</span><span data-he>שאלות<br>מוכנות</span></span>
+        </div>
+        <div class="bg-white/90 rounded-2xl px-5 py-3 clay-orange inline-flex items-center gap-2">
+          <span class="heading text-2xl font-extrabold text-[#F97316]">6</span>
+          <span class="text-xs text-[#134E4A]/60 font-semibold leading-tight"><span data-en>Operators<br>+ - * / // %</span><span data-he>אופרטורים<br>+ - * / // %</span></span>
+        </div>
+        <div class="bg-white/90 rounded-2xl px-5 py-3 clay inline-flex items-center gap-2">
+          <span class="heading text-2xl font-extrabold text-[#0D9488]">0</span>
+          <span class="text-xs text-[#134E4A]/60 font-semibold leading-tight"><span data-en>Lists<br>needed</span><span data-he>רשימות<br>נדרשות</span></span>
+        </div>
+      </div>
+
+      <!-- progress -->
+      <div class="max-w-xl mx-auto">
+        <div class="flex justify-between text-xs font-bold text-[#134E4A]/60 mb-1.5">
+          <span id="progress-label">שאלה 1 מתוך 10</span>
+          <span id="progress-pct">10%</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:10%"></div></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════ QUESTION DOTS ═══════════════ -->
+  <div class="max-w-5xl mx-auto px-4 -mt-5 relative z-10">
+    <div class="bg-white rounded-2xl clay px-4 py-3 flex flex-wrap justify-center gap-2" id="dots"></div>
+  </div>
+
+  <!-- ═══════════════ QUESTIONS ═══════════════ -->
+  <main class="max-w-5xl mx-auto px-4 py-8" id="qbank">
+
+    <!-- ═════════ Q1 · PIZZA ═════════ -->
+    <article class="q-slide active" data-q="1">
+      <section class="bg-white rounded-[26px] clay-card overflow-hidden">
+
+        <!-- art header -->
+        <div class="q-art h-56 md:h-64 bg-gradient-to-br from-[#134E4A] via-[#0D9488] to-[#2DD4BF] flex items-center justify-center">
+          <svg viewBox="0 0 320 200" class="w-full h-full" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <circle cx="46" cy="36" r="40" fill="#fff" opacity="0.07"/>
+            <circle cx="280" cy="168" r="52" fill="#fff" opacity="0.07"/>
+            <g transform="translate(60,-18)">
+              <g class="pizza-spin">
+                <circle cx="100" cy="100" r="62" fill="#F4C25A" stroke="#B45309" stroke-width="6"/>
+                <circle cx="100" cy="100" r="52" fill="#F59E0B"/>
+                <circle cx="100" cy="100" r="46" fill="#FCD34D"/>
+                <g stroke="#B45309" stroke-width="3" opacity="0.55">
+                  <path d="M100 54v92M54 100h92M67 67l66 66M133 67l-66 66"/>
+                </g>
+                <g fill="#DC2626" stroke="#991B1B" stroke-width="2">
+                  <circle cx="115" cy="79" r="7"/><circle cx="81" cy="87" r="6"/>
+                  <circle cx="119" cy="117" r="6"/><circle cx="85" cy="121" r="7"/>
+                  <circle cx="100" cy="100" r="5"/>
+                </g>
+              </g>
+            </g>
+            <text x="44" y="60" font-size="30">🍕</text>
+            <text x="252" y="60" font-size="30">🐶</text>
+            <text x="160" y="166" text-anchor="middle" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#CCFBF1">slices // friends → each friend</text>
+            <text x="160" y="188" text-anchor="middle" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#FDE68A">slices % friends → the dog</text>
+          </svg>
+        </div>
+
+        <div class="p-6 md:p-8">
+          <div class="flex items-center gap-3 flex-wrap mb-3">
+            <span class="text-xs font-bold tracking-widest uppercase text-white bg-[#0D9488] px-3 py-1 rounded-full">Question 1</span>
+            <span class="text-xs font-bold text-[#0D9488] bg-teal-50 border border-teal-200 px-3 py-1 rounded-full">for + if/else</span>
+            <span class="text-xs font-bold text-[#F97316] bg-orange-50 border border-orange-200 px-3 py-1 rounded-full">easy</span>
+          </div>
+
+          <h2 class="heading text-3xl font-extrabold text-[#134E4A] mb-4">
+            <span data-en>🍕 Pizza Party Splitter</span><span data-he>🍕 מחלק הפיצות</span>
+          </h2>
+
+          <!-- ── EN ── -->
+          <div data-en>
+            <p class="text-[#134E4A]/80 leading-relaxed mb-4">
+              Tonight you are in charge of the pizza 🍕 — several orders arrive, every pizza has a different number of slices, and every group of friends is a different size. Nobody is allowed to get half a slice.
+            </p>
+            <ol class="list-decimal pl-6 space-y-2 text-[#134E4A]/80 mb-4">
+              <li>Ask <strong>how many orders</strong> there are, and read that number.</li>
+              <li>If there are <code class="inl">0</code> orders → print <code class="inl">no pizza tonight 🥲</code> and the program is over.</li>
+              <li>Otherwise repeat once per order (you know the count before you start, so this is a <code class="inl">for</code>). In every round:
+                <ul class="list-disc pl-6 mt-1.5 space-y-1">
+                  <li>read how many <strong>slices</strong> the pizza has, then how many <strong>friends</strong> share it;</li>
+                  <li>print <code class="inl">each friend gets X slices</code>, where X is <code class="inl">slices // friends</code>;</li>
+                  <li>the leftover is <code class="inl">slices % friends</code>. If it is <code class="inl">0</code> print <code class="inl">perfect split! 🎉</code>, <strong>otherwise</strong> print <code class="inl">leftover for the dog 🐶: N</code>;</li>
+                  <li>add this pizza's slices to a running <strong>total</strong> (a variable that starts at <code class="inl">0</code> <em>before</em> the loop).</li>
+                </ul>
+              </li>
+              <li>After the loop print <code class="inl">total slices: …</code> and <code class="inl">average per order: …</code> — the total divided by the number of orders.</li>
+            </ol>          </div>
+
+          <!-- ── HE ── -->
+          <div data-he class="rtl">
+            <p class="text-[#134E4A]/80 leading-relaxed mb-4">
+              הערב אתם אחראים על הפיצה 🍕 — מגיעות כמה הזמנות, בכל פיצה מספר משולשים אחר, וכל חבורת חברים בגודל אחר. אף אחד לא יכול לקבל חצי משולש.
+            </p>
+            <ol class="list-decimal space-y-2 text-[#134E4A]/80 mb-4">
+              <li>שאלו <strong>כמה הזמנות</strong> יש, וקראו את המספר.</li>
+              <li>אם יש <code class="inl">0</code> הזמנות ← הדפיסו <code class="inl">no pizza tonight 🥲</code> והתוכנית נגמרה.</li>
+              <li>אחרת חזרו על סיבוב אחד לכל הזמנה (אתם יודעים את הכמות עוד לפני ההתחלה, אז זו לולאת <code class="inl">for</code>). בכל סיבוב:
+                <ul class="list-disc mt-1.5 space-y-1">
+                  <li>קראו כמה <strong>משולשים</strong> יש בפיצה, ואז כמה <strong>חברים</strong> מתחלקים בה;</li>
+                  <li>הדפיסו <code class="inl">each friend gets X slices</code>, כאשר X הוא <code class="inl">slices // friends</code>;</li>
+                  <li>השארית היא <code class="inl">slices % friends</code>. אם היא <code class="inl">0</code> הדפיסו <code class="inl">perfect split! 🎉</code>, <strong>אחרת</strong> הדפיסו <code class="inl">leftover for the dog 🐶: N</code>;</li>
+                  <li>הוסיפו את המשולשים של הפיצה הזו ל<strong>סכום</strong> מתגלגל (משתנה שמתחיל ב־<code class="inl">0</code> <em>לפני</em> הלולאה).</li>
+                </ul>
+              </li>
+              <li>אחרי הלולאה הדפיסו <code class="inl">total slices: …</code> ו־<code class="inl">average per order: …</code> — הסכום חלקי מספר ההזמנות.</li>
+            </ol>          </div>
+
+          <!-- must use ── -->
+          <div class="chip-row mt-5">
+            <span class="chip">for</span><span class="chip">range()</span><span class="chip">if / else</span>
+            <span class="chip op">//</span><span class="chip op">%</span><span class="chip op">+</span><span class="chip op">/</span>
+          </div>
+
+          <div class="mt-7">
+            <h3 class="heading font-bold text-lg text-[#134E4A] mb-3">
+              <span data-en>▶ Run demos — your program must behave exactly like this</span>
+              <span data-he class="rtl block">▶ הרצות לדוגמה — התוכנית שלכם חייבת להתנהג בדיוק כך</span>
+            </h3>
+            <div class="runs">
+              <div class="run-pane">
+                <div class="run-cap"><span class="run-dot"></span><span data-en>normal run</span><span data-he>הרצה רגילה</span></div>
+                <div class="console">how many orders? <span class="usr">3</span>
+slices? <span class="usr">8</span>
+friends? <span class="usr">4</span>
+each friend gets 2 slices
+perfect split! 🎉
+slices? <span class="usr">10</span>
+friends? <span class="usr">4</span>
+each friend gets 2 slices
+leftover for the dog 🐶: 2
+slices? <span class="usr">7</span>
+friends? <span class="usr">2</span>
+each friend gets 3 slices
+leftover for the dog 🐶: 1
+total slices: 25
+average per order: 8.333333333333334</div>
+              </div>
+              <div class="run-pane edge">
+                <div class="run-cap"><span class="run-dot"></span><span data-en>edge · zero orders</span><span data-he>קצה · אפס הזמנות</span></div>
+                <div class="console">how many orders? <span class="usr">0</span>
+no pizza tonight 🥲</div>
+                <div class="text-xs text-[#134E4A]/55 mt-2">
+                  <span data-en>The loop body never runs — and the average is never computed.</span>
+                  <span data-he class="rtl block">גוף הלולאה לא רץ אף פעם — והממוצע לא מחושב בכלל.</span>
+                </div>
+              </div>
+              <div class="run-pane edge">
+                <div class="run-cap"><span class="run-dot"></span><span data-en>edge · more friends than slices</span><span data-he>קצה · יותר חברים ממשולשים</span></div>
+                <div class="console">how many orders? <span class="usr">1</span>
+slices? <span class="usr">5</span>
+friends? <span class="usr">8</span>
+each friend gets 0 slices
+leftover for the dog 🐶: 5
+total slices: 5
+average per order: 5.0</div>
+                <div class="text-xs text-[#134E4A]/55 mt-2">
+                  <span data-en><code class="inl">5 // 8</code> is <code class="inl">0</code> and <code class="inl">5 % 8</code> is <code class="inl">5</code> — the dog wins.</span>
+                  <span data-he class="rtl block"><code class="inl">5 // 8</code> שווה <code class="inl">0</code> ו־<code class="inl">5 % 8</code> שווה <code class="inl">5</code> — הכלב מנצח.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── edge cases + hint ── -->
+          <div data-en class="mt-7">
+            <div class="bg-orange-50 border-l-4 border-[#F97316] rounded-r-xl px-4 py-3 text-sm text-[#7C2D12] mb-4">
+              <strong>⚠️ Edge case:</strong> if there are <code class="inl">0</code> orders you must <em>not</em> compute the average — dividing by zero crashes Python. Print <code class="inl">no pizza tonight 🥲</code> instead.
+            </div>
+            <div class="bg-teal-50 border-l-4 border-[#0D9488] rounded-r-xl px-4 py-3 text-sm text-[#134E4A]/80">
+              <strong>💡 Hint:</strong> you know the number of rounds before you start → this is a <code class="inl">for</code> loop with <code class="inl">range()</code>. The total is a variable that starts at <code class="inl">0</code> <em>before</em> the loop and grows with <code class="inl">+=</code> inside it.
+            </div>          </div>
+          <div data-he class="rtl mt-7">
+            <div class="bg-orange-50 border-r-4 border-[#F97316] rounded-l-xl px-4 py-3 text-sm text-[#7C2D12] mb-4">
+              <strong>⚠️ מקרה קצה:</strong> אם יש <code class="inl">0</code> הזמנות <em>אסור</em> לחשב ממוצע — חלוקה באפס מקריסה את פייתון. הדפיסו במקום <code class="inl">no pizza tonight 🥲</code>.
+            </div>
+            <div class="bg-teal-50 border-r-4 border-[#0D9488] rounded-l-xl px-4 py-3 text-sm text-[#134E4A]/80">
+              <strong>💡 רמז:</strong> אתם יודעים כמה סיבובים יהיו עוד לפני ההתחלה → זו לולאת <code class="inl">for</code> עם <code class="inl">range()</code>. הסכום הוא משתנה שמתחיל ב־<code class="inl">0</code> <em>לפני</em> הלולאה וגדל עם <code class="inl">+=</code> בתוכה.
+            </div>          </div>
+
+
+        </div>
+      </section>
+    </article>
+
+    <!-- ═════════ Q2 · WEATHER ═════════ -->
+    <article class="q-slide q-orange" data-q="2">
+      <section class="bg-white rounded-[26px] clay-card-orange overflow-hidden">
+
+        <div class="q-art h-56 md:h-64 bg-gradient-to-br from-[#0C4A6E] via-[#0EA5E9] to-[#FDBA74] flex items-center justify-center">
+          <svg viewBox="0 0 320 200" class="w-full h-full" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <circle cx="40" cy="40" r="44" fill="#fff" opacity="0.08"/>
+            <circle cx="288" cy="172" r="46" fill="#fff" opacity="0.08"/>
+            <!-- sun -->
+            <g transform="translate(252,52)">
+              <circle r="20" fill="#FDE047"/>
+              <g class="ray" stroke="#FDE047" stroke-width="4" stroke-linecap="round">
+                <path d="M0 -30V-38M0 30v8M-30 0h-8M30 0h8M-21 -21l-6-6M21 21l6 6M21 -21l6-6M-21 21l-6 6"/>
+              </g>
+            </g>
+            <!-- snowflake -->
+            <g transform="translate(56,150)" stroke="#E0F2FE" stroke-width="4" stroke-linecap="round">
+              <path d="M0 -22V22M-19 -11L19 11M-19 11L19 -11"/>
+              <path d="M-6 -16L0 -22 6 -16M-6 16L0 22 6 16"/>
+            </g>
+            <!-- thermometer -->
+            <g transform="translate(140,20)">
+              <rect x="0" y="0" width="40" height="130" rx="20" fill="#F8FAFC" stroke="#0F172A" stroke-width="4"/>
+              <circle cx="20" cy="150" r="26" fill="#F8FAFC" stroke="#0F172A" stroke-width="4"/>
+              <circle cx="20" cy="150" r="17" fill="#EF4444"/>
+              <rect class="mercury" x="12" y="118" width="16" height="26" rx="8" fill="#EF4444"/>
+              <g stroke="#0F172A" stroke-width="3" stroke-linecap="round" opacity="0.6">
+                <path d="M40 30h10M40 55h10M40 80h10M40 105h10"/>
+              </g>
+            </g>
+            <text x="14" y="40" font-family="Consolas, monospace" font-size="16" font-weight="700" fill="#F0F9FF">hottest?</text>
+            <text x="14" y="64" font-family="Consolas, monospace" font-size="16" font-weight="700" fill="#F0F9FF">coldest?</text>
+          </svg>
+        </div>
+
+        <div class="p-6 md:p-8">
+          <div class="flex items-center gap-3 flex-wrap mb-3">
+            <span class="text-xs font-bold tracking-widest uppercase text-white bg-[#F97316] px-3 py-1 rounded-full">Question 2</span>
+            <span class="text-xs font-bold text-[#F97316] bg-orange-50 border border-orange-200 px-3 py-1 rounded-full">while True + if/elif/else</span>
+            <span class="text-xs font-bold text-[#0D9488] bg-teal-50 border border-teal-200 px-3 py-1 rounded-full">medium</span>
+          </div>
+
+          <h2 class="heading text-3xl font-extrabold text-[#134E4A] mb-4">
+            <span data-en>🌡️ The Weather Station</span><span data-he>🌡️ תחנת מזג האוויר</span>
+          </h2>
+
+          <div data-en>
+            <p class="text-[#134E4A]/80 leading-relaxed mb-4">
+              Your weather station reads temperatures one after another. Nobody knows how many will arrive today — the measuring stops only when the user says so.
+            </p>
+            <ol class="list-decimal pl-6 space-y-2 text-[#134E4A]/80 mb-4">
+              <li>Before anything else, start two trackers: <code class="inl">hottest = None</code> and <code class="inl">coldest = None</code>.</li>
+              <li>Now repeat forever (<code class="inl">while True</code>). In every round:
+                <ul class="list-disc pl-6 mt-1.5 space-y-1">
+                  <li>ask <code class="inl">temp?</code> and read the answer as <strong>text</strong>;</li>
+                  <li>if it is <code class="inl">done</code> → <code class="inl">break</code> out of the loop;</li>
+                  <li>otherwise turn it into a <code class="inl">float</code> — it can have a decimal point and it can be negative;</li>
+                  <li>print the verdict with <code class="inl">if / elif / else</code>: above <code class="inl">30</code> → <code class="inl">🔥 heatwave</code>, <code class="inl">15</code> and up → <code class="inl">😎 nice</code>, <code class="inl">0</code> and up → <code class="inl">🧥 chilly</code>, below <code class="inl">0</code> → <code class="inl">🥶 freezing</code>;</li>
+                  <li>update the two trackers if this temperature is a new record.</li>
+                </ul>
+              </li>
+              <li>After the loop: if <code class="inl">hottest</code> is still <code class="inl">None</code> print <code class="inl">no measurements 🤷</code>.</li>
+              <li>Otherwise print the hottest, the coldest, and the <strong>spread</strong> = hottest <code class="inl">-</code> coldest.</li>
+            </ol>          </div>
+
+          <!-- ── HE ── -->
+          <div data-he class="rtl">
+            <p class="text-[#134E4A]/80 leading-relaxed mb-4">
+              תחנת מזג האוויר שלכם קוראת טמפרטורות אחת אחרי השנייה. אף אחד לא יודע כמה יגיעו היום — המדידה נעצרת רק כשהמשתמש אומר.
+            </p>
+            <ol class="list-decimal space-y-2 text-[#134E4A]/80 mb-4">
+              <li>לפני הכול, התחילו שני עוקבים: <code class="inl">hottest = None</code> ו־<code class="inl">coldest = None</code>.</li>
+              <li>עכשיו חזרו לנצח (<code class="inl">while True</code>). בכל סיבוב:
+                <ul class="list-disc mt-1.5 space-y-1">
+                  <li>שאלו <code class="inl">temp?</code> וקראו את התשובה כ<strong>טקסט</strong>;</li>
+                  <li>אם זה <code class="inl">done</code> ← בצעו <code class="inl">break</code> ויציאה מהלולאה;</li>
+                  <li>אחרת המירו ל־<code class="inl">float</code> — יכולה להיות נקודה עשרונית ויכול להיות מינוס;</li>
+                  <li>הדפיסו פסק דין ב־<code class="inl">if / elif / else</code>: מעל <code class="inl">30</code> ← <code class="inl">🔥 heatwave</code>, <code class="inl">15</code> ומעלה ← <code class="inl">😎 nice</code>, <code class="inl">0</code> ומעלה ← <code class="inl">🧥 chilly</code>, מתחת ל־<code class="inl">0</code> ← <code class="inl">🥶 freezing</code>;</li>
+                  <li>עדכנו את שני העוקבים אם הטמפרטורה הזו היא שיא חדש.</li>
+                </ul>
+              </li>
+              <li>אחרי הלולאה: אם <code class="inl">hottest</code> עדיין <code class="inl">None</code> הדפיסו <code class="inl">no measurements 🤷</code>.</li>
+              <li>אחרת הדפיסו את הגבוהה ביותר, את הנמוכה ביותר, ואת <strong>הפער</strong> = הגבוהה <code class="inl">-</code> הנמוכה.</li>
+            </ol>          </div>
+
+          <!-- must use ── -->
+          <div class="chip-row mt-5">
+            <span class="chip">while True</span><span class="chip">break</span><span class="chip">if / elif / else</span>
+            <span class="chip">float()</span><span class="chip">None</span><span class="chip op">-</span>
+          </div>
+
+          <div class="mt-7">
+            <h3 class="heading font-bold text-lg text-[#134E4A] mb-3">
+              <span data-en>▶ Run demos — your program must behave exactly like this</span>
+              <span data-he class="rtl block">▶ הרצות לדוגמה — התוכנית שלכם חייבת להתנהג בדיוק כך</span>
+            </h3>
+            <div class="runs">
+              <div class="run-pane">
+                <div class="run-cap"><span class="run-dot"></span><span data-en>normal run</span><span data-he>הרצה רגילה</span></div>
+                <div class="console">temp? <span class="usr">21.5</span>
+😎 nice
+temp? <span class="usr">-4</span>
+🥶 freezing
+temp? <span class="usr">33</span>
+🔥 heatwave
+temp? <span class="usr">8</span>
+🧥 chilly
+temp? <span class="usr">done</span>
+hottest: 33.0
+coldest: -4.0
+spread: 37.0</div>
+              </div>
+              <div class="run-pane edge">
+                <div class="run-cap"><span class="run-dot"></span><span data-en>edge · nothing measured</span><span data-he>קצה · אין מדידות</span></div>
+                <div class="console">temp? <span class="usr">done</span>
+no measurements 🤷</div>
+                <div class="text-xs text-[#134E4A]/55 mt-2">
+                  <span data-en>Both trackers are still <code class="inl">None</code> — that is how you know.</span>
+                  <span data-he class="rtl block">שני העוקבים עדיין <code class="inl">None</code> — ככה אתם יודעים.</span>
+                </div>
+              </div>
+              <div class="run-pane edge">
+                <div class="run-cap"><span class="run-dot"></span><span data-en>edge · one measurement only</span><span data-he>קצה · מדידה אחת בלבד</span></div>
+                <div class="console">temp? <span class="usr">12</span>
+🧥 chilly
+temp? <span class="usr">done</span>
+hottest: 12.0
+coldest: 12.0
+spread: 0.0</div>
+                <div class="text-xs text-[#134E4A]/55 mt-2">
+                  <span data-en>The same number is both the hottest and the coldest.</span>
+                  <span data-he class="rtl block">אותו מספר הוא גם הגבוה ביותר וגם הנמוך ביותר.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── edge cases + hint ── -->
+          <div data-en class="mt-7">
+            <div class="bg-orange-50 border-l-4 border-[#F97316] rounded-r-xl px-4 py-3 text-sm text-[#7C2D12] mb-4">
+              <strong>⚠️ Edge case:</strong> if the user types <code class="inl">done</code> immediately there is nothing to report → print <code class="inl">no measurements 🤷</code>. Start both trackers at <code class="inl">None</code>, never at <code class="inl">0</code> — <code class="inl">0</code> is a real temperature and would be a lie.
+            </div>
+            <div class="bg-teal-50 border-l-4 border-[#0D9488] rounded-r-xl px-4 py-3 text-sm text-[#134E4A]/80">
+              <strong>💡 Hint:</strong> read with <code class="inl">input()</code> first — <code class="inl">done</code> is text and <code class="inl">float('done')</code> crashes. Only after you checked for <code class="inl">done</code> convert with <code class="inl">float()</code>. Update a tracker with <code class="inl">if hottest is None or temp &gt; hottest:</code>.
+            </div>          </div>
+          <div data-he class="rtl mt-7">
+            <div class="bg-orange-50 border-r-4 border-[#F97316] rounded-l-xl px-4 py-3 text-sm text-[#7C2D12] mb-4">
+              <strong>⚠️ מקרה קצה:</strong> אם המשתמש מקליד <code class="inl">done</code> מיד אין מה לדווח ← הדפיסו <code class="inl">no measurements 🤷</code>. התחילו את שני העוקבים ב־<code class="inl">None</code>, אף פעם לא ב־<code class="inl">0</code> — <code class="inl">0</code> היא טמפרטורה אמיתית וזה יהיה שקר.
+            </div>
+            <div class="bg-teal-50 border-r-4 border-[#0D9488] rounded-l-xl px-4 py-3 text-sm text-[#134E4A]/80">
+              <strong>💡 רמז:</strong> קראו קודם עם <code class="inl">input()</code> — <code class="inl">done</code> היא מילה ו־<code class="inl">float('done')</code> מקריס. רק אחרי שבדקתם אם זה <code class="inl">done</code> המירו עם <code class="inl">float()</code>. עדכנו עוקב עם <code class="inl">if hottest is None or temp &gt; hottest:</code>.
+            </div>          </div>
+
+
+        </div>
+      </section>
+    </article>
+
+    <!-- ═════════ Q3 · ROCKET ═════════ -->
+    <article class="q-slide" data-q="3">
+      <section class="bg-white rounded-[26px] clay-card overflow-hidden">
+
+        <div class="q-art h-56 md:h-64 bg-gradient-to-b from-[#0B1026] via-[#1E1B4B] to-[#4C1D95] flex items-center justify-center">
+          <svg viewBox="0 0 320 200" class="w-full h-full" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <g fill="#fff">
+              <circle cx="34" cy="30" r="2" opacity=".9"/><circle cx="70" cy="70" r="1.6" opacity=".7"/>
+              <circle cx="256" cy="34" r="2.2" opacity=".85"/><circle cx="292" cy="96" r="1.6" opacity=".6"/>
+              <circle cx="46" cy="128" r="1.8" opacity=".7"/><circle cx="276" cy="150" r="2" opacity=".8"/>
+            </g>
+            <g class="star-d" fill="#C4B5FD"><circle cx="100" cy="30" r="2"/></g>
+            <g class="star-d" style="animation-delay:1s" fill="#A5B4FC"><circle cx="220" cy="20" r="2.4"/></g>
+            <g class="rocket-body">
+              <path d="M100 40c14 12 20 30 20 52v34H80v-34c0-22 6-40 20-52z" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="3"/>
+              <path d="M80 96l-16 30h16zM120 96l16 30h-16z" fill="#EF4444"/>
+              <circle cx="100" cy="80" r="12" fill="#38BDF8" stroke="#0EA5E9" stroke-width="3"/>
+              <path d="M86 126h28v10H86z" fill="#94A3B8"/>
+              <g class="flame">
+                <path d="M92 138h16l-8 30z" fill="#FB923C"/>
+                <path d="M96 138h8l-4 20z" fill="#FDE047"/>
+              </g>
+            </g>
+            <g transform="translate(178,54)">
+              <rect x="0" y="0" width="126" height="94" rx="14" fill="#0F172A" opacity=".72" stroke="#6366F1" stroke-width="2"/>
+              <text x="14" y="30" font-family="Consolas, monospace" font-size="15" font-weight="700" fill="#A5F3FC">T-minus 3</text>
+              <text x="14" y="56" font-family="Consolas, monospace" font-size="15" font-weight="700" fill="#FDE68A">fuel 70.0</text>
+              <text x="14" y="80" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#FCA5A5">fuel -= burn</text>
+            </g>
+          </svg>
+        </div>
+
+        <div class="p-6 md:p-8">
+          <div class="flex items-center gap-3 flex-wrap mb-3">
+            <span class="text-xs font-bold tracking-widest uppercase text-white bg-[#0D9488] px-3 py-1 rounded-full">Question 3</span>
+            <span class="text-xs font-bold text-[#0D9488] bg-teal-50 border border-teal-200 px-3 py-1 rounded-full">while + only if</span>
+            <span class="text-xs font-bold text-[#F97316] bg-orange-50 border border-orange-200 px-3 py-1 rounded-full">medium</span>
+          </div>
+
+          <h2 class="heading text-3xl font-extrabold text-[#134E4A] mb-4">
+            <span data-en>🚀 Rocket Fuel Countdown</span><span data-he>🚀 ספירה לאחור ודלק</span>
+          </h2>
+
+          <div data-en>
+            <p class="text-[#134E4A]/80 leading-relaxed mb-4">
+              The countdown has started 🚀 — but the engines are already burning fuel, and the bigger the number on the clock, the heavier the burn. Will there be anything left in the tank when the clock reaches zero?
+            </p>
+            <ol class="list-decimal pl-6 space-y-2 text-[#134E4A]/80 mb-4">
+              <li>Read the starting <strong>fuel</strong> (a decimal number).</li>
+              <li>Read the number the countdown <strong>starts from</strong> (a whole number).</li>
+              <li>Now count down with a <code class="inl">while</code> loop, as long as the count is bigger than <code class="inl">0</code>. On every tick:
+                <ul class="list-disc pl-6 mt-1.5 space-y-1">
+                  <li>the engines burn <code class="inl">count * 2.5</code> fuel — subtract it from the tank;</li>
+                  <li><strong>if</strong> the fuel went below zero: print <code class="inl">💥 out of fuel at T-minus X</code> and <code class="inl">break</code>;</li>
+                  <li>print <code class="inl">T-minus X | fuel left: Y</code>;</li>
+                  <li>go one down.</li>
+                </ul>
+              </li>
+              <li>After the loop, <strong>if</strong> there is still fuel left, print <code class="inl">🚀 LIFT OFF! fuel left: Y</code>.</li>
+            </ol>          </div>
+
+          <!-- ── HE ── -->
+          <div data-he class="rtl">
+            <p class="text-[#134E4A]/80 leading-relaxed mb-4">
+              הספירה לאחור התחילה 🚀 — אבל המנועים כבר שורפים דלק, וככל שהמספר על השעון גדול יותר כך השריפה כבדה יותר. יישאר משהו במיכל כשהשעון יגיע לאפס?
+            </p>
+            <ol class="list-decimal space-y-2 text-[#134E4A]/80 mb-4">
+              <li>קראו את כמות ה<strong>דלק</strong> ההתחלתית (מספר עשרוני).</li>
+              <li>קראו את המספר שממנו <strong>מתחילה</strong> הספירה לאחור (מספר שלם).</li>
+              <li>עכשיו ספרו לאחור בלולאת <code class="inl">while</code>, כל עוד המונה גדול מ־<code class="inl">0</code>. בכל תקתוק:
+                <ul class="list-disc mt-1.5 space-y-1">
+                  <li>המנועים שורפים <code class="inl">count * 2.5</code> דלק — החסירו מהמיכל;</li>
+                  <li><strong>אם</strong> הדלק ירד מתחת לאפס: הדפיסו <code class="inl">💥 out of fuel at T-minus X</code> ובצעו <code class="inl">break</code>;</li>
+                  <li>הדפיסו <code class="inl">T-minus X | fuel left: Y</code>;</li>
+                  <li>רדו באחד.</li>
+                </ul>
+              </li>
+              <li>אחרי הלולאה, <strong>אם</strong> עוד נשאר דלק, הדפיסו <code class="inl">🚀 LIFT OFF! fuel left: Y</code>.</li>
+            </ol>          </div>
+
+          <!-- must use ── -->
+          <div class="chip-row mt-5">
+            <span class="chip">while</span><span class="chip">if</span><span class="chip">break</span>
+            <span class="chip op">*</span><span class="chip op">-</span><span class="chip">float()</span>
+          </div>
+
+          <div class="mt-7">
+            <h3 class="heading font-bold text-lg text-[#134E4A] mb-3">
+              <span data-en>▶ Run demos — your program must behave exactly like this</span>
+              <span data-he class="rtl block">▶ הרצות לדוגמה — התוכנית שלכם חייבת להתנהג בדיוק כך</span>
+            </h3>
+            <div class="runs">
+              <div class="run-pane">
+                <div class="run-cap"><span class="run-dot"></span><span data-en>normal run · lift off</span><span data-he>הרצה רגילה · המראה</span></div>
+                <div class="console">fuel? <span class="usr">100</span>
+countdown from? <span class="usr">5</span>
+T-minus 5 | fuel left: 87.5
+T-minus 4 | fuel left: 77.5
+T-minus 3 | fuel left: 70.0
+T-minus 2 | fuel left: 65.0
+T-minus 1 | fuel left: 62.5
+🚀 LIFT OFF! fuel left: 62.5</div>
+              </div>
+              <div class="run-pane edge">
+                <div class="run-cap"><span class="run-dot"></span><span data-en>edge · tank runs dry</span><span data-he>קצה · הדלק נגמר</span></div>
+                <div class="console">fuel? <span class="usr">20</span>
+countdown from? <span class="usr">5</span>
+T-minus 5 | fuel left: 7.5
+💥 out of fuel at T-minus 4</div>
+                <div class="text-xs text-[#134E4A]/55 mt-2">
+                  <span data-en><code class="inl">7.5 - 10.0</code> is negative → <code class="inl">break</code>, and <strong>no</strong> lift off line.</span>
+                  <span data-he class="rtl block"><code class="inl">7.5 - 10.0</code> שלילי ← <code class="inl">break</code>, ו<strong>אין</strong> שורת המראה.</span>
+                </div>
+              </div>
+              <div class="run-pane edge">
+                <div class="run-cap"><span class="run-dot"></span><span data-en>edge · countdown from 0</span><span data-he>קצה · ספירה מ־0</span></div>
+                <div class="console">fuel? <span class="usr">50</span>
+countdown from? <span class="usr">0</span>
+🚀 LIFT OFF! fuel left: 50.0</div>
+                <div class="text-xs text-[#134E4A]/55 mt-2">
+                  <span data-en><code class="inl">0 &gt; 0</code> is <code class="inl">False</code> — a <code class="inl">while</code> can run zero times, and that is not a bug.</span>
+                  <span data-he class="rtl block"><code class="inl">0 &gt; 0</code> הוא <code class="inl">False</code> — לולאת <code class="inl">while</code> יכולה לרוץ אפס פעמים, וזה לא באג.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── edge cases + hint ── -->
+          <div data-en class="mt-7">
+            <div class="bg-orange-50 border-l-4 border-[#F97316] rounded-r-xl px-4 py-3 text-sm text-[#7C2D12] mb-4">
+              <strong>⚠️ Two edge cases:</strong> (a) the tank runs dry in the middle — the rocket must <strong>not</strong> lift off; (b) the countdown starts at <code class="inl">0</code> — the loop body runs <strong>zero times</strong> and the rocket lifts off with a full tank.
+            </div>
+            <div class="bg-teal-50 border-l-4 border-[#0D9488] rounded-r-xl px-4 py-3 text-sm text-[#134E4A]/80">
+              <strong>💡 Hint:</strong> this question has <strong>no <code class="inl">else</code> at all</strong> — just two separate plain <code class="inl">if</code>s. And do not forget the line that makes the count smaller, or the countdown never ends.
+            </div>          </div>
+          <div data-he class="rtl mt-7">
+            <div class="bg-orange-50 border-r-4 border-[#F97316] rounded-l-xl px-4 py-3 text-sm text-[#7C2D12] mb-4">
+              <strong>⚠️ שני מקרי קצה:</strong> (א) המיכל נגמר באמצע — הרקטה <strong>לא</strong> ממריאה; (ב) הספירה מתחילה מ־<code class="inl">0</code> — גוף הלולאה רץ <strong>אפס פעמים</strong> והרקטה ממריאה עם מיכל מלא.
+            </div>
+            <div class="bg-teal-50 border-r-4 border-[#0D9488] rounded-l-xl px-4 py-3 text-sm text-[#134E4A]/80">
+              <strong>💡 רמז:</strong> בשאלה הזו <strong>אין <code class="inl">else</code> בכלל</strong> — רק שני <code class="inl">if</code> נפרדים ופשוטים. ואל תשכחו את השורה שמקטינה את המונה, אחרת הספירה לא נגמרת לעולם.
+            </div>          </div>
+
+
+        </div>
+      </section>
+    </article>
+
+    <!-- ═════════ Q4 · VENDING ═════════ -->
+    <article class="q-slide q-orange" data-q="4">
+      <section class="bg-white rounded-[26px] clay-card-orange overflow-hidden">
+
+        <div class="q-art h-56 md:h-64 bg-gradient-to-br from-[#7C2D12] via-[#EA580C] to-[#FDBA74] flex items-center justify-center">
+          <svg viewBox="0 0 320 200" class="w-full h-full" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <circle cx="36" cy="164" r="46" fill="#fff" opacity="0.08"/>
+            <circle cx="290" cy="36" r="40" fill="#fff" opacity="0.08"/>
+            <!-- machine -->
+            <g transform="translate(96,16)">
+              <rect x="0" y="0" width="128" height="168" rx="16" fill="#FFF7ED" stroke="#7C2D12" stroke-width="4"/>
+              <rect x="10" y="12" width="76" height="106" rx="8" fill="#0F172A" opacity=".85"/>
+              <g class="snack">
+                <rect x="18" y="20" width="26" height="20" rx="4" fill="#92400E"/>
+                <rect x="52" y="20" width="26" height="20" rx="4" fill="#FBBF24"/>
+                <rect x="18" y="48" width="26" height="20" rx="4" fill="#38BDF8"/>
+                <rect x="52" y="48" width="26" height="20" rx="4" fill="#F87171"/>
+                <rect x="18" y="76" width="26" height="20" rx="4" fill="#A3E635"/>
+                <rect x="52" y="76" width="26" height="20" rx="4" fill="#C084FC"/>
+              </g>
+              <rect x="96" y="14" width="22" height="34" rx="5" fill="#FED7AA" stroke="#7C2D12" stroke-width="3"/>
+              <rect x="103" y="22" width="8" height="4" rx="2" fill="#7C2D12"/>
+              <g transform="translate(107,72)"><g class="coin"><circle r="11" fill="#FBBF24" stroke="#B45309" stroke-width="3"/><text x="0" y="5" text-anchor="middle" font-family="Consolas, monospace" font-size="13" font-weight="800" fill="#7C2D12">5</text></g></g>
+              <rect x="10" y="128" width="108" height="28" rx="7" fill="#1F2937"/>
+              <text x="64" y="147" text-anchor="middle" font-family="Consolas, monospace" font-size="14" font-weight="800" fill="#FDE68A">CHANGE</text>
+            </g>
+            <text x="14" y="46" font-family="Consolas, monospace" font-size="15" font-weight="700" fill="#FFF7ED">1 🍫 = 7</text>
+            <text x="14" y="70" font-family="Consolas, monospace" font-size="15" font-weight="700" fill="#FFF7ED">2 🥔 = 5</text>
+            <text x="14" y="94" font-family="Consolas, monospace" font-size="15" font-weight="700" fill="#FFF7ED">3 💧 = 3</text>
+            <text x="238" y="118" font-family="Consolas, monospace" font-size="13" font-weight="700" fill="#FFF7ED">accepts:</text>
+            <text x="238" y="140" font-family="Consolas, monospace" font-size="15" font-weight="800" fill="#FDE68A">1 5 10</text>
+            <text x="238" y="160" font-family="Consolas, monospace" font-size="15" font-weight="800" fill="#FDE68A">20 50</text>
+          </svg>
+        </div>
+
+        <div class="p-6 md:p-8">
+          <div class="flex items-center gap-3 flex-wrap mb-3">
+            <span class="text-xs font-bold tracking-widest uppercase text-white bg-[#F97316] px-3 py-1 rounded-full">Question 4</span>
+            <span class="text-xs font-bold text-[#F97316] bg-orange-50 border border-orange-200 px-3 py-1 rounded-full">while True + while</span>
+            <span class="text-xs font-bold text-[#B91C1C] bg-red-50 border border-red-200 px-3 py-1 rounded-full">spicy</span>
+          </div>
+
+          <h2 class="heading text-3xl font-extrabold text-[#134E4A] mb-4">
+            <span data-en>🍫 The Vending Machine</span><span data-he>🍫 מכונת החטיפים</span>
+          </h2>
+
+          <div data-en>
+            <p class="text-[#134E4A]/80 leading-relaxed mb-4">
+              <strong>One</strong> customer walks up to the machine. Your program serves them from the first coin to the last — and it needs <strong>two loops</strong>, each with a completely different job.
+            </p>
+
+            <p class="text-[#134E4A]/80 mb-2"><strong>Loop 1 — pick a snack.</strong> Ask for a snack code again and again until the code is legal, and set the price with an <code class="inl">if / elif / else</code>:</p>
+            <ul class="list-disc pl-6 space-y-1.5 text-[#134E4A]/80 mb-4">
+              <li><code class="inl">1</code> → 🍫 chocolate, price <strong>7</strong> &nbsp;·&nbsp; <code class="inl">2</code> → 🥔 chips, price <strong>5</strong> &nbsp;·&nbsp; <code class="inl">3</code> → 💧 water, price <strong>3</strong></li>
+              <li>anything else → print <code class="inl">unknown code, try again 😴</code> and ask once more</li>
+            </ul>
+
+            <p class="text-[#134E4A]/80 mb-2"><strong>Loop 2 — take the money.</strong> Keep asking <code class="inl">insert money:</code> <strong>while</strong> the money paid so far is still less than the price. The machine only accepts these five:</p>
+            <div class="flex flex-wrap gap-2 my-3">
+              <span class="chip op">🪙 1</span><span class="chip op">🪙 5</span><span class="chip op">🪙 10</span><span class="chip op">💵 20</span><span class="chip op">💵 50</span>
+            </div>
+            <ul class="list-disc pl-6 space-y-1.5 text-[#134E4A]/80 mb-4">
+              <li>Anything else (a <code class="inl">3</code>, a <code class="inl">7</code>, a <code class="inl">100</code>…) is not real money here → print <code class="inl">the machine spits it out 🪙</code> and ask again. It does <strong>not</strong> count and it does <strong>not</strong> get added.</li>
+              <li>Every accepted piece is added to the total paid, and counted.</li>
+              <li>Remember the <strong>biggest</strong> piece the customer used.</li>
+            </ul>
+
+            <p class="text-[#134E4A]/80 mb-2">When there is enough money in the machine:</p>
+            <ul class="list-disc pl-6 space-y-1.5 text-[#134E4A]/80 mb-4">
+              <li>the change is <code class="inl">paid - price</code> — print it as one number, e.g. <code class="inl">change: 27</code>;</li>
+              <li>but if the change is <code class="inl">0</code> print <code class="inl">no change, exact! 🎯</code> instead;</li>
+              <li>then the snack, and the receipt: how many pieces of money went in, the biggest one, and the <strong>average</strong> (<code class="inl">paid / pieces</code>).</li>
+            </ul>
+
+            <div class="bg-amber-50 border-l-4 border-amber-400 rounded-r-xl px-4 py-3 text-sm text-[#7C2D12] mb-4">
+              <strong>⭐ Bonus — hand back real money.</strong> Instead of one number, give the change back as actual bills and coins, always the biggest first: <strong>50, 20, 10, 5, 2, 1</strong>.
+              How many <code class="inl">20</code>s fit in the change? <code class="inl">change // 20</code>. What is left after them? <code class="inl">change % 20</code> — and that leftover is what you carry on to the next size.
+              <br>So <code class="inl">27</code> comes back as <code class="inl">1 x 20, 1 x 5, 1 x 2</code>, and <code class="inl">47</code> as <code class="inl">2 x 20, 1 x 5, 1 x 2</code>.
+            </div>          </div>
+
+          <!-- ── HE ── -->
+          <div data-he class="rtl">
+            <p class="text-[#134E4A]/80 leading-relaxed mb-4">
+              לקוח <strong>אחד</strong> מגיע למכונה. התוכנית שלכם משרתת אותו מהמטבע הראשון ועד האחרון — והיא צריכה <strong>שתי לולאות</strong>, לכל אחת תפקיד שונה לגמרי.
+            </p>
+
+            <p class="text-[#134E4A]/80 mb-2"><strong>לולאה 1 — בחירת חטיף.</strong> בקשו קוד חטיף שוב ושוב עד שהקוד חוקי, וקבעו את המחיר ב־<code class="inl">if / elif / else</code>:</p>
+            <ul class="list-disc space-y-1.5 text-[#134E4A]/80 mb-4">
+              <li><code class="inl">1</code> ← 🍫 שוקולד, מחיר <strong>7</strong> &nbsp;·&nbsp; <code class="inl">2</code> ← 🥔 חטיף, מחיר <strong>5</strong> &nbsp;·&nbsp; <code class="inl">3</code> ← 💧 מים, מחיר <strong>3</strong></li>
+              <li>כל דבר אחר ← הדפיסו <code class="inl">unknown code, try again 😴</code> ושאלו שוב</li>
+            </ul>
+
+            <p class="text-[#134E4A]/80 mb-2"><strong>לולאה 2 — גביית הכסף.</strong> המשיכו לבקש <code class="inl">insert money:</code> <strong>כל עוד</strong> הכסף ששולם עד כה קטן מהמחיר. המכונה מקבלת רק את החמישה האלה:</p>
+            <div class="flex flex-wrap gap-2 my-3">
+              <span class="chip op">🪙 1</span><span class="chip op">🪙 5</span><span class="chip op">🪙 10</span><span class="chip op">💵 20</span><span class="chip op">💵 50</span>
+            </div>
+            <ul class="list-disc space-y-1.5 text-[#134E4A]/80 mb-4">
+              <li>כל דבר אחר <span dir="ltr" class="inline-block">(<code class="inl">3</code>, <code class="inl">7</code>, <code class="inl">100</code>)</span> וכו׳ הוא לא כסף אמיתי כאן ← הדפיסו <code class="inl">the machine spits it out 🪙</code> ובקשו שוב. הוא <strong>לא</strong> נספר ו<strong>לא</strong> מתווסף.</li>
+              <li>כל פריט שהתקבל מתווסף לסכום ששולם, ונספר.</li>
+              <li>זכרו מהו הפריט <strong>הגדול ביותר</strong> שהלקוח הכניס.</li>
+            </ul>
+
+            <p class="text-[#134E4A]/80 mb-2">כשיש מספיק כסף במכונה:</p>
+            <ul class="list-disc space-y-1.5 text-[#134E4A]/80 mb-4">
+              <li>העודף הוא <code class="inl">paid - price</code> — הדפיסו אותו כמספר אחד, למשל <code class="inl">change: 27</code>;</li>
+              <li>אבל אם העודף הוא <code class="inl">0</code> הדפיסו במקום <code class="inl">no change, exact! 🎯</code>;</li>
+              <li>ואז את החטיף, ואת הקבלה: כמה פריטי כסף נכנסו, מהו הגדול ביותר, ומהו ה<strong>ממוצע</strong> (<code class="inl">paid / pieces</code>).</li>
+            </ul>
+
+            <div class="bg-amber-50 border-r-4 border-amber-400 rounded-l-xl px-4 py-3 text-sm text-[#7C2D12] mb-4">
+              <strong>⭐ בונוס — להחזיר כסף אמיתי.</strong> במקום מספר אחד, החזירו את העודף כשטרות ומטבעות אמיתיים, תמיד מהגדול לקטן: <strong dir="ltr" class="inline-block">50, 20, 10, 5, 2, 1</strong>.
+              כמה <code class="inl">20</code> נכנסים בעודף? <code class="inl">change // 20</code>. מה נשאר אחריהם? <code class="inl">change % 20</code> — והשארית הזו היא מה שממשיכים איתו לגודל הבא.
+              <br>כך <code class="inl">27</code> חוזר כ־<code class="inl">1 x 20, 1 x 5, 1 x 2</code>, ו־<code class="inl">47</code> כ־<code class="inl">2 x 20, 1 x 5, 1 x 2</code>.
+            </div>          </div>
+
+          <!-- must use ── -->
+          <div class="chip-row mt-5">
+            <span class="chip">while True</span><span class="chip">break</span><span class="chip">while</span><span class="chip">if / elif / else</span><span class="chip">and / or</span>
+            <span class="chip op">+</span><span class="chip op">-</span><span class="chip op">//</span><span class="chip op">%</span><span class="chip op">/</span>
+          </div>
+
+          <div class="mt-7">
+            <h3 class="heading font-bold text-lg text-[#134E4A] mb-3">
+              <span data-en>▶ Run demos — your program must behave exactly like this</span>
+              <span data-he class="rtl block">▶ הרצות לדוגמה — התוכנית שלכם חייבת להתנהג בדיוק כך</span>
+            </h3>
+            <div class="runs">
+              <div class="run-pane">
+                <div class="run-cap"><span class="run-dot"></span><span data-en>normal run</span><span data-he>הרצה רגילה</span></div>
+                <div class="console">snack [1/2/3]? <span class="usr">1</span>
+insert money: <span class="usr">5</span>
+insert money: <span class="usr">10</span>
+change: 8
+<span class="dim">bonus -&gt; 1 x 5, 1 x 2, 1 x 1</span>
+enjoy your 🍫
+money accepted: 2
+biggest: 10
+average: 7.5</div>
+                <div class="text-xs text-[#134E4A]/55 mt-2">
+                  <span data-en>5 is not enough for a 7 snack, so the loop asks again. The <span class="text-[#8b949e]">grey</span> line is the bonus.</span>
+                  <span data-he class="rtl block">5 לא מספיק לחטיף ב־7, אז הלולאה מבקשת שוב. השורה ה<span class="text-[#8b949e]">אפורה</span> היא הבונוס.</span>
+                </div>
+              </div>
+              <div class="run-pane edge">
+                <div class="run-cap"><span class="run-dot"></span><span data-en>edge · bad code, fake money, exact change</span><span data-he>קצה · קוד שגוי, כסף לא חוקי, בדיוק</span></div>
+                <div class="console">snack [1/2/3]? <span class="usr">9</span>
+unknown code, try again 😴
+snack [1/2/3]? <span class="usr">2</span>
+insert money: <span class="usr">3</span>
+the machine spits it out 🪙
+insert money: <span class="usr">5</span>
+no change, exact! 🎯
+enjoy your 🥔
+money accepted: 1
+biggest: 5
+average: 5.0</div>
+                <div class="text-xs text-[#134E4A]/55 mt-2">
+                  <span data-en>The <code class="inl">3</code> is not one of the five, so it is spat out — <code class="inl">money accepted</code> stays <code class="inl">1</code>.</span>
+                  <span data-he class="rtl block">ה־<code class="inl">3</code> אינו אחד מהחמישה, אז הוא נפלט החוצה — <code class="inl">money accepted</code> נשאר <code class="inl">1</code>.</span>
+                </div>
+              </div>
+              <div class="run-pane edge">
+                <div class="run-cap"><span class="run-dot"></span><span data-en>edge · a 50 bill for a 3 water</span><span data-he>קצה · שטר 50 עבור מים ב־3</span></div>
+                <div class="console">snack [1/2/3]? <span class="usr">3</span>
+insert money: <span class="usr">50</span>
+change: 47
+<span class="dim">bonus -&gt; 2 x 20, 1 x 5, 1 x 2</span>
+enjoy your 💧
+money accepted: 1
+biggest: 50
+average: 50.0</div>
+                <div class="text-xs text-[#134E4A]/55 mt-2">
+                  <span data-en><code class="inl">47 // 20</code> is <code class="inl">2</code>, <code class="inl">47 % 20</code> is <code class="inl">7</code>; then <code class="inl">7 // 5</code> is <code class="inl">1</code> and <code class="inl">7 % 5</code> is <code class="inl">2</code>.</span>
+                  <span data-he class="rtl block"><code class="inl">47 // 20</code> שווה <code class="inl">2</code>, <code class="inl">47 % 20</code> שווה <code class="inl">7</code>; אחר כך <code class="inl">7 // 5</code> שווה <code class="inl">1</code> ו־<code class="inl">7 % 5</code> שווה <code class="inl">2</code>.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── edge cases + hint ── -->
+          <div data-en class="mt-7">
+            <div class="bg-orange-50 border-l-4 border-[#F97316] rounded-r-xl px-4 py-3 text-sm text-[#7C2D12] mb-4">
+              <strong>⚠️ Edge cases:</strong> a wrong snack code must <em>not</em> end the program — it just asks again; money that is not <code class="inl">1, 5, 10, 20, 50</code> must be refused <em>without</em> being added or counted; and when the money is exact there is <strong>no change line at all</strong>, only <code class="inl">no change, exact! 🎯</code>.
+            </div>
+            <div class="bg-teal-50 border-l-4 border-[#0D9488] rounded-r-xl px-4 py-3 text-sm text-[#134E4A]/80">
+              <strong>💡 Hint:</strong> loop 1 is a <code class="inl">while True</code> that <code class="inl">break</code>s the moment a legal code arrives. Loop 2 is a plain <code class="inl">while paid &lt; price</code>; start <code class="inl">paid = 0</code>, <code class="inl">pieces = 0</code> and <code class="inl">biggest = None</code> before it. To check the five values in one line: <code class="inl">if money != 1 and money != 5 and money != 10 and money != 20 and money != 50:</code> → spit it out. For the bonus, do the same two lines six times, from <code class="inl">50</code> down to <code class="inl">1</code>.
+            </div>          </div>
+          <div data-he class="rtl mt-7">
+            <div class="bg-orange-50 border-r-4 border-[#F97316] rounded-l-xl px-4 py-3 text-sm text-[#7C2D12] mb-4">
+              <strong>⚠️ מקרי קצה:</strong> קוד חטיף שגוי <em>לא</em> מסיים את התוכנית — פשוט שואלים שוב; כסף שאינו <code class="inl">1, 5, 10, 20, 50</code> חייב להידחות <em>בלי</em> להתווסף ובלי להיספר; וכשהכסף מדויק <strong>אין שורת עודף בכלל</strong>, רק <code class="inl">no change, exact! 🎯</code>.
+            </div>
+            <div class="bg-teal-50 border-r-4 border-[#0D9488] rounded-l-xl px-4 py-3 text-sm text-[#134E4A]/80">
+              <strong>💡 רמז:</strong> לולאה 1 היא <code class="inl">while True</code> שעושה <code class="inl">break</code> ברגע שמגיע קוד חוקי. לולאה 2 היא <code class="inl">while paid &lt; price</code> פשוטה; התחילו עם <code class="inl">paid = 0</code>, <code class="inl">pieces = 0</code> ו־<code class="inl">biggest = None</code> לפניה. כדי לבדוק את חמשת הערכים בשורה אחת: <code class="inl">if money != 1 and money != 5 and money != 10 and money != 20 and money != 50:</code> ← לפלוט החוצה. לבונוס, עשו את אותן שתי שורות שש פעמים, מ־<code class="inl">50</code> ועד <code class="inl">1</code>.
+            </div>          </div>
+
+        </div>
+      </section>
+    </article>
+
+    <!-- ═════════ Q5 · DIGITS ═════════ -->
+    <article class="q-slide" data-q="5">
+      <section class="bg-white rounded-[26px] clay-card overflow-hidden">
+
+        <div class="q-art h-56 md:h-64 bg-gradient-to-br from-[#134E4A] via-[#0F766E] to-[#F59E0B] flex items-center justify-center">
+          <svg viewBox="0 0 320 200" class="w-full h-full" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <circle cx="40" cy="36" r="40" fill="#fff" opacity="0.07"/>
+            <circle cx="286" cy="170" r="46" fill="#fff" opacity="0.07"/>
+            <rect x="42" y="52" width="236" height="86" rx="18" fill="#0B2517" opacity=".82" stroke="#5EEAD4" stroke-width="3"/>
+            <g>
+              <g class="reel"><rect x="60" y="68" width="46" height="54" rx="9" fill="#F0FDFA"/><text x="83" y="107" text-anchor="middle" font-family="Consolas, monospace" font-size="34" font-weight="800" fill="#0F766E">4</text></g>
+              <g class="reel"><rect x="114" y="68" width="46" height="54" rx="9" fill="#F0FDFA"/><text x="137" y="107" text-anchor="middle" font-family="Consolas, monospace" font-size="34" font-weight="800" fill="#0F766E">7</text></g>
+              <g class="reel"><rect x="168" y="68" width="46" height="54" rx="9" fill="#F0FDFA"/><text x="191" y="107" text-anchor="middle" font-family="Consolas, monospace" font-size="34" font-weight="800" fill="#0F766E">0</text></g>
+              <g class="reel"><rect x="222" y="68" width="46" height="54" rx="9" fill="#F0FDFA"/><text x="245" y="107" text-anchor="middle" font-family="Consolas, monospace" font-size="34" font-weight="800" fill="#0F766E">3</text></g>
+            </g>
+            <text x="160" y="34" text-anchor="middle" font-family="Consolas, monospace" font-size="16" font-weight="700" fill="#CCFBF1">num % 10  →  last digit</text>
+            <text x="160" y="170" text-anchor="middle" font-family="Consolas, monospace" font-size="16" font-weight="700" fill="#FDE68A">num // 10  →  drop it</text>
+            <text x="286" y="44" font-size="26">✨</text>
+          </svg>
+        </div>
+
+        <div class="p-6 md:p-8">
+          <div class="flex items-center gap-3 flex-wrap mb-3">
+            <span class="text-xs font-bold tracking-widest uppercase text-white bg-[#0D9488] px-3 py-1 rounded-full">Question 5</span>
+            <span class="text-xs font-bold text-[#0D9488] bg-teal-50 border border-teal-200 px-3 py-1 rounded-full">while + if/elif/else</span>
+            <span class="text-xs font-bold text-[#B91C1C] bg-red-50 border border-red-200 px-3 py-1 rounded-full">spicy</span>
+          </div>
+
+          <h2 class="heading text-3xl font-extrabold text-[#134E4A] mb-4">
+            <span data-en>🎰 Digit Detective</span><span data-he>🎰 בלש הספרות</span>
+          </h2>
+
+          <div data-en>
+            <p class="text-[#134E4A]/80 leading-relaxed mb-4">
+              A number walks in and you have to take it apart digit by digit 🕵️ — without strings and without lists. Two operators do the whole job: <code class="inl">num % 10</code> hands you the <strong>last</strong> digit, and <code class="inl">num // 10</code> throws that digit away.
+            </p>
+            <ol class="list-decimal pl-6 space-y-2 text-[#134E4A]/80 mb-4">
+              <li>Read <strong>one</strong> whole number.</li>
+              <li>If it is <strong>negative</strong>: print <code class="inl">(minus ignored 🙈)</code> and flip the sign yourself with <code class="inl">num = num * -1</code> — <code class="inl">abs()</code> is not allowed here.</li>
+              <li>Start your trackers: digit sum at <code class="inl">0</code>, the counter at <code class="inl">0</code>, and biggest / smallest digit at <code class="inl">None</code>.</li>
+              <li>If the number is <code class="inl">0</code> it still <em>has</em> one digit — say so yourself: sum <code class="inl">0</code>, biggest <code class="inl">0</code>, smallest <code class="inl">0</code>, count <code class="inl">1</code>.</li>
+              <li>Otherwise peel it with a <code class="inl">while</code> loop, as long as the number is bigger than <code class="inl">0</code>:
+                <ul class="list-disc pl-6 mt-1.5 space-y-1">
+                  <li>take the last digit with <code class="inl">num % 10</code>;</li>
+                  <li>add it to the sum, add <code class="inl">1</code> to the counter, and update biggest and smallest;</li>
+                  <li>drop that digit with <code class="inl">num = num // 10</code>.</li>
+                </ul>
+              </li>
+              <li>Print the digit sum, the biggest digit, the smallest digit, the digit count, and the <strong>average digit</strong> (sum <code class="inl">/</code> count).</li>
+              <li>Finally judge the number with <code class="inl">if / elif / else</code>: if the digit sum divides by <code class="inl">3</code> → <code class="inl">lucky ✨</code>, else if it is even → <code class="inl">even vibes 🙂</code>, otherwise <code class="inl">plain 😐</code>.</li>
+            </ol>          </div>
+
+          <!-- ── HE ── -->
+          <div data-he class="rtl">
+            <p class="text-[#134E4A]/80 leading-relaxed mb-4">
+              מספר נכנס ואתם צריכים לפרק אותו ספרה־ספרה 🕵️ — בלי מחרוזות ובלי רשימות. שני אופרטורים עושים את כל העבודה: <code class="inl">num % 10</code> נותן לכם את הספרה <strong>האחרונה</strong>, ו־<code class="inl">num // 10</code> זורק אותה.
+            </p>
+            <ol class="list-decimal space-y-2 text-[#134E4A]/80 mb-4">
+              <li>קראו <strong>מספר שלם אחד</strong>.</li>
+              <li>אם הוא <strong>שלילי</strong>: הדפיסו <code class="inl">(minus ignored 🙈)</code> והפכו את הסימן לבד עם <code class="inl">num = num * -1</code> — <code class="inl">abs()</code> אסור כאן.</li>
+              <li>התחילו את העוקבים: סכום הספרות ב־<code class="inl">0</code>, המונה ב־<code class="inl">0</code>, והספרה הגדולה / הקטנה ביותר ב־<code class="inl">None</code>.</li>
+              <li>אם המספר הוא <code class="inl">0</code> עדיין <em>יש</em> לו ספרה אחת — אמרו את זה בעצמכם: סכום <code class="inl">0</code>, גדולה <code class="inl">0</code>, קטנה <code class="inl">0</code>, ספירה <code class="inl">1</code>.</li>
+              <li>אחרת פרקו אותו בלולאת <code class="inl">while</code>, כל עוד המספר גדול מ־<code class="inl">0</code>:
+                <ul class="list-disc mt-1.5 space-y-1">
+                  <li>קחו את הספרה האחרונה עם <code class="inl">num % 10</code>;</li>
+                  <li>הוסיפו אותה לסכום, הוסיפו <code class="inl">1</code> למונה, ועדכנו את הגדולה והקטנה;</li>
+                  <li>זרקו את הספרה הזו עם <code class="inl">num = num // 10</code>.</li>
+                </ul>
+              </li>
+              <li>הדפיסו את סכום הספרות, את הספרה הגדולה ביותר, את הקטנה ביותר, את מספר הספרות, ואת <strong>הספרה הממוצעת</strong> (סכום <code class="inl">/</code> ספירה).</li>
+              <li>לסיום שפטו את המספר ב־<code class="inl">if / elif / else</code>: אם סכום הספרות מתחלק ב־<code class="inl">3</code> ← <code class="inl">lucky ✨</code>, אחרת אם הוא זוגי ← <code class="inl">even vibes 🙂</code>, אחרת <code class="inl">plain 😐</code>.</li>
+            </ol>          </div>
+
+          <!-- must use ── -->
+          <div class="chip-row mt-5">
+            <span class="chip">while</span><span class="chip">if / elif / else</span><span class="chip">None</span>
+            <span class="chip op">%</span><span class="chip op">//</span><span class="chip op">+</span><span class="chip op">*</span><span class="chip op">/</span>
+          </div>
+
+          <div class="mt-7">
+            <h3 class="heading font-bold text-lg text-[#134E4A] mb-3">
+              <span data-en>▶ Run demos — your program must behave exactly like this</span>
+              <span data-he class="rtl block">▶ הרצות לדוגמה — התוכנית שלכם חייבת להתנהג בדיוק כך</span>
+            </h3>
+            <div class="runs">
+              <div class="run-pane">
+                <div class="run-cap"><span class="run-dot"></span><span data-en>normal run</span><span data-he>הרצה רגילה</span></div>
+                <div class="console">number? <span class="usr">4703</span>
+digit sum: 14
+biggest digit: 7
+smallest digit: 0
+digit count: 4
+average digit: 3.5
+even vibes 🙂</div>
+                <div class="text-xs text-[#134E4A]/55 mt-2">
+                  <span data-en><code class="inl">14 % 3</code> is <code class="inl">2</code> → not lucky, but <code class="inl">14 % 2</code> is <code class="inl">0</code>.</span>
+                  <span data-he class="rtl block"><code class="inl">14 % 3</code> שווה <code class="inl">2</code> ← לא מזל, אבל <code class="inl">14 % 2</code> שווה <code class="inl">0</code>.</span>
+                </div>
+              </div>
+              <div class="run-pane edge">
+                <div class="run-cap"><span class="run-dot"></span><span data-en>edge · the number zero</span><span data-he>קצה · המספר אפס</span></div>
+                <div class="console">number? <span class="usr">0</span>
+digit sum: 0
+biggest digit: 0
+smallest digit: 0
+digit count: 1
+average digit: 0.0
+lucky ✨</div>
+                <div class="text-xs text-[#134E4A]/55 mt-2">
+                  <span data-en>The loop never runs, so nothing fills itself — you must say what <code class="inl">0</code> means.</span>
+                  <span data-he class="rtl block">הלולאה לא רצה, אז שום דבר לא מתמלא לבד — אתם חייבים להגיד מה זה <code class="inl">0</code>.</span>
+                </div>
+              </div>
+              <div class="run-pane edge">
+                <div class="run-cap"><span class="run-dot"></span><span data-en>edge · negative number</span><span data-he>קצה · מספר שלילי</span></div>
+                <div class="console">number? <span class="usr">-52</span>
+(minus ignored 🙈)
+digit sum: 7
+biggest digit: 5
+smallest digit: 2
+digit count: 2
+average digit: 3.5
+plain 😐</div>
+                <div class="text-xs text-[#134E4A]/55 mt-2">
+                  <span data-en><code class="inl">7 % 3</code> is <code class="inl">1</code> and <code class="inl">7 % 2</code> is <code class="inl">1</code> → the <code class="inl">else</code>.</span>
+                  <span data-he class="rtl block"><code class="inl">7 % 3</code> שווה <code class="inl">1</code> ו־<code class="inl">7 % 2</code> שווה <code class="inl">1</code> ← ה־<code class="inl">else</code>.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── edge cases + hint ── -->
+          <div data-en class="mt-7">
+            <div class="bg-orange-50 border-l-4 border-[#F97316] rounded-r-xl px-4 py-3 text-sm text-[#7C2D12] mb-4">
+              <strong>⚠️ Two edge cases:</strong> (a) the number <code class="inl">0</code> — <code class="inl">while num &gt; 0</code> never runs, yet <code class="inl">0</code> really does have one digit, so handle it on purpose; (b) a <strong>negative</strong> number — you cannot use <code class="inl">abs()</code>, so flip the sign yourself with <code class="inl">num = num * -1</code> and print <code class="inl">(minus ignored 🙈)</code>.
+            </div>
+            <div class="bg-teal-50 border-l-4 border-[#0D9488] rounded-r-xl px-4 py-3 text-sm text-[#134E4A]/80">
+              <strong>💡 Hint:</strong> the digits come out backwards — for a sum, a biggest and a smallest that does not matter at all. Start biggest and smallest at <code class="inl">None</code> so the first digit fills them, whatever it is.
+            </div>          </div>
+          <div data-he class="rtl mt-7">
+            <div class="bg-orange-50 border-r-4 border-[#F97316] rounded-l-xl px-4 py-3 text-sm text-[#7C2D12] mb-4">
+              <strong>⚠️ שני מקרי קצה:</strong> (א) המספר <code class="inl">0</code> — <code class="inl">while num &gt; 0</code> לא רץ אף פעם, אבל ל־<code class="inl">0</code> באמת יש ספרה אחת, אז טפלו בזה בכוונה; (ב) מספר <strong>שלילי</strong> — אסור <code class="inl">abs()</code>, אז הפכו את הסימן לבד עם <code class="inl">num = num * -1</code> והדפיסו <code class="inl">(minus ignored 🙈)</code>.
+            </div>
+            <div class="bg-teal-50 border-r-4 border-[#0D9488] rounded-l-xl px-4 py-3 text-sm text-[#134E4A]/80">
+              <strong>💡 רמז:</strong> הספרות יוצאות מהסוף להתחלה — לסכום, לגדולה ולקטנה זה בכלל לא משנה. התחילו את הגדולה והקטנה ב־<code class="inl">None</code> כדי שהספרה הראשונה תמלא אותן, מה שהיא לא תהיה.
+            </div>          </div>
+
+
+        </div>
+      </section>
+    </article>
+
+    <!-- ═════════ Q6 · FACTORIAL ═════════ -->
+    <article class="q-slide q-orange" data-q="6">
+      <section class="bg-white rounded-[26px] clay-card-orange overflow-hidden">
+
+        <div class="q-art h-56 md:h-64 bg-gradient-to-br from-[#7C2D12] via-[#F97316] to-[#FDE68A] flex items-center justify-center">
+          <svg viewBox="0 0 320 200" class="w-full h-full" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <circle cx="40" cy="38" r="42" fill="#fff" opacity="0.08"/>
+            <circle cx="286" cy="172" r="48" fill="#fff" opacity="0.08"/>
+            <!-- camera -->
+            <g transform="translate(112,34)">
+              <rect x="0" y="14" width="96" height="66" rx="12" fill="#1F2937" stroke="#FDE68A" stroke-width="3"/>
+              <rect x="30" y="4" width="34" height="14" rx="5" fill="#1F2937" stroke="#FDE68A" stroke-width="3"/>
+              <circle cx="48" cy="48" r="20" fill="#0F172A" stroke="#FDBA74" stroke-width="3"/>
+              <circle cx="48" cy="48" r="9" fill="#38BDF8"/>
+              <circle class="flash" cx="80" cy="30" r="5" fill="#FDE047"/>
+            </g>
+            <!-- line of friends -->
+            <g class="lineup">
+              <text x="46" y="140" font-size="26">🧑</text>
+              <text x="94" y="140" font-size="26">👩</text>
+              <text x="142" y="140" font-size="26">🧒</text>
+              <text x="190" y="140" font-size="26">👨</text>
+              <text x="238" y="140" font-size="26">👵</text>
+            </g>
+            <text x="160" y="180" text-anchor="middle" font-family="Consolas, monospace" font-size="20" font-weight="800" fill="#FFF7ED">5! = 1*2*3*4*5 = 120</text>
+          </svg>
+        </div>
+
+        <div class="p-6 md:p-8">
+          <div class="flex items-center gap-3 flex-wrap mb-3">
+            <span class="text-xs font-bold tracking-widest uppercase text-white bg-[#F97316] px-3 py-1 rounded-full">Question 6</span>
+            <span class="text-xs font-bold text-[#F97316] bg-orange-50 border border-orange-200 px-3 py-1 rounded-full">for + if/elif/else</span>
+            <span class="text-xs font-bold text-[#F97316] bg-orange-50 border border-orange-200 px-3 py-1 rounded-full">easy</span>
+          </div>
+
+          <h2 class="heading text-3xl font-extrabold text-[#134E4A] mb-4">
+            <span data-en>🤳 The Selfie Line-Up <span class="text-xl font-normal opacity-60">(factorial)</span></span><span data-he>🤳 תור הסלפי <span class="text-xl font-normal opacity-60">(עצרת)</span></span>
+          </h2>
+
+          <div data-en>
+            <p class="text-[#134E4A]/80 leading-relaxed mb-4">
+              A group of friends want a photo, and they cannot agree who stands where. In how many different <strong>orders</strong> can they line up? With 3 friends there are 6 orders, with 4 there are 24 — every new friend multiplies the answer by their own number. That is <strong>factorial</strong>: <code class="inl">n! = 1 * 2 * 3 * … * n</code>.
+            </p>
+            <ul class="list-disc pl-6 space-y-1.5 text-[#134E4A]/80 mb-4">
+              <li>Read how many friends there are.</li>
+              <li>Start a variable at <code class="inl">1</code> (not <code class="inl">0</code> — you are multiplying!) and walk <code class="inl">1, 2, 3 … n</code> with a <code class="inl">for</code>, multiplying as you go.</li>
+              <li>Print the running answer after every friend joins.</li>
+              <li>Print the total, then judge it with <code class="inl">if / elif / else</code>: over a million → <code class="inl">🤯 more than a million!</code>, over a thousand → <code class="inl">😮 thousands of options</code>, otherwise <code class="inl">🙂 easy to try them all</code>.</li>
+            </ul>          </div>
+
+          <!-- ── HE ── -->
+          <div data-he class="rtl">
+            <p class="text-[#134E4A]/80 leading-relaxed mb-4">
+              חבורת חברים רוצה תמונה, והם לא מצליחים להסכים מי עומד איפה. בכמה <strong>סדרים</strong> שונים אפשר לסדר אותם? עם 3 חברים יש 6 סדרים, עם 4 יש 24 — כל חבר חדש מכפיל את התשובה במספר שלו. זו <strong>עצרת</strong> (factorial): <code class="inl">n! = 1 * 2 * 3 * … * n</code>.
+            </p>
+            <ul class="list-disc space-y-1.5 text-[#134E4A]/80 mb-4">
+              <li>קראו כמה חברים יש.</li>
+              <li>התחילו משתנה ב־<code class="inl">1</code> (לא ב־<code class="inl">0</code> — אתם מכפילים!) ורוצו על <code class="inl">1, 2, 3 … n</code> עם <code class="inl">for</code>, ומכפילים בדרך.</li>
+              <li>הדפיסו את התשובה המתגלגלת אחרי כל חבר שמצטרף.</li>
+              <li>הדפיסו את הסכום הסופי, ואז שפטו אותו ב־<code class="inl">if / elif / else</code>: מעל מיליון ← <code class="inl">🤯 more than a million!</code>, מעל אלף ← <code class="inl">😮 thousands of options</code>, אחרת <code class="inl">🙂 easy to try them all</code>.</li>
+            </ul>          </div>
+
+          <!-- must use ── -->
+          <div class="chip-row mt-5">
+            <span class="chip">for</span><span class="chip">range()</span><span class="chip">if / elif / else</span>
+            <span class="chip op">*</span>
+          </div>
+
+          <div class="mt-7">
+            <h3 class="heading font-bold text-lg text-[#134E4A] mb-3">
+              <span data-en>▶ Run demos — your program must behave exactly like this</span>
+              <span data-he class="rtl block">▶ הרצות לדוגמה — התוכנית שלכם חייבת להתנהג בדיוק כך</span>
+            </h3>
+            <div class="runs">
+              <div class="run-pane">
+                <div class="run-cap"><span class="run-dot"></span><span data-en>normal run</span><span data-he>הרצה רגילה</span></div>
+                <div class="console">how many friends? <span class="usr">5</span>
+friend 1 joins -&gt; 1 orders
+friend 2 joins -&gt; 2 orders
+friend 3 joins -&gt; 6 orders
+friend 4 joins -&gt; 24 orders
+friend 5 joins -&gt; 120 orders
+total: 120 different photos
+🙂 easy to try them all</div>
+              </div>
+              <div class="run-pane edge">
+                <div class="run-cap"><span class="run-dot"></span><span data-en>edge · zero friends</span><span data-he>קצה · אפס חברים</span></div>
+                <div class="console">how many friends? <span class="usr">0</span>
+total: 1 different photos
+🙂 easy to try them all</div>
+                <div class="text-xs text-[#134E4A]/55 mt-2">
+                  <span data-en>The loop runs zero times, so the answer is the starting value — and <code class="inl">0! = 1</code> really is the correct maths.</span>
+                  <span data-he class="rtl block">הלולאה רצה אפס פעמים, אז התשובה היא ערך ההתחלה — ובאמת <code class="inl">0! = 1</code> נכון מתמטית.</span>
+                </div>
+              </div>
+              <div class="run-pane edge">
+                <div class="run-cap"><span class="run-dot"></span><span data-en>edge · it explodes fast</span><span data-he>קצה · זה מתפוצץ מהר</span></div>
+                <div class="console">how many friends? <span class="usr">10</span>
+friend 1 joins -&gt; 1 orders
+friend 2 joins -&gt; 2 orders
+<span class="dim">... 3, 4, 5, 6, 7, 8, 9 ...</span>
+friend 10 joins -&gt; 3628800 orders
+total: 3628800 different photos
+🤯 more than a million!</div>
+                <div class="text-xs text-[#134E4A]/55 mt-2">
+                  <span data-en>Ten friends already beat three million — factorial grows faster than anything you have written so far.</span>
+                  <span data-he class="rtl block">עשרה חברים כבר עוברים שלושה מיליון — עצרת גדלה מהר יותר מכל דבר שכתבתם עד עכשיו.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── edge cases + hint ── -->
+          <div data-en class="mt-7">
+            <div class="bg-orange-50 border-l-4 border-[#F97316] rounded-r-xl px-4 py-3 text-sm text-[#7C2D12] mb-4">
+              <strong>⚠️ Edge case:</strong> <code class="inl">0</code> friends. The <code class="inl">for</code> body never runs, so whatever you started with <em>is</em> the answer. Start at <code class="inl">0</code> and every result becomes <code class="inl">0</code> — the classic factorial bug.
+            </div>
+            <div class="bg-teal-50 border-l-4 border-[#0D9488] rounded-r-xl px-4 py-3 text-sm text-[#134E4A]/80">
+              <strong>💡 Hint:</strong> <code class="inl">range(1, n + 1)</code> gives you <code class="inl">1 … n</code> — the <code class="inl">+ 1</code> matters, because <code class="inl">range</code> stops <em>before</em> the second number. Inside, one line is enough: <code class="inl">orders = orders * i</code> (or <code class="inl">orders *= i</code>).
+            </div>          </div>
+          <div data-he class="rtl mt-7">
+            <div class="bg-orange-50 border-r-4 border-[#F97316] rounded-l-xl px-4 py-3 text-sm text-[#7C2D12] mb-4">
+              <strong>⚠️ מקרה קצה:</strong> <code class="inl">0</code> חברים. גוף ה־<code class="inl">for</code> לא רץ אף פעם, אז מה שהתחלתם איתו <em>הוא</em> התשובה. אם תתחילו ב־<code class="inl">0</code> כל תוצאה תהיה <code class="inl">0</code> — הבאג הקלאסי של עצרת.
+            </div>
+            <div class="bg-teal-50 border-r-4 border-[#0D9488] rounded-l-xl px-4 py-3 text-sm text-[#134E4A]/80">
+              <strong>💡 רמז:</strong> <code class="inl">range(1, n + 1)</code> נותן לכם <code class="inl">1 … n</code> — ה־<code class="inl">+ 1</code> חשוב, כי <code class="inl">range</code> עוצר <em>לפני</em> המספר השני. בפנים מספיקה שורה אחת: <code class="inl">orders = orders * i</code> (או <code class="inl">orders *= i</code>).
+            </div>          </div>
+
+        </div>
+      </section>
+    </article>
+
+    <!-- ═════════ Q7 · FIBONACCI ═════════ -->
+    <article class="q-slide" data-q="7">
+      <section class="bg-white rounded-[26px] clay-card overflow-hidden">
+
+        <div class="q-art h-56 md:h-64 bg-gradient-to-br from-[#134E4A] via-[#0D9488] to-[#A7F3D0] flex items-center justify-center">
+          <svg viewBox="0 0 320 200" class="w-full h-full" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <circle cx="42" cy="40" r="40" fill="#fff" opacity="0.07"/>
+            <circle cx="284" cy="170" r="46" fill="#fff" opacity="0.07"/>
+            <!-- fibonacci squares -->
+            <g transform="translate(28,52)">
+              <rect class="fib" x="0"  y="88" width="12" height="12" rx="3" fill="#F0FDFA" stroke="#0F766E" stroke-width="2"/>
+              <rect class="fib" x="16" y="88" width="12" height="12" rx="3" fill="#F0FDFA" stroke="#0F766E" stroke-width="2"/>
+              <rect class="fib" x="32" y="76" width="24" height="24" rx="4" fill="#CCFBF1" stroke="#0F766E" stroke-width="2"/>
+              <rect class="fib" x="60" y="64" width="36" height="36" rx="5" fill="#A7F3D0" stroke="#0F766E" stroke-width="2"/>
+              <rect class="fib" x="100" y="40" width="60" height="60" rx="6" fill="#FDE68A" stroke="#B45309" stroke-width="2"/>
+              <text x="6"   y="97" text-anchor="middle" font-family="Consolas, monospace" font-size="8"  font-weight="800" fill="#0F766E">1</text>
+              <text x="22"  y="97" text-anchor="middle" font-family="Consolas, monospace" font-size="8"  font-weight="800" fill="#0F766E">1</text>
+              <text x="44"  y="93" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="800" fill="#0F766E">2</text>
+              <text x="78"  y="88" text-anchor="middle" font-family="Consolas, monospace" font-size="16" font-weight="800" fill="#0F766E">3</text>
+              <text x="130" y="80" text-anchor="middle" font-family="Consolas, monospace" font-size="24" font-weight="800" fill="#7C2D12">5</text>
+            </g>
+            <text x="60" y="36" font-size="24">🐰</text>
+            <text x="98" y="36" font-size="24">🐰</text>
+            <text x="240" y="70" font-size="34">🐇</text>
+            <text x="272" y="120" font-size="26">🐇</text>
+            <text x="160" y="186" text-anchor="middle" font-family="Consolas, monospace" font-size="16" font-weight="800" fill="#083344">next = prev + curr</text>
+          </svg>
+        </div>
+
+        <div class="p-6 md:p-8">
+          <div class="flex items-center gap-3 flex-wrap mb-3">
+            <span class="text-xs font-bold tracking-widest uppercase text-white bg-[#0D9488] px-3 py-1 rounded-full">Question 7</span>
+            <span class="text-xs font-bold text-[#0D9488] bg-teal-50 border border-teal-200 px-3 py-1 rounded-full">while + if + if/elif/else</span>
+            <span class="text-xs font-bold text-[#B91C1C] bg-red-50 border border-red-200 px-3 py-1 rounded-full">spicy</span>
+          </div>
+
+          <h2 class="heading text-3xl font-extrabold text-[#134E4A] mb-4">
+            <span data-en>🐰 The Rabbit Family <span class="text-xl font-normal opacity-60">(fibonacci)</span></span><span data-he>🐰 משפחת הארנבים <span class="text-xl font-normal opacity-60">(פיבונאצ׳י)</span></span>
+          </h2>
+
+          <div data-en>
+            <p class="text-[#134E4A]/80 leading-relaxed mb-4">
+              A farm starts with <strong>1 pair</strong> of rabbits. Month 2 still has 1 pair — they are too young. From month 3 on, the number of pairs is <strong>the two months before it added together</strong>: 1, 1, 2, 3, 5, 8, 13 …
+            </p>
+            <ul class="list-disc pl-6 space-y-1.5 text-[#134E4A]/80 mb-4">
+              <li>Read how many months to simulate, and print the pairs of every single month.</li>
+              <li>Add every month's pairs into a <strong>total</strong>.</li>
+              <li>With a plain <code class="inl">if</code>, count how many months had an <strong>even</strong> number of pairs (<code class="inl">% 2 == 0</code>).</li>
+              <li>At the end print the total and that count, then judge the farm with <code class="inl">if / elif / else</code>: total over 100 → <code class="inl">🐇 population explosion!</code>, over 10 → <code class="inl">🐰 growing nicely</code>, otherwise <code class="inl">🐇 still a small family</code>.</li>
+            </ul>          </div>
+
+          <!-- ── HE ── -->
+          <div data-he class="rtl">
+            <p class="text-[#134E4A]/80 leading-relaxed mb-4">
+              חווה מתחילה עם <strong>זוג אחד</strong> של ארנבים. בחודש 2 עדיין יש זוג אחד — הם צעירים מדי. מחודש 3 והלאה, מספר הזוגות הוא <strong>סכום שני החודשים שלפניו</strong>: <span dir="ltr" class="inline-block">1, 1, 2, 3, 5, 8, 13 …</span>
+            </p>
+            <ul class="list-disc space-y-1.5 text-[#134E4A]/80 mb-4">
+              <li>קראו כמה חודשים לדמות, והדפיסו את מספר הזוגות של כל חודש.</li>
+              <li>הוסיפו את הזוגות של כל חודש ל<strong>סכום</strong> כולל.</li>
+              <li>עם <code class="inl">if</code> פשוט, ספרו בכמה חודשים מספר הזוגות היה <strong>זוגי</strong> (<code class="inl">% 2 == 0</code>).</li>
+              <li>בסוף הדפיסו את הסכום ואת הספירה, ואז שפטו את החווה ב־<code class="inl">if / elif / else</code>: סכום מעל 100 ← <code class="inl">🐇 population explosion!</code>, מעל 10 ← <code class="inl">🐰 growing nicely</code>, אחרת <code class="inl">🐇 still a small family</code>.</li>
+            </ul>          </div>
+
+          <!-- must use ── -->
+          <div class="chip-row mt-5">
+            <span class="chip">while</span><span class="chip">if</span><span class="chip">if / elif / else</span>
+            <span class="chip op">+</span><span class="chip op">%</span>
+          </div>
+
+          <div class="mt-7">
+            <h3 class="heading font-bold text-lg text-[#134E4A] mb-3">
+              <span data-en>▶ Run demos — your program must behave exactly like this</span>
+              <span data-he class="rtl block">▶ הרצות לדוגמה — התוכנית שלכם חייבת להתנהג בדיוק כך</span>
+            </h3>
+            <div class="runs">
+              <div class="run-pane">
+                <div class="run-cap"><span class="run-dot"></span><span data-en>normal run</span><span data-he>הרצה רגילה</span></div>
+                <div class="console">how many months? <span class="usr">10</span>
+month 1: 1 pairs
+month 2: 1 pairs
+month 3: 2 pairs
+month 4: 3 pairs
+month 5: 5 pairs
+month 6: 8 pairs
+month 7: 13 pairs
+month 8: 21 pairs
+month 9: 34 pairs
+month 10: 55 pairs
+total pairs: 143
+even months: 3
+🐇 population explosion!</div>
+              </div>
+              <div class="run-pane edge">
+                <div class="run-cap"><span class="run-dot"></span><span data-en>edge · zero months</span><span data-he>קצה · אפס חודשים</span></div>
+                <div class="console">how many months? <span class="usr">0</span>
+total pairs: 0
+even months: 0
+🐇 still a small family</div>
+                <div class="text-xs text-[#134E4A]/55 mt-2">
+                  <span data-en>Nothing is printed inside the loop, and both counters keep their starting <code class="inl">0</code>.</span>
+                  <span data-he class="rtl block">שום דבר לא מודפס בתוך הלולאה, ושני המונים נשארים עם ה־<code class="inl">0</code> ההתחלתי.</span>
+                </div>
+              </div>
+              <div class="run-pane edge">
+                <div class="run-cap"><span class="run-dot"></span><span data-en>edge · one month only</span><span data-he>קצה · חודש אחד בלבד</span></div>
+                <div class="console">how many months? <span class="usr">1</span>
+month 1: 1 pairs
+total pairs: 1
+even months: 0
+🐇 still a small family</div>
+                <div class="text-xs text-[#134E4A]/55 mt-2">
+                  <span data-en>The famous trap: months 1 <em>and</em> 2 are both <code class="inl">1</code>, so a loop that starts adding from month 3 must still print month 1 correctly.</span>
+                  <span data-he class="rtl block">המלכודת המפורסמת: חודש 1 <em>וגם</em> חודש 2 שווים <code class="inl">1</code>, אז לולאה שמתחילה לחבר מחודש 3 חייבת עדיין להדפיס נכון את חודש 1.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── edge cases + hint ── -->
+          <div data-en class="mt-7">
+            <div class="bg-orange-50 border-l-4 border-[#F97316] rounded-r-xl px-4 py-3 text-sm text-[#7C2D12] mb-4">
+              <strong>⚠️ Two edge cases:</strong> <code class="inl">0</code> months (print no month lines at all) and <code class="inl">1</code> month (print exactly one line — do not let the second <code class="inl">1</code> sneak out).
+            </div>
+            <div class="bg-teal-50 border-l-4 border-[#0D9488] rounded-r-xl px-4 py-3 text-sm text-[#134E4A]/80">
+              <strong>💡 Hint:</strong> keep <strong>three</strong> variables: <code class="inl">prev</code>, <code class="inl">curr</code> and a temporary <code class="inl">nxt</code>. Each round: <code class="inl">nxt = prev + curr</code>, then <code class="inl">prev = curr</code>, then <code class="inl">curr = nxt</code>. Do the assignments in that order — swap two of them and you lose a value forever.
+            </div>          </div>
+          <div data-he class="rtl mt-7">
+            <div class="bg-orange-50 border-r-4 border-[#F97316] rounded-l-xl px-4 py-3 text-sm text-[#7C2D12] mb-4">
+              <strong>⚠️ שני מקרי קצה:</strong> <code class="inl">0</code> חודשים (לא להדפיס שורות חודש בכלל) ו־<code class="inl">1</code> חודש (להדפיס בדיוק שורה אחת — שה־<code class="inl">1</code> השני לא יתגנב החוצה).
+            </div>
+            <div class="bg-teal-50 border-r-4 border-[#0D9488] rounded-l-xl px-4 py-3 text-sm text-[#134E4A]/80">
+              <strong>💡 רמז:</strong> החזיקו <strong>שלושה</strong> משתנים: <code class="inl">prev</code>, <code class="inl">curr</code> ומשתנה זמני <code class="inl">nxt</code>. בכל סיבוב: <code class="inl">nxt = prev + curr</code>, אחר כך <code class="inl">prev = curr</code>, ואז <code class="inl">curr = nxt</code>. בדיוק בסדר הזה — תחליפו שניים מהם ותאבדו ערך לתמיד.
+            </div>          </div>
+
+        </div>
+      </section>
+    </article>
+
+    <!-- ═════════ Q8 · PYRAMID ═════════ -->
+    <article class="q-slide q-orange" data-q="8">
+      <section class="bg-white rounded-[26px] clay-card-orange overflow-hidden">
+
+        <div class="q-art h-56 md:h-64 bg-gradient-to-b from-[#0B1026] via-[#134E4A] to-[#0F766E] flex items-center justify-center">
+          <svg viewBox="0 0 320 200" class="w-full h-full" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <g fill="#fff"><circle cx="30" cy="26" r="2"/><circle cx="292" cy="40" r="2.2"/><circle cx="58" cy="168" r="1.8"/><circle cx="270" cy="160" r="1.6"/></g>
+            <g font-size="20" text-anchor="middle">
+              <text class="tw" x="160" y="52">⭐</text>
+              <text class="tw" x="148" y="80">🎄</text><text class="tw" x="172" y="80">🎄</text>
+              <text class="tw" x="136" y="108">⭐</text><text class="tw" x="160" y="108">⭐</text><text class="tw" x="184" y="108">⭐</text>
+              <text class="tw" x="124" y="136">🎄</text><text class="tw" x="148" y="136">🎄</text><text class="tw" x="172" y="136">🎄</text><text class="tw" x="196" y="136">🎄</text>
+            </g>
+            <text x="30" y="70" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#A7F3D0">for row</text>
+            <text x="30" y="92" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#FDE68A">  for col</text>
+            <text x="160" y="176" text-anchor="middle" font-family="Consolas, monospace" font-size="15" font-weight="700" fill="#CCFBF1">1 + 2 + 3 + 4 = 10 symbols</text>
+          </svg>
+        </div>
+
+        <div class="p-6 md:p-8">
+          <div class="flex items-center gap-3 flex-wrap mb-3">
+            <span class="text-xs font-bold tracking-widest uppercase text-white bg-[#F97316] px-3 py-1 rounded-full">Question 8</span>
+            <span class="text-xs font-bold text-[#F97316] bg-orange-50 border border-orange-200 px-3 py-1 rounded-full">for inside for</span>
+            <span class="text-xs font-bold text-[#0D9488] bg-teal-50 border border-teal-200 px-3 py-1 rounded-full">medium</span>
+          </div>
+
+          <h2 class="heading text-3xl font-extrabold text-[#134E4A] mb-4">
+            <span data-en>🎄 The Emoji Pyramid</span><span data-he>🎄 פירמידת האימוג׳י</span>
+          </h2>
+
+          <div data-en>
+            <p class="text-[#134E4A]/80 leading-relaxed mb-4">
+              Build a pyramid out of emoji 🎄 — row 1 has one symbol, row 2 has two, row 3 has three, and so on. This one needs a loop <strong>inside</strong> a loop: the outer one counts rows, the inner one prints the symbols of that row.
+            </p>
+            <ol class="list-decimal pl-6 space-y-2 text-[#134E4A]/80 mb-4">
+              <li>Ask how many <strong>rows</strong> the pyramid should have, and read the number.</li>
+              <li>Start a counter at <code class="inl">0</code> — it will count every symbol you print.</li>
+              <li>Walk the rows <code class="inl">1, 2, 3 … rows</code> with a <code class="inl">for</code>. In every row:
+                <ul class="list-disc pl-6 mt-1.5 space-y-1">
+                  <li>one <code class="inl">if / else</code> picks the symbol: odd rows are <code class="inl">⭐</code>, even rows are <code class="inl">🎄</code>;</li>
+                  <li>an inner <code class="inl">for</code> prints that symbol as many times as the row number, all on <strong>one</strong> line;</li>
+                  <li>add those symbols to the counter, and move to the next line.</li>
+                </ul>
+              </li>
+              <li>After both loops print <code class="inl">total symbols: …</code>.</li>
+              <li><strong>Bonus:</strong> check your counter against the formula <code class="inl">rows * (rows + 1) // 2</code> — they must agree.</li>
+            </ol>          </div>
+
+          <!-- ── HE ── -->
+          <div data-he class="rtl">
+            <p class="text-[#134E4A]/80 leading-relaxed mb-4">
+              בנו פירמידה מאימוג׳י 🎄 — בשורה 1 סמל אחד, בשורה 2 שניים, בשורה 3 שלושה, וכן הלאה. כאן צריך לולאה <strong>בתוך</strong> לולאה: החיצונית סופרת שורות, הפנימית מדפיסה את הסמלים של אותה שורה.
+            </p>
+            <ol class="list-decimal space-y-2 text-[#134E4A]/80 mb-4">
+              <li>שאלו כמה <strong>שורות</strong> תהיינה בפירמידה, וקראו את המספר.</li>
+              <li>התחילו מונה ב־<code class="inl">0</code> — הוא יספור כל סמל שתדפיסו.</li>
+              <li>רוצו על השורות <code class="inl">1, 2, 3 … rows</code> עם <code class="inl">for</code>. בכל שורה:
+                <ul class="list-disc mt-1.5 space-y-1">
+                  <li><code class="inl">if / else</code> אחד בוחר את הסמל: שורות אי־זוגיות הן <code class="inl">⭐</code>, שורות זוגיות הן <code class="inl">🎄</code>;</li>
+                  <li>לולאת <code class="inl">for</code> פנימית מדפיסה את הסמל כמספר השורה, הכול על <strong>שורה אחת</strong>;</li>
+                  <li>הוסיפו את הסמלים האלה למונה, ורדו לשורה הבאה.</li>
+                </ul>
+              </li>
+              <li>אחרי שתי הלולאות הדפיסו <code class="inl">total symbols: …</code>.</li>
+              <li><strong>בונוס:</strong> בדקו את המונה שלכם מול הנוסחה <code class="inl">rows * (rows + 1) // 2</code> — הם חייבים להסכים.</li>
+            </ol>          </div>
+
+          <!-- must use ── -->
+          <div class="chip-row mt-5">
+            <span class="chip">for</span><span class="chip">for inside for</span><span class="chip">if / else</span>
+            <span class="chip">print(end='')</span><span class="chip op">+</span><span class="chip op">*</span><span class="chip op">//</span>
+          </div>
+
+          <div class="mt-7">
+            <h3 class="heading font-bold text-lg text-[#134E4A] mb-3">
+              <span data-en>▶ Run demos — your program must behave exactly like this</span>
+              <span data-he class="rtl block">▶ הרצות לדוגמה — התוכנית שלכם חייבת להתנהג בדיוק כך</span>
+            </h3>
+            <div class="runs">
+              <div class="run-pane">
+                <div class="run-cap"><span class="run-dot"></span><span data-en>normal run</span><span data-he>הרצה רגילה</span></div>
+                <div class="console">how many rows? <span class="usr">5</span>
+⭐
+🎄🎄
+⭐⭐⭐
+🎄🎄🎄🎄
+⭐⭐⭐⭐⭐
+total symbols: 15</div>
+              </div>
+              <div class="run-pane edge">
+                <div class="run-cap"><span class="run-dot"></span><span data-en>edge · zero rows</span><span data-he>קצה · אפס שורות</span></div>
+                <div class="console">how many rows? <span class="usr">0</span>
+total symbols: 0</div>
+                <div class="text-xs text-[#134E4A]/55 mt-2">
+                  <span data-en>Neither loop ever starts — no pyramid, no crash, just the total line.</span>
+                  <span data-he class="rtl block">אף אחת מהלולאות לא מתחילה — אין פירמידה, אין קריסה, רק שורת הסכום.</span>
+                </div>
+              </div>
+              <div class="run-pane edge">
+                <div class="run-cap"><span class="run-dot"></span><span data-en>edge · a single row</span><span data-he>קצה · שורה אחת</span></div>
+                <div class="console">how many rows? <span class="usr">1</span>
+⭐
+total symbols: 1</div>
+                <div class="text-xs text-[#134E4A]/55 mt-2">
+                  <span data-en>The inner loop runs exactly once — and <code class="inl">1 * 2 // 2</code> is <code class="inl">1</code>, so the bonus formula agrees.</span>
+                  <span data-he class="rtl block">הלולאה הפנימית רצה בדיוק פעם אחת — ו־<code class="inl">1 * 2 // 2</code> שווה <code class="inl">1</code>, אז הנוסחה מסכימה.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── edge cases + hint ── -->
+          <div data-en class="mt-7">
+            <div class="bg-orange-50 border-l-4 border-[#F97316] rounded-r-xl px-4 py-3 text-sm text-[#7C2D12] mb-4">
+              <strong>⚠️ Watch the line breaks:</strong> the symbols of one row must land on <strong>one</strong> line. Use <code class="inl">print(symbol, end='')</code> inside the inner loop, then a bare <code class="inl">print()</code> <em>after</em> it to jump to the next row. Put that bare <code class="inl">print()</code> inside the inner loop by mistake and your pyramid becomes a column.
+            </div>
+            <div class="bg-teal-50 border-l-4 border-[#0D9488] rounded-r-xl px-4 py-3 text-sm text-[#134E4A]/80">
+              <strong>💡 Hint:</strong> the inner loop's length <em>depends on</em> the outer counter — that is the whole idea of a nested loop. If the outer variable is <code class="inl">row</code>, the inner one is <code class="inl">for col in range(row)</code>.
+            </div>          </div>
+          <div data-he class="rtl mt-7">
+            <div class="bg-orange-50 border-r-4 border-[#F97316] rounded-l-xl px-4 py-3 text-sm text-[#7C2D12] mb-4">
+              <strong>⚠️ שימו לב לירידות שורה:</strong> הסמלים של שורה אחת חייבים לנחות על <strong>שורה אחת</strong>. השתמשו ב־<code class="inl">print(symbol, end='')</code> בתוך הלולאה הפנימית, ואז <code class="inl">print()</code> ריק <em>אחריה</em> כדי לרדת שורה. אם ה־<code class="inl">print()</code> הריק ייכנס בטעות לתוך הלולאה הפנימית, הפירמידה תהפוך לעמודה.
+            </div>
+            <div class="bg-teal-50 border-r-4 border-[#0D9488] rounded-l-xl px-4 py-3 text-sm text-[#134E4A]/80">
+              <strong>💡 רמז:</strong> האורך של הלולאה הפנימית <em>תלוי</em> במונה של החיצונית — זה כל הרעיון של לולאה מקוננת. אם המשתנה החיצוני הוא <code class="inl">row</code>, הפנימית היא <code class="inl">for col in range(row)</code>.
+            </div>          </div>
+
+        </div>
+      </section>
+    </article>
+
+    <!-- ═════════ Q9 · GROCERY ═════════ -->
+    <article class="q-slide" data-q="9">
+      <section class="bg-white rounded-[26px] clay-card overflow-hidden">
+
+        <div class="q-art h-56 md:h-64 bg-gradient-to-br from-[#134E4A] via-[#0D9488] to-[#FDBA74] flex items-center justify-center">
+          <svg viewBox="0 0 320 200" class="w-full h-full" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <circle cx="40" cy="40" r="42" fill="#fff" opacity="0.07"/>
+            <circle cx="288" cy="168" r="46" fill="#fff" opacity="0.07"/>
+            <!-- cart -->
+            <g transform="translate(96,44)" stroke="#F0FDFA" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M0 6h16l14 62h64l14-46H26"/>
+              <circle cx="46" cy="86" r="8" fill="#F0FDFA"/>
+              <circle cx="90" cy="86" r="8" fill="#F0FDFA"/>
+            </g>
+            <g class="cartitem" font-size="21">
+              <text x="126" y="72">🥑</text><text x="152" y="66">🍞</text><text x="178" y="72">🧀</text>
+            </g>
+            <!-- discount tag -->
+            <g transform="rotate(-12 254 60)">
+              <rect x="216" y="34" width="76" height="46" rx="10" fill="#FDE68A" stroke="#B45309" stroke-width="3"/>
+              <text x="254" y="65" text-anchor="middle" font-family="Consolas, monospace" font-size="22" font-weight="800" fill="#7C2D12">-10%</text>
+            </g>
+            <text x="160" y="164" text-anchor="middle" font-family="Consolas, monospace" font-size="15" font-weight="700" fill="#F0FDFA">total * 10 / 100</text>
+            <text x="160" y="186" text-anchor="middle" font-family="Consolas, monospace" font-size="15" font-weight="700" fill="#FFF7ED">cheapest? average?</text>
+          </svg>
+        </div>
+
+        <div class="p-6 md:p-8">
+          <div class="flex items-center gap-3 flex-wrap mb-3">
+            <span class="text-xs font-bold tracking-widest uppercase text-white bg-[#0D9488] px-3 py-1 rounded-full">Question 9</span>
+            <span class="text-xs font-bold text-[#0D9488] bg-teal-50 border border-teal-200 px-3 py-1 rounded-full">while True + if/elif/else</span>
+            <span class="text-xs font-bold text-[#0D9488] bg-teal-50 border border-teal-200 px-3 py-1 rounded-full">medium</span>
+          </div>
+
+          <h2 class="heading text-3xl font-extrabold text-[#134E4A] mb-4">
+            <span data-en>🛒 The Checkout Line</span><span data-he>🛒 הקופה בסופר</span>
+          </h2>
+
+          <div data-en>
+            <p class="text-[#134E4A]/80 leading-relaxed mb-4">
+              You are the cash register 🛒. Items keep coming down the belt and nobody knows how many there are — the scanning stops only when the customer says <code class="inl">pay</code>.
+            </p>
+            <ol class="list-decimal pl-6 space-y-2 text-[#134E4A]/80 mb-4">
+              <li>Start three trackers: <code class="inl">subtotal = 0</code>, <code class="inl">items = 0</code> and <code class="inl">cheapest = None</code>.</li>
+              <li>Repeat forever (<code class="inl">while True</code>). In every round:
+                <ul class="list-disc pl-6 mt-1.5 space-y-1">
+                  <li>ask <code class="inl">price [or pay]?</code> and read the answer as <strong>text</strong>;</li>
+                  <li>if it is <code class="inl">pay</code> → <code class="inl">break</code>;</li>
+                  <li>otherwise turn it into a <code class="inl">float</code>, add it to the subtotal, count the item, and update the cheapest one.</li>
+                </ul>
+              </li>
+              <li>If no items were scanned at all → print <code class="inl">empty basket 🧺</code> and stop. (An average of zero items does not exist.)</li>
+              <li>Otherwise pick the discount with one <code class="inl">if / elif / else</code>: subtotal <code class="inl">&gt;= 200</code> → <strong>20%</strong>, <code class="inl">&gt;= 100</code> → <strong>10%</strong>, otherwise <strong>0%</strong>.</li>
+              <li>The discount itself is <code class="inl">subtotal * percent / 100</code>, and what you pay is <code class="inl">subtotal - discount</code>.</li>
+              <li>Print the receipt: items, subtotal, the discount, what to pay, the <strong>average item price</strong> and the <strong>cheapest item</strong>.</li>
+            </ol>          </div>
+
+          <!-- ── HE ── -->
+          <div data-he class="rtl">
+            <p class="text-[#134E4A]/80 leading-relaxed mb-4">
+              אתם קופת הסופר 🛒. המוצרים ממשיכים לזוז על המסוע ואף אחד לא יודע כמה יש — הסריקה נעצרת רק כשהלקוח מקליד <code class="inl">pay</code>.
+            </p>
+            <ol class="list-decimal space-y-2 text-[#134E4A]/80 mb-4">
+              <li>התחילו שלושה עוקבים: <code class="inl">subtotal = 0</code>, <code class="inl">items = 0</code> ו־<code class="inl">cheapest = None</code>.</li>
+              <li>חזרו לנצח (<code class="inl">while True</code>). בכל סיבוב:
+                <ul class="list-disc mt-1.5 space-y-1">
+                  <li>שאלו <code class="inl">price [or pay]?</code> וקראו את התשובה כ<strong>טקסט</strong>;</li>
+                  <li>אם זה <code class="inl">pay</code> ← בצעו <code class="inl">break</code>;</li>
+                  <li>אחרת המירו ל־<code class="inl">float</code>, הוסיפו לסכום הביניים, ספרו את המוצר, ועדכנו את הזול ביותר.</li>
+                </ul>
+              </li>
+              <li>אם לא נסרק אף מוצר ← הדפיסו <code class="inl">empty basket 🧺</code> ועצרו. (ממוצע של אפס מוצרים לא קיים.)</li>
+              <li>אחרת בחרו את ההנחה ב־<code class="inl">if / elif / else</code> אחד: סכום ביניים <code class="inl">&gt;= 200</code> ← <strong>20%</strong>, <code class="inl">&gt;= 100</code> ← <strong>10%</strong>, אחרת <strong>0%</strong>.</li>
+              <li>ההנחה עצמה היא <code class="inl">subtotal * percent / 100</code>, ומה שמשלמים הוא <code class="inl">subtotal - discount</code>.</li>
+              <li>הדפיסו את הקבלה: מוצרים, סכום ביניים, ההנחה, כמה לשלם, <strong>מחיר ממוצע למוצר</strong> ו<strong>המוצר הזול ביותר</strong>.</li>
+            </ol>          </div>
+
+          <!-- must use ── -->
+          <div class="chip-row mt-5">
+            <span class="chip">while True</span><span class="chip">break</span><span class="chip">if / elif / else</span>
+            <span class="chip">float()</span><span class="chip">None</span>
+            <span class="chip op">+</span><span class="chip op">-</span><span class="chip op">*</span><span class="chip op">/</span>
+          </div>
+
+          <div class="mt-7">
+            <h3 class="heading font-bold text-lg text-[#134E4A] mb-3">
+              <span data-en>▶ Run demos — your program must behave exactly like this</span>
+              <span data-he class="rtl block">▶ הרצות לדוגמה — התוכנית שלכם חייבת להתנהג בדיוק כך</span>
+            </h3>
+            <div class="runs">
+              <div class="run-pane">
+                <div class="run-cap"><span class="run-dot"></span><span data-en>normal run · 10% ladder</span><span data-he>הרצה רגילה · מדרגת 10%</span></div>
+                <div class="console">price [or pay]? <span class="usr">39.9</span>
+price [or pay]? <span class="usr">120</span>
+price [or pay]? <span class="usr">15.5</span>
+price [or pay]? <span class="usr">pay</span>
+items: 3
+subtotal: 175.4
+discount 10%: 17.54
+to pay: 157.86
+average item: 58.46666666666667
+cheapest item: 15.5</div>
+              </div>
+              <div class="run-pane edge">
+                <div class="run-cap"><span class="run-dot"></span><span data-en>edge · empty basket</span><span data-he>קצה · סל ריק</span></div>
+                <div class="console">price [or pay]? <span class="usr">pay</span>
+empty basket 🧺</div>
+                <div class="text-xs text-[#134E4A]/55 mt-2">
+                  <span data-en>No items → no average (that would divide by zero) and no cheapest item, which is still <code class="inl">None</code>.</span>
+                  <span data-he class="rtl block">אין מוצרים ← אין ממוצע (זו חלוקה באפס) ואין מוצר זול ביותר, הוא עדיין <code class="inl">None</code>.</span>
+                </div>
+              </div>
+              <div class="run-pane edge">
+                <div class="run-cap"><span class="run-dot"></span><span data-en>edge · exactly on the 200 line</span><span data-he>קצה · בדיוק על הגבול 200</span></div>
+                <div class="console">price [or pay]? <span class="usr">200</span>
+price [or pay]? <span class="usr">pay</span>
+items: 1
+subtotal: 200.0
+discount 20%: 40.0
+to pay: 160.0
+average item: 200.0
+cheapest item: 200.0</div>
+                <div class="text-xs text-[#134E4A]/55 mt-2">
+                  <span data-en><code class="inl">&gt;=</code> not <code class="inl">&gt;</code> — exactly 200 already earns the big discount. One item is both the average and the cheapest.</span>
+                  <span data-he class="rtl block"><code class="inl">&gt;=</code> ולא <code class="inl">&gt;</code> — בדיוק 200 כבר מזכה בהנחה הגדולה. מוצר אחד הוא גם הממוצע וגם הזול ביותר.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── edge cases + hint ── -->
+          <div data-en class="mt-7">
+            <div class="bg-orange-50 border-l-4 border-[#F97316] rounded-r-xl px-4 py-3 text-sm text-[#7C2D12] mb-4">
+              <strong>⚠️ Edge cases:</strong> an <strong>empty basket</strong> — print <code class="inl">empty basket 🧺</code> and nothing else, because an average of zero items does not exist; and the <strong>boundary</strong> — a subtotal of exactly <code class="inl">200</code> or exactly <code class="inl">100</code> must land on the better discount.
+            </div>
+            <div class="bg-teal-50 border-l-4 border-[#0D9488] rounded-r-xl px-4 py-3 text-sm text-[#134E4A]/80">
+              <strong>💡 Hint:</strong> <code class="inl">pay</code> is text, so read with <code class="inl">input()</code>, check for <code class="inl">pay</code> and <em>only then</em> convert with <code class="inl">float()</code>. The cheapest tracker starts at <code class="inl">None</code>: <code class="inl">if cheapest is None or price &lt; cheapest:</code>. Do not be surprised by long decimals like <code class="inl">58.46666666666667</code> — that is just how floats look.
+            </div>          </div>
+          <div data-he class="rtl mt-7">
+            <div class="bg-orange-50 border-r-4 border-[#F97316] rounded-l-xl px-4 py-3 text-sm text-[#7C2D12] mb-4">
+              <strong>⚠️ מקרי קצה:</strong> <strong>סל ריק</strong> — הדפיסו <code class="inl">empty basket 🧺</code> ותו לא, כי ממוצע של אפס מוצרים לא קיים; ו<strong>הגבול</strong> — סכום ביניים של בדיוק <code class="inl">200</code> או בדיוק <code class="inl">100</code> חייב לנחות על ההנחה הטובה יותר.
+            </div>
+            <div class="bg-teal-50 border-r-4 border-[#0D9488] rounded-l-xl px-4 py-3 text-sm text-[#134E4A]/80">
+              <strong>💡 רמז:</strong> <code class="inl">pay</code> היא מילה, אז קראו עם <code class="inl">input()</code>, בדקו אם זה <code class="inl">pay</code> <em>ורק אז</em> המירו עם <code class="inl">float()</code>. העוקב של הזול ביותר מתחיל ב־<code class="inl">None</code>: <code class="inl">if cheapest is None or price &lt; cheapest:</code>. אל תיבהלו ממספרים עשרוניים ארוכים כמו <code class="inl">58.46666666666667</code> — ככה נראים floats.
+            </div>          </div>
+
+        </div>
+      </section>
+    </article>
+
+    <!-- ═════════ Q10 · STOPWATCH ═════════ -->
+    <article class="q-slide q-orange" data-q="10">
+      <section class="bg-white rounded-[26px] clay-card-orange overflow-hidden">
+
+        <div class="q-art h-56 md:h-64 bg-gradient-to-br from-[#7C2D12] via-[#EA580C] to-[#FDE68A] flex items-center justify-center">
+          <svg viewBox="0 0 320 200" class="w-full h-full" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <circle cx="36" cy="168" r="44" fill="#fff" opacity="0.08"/>
+            <circle cx="290" cy="34" r="40" fill="#fff" opacity="0.08"/>
+            <!-- stopwatch -->
+            <g transform="translate(160,104)">
+              <circle r="56" fill="#FFF7ED" stroke="#7C2D12" stroke-width="5"/>
+              <rect x="-11" y="-70" width="22" height="12" rx="4" fill="#7C2D12"/>
+              <circle r="46" fill="none" stroke="#FDBA74" stroke-width="2"/>
+              <g stroke="#7C2D12" stroke-width="3" stroke-linecap="round">
+                <path d="M0 -46v-8M0 46v8M-46 0h-8M46 0h8"/>
+              </g>
+              <g class="hand"><path d="M0 4V-38" stroke="#DC2626" stroke-width="4" stroke-linecap="round"/></g>
+              <circle r="4.5" fill="#7C2D12"/>
+            </g>
+            <text x="46" y="64" font-family="Consolas, monospace" font-size="15" font-weight="700" fill="#FFF7ED">// 3600</text>
+            <text x="46" y="88" font-family="Consolas, monospace" font-size="15" font-weight="700" fill="#FFF7ED">% 3600</text>
+            <text x="46" y="112" font-family="Consolas, monospace" font-size="15" font-weight="700" fill="#FFF7ED">// 60</text>
+            <text x="46" y="136" font-family="Consolas, monospace" font-size="15" font-weight="700" fill="#FFF7ED">% 60</text>
+            <text x="248" y="96" font-size="30">🏃</text>
+            <text x="252" y="140" font-family="Consolas, monospace" font-size="15" font-weight="800" fill="#FFF7ED">1h 2m 5s</text>
+          </svg>
+        </div>
+
+        <div class="p-6 md:p-8">
+          <div class="flex items-center gap-3 flex-wrap mb-3">
+            <span class="text-xs font-bold tracking-widest uppercase text-white bg-[#F97316] px-3 py-1 rounded-full">Question 10</span>
+            <span class="text-xs font-bold text-[#F97316] bg-orange-50 border border-orange-200 px-3 py-1 rounded-full">while sentinel + if/elif/else</span>
+            <span class="text-xs font-bold text-[#B91C1C] bg-red-50 border border-red-200 px-3 py-1 rounded-full">spicy</span>
+          </div>
+
+          <h2 class="heading text-3xl font-extrabold text-[#134E4A] mb-4">
+            <span data-en>⏱️ The Running Club Stopwatch</span><span data-he>⏱️ שעון העצר של מועדון הריצה</span>
+          </h2>
+
+          <div data-en>
+            <p class="text-[#134E4A]/80 leading-relaxed mb-4">
+              Runners come back from the race one by one 🏃 and shout their time <strong>in seconds</strong>. A time of <code class="inl">0</code> is the club's signal that the day is over — a <em>sentinel</em>: a value that means "stop", not a real measurement.
+            </p>
+            <ol class="list-decimal pl-6 space-y-2 text-[#134E4A]/80 mb-4">
+              <li>Start the trackers: <code class="inl">longest = None</code>, <code class="inl">shortest = None</code>, a total at <code class="inl">0</code> and a counter at <code class="inl">0</code>.</li>
+              <li>Ask <code class="inl">seconds [0 to stop]?</code> and read a whole number.</li>
+              <li>Keep going <strong>while</strong> that number is not <code class="inl">0</code>. In every round:
+                <ul class="list-disc pl-6 mt-1.5 space-y-1">
+                  <li>hours are <code class="inl">seconds // 3600</code>; what is left is <code class="inl">seconds % 3600</code>; minutes are that <code class="inl">// 60</code> and the rest is <code class="inl">% 60</code> — print it as <code class="inl">1h 2m 5s</code>;</li>
+                  <li>judge it with <code class="inl">if / elif / else</code>: under an hour → <code class="inl">🚀 speedy</code>, under three hours → <code class="inl">🏃 solid</code>, otherwise <code class="inl">🐢 scenic route</code>;</li>
+                  <li>update the longest and the shortest, add to the total and count the runner;</li>
+                  <li>ask for the next time.</li>
+                </ul>
+              </li>
+              <li>After the loop: if nobody ran → print <code class="inl">no runs recorded 🤷</code>.</li>
+              <li>Otherwise print the longest, the shortest and the <strong>average</strong> (total <code class="inl">/</code> counter).</li>
+            </ol>          </div>
+
+          <!-- ── HE ── -->
+          <div data-he class="rtl">
+            <p class="text-[#134E4A]/80 leading-relaxed mb-4">
+              רצים חוזרים מהמרוץ אחד אחרי השני 🏃 וצועקים את הזמן שלהם <strong>בשניות</strong>. זמן של <code class="inl">0</code> הוא הסימן של המועדון שהיום נגמר — ערך <em>סנטינל</em>: ערך שמשמעותו "עצור", לא מדידה אמיתית.
+            </p>
+            <ol class="list-decimal space-y-2 text-[#134E4A]/80 mb-4">
+              <li>התחילו את העוקבים: <code class="inl">longest = None</code>, <code class="inl">shortest = None</code>, סכום ב־<code class="inl">0</code> ומונה ב־<code class="inl">0</code>.</li>
+              <li>שאלו <code class="inl">seconds [0 to stop]?</code> וקראו מספר שלם.</li>
+              <li>המשיכו <strong>כל עוד</strong> המספר הזה אינו <code class="inl">0</code>. בכל סיבוב:
+                <ul class="list-disc mt-1.5 space-y-1">
+                  <li>השעות הן <code class="inl">seconds // 3600</code>; מה שנשאר הוא <code class="inl">seconds % 3600</code>; הדקות הן זה <code class="inl">// 60</code> והשאר <code class="inl">% 60</code> — הדפיסו בפורמט <code class="inl">1h 2m 5s</code>;</li>
+                  <li>שפטו אותו ב־<code class="inl">if / elif / else</code>: מתחת לשעה ← <code class="inl">🚀 speedy</code>, מתחת לשלוש שעות ← <code class="inl">🏃 solid</code>, אחרת <code class="inl">🐢 scenic route</code>;</li>
+                  <li>עדכנו את הארוך ביותר ואת הקצר ביותר, הוסיפו לסכום וספרו את הרץ;</li>
+                  <li>בקשו את הזמן הבא.</li>
+                </ul>
+              </li>
+              <li>אחרי הלולאה: אם אף אחד לא רץ ← הדפיסו <code class="inl">no runs recorded 🤷</code>.</li>
+              <li>אחרת הדפיסו את הארוך ביותר, את הקצר ביותר ואת ה<strong>ממוצע</strong> (סכום <code class="inl">/</code> מונה).</li>
+            </ol>          </div>
+
+          <!-- must use ── -->
+          <div class="chip-row mt-5">
+            <span class="chip">while</span><span class="chip">if / elif / else</span><span class="chip">None</span>
+            <span class="chip op">//</span><span class="chip op">%</span><span class="chip op">+</span><span class="chip op">/</span>
+          </div>
+
+          <div class="mt-7">
+            <h3 class="heading font-bold text-lg text-[#134E4A] mb-3">
+              <span data-en>▶ Run demos — your program must behave exactly like this</span>
+              <span data-he class="rtl block">▶ הרצות לדוגמה — התוכנית שלכם חייבת להתנהג בדיוק כך</span>
+            </h3>
+            <div class="runs">
+              <div class="run-pane">
+                <div class="run-cap"><span class="run-dot"></span><span data-en>normal run · three runners</span><span data-he>הרצה רגילה · שלושה רצים</span></div>
+                <div class="console">seconds [0 to stop]? <span class="usr">3725</span>
+1h 2m 5s
+🏃 solid
+seconds [0 to stop]? <span class="usr">1800</span>
+0h 30m 0s
+🚀 speedy
+seconds [0 to stop]? <span class="usr">12000</span>
+3h 20m 0s
+🐢 scenic route
+seconds [0 to stop]? <span class="usr">0</span>
+longest: 12000
+shortest: 1800
+average: 5841.666666666667</div>
+              </div>
+              <div class="run-pane edge">
+                <div class="run-cap"><span class="run-dot"></span><span data-en>edge · nobody ran</span><span data-he>קצה · אף אחד לא רץ</span></div>
+                <div class="console">seconds [0 to stop]? <span class="usr">0</span>
+no runs recorded 🤷</div>
+                <div class="text-xs text-[#134E4A]/55 mt-2">
+                  <span data-en>The sentinel arrives first, so the loop body never runs and both trackers are still <code class="inl">None</code>.</span>
+                  <span data-he class="rtl block">הסנטינל מגיע ראשון, אז גוף הלולאה לא רץ ושני העוקבים עדיין <code class="inl">None</code>.</span>
+                </div>
+              </div>
+              <div class="run-pane edge">
+                <div class="run-cap"><span class="run-dot"></span><span data-en>edge · exactly one hour</span><span data-he>קצה · בדיוק שעה</span></div>
+                <div class="console">seconds [0 to stop]? <span class="usr">3600</span>
+1h 0m 0s
+🏃 solid
+seconds [0 to stop]? <span class="usr">0</span>
+longest: 3600
+shortest: 3600
+average: 3600.0</div>
+                <div class="text-xs text-[#134E4A]/55 mt-2">
+                  <span data-en><code class="inl">3600 &lt; 3600</code> is <code class="inl">False</code>, so exactly one hour is <strong>not</strong> speedy — and <code class="inl">3600 % 3600</code> is <code class="inl">0</code>, giving a clean <code class="inl">0m 0s</code>.</span>
+                  <span data-he class="rtl block"><code class="inl">3600 &lt; 3600</code> הוא <code class="inl">False</code>, אז בדיוק שעה <strong>אינה</strong> speedy — ו־<code class="inl">3600 % 3600</code> שווה <code class="inl">0</code>, מה שנותן <code class="inl">0m 0s</code> נקי.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── edge cases + hint ── -->
+          <div data-en class="mt-7">
+            <div class="bg-orange-50 border-l-4 border-[#F97316] rounded-r-xl px-4 py-3 text-sm text-[#7C2D12] mb-4">
+              <strong>⚠️ Edge cases:</strong> <code class="inl">0</code> as the very first answer → print <code class="inl">no runs recorded 🤷</code> and stop (no average, no longest); and the <strong>boundaries</strong> <code class="inl">3600</code> and <code class="inl">10800</code>, which belong to the <em>slower</em> group. And remember: the <code class="inl">0</code> itself is never a measurement — it must not join the total or become the shortest time.
+            </div>
+            <div class="bg-teal-50 border-l-4 border-[#0D9488] rounded-r-xl px-4 py-3 text-sm text-[#134E4A]/80">
+              <strong>💡 Hint:</strong> read the first time <em>before</em> the loop, then <code class="inl">while seconds != 0:</code> and read the next one at the <strong>end</strong> of the body — or use <code class="inl">while True</code> with a <code class="inl">break</code>, whichever you find clearer. <strong>Bonus:</strong> <code class="inl">f'{minutes:02d}'</code> pads a number with a leading zero, turning <code class="inl">2m</code> into <code class="inl">02m</code>.
+            </div>          </div>
+          <div data-he class="rtl mt-7">
+            <div class="bg-orange-50 border-r-4 border-[#F97316] rounded-l-xl px-4 py-3 text-sm text-[#7C2D12] mb-4">
+              <strong>⚠️ מקרי קצה:</strong> <code class="inl">0</code> כתשובה הראשונה ← הדפיסו <code class="inl">no runs recorded 🤷</code> ועצרו (בלי ממוצע, בלי ארוך ביותר); ו<strong>הגבולות</strong> <code class="inl">3600</code> ו־<code class="inl">10800</code>, ששייכים לקבוצה ה<em>איטית</em> יותר. וזכרו: ה־<code class="inl">0</code> עצמו הוא לא מדידה — אסור שיצטרף לסכום או שיהפוך לזמן הקצר ביותר.
+            </div>
+            <div class="bg-teal-50 border-r-4 border-[#0D9488] rounded-l-xl px-4 py-3 text-sm text-[#134E4A]/80">
+              <strong>💡 רמז:</strong> קראו את הזמן הראשון <em>לפני</em> הלולאה, ואז <code class="inl">while seconds != 0:</code> וקראו את הבא ב<strong>סוף</strong> הגוף — או השתמשו ב־<code class="inl">while True</code> עם <code class="inl">break</code>, מה שברור לכם יותר. <strong>בונוס:</strong> <code class="inl">f'{minutes:02d}'</code> מוסיף אפס מוביל, והופך <code class="inl">2m</code> ל־<code class="inl">02m</code>.
+            </div>          </div>
+
+        </div>
+      </section>
+    </article>
+
+    <!-- ═══════════════ PREV / NEXT ═══════════════ -->
+    <div class="flex items-center justify-between gap-4 mt-8 flex-wrap">
+      <button class="navbtn" id="btn-prev" type="button">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+        <span data-en>previous</span><span data-he>הקודם</span>
+      </button>
+      <span class="heading font-bold text-[#134E4A]/50 text-sm" id="counter">1 / 5</span>
+      <button class="navbtn primary" id="btn-next" type="button">
+        <span data-en>next question</span><span data-he>השאלה הבאה</span>
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+  </main>
+
+  <footer class="py-8 px-4 text-center border-t border-teal-100/60 mt-8">
+    <p class="text-sm text-[#134E4A]/40">Python Basics — מאגר שאלות · Question Bank</p>
+  </footer>
+
+<script>
+  // ── language ──
+  const langBtns = document.querySelectorAll('[data-setlang]');
+  function setLang(lang) {
+    document.body.dataset.lang = lang;
+    document.documentElement.lang = lang;
+    langBtns.forEach(b => b.classList.toggle('active', b.dataset.setlang === lang));
+    localStorage.setItem('qbank-lang', lang);
+  }
+  langBtns.forEach(b => b.addEventListener('click', () => setLang(b.dataset.setlang)));
+  setLang(localStorage.getItem('qbank-lang') || 'he');
+
+  // ── slides ──
+  const slides   = Array.from(document.querySelectorAll('.q-slide'));
+  const TOTAL    = slides.length;      // ten questions, all built
+  const READY    = slides.length;
+  const dotsBox  = document.getElementById('dots');
+  const prevBtn  = document.getElementById('btn-prev');
+  const nextBtn  = document.getElementById('btn-next');
+  const counter  = document.getElementById('counter');
+  const fill     = document.getElementById('progress-fill');
+  const label    = document.getElementById('progress-label');
+  const pct      = document.getElementById('progress-pct');
+  document.getElementById('stat-ready').textContent = READY;
+
+  for (let i = 0; i < TOTAL; i++) {
+    const d = document.createElement('button');
+    d.type = 'button';
+    d.className = 'dot' + (i >= READY ? ' locked' : '');
+    d.textContent = i + 1;
+    d.setAttribute('aria-label', 'question ' + (i + 1));
+    if (i < READY) d.addEventListener('click', () => show(i));
+    else d.disabled = true;
+    dotsBox.appendChild(d);
+  }
+  const dots = Array.from(dotsBox.children);
+
+  let current = 0;
+  function show(n) {
+    current = Math.max(0, Math.min(n, READY - 1));
+    slides.forEach((s, i) => s.classList.toggle('active', i === current));
+    dots.forEach((d, i) => d.classList.toggle('active', i === current));
+    counter.textContent = (current + 1) + ' / ' + READY;
+    const p = Math.round(((current + 1) / READY) * 100);
+    fill.style.width = p + '%';
+    pct.textContent = p + '%';
+    const he = document.body.dataset.lang === 'he';
+    label.textContent = he
+      ? 'שאלה ' + (current + 1) + ' מתוך ' + READY
+      : 'Question ' + (current + 1) + ' of ' + READY;
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === READY - 1;
+    location.hash = 'q' + (current + 1);
+  }
+
+  prevBtn.addEventListener('click', () => { show(current - 1); scrollTop(); });
+  nextBtn.addEventListener('click', () => { show(current + 1); scrollTop(); });
+  function scrollTop() {
+    document.getElementById('qbank').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT') return;
+    if (e.key === 'ArrowRight') show(current + 1);
+    if (e.key === 'ArrowLeft')  show(current - 1);
+  });
+
+  langBtns.forEach(b => b.addEventListener('click', () => show(current)));
+
+  const start = parseInt((location.hash || '').replace('#q', ''), 10);
+  show(Number.isFinite(start) && start >= 1 ? start - 1 : 0);
+</script>
+</body>
+</html>
