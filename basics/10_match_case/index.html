@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python match &amp; case - the switch statement</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Comic+Neue:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Comic Neue', cursive; }
+    h1, h2, h3, .heading { font-family: 'Baloo 2', cursive; }
+    .clay {
+      border: 3px solid rgba(249,115,22,0.18);
+      box-shadow: 5px 5px 0 rgba(249,115,22,0.22), inset 0 1px 0 rgba(255,255,255,0.65);
+    }
+    .clay-teal {
+      border: 3px solid rgba(13,148,136,0.18);
+      box-shadow: 5px 5px 0 rgba(13,148,136,0.22), inset 0 1px 0 rgba(255,255,255,0.65);
+    }
+    .step-card { transition: transform .2s ease, box-shadow .2s ease; }
+    .step-card:hover { transform: translateY(-4px); }
+
+    .code {
+      background: #0b2517; color: #d2ffe3;
+      border-radius: 14px; border: 1px solid #2f5a3d;
+      padding: 14px 18px; overflow-x: auto; margin: 12px 0 4px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95rem; white-space: pre; line-height: 1.7;
+    }
+    .code .cm { color: #6dbf8a; }
+    .code .fn { color: #ffa657; }
+    .code .kw { color: #79c0ff; }
+    .code .str { color: #ffd580; }
+    .code .num { color: #d2a8ff; }
+    .code .ind { background: rgba(125,231,135,0.14); border-radius: 4px; }
+    .code .hl { background: rgba(125,231,135,0.16); border-radius: 4px; }
+    .code .bad { background: rgba(248,113,113,0.16); border-radius: 4px; }
+
+    .console {
+      background: #101418; color: #e6edf3;
+      border-radius: 14px; border: 1px solid #30363d;
+      padding: 12px 18px; overflow-x: auto; margin: 12px 0 4px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92rem; white-space: pre; line-height: 1.7;
+    }
+    .console .usr { color: #7ee787; font-weight: 700; }
+    .console .dim { color: #8b949e; }
+    .console .err { color: #ff9f9f; }
+
+    .kbd {
+      display: inline-block; padding: 2px 10px; border-radius: 8px;
+      background: #FFF7ED; border: 2px solid #FED7AA;
+      border-bottom-width: 4px; font-family: Consolas, monospace;
+      font-size: .85rem; color: #C2410C; font-weight: 700;
+    }
+
+    .step-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 44px; height: 44px; border-radius: 14px; flex-shrink: 0;
+      background: #FFEDD5; border: 3px solid #F97316;
+      color: #C2410C; font-weight: 800; font-size: 1.25rem;
+      font-family: 'Baloo 2', cursive;
+    }
+
+    .trace { width: 100%; border-collapse: collapse; font-size: .9rem; margin-top: 12px; }
+    .trace th {
+      background: #FFEDD5; color: #C2410C; text-align: left;
+      padding: 8px 12px; border: 2px solid #FED7AA;
+      font-size: .75rem; letter-spacing: .06em; text-transform: uppercase;
+      font-family: 'Baloo 2', cursive;
+    }
+    .trace td { padding: 8px 12px; border: 2px solid #FFEDD5; color: #134E4A; }
+    .trace tr:nth-child(even) td { background: #FFF7ED; }
+
+    .tool-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tool {
+      font-family: Consolas, monospace; font-size: .82rem; font-weight: 700;
+      background: #ffffff; border: 2px solid #FED7AA; border-bottom-width: 4px;
+      border-radius: 11px; padding: 7px 12px; color: #C2410C;
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .tool:hover { transform: translateY(-3px); }
+    .tool small { display: block; font-family: 'Comic Neue', cursive; font-weight: 400; color: #134E4A; opacity: .6; font-size: .74rem; }
+  </style>
+</head>
+<body class="bg-[#FFFBF5] text-[#134E4A] min-h-screen">
+
+  <nav class="fixed top-4 left-4 right-4 z-50">
+    <div class="max-w-6xl mx-auto bg-white/90 backdrop-blur-md rounded-2xl px-5 py-3 clay flex items-center gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-[#F97316] hover:text-[#134E4A] transition-colors duration-200">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        <span class="text-sm font-semibold">Python Basics</span>
+      </a>
+      <span class="text-[#134E4A]/25 text-sm">/</span>
+      <span class="heading font-bold text-[#134E4A] text-sm">match &amp; case</span>
+    </div>
+  </nav>
+
+  <main class="px-4 pt-28 pb-16">
+    <section class="max-w-6xl mx-auto">
+
+      <!-- HERO -->
+      <div class="grid lg:grid-cols-[1fr_360px] gap-8 items-center mb-10">
+        <div>
+          <span class="text-xs font-bold tracking-widest uppercase text-[#F97316] bg-orange-50 border border-orange-200 px-4 py-1.5 rounded-full">Topic 10</span>
+          <h1 class="heading text-5xl md:text-6xl font-extrabold text-[#134E4A] mt-4 mb-4 leading-tight">match &amp; case 🎚️</h1>
+          <p class="text-lg text-[#134E4A]/65 max-w-2xl leading-relaxed">When every branch of a long <code class="bg-orange-50 px-1 rounded">if / elif</code> chain compares <strong>the same variable</strong> against <strong>a fixed value</strong>, you end up typing that variable name over and over. <code class="bg-orange-50 px-1 rounded">match</code> names it once and lists the answers underneath — shorter to write, and much easier to read.</p>
+        </div>
+
+        <div class="bg-white rounded-[24px] p-5 clay-teal hidden lg:block">
+          <div class="flex items-center gap-1.5 mb-3">
+            <span class="w-3 h-3 rounded-full bg-red-400"></span>
+            <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
+            <span class="w-3 h-3 rounded-full bg-green-400"></span>
+            <span class="text-xs text-[#134E4A]/40 ml-2 font-mono">volume.py</span>
+          </div>
+          <div class="code" style="margin:0;"><span class="kw">match</span> volume:
+<span class="ind">    <span class="kw">case</span> <span class="num">1</span>:
+        <span class="fn">print</span>(<span class="str">'very quiet'</span>)</span>
+    <span class="kw">case</span> _:
+        <span class="fn">print</span>(<span class="str">'invalid'</span>)</div>
+        </div>
+      </div>
+
+      <!-- STEPS -->
+      <div class="space-y-6">
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">1</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">The Shape</h2>
+              <p class="text-[#134E4A]/65 mb-4">Three parts: the word <code>match</code> with the variable, then one <code>case</code> per value, each with an indented body — exactly like <code>if</code>.</p>
+              <div class="code"><span class="kw">match</span> number:                  <span class="cm"># the variable, named ONCE</span>
+    <span class="kw">case</span> <span class="num">1</span>:                    <span class="cm"># is it 1?</span>
+        <span class="fn">print</span>(<span class="str">'You entered one'</span>)
+    <span class="kw">case</span> <span class="num">2</span>:
+        <span class="fn">print</span>(<span class="str">'You entered two'</span>)
+    <span class="kw">case</span> <span class="num">3</span>:
+        <span class="fn">print</span>(<span class="str">'You entered three'</span>)</div>
+              <div class="console">Enter a number: <span class="usr">2</span>
+You entered two</div>
+              <p class="text-[#134E4A]/65 mt-4 mb-2">The same program with <code>if / elif</code> — notice <code>number ==</code> repeated on every line:</p>
+              <div class="code"><span class="kw">if</span> number == <span class="num">1</span>:
+    <span class="fn">print</span>(<span class="str">'You entered one'</span>)
+<span class="kw">elif</span> number == <span class="num">2</span>:
+    <span class="fn">print</span>(<span class="str">'You entered two'</span>)
+<span class="kw">elif</span> number == <span class="num">3</span>:
+    <span class="fn">print</span>(<span class="str">'You entered three'</span>)</div>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                💡 Both programs do exactly the same thing. <code>match</code> is not faster — it is <strong>less repetitive</strong>. That is the entire reason it exists.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">2</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">case _ — the default</h2>
+              <p class="text-[#134E4A]/65 mb-4">An underscore matches <strong>anything</strong>. It is the <code>else</code> of a <code>match</code> block, and it goes <strong>last</strong>:</p>
+              <div class="code"><span class="kw">match</span> number:
+    <span class="kw">case</span> <span class="num">1</span>:
+        <span class="fn">print</span>(<span class="str">'one'</span>)
+    <span class="kw">case</span> <span class="num">2</span>:
+        <span class="fn">print</span>(<span class="str">'two'</span>)
+<span class="hl">    <span class="kw">case</span> _:                          <span class="cm"># anything else</span>
+        <span class="fn">print</span>(<span class="str">'not 1 or 2'</span>)</span></div>
+              <p class="text-[#134E4A]/65 mt-4 mb-2">Leave it out and a non-matching value simply does <strong>nothing</strong> — no error, no output:</p>
+              <div class="code"><span class="kw">match</span> name:
+    <span class="kw">case</span> <span class="str">'danny'</span>:
+        <span class="fn">print</span>(<span class="str">'Hello Danny'</span>)
+    <span class="kw">case</span> <span class="str">'shemesh'</span>:
+        <span class="fn">print</span>(<span class="str">'Hello Shemesh'</span>)</div>
+              <div class="console">Enter a name: <span class="usr">rachel</span>
+<span class="dim">(nothing at all)</span></div>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                ⚠️ This silence is the most common <code>match</code> bug. It is not a crash, so it is easy to miss — always ask yourself whether you want a <code>case _</code>.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">3</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">Several values in one case — |</h2>
+              <p class="text-[#134E4A]/65 mb-4">To catch more than one value with a single branch, separate them with <code>|</code>. Read it as "<em>or</em>":</p>
+              <div class="code"><span class="kw">match</span> day:
+<span class="hl">    <span class="kw">case</span> <span class="num">6</span> | <span class="num">7</span>:                      <span class="cm"># 6 OR 7</span>
+        <span class="fn">print</span>(<span class="str">'Weekend'</span>)</span>
+    <span class="kw">case</span> _:
+        <span class="fn">print</span>(<span class="str">'A work day'</span>)</div>
+              <p class="text-[#134E4A]/65 mt-4 mb-2">It works with any number of values, and with strings too:</p>
+              <div class="code"><span class="kw">match</span> volume:
+    <span class="kw">case</span> <span class="num">3</span> | <span class="num">4</span>:
+        <span class="fn">print</span>(<span class="str">'low'</span>)
+    <span class="kw">case</span> <span class="num">9</span> | <span class="num">10</span>:
+        <span class="fn">print</span>(<span class="str">'max volume'</span>)
+
+<span class="kw">match</span> answer:
+    <span class="kw">case</span> <span class="str">'y'</span> | <span class="str">'yes'</span> | <span class="str">'Y'</span>:
+        <span class="fn">print</span>(<span class="str">'Starting...'</span>)</div>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                ⚠️ Inside a <code>case</code> the "or" symbol is <code>|</code>, <strong>not</strong> the word <code>or</code>. Writing <code>case 6 or 7:</code> does not do what you expect.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">4</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">The Four Rules</h2>
+              <table class="trace">
+                <thead><tr><th>Rule</th><th>What it means</th></tr></thead>
+                <tbody>
+                  <tr><td>Only <strong>one</strong> case runs</td><td>Python takes the first case that matches and jumps out. If you know <code>switch</code> from another language — there is <strong>no <code>break</code></strong> here.</td></tr>
+                  <tr><td>Order matters</td><td>Cases are checked top to bottom. A <code>case _</code> placed first would swallow everything.</td></tr>
+                  <tr><td>Colons + indentation</td><td>Every <code>case</code> ends with <code>:</code> and its body is indented, exactly like <code>if</code>.</td></tr>
+                  <tr><td>Python <strong>3.10+</strong></td><td><code>match</code> was added in Python 3.10. On an older version you get a <code>SyntaxError</code> on the <code>match</code> line.</td></tr>
+                </tbody>
+              </table>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                💡 <code>match</code> and <code>case</code> are "soft keywords" — you <em>can</em> still have a variable called <code>match</code>. Please do not; it makes the code very confusing to read.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">5</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">When NOT to use it</h2>
+              <p class="text-[#134E4A]/65 mb-4"><code>match</code> is narrower than <code>if</code>. It compares for <strong>equality</strong> and nothing else, so these three jobs still belong to <code>if / elif</code>:</p>
+              <table class="trace">
+                <thead><tr><th>You need…</th><th>Use</th><th>Why</th></tr></thead>
+                <tbody>
+                  <tr><td>Ranges — <code>grade &gt;= 90</code></td><td><code>if / elif</code></td><td><code>case</code> cannot say "bigger than"</td></tr>
+                  <tr><td>Two different variables — <code>age &gt; 18 and cash &gt; 5000</code></td><td><code>if / elif</code></td><td>there is no single variable to put after <code>match</code></td></tr>
+                  <tr><td>Only two options</td><td><code>if / else</code></td><td>a whole <code>match</code> block for two branches is <em>more</em> typing</td></tr>
+                </tbody>
+              </table>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                💡 <strong>The quick test:</strong> if you are typing the same variable name at the start of every <code>elif</code>, that is <code>match</code> asking to be used. If your conditions contain <code>&lt;</code>, <code>&gt;</code>, <code>and</code> or <code>or</code> — stay with <code>if / elif</code>.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">6</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">A Real Program — dealing a card</h2>
+              <p class="text-[#134E4A]/65 mb-4">A deck runs <code>2 3 4 … 10 J Q K A</code>. Computers compare numbers, not letters, so we draw <code>2</code>–<code>14</code> and use <code>match</code> to turn the top four into their letters:</p>
+              <div class="code"><span class="kw">import</span> random
+
+card_number = random.<span class="fn">randint</span>(<span class="num">2</span>, <span class="num">14</span>)
+
+<span class="kw">match</span> card_number:
+    <span class="kw">case</span> <span class="num">11</span>:
+        display = <span class="str">'J'</span>
+    <span class="kw">case</span> <span class="num">12</span>:
+        display = <span class="str">'Q'</span>
+    <span class="kw">case</span> <span class="num">13</span>:
+        display = <span class="str">'K'</span>
+    <span class="kw">case</span> <span class="num">14</span>:
+        display = <span class="str">'A'</span>
+<span class="hl">    <span class="kw">case</span> _:                          <span class="cm"># 2..10 show themselves</span>
+        display = card_number</span>
+
+suit = random.<span class="fn">choice</span>([<span class="str">"❤️"</span>, <span class="str">"♦️"</span>, <span class="str">"♣️"</span>, <span class="str">"♠️"</span>])
+<span class="fn">print</span>(<span class="str">f"{display}{suit}"</span>)</div>
+              <div class="console">Q♦️</div>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                💡 One <code>case _</code> handles the entire boring <code>2</code>–<code>10</code> range in a single line. Written as <code>if/elif</code> this needs five <code>card_number ==</code> comparisons.
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- CHEAT SHEET -->
+      <section class="bg-white rounded-[24px] p-7 clay mt-8">
+        <h2 class="heading text-3xl font-extrabold mb-3">Quick Reference</h2>
+        <table class="trace">
+          <thead><tr><th>Written</th><th>Means</th></tr></thead>
+          <tbody>
+            <tr><td><code>match x:</code></td><td>look at <code>x</code> once, then list the answers below</td></tr>
+            <tr><td><code>case 5:</code></td><td>run this branch when <code>x == 5</code></td></tr>
+            <tr><td><code>case 'yes':</code></td><td>works on strings just as well as numbers</td></tr>
+            <tr><td><code>case 6 | 7:</code></td><td>one branch for several values — <code>|</code> is "or"</td></tr>
+            <tr><td><code>case _:</code></td><td>the default — anything that matched nothing above</td></tr>
+            <tr><td>no <code>break</code></td><td>only one case ever runs; Python leaves the block on its own</td></tr>
+          </tbody>
+        </table>
+        <p class="text-[#134E4A]/60 mt-6">Needs Python 3.10 or newer. Combine it with <a href="../08_random/index.html" class="text-[#F97316] font-bold underline">random</a> to deal cards, and see it written live in <a href="../lessons/11_lesson/11-lesson.html#topic-match" class="text-[#0D9488] font-bold underline">Lesson 11</a>.</p>
+      </section>
+
+    </section>
+  </main>
+
+</body>
+</html>

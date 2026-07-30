@@ -566,6 +566,137 @@
           </article>
         </a>
 
+        <!-- ── match / case Card ── -->
+        <a href="10_match_case/index.html" class="block group cursor-pointer" aria-label="match and case topic">
+          <article class="bg-white rounded-[24px] overflow-hidden clay-card-orange h-full flex flex-col">
+            <!-- Illustration -->
+            <div class="h-52 relative overflow-hidden flex-shrink-0 bg-gradient-to-br from-[#7C2D12] via-[#EA580C] to-[#FDBA74]">
+              <svg class="w-full h-full group-hover:scale-105 transition-transform duration-300" viewBox="0 0 320 208" fill="none" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
+                <circle cx="44" cy="38" r="46" fill="#ffffff" opacity="0.07"/>
+                <circle cx="280" cy="178" r="54" fill="#ffffff" opacity="0.07"/>
+                <text x="30" y="52" font-family="Consolas, monospace" font-size="17" font-weight="800" fill="#FFF7ED">match number:</text>
+                <!-- three case rows, the middle one selected -->
+                <rect x="52" y="68" width="216" height="30" rx="9" fill="#FFFFFF" opacity="0.16"/>
+                <text x="68" y="89" font-family="Consolas, monospace" font-size="15" font-weight="700" fill="#FFEDD5">case 1:</text>
+                <rect x="52" y="104" width="216" height="30" rx="9" fill="#FFF7ED"/>
+                <text x="68" y="125" font-family="Consolas, monospace" font-size="15" font-weight="800" fill="#C2410C">case 2:</text>
+                <path d="M236 119l7 7 13-14" stroke="#16A34A" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                <rect x="52" y="140" width="216" height="30" rx="9" fill="#FFFFFF" opacity="0.16"/>
+                <text x="68" y="161" font-family="Consolas, monospace" font-size="15" font-weight="700" fill="#FFEDD5">case _:</text>
+              </svg>
+              <div class="absolute inset-0 bg-gradient-to-t from-[#7c2d12]/60 via-transparent to-transparent pointer-events-none"></div>
+              <span class="absolute bottom-4 left-4 bg-white/90 text-[#F97316] text-xs font-bold px-3 py-1 rounded-full">Branching</span>
+              <div class="absolute top-4 right-4 w-10 h-10 bg-[#F97316] rounded-xl flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 4v6a3 3 0 003 3h11"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16 10l3 3-3 3"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 20v-3"/>
+                </svg>
+              </div>
+            </div>
+            <!-- Body -->
+            <div class="p-7 flex flex-col flex-1">
+              <h3 class="heading text-2xl font-bold text-[#134E4A] mb-2">match &amp; case</h3>
+              <p class="text-[#134E4A]/65 leading-relaxed mb-6 flex-1">
+                A long <code class="bg-orange-50 px-1 rounded">if/elif</code> chain that keeps repeating the same variable has a cleaner shape. Meet <code class="bg-orange-50 px-1 rounded">match</code>, <code class="bg-orange-50 px-1 rounded">case</code>, the default <code class="bg-orange-50 px-1 rounded">case _</code> and multi&#8209;value <code class="bg-orange-50 px-1 rounded">|</code>.
+              </p>
+              <div class="flex items-center gap-2 text-[#F97316] font-bold text-sm group-hover:gap-3 transition-all duration-200">
+                <span>Explore topic</span>
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                </svg>
+              </div>
+            </div>
+          </article>
+        </a>
+
+        <!-- ── Booleans & Ternary Card ── -->
+        <a href="11_booleans/index.html" class="block group cursor-pointer" aria-label="Boolean variables and the ternary if topic">
+          <article class="bg-white rounded-[24px] overflow-hidden clay-card h-full flex flex-col">
+            <!-- Illustration -->
+            <div class="h-52 relative overflow-hidden flex-shrink-0 bg-gradient-to-br from-[#134E4A] via-[#0D9488] to-[#2DD4BF]">
+              <svg class="w-full h-full group-hover:scale-105 transition-transform duration-300" viewBox="0 0 320 208" fill="none" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
+                <circle cx="50" cy="176" r="50" fill="#ffffff" opacity="0.06"/>
+                <circle cx="272" cy="36" r="46" fill="#ffffff" opacity="0.06"/>
+                <text x="160" y="42" text-anchor="middle" font-family="Consolas, monospace" font-size="16" font-weight="700" fill="#CCFBF1">is_adult = age &gt; 18</text>
+                <!-- True box -->
+                <rect x="34" y="64" width="112" height="62" rx="14" fill="#F0FDFA"/>
+                <text x="90" y="104" text-anchor="middle" font-family="Consolas, monospace" font-size="23" font-weight="800" fill="#0F766E">True</text>
+                <!-- False box -->
+                <rect x="174" y="64" width="112" height="62" rx="14" fill="#ffffff" opacity="0.16" stroke="#CCFBF1" stroke-width="2" stroke-dasharray="8 7"/>
+                <text x="230" y="104" text-anchor="middle" font-family="Consolas, monospace" font-size="23" font-weight="800" fill="#CCFBF1">False</text>
+                <!-- ternary line -->
+                <text x="160" y="164" text-anchor="middle" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#A7F3D0">'beer' if is_adult else 'coke'</text>
+              </svg>
+              <div class="absolute inset-0 bg-gradient-to-t from-[#0f2e2b]/70 via-transparent to-transparent pointer-events-none"></div>
+              <span class="absolute bottom-4 left-4 bg-white/90 text-[#0D9488] text-xs font-bold px-3 py-1 rounded-full">True / False</span>
+              <div class="absolute top-4 right-4 w-10 h-10 bg-[#0D9488] rounded-xl flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <rect x="2.5" y="7" width="19" height="10" rx="5"/>
+                  <circle cx="16.5" cy="12" r="3" fill="white" stroke="none"/>
+                </svg>
+              </div>
+            </div>
+            <!-- Body -->
+            <div class="p-7 flex flex-col flex-1">
+              <h3 class="heading text-2xl font-bold text-[#134E4A] mb-2">Booleans &amp; the Ternary</h3>
+              <p class="text-[#134E4A]/65 leading-relaxed mb-6 flex-1">
+                A comparison is a <em>value</em> &mdash; so give it a name. <code class="bg-teal-50 px-1 rounded">is_legal</code>, <code class="bg-teal-50 px-1 rounded">has_5000_cash</code> turn tangled conditions into English, and the ternary squeezes a whole <code class="bg-teal-50 px-1 rounded">if/else</code> onto one line.
+              </p>
+              <div class="flex items-center gap-2 text-[#0D9488] font-bold text-sm group-hover:gap-3 transition-all duration-200">
+                <span>Explore topic</span>
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                </svg>
+              </div>
+            </div>
+          </article>
+        </a>
+
+        <!-- ── f-string Formatting Card ── -->
+        <a href="12_fstrings/index.html" class="block group cursor-pointer" aria-label="f-string formatting tricks topic">
+          <article class="bg-white rounded-[24px] overflow-hidden clay-card-orange h-full flex flex-col">
+            <!-- Illustration -->
+            <div class="h-52 relative overflow-hidden flex-shrink-0 bg-gradient-to-br from-[#7C2D12] via-[#EA580C] to-[#FCD34D]">
+              <svg class="w-full h-full group-hover:scale-105 transition-transform duration-300" viewBox="0 0 320 208" fill="none" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
+                <circle cx="42" cy="40" r="44" fill="#ffffff" opacity="0.07"/>
+                <circle cx="282" cy="176" r="50" fill="#ffffff" opacity="0.07"/>
+                <text x="160" y="42" text-anchor="middle" font-family="Consolas, monospace" font-size="16" font-weight="800" fill="#FFF7ED">f"{price:,.2f}"</text>
+                <!-- aligned table -->
+                <rect x="46" y="62" width="228" height="106" rx="12" fill="#FFF7ED"/>
+                <line x1="46" y1="96" x2="274" y2="96" stroke="#FDBA74" stroke-width="2"/>
+                <line x1="160" y1="62" x2="160" y2="168" stroke="#FDBA74" stroke-width="2"/>
+                <text x="103" y="86" text-anchor="middle" font-family="Consolas, monospace" font-size="14" font-weight="800" fill="#9A3412">name</text>
+                <text x="217" y="86" text-anchor="middle" font-family="Consolas, monospace" font-size="14" font-weight="800" fill="#9A3412">age</text>
+                <text x="103" y="120" text-anchor="middle" font-family="Consolas, monospace" font-size="14" fill="#C2410C">danny</text>
+                <text x="217" y="120" text-anchor="middle" font-family="Consolas, monospace" font-size="14" fill="#C2410C">30</text>
+                <text x="103" y="152" text-anchor="middle" font-family="Consolas, monospace" font-size="14" fill="#C2410C">sharon</text>
+                <text x="217" y="152" text-anchor="middle" font-family="Consolas, monospace" font-size="14" fill="#C2410C">22</text>
+              </svg>
+              <div class="absolute inset-0 bg-gradient-to-t from-[#7c2d12]/60 via-transparent to-transparent pointer-events-none"></div>
+              <span class="absolute bottom-4 left-4 bg-white/90 text-[#F97316] text-xs font-bold px-3 py-1 rounded-full">Pretty Output</span>
+              <div class="absolute top-4 right-4 w-10 h-10 bg-[#F97316] rounded-xl flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h10M4 18h13"/>
+                </svg>
+              </div>
+            </div>
+            <!-- Body -->
+            <div class="p-7 flex flex-col flex-1">
+              <h3 class="heading text-2xl font-bold text-[#134E4A] mb-2">f-string Tricks</h3>
+              <p class="text-[#134E4A]/65 leading-relaxed mb-6 flex-1">
+                Everything after the colon inside <code class="bg-orange-50 px-1 rounded">{ }</code> controls <em>how</em> a value prints &mdash; <code class="bg-orange-50 px-1 rounded">.2f</code>, alignment for real tables, thousands separators, zero padding and <code class="bg-orange-50 px-1 rounded">.1%</code>.
+              </p>
+              <div class="flex items-center gap-2 text-[#F97316] font-bold text-sm group-hover:gap-3 transition-all duration-200">
+                <span>Explore topic</span>
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                </svg>
+              </div>
+            </div>
+          </article>
+        </a>
+
       </div>
     </div>
   </section>
@@ -842,6 +973,32 @@
               </div>
               <!-- Arrow -->
               <svg class="w-5 h-5 text-[#F97316] flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+              </svg>
+            </div>
+          </a>
+
+          <!-- Lesson 11 -->
+          <a href="lessons/11_lesson/11-lesson.html" class="block group cursor-pointer" aria-label="Lesson 11, July 30 2026">
+            <div class="lesson-row bg-white rounded-[20px] p-5 flex items-center gap-5">
+              <!-- Badge -->
+              <div class="w-[70px] h-[70px] flex-shrink-0">
+                <div class="w-full h-full bg-[#F0FDFA] rounded-2xl clay flex flex-col items-center justify-center">
+                  <span class="heading text-xs font-bold text-[#0D9488] leading-none">JUL</span>
+                  <span class="heading text-2xl font-extrabold text-[#0D9488] leading-tight">30</span>
+                  <span class="heading text-xs font-bold text-[#0D9488]/60 leading-none">2026</span>
+                </div>
+              </div>
+              <!-- Info -->
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-0.5">
+                  <span class="heading text-lg font-bold text-[#134E4A]">Lesson 11</span>
+                  <span class="text-xs font-semibold text-white bg-[#0D9488] px-2 py-0.5 rounded-full">Done</span>
+                </div>
+                <p class="text-sm text-[#134E4A]/55">Thursday &middot; July 30, 2026 &middot; match/case, Booleans &amp; f-string Tricks</p>
+              </div>
+              <!-- Arrow -->
+              <svg class="w-5 h-5 text-[#0D9488] flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
               </svg>
             </div>

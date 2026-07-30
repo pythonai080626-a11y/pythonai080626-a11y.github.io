@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python Booleans &amp; the Ternary if</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Comic+Neue:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Comic Neue', cursive; }
+    h1, h2, h3, .heading { font-family: 'Baloo 2', cursive; }
+    .clay {
+      border: 3px solid rgba(249,115,22,0.18);
+      box-shadow: 5px 5px 0 rgba(249,115,22,0.22), inset 0 1px 0 rgba(255,255,255,0.65);
+    }
+    .clay-teal {
+      border: 3px solid rgba(13,148,136,0.18);
+      box-shadow: 5px 5px 0 rgba(13,148,136,0.22), inset 0 1px 0 rgba(255,255,255,0.65);
+    }
+    .step-card { transition: transform .2s ease, box-shadow .2s ease; }
+    .step-card:hover { transform: translateY(-4px); }
+
+    .code {
+      background: #0b2517; color: #d2ffe3;
+      border-radius: 14px; border: 1px solid #2f5a3d;
+      padding: 14px 18px; overflow-x: auto; margin: 12px 0 4px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95rem; white-space: pre; line-height: 1.7;
+    }
+    .code .cm { color: #6dbf8a; }
+    .code .fn { color: #ffa657; }
+    .code .kw { color: #79c0ff; }
+    .code .str { color: #ffd580; }
+    .code .num { color: #d2a8ff; }
+    .code .ind { background: rgba(125,231,135,0.14); border-radius: 4px; }
+    .code .hl { background: rgba(125,231,135,0.16); border-radius: 4px; }
+    .code .bad { background: rgba(248,113,113,0.16); border-radius: 4px; }
+
+    .console {
+      background: #101418; color: #e6edf3;
+      border-radius: 14px; border: 1px solid #30363d;
+      padding: 12px 18px; overflow-x: auto; margin: 12px 0 4px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92rem; white-space: pre; line-height: 1.7;
+    }
+    .console .usr { color: #7ee787; font-weight: 700; }
+    .console .dim { color: #8b949e; }
+    .console .err { color: #ff9f9f; }
+
+    .kbd {
+      display: inline-block; padding: 2px 10px; border-radius: 8px;
+      background: #F0FDFA; border: 2px solid #99F6E4;
+      border-bottom-width: 4px; font-family: Consolas, monospace;
+      font-size: .85rem; color: #0F766E; font-weight: 700;
+    }
+
+    .step-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 44px; height: 44px; border-radius: 14px; flex-shrink: 0;
+      background: #CCFBF1; border: 3px solid #0D9488;
+      color: #0F766E; font-weight: 800; font-size: 1.25rem;
+      font-family: 'Baloo 2', cursive;
+    }
+
+    .trace { width: 100%; border-collapse: collapse; font-size: .9rem; margin-top: 12px; }
+    .trace th {
+      background: #CCFBF1; color: #0F766E; text-align: left;
+      padding: 8px 12px; border: 2px solid #99F6E4;
+      font-size: .75rem; letter-spacing: .06em; text-transform: uppercase;
+      font-family: 'Baloo 2', cursive;
+    }
+    .trace td { padding: 8px 12px; border: 2px solid #CCFBF1; color: #134E4A; }
+    .trace tr:nth-child(even) td { background: #F0FDFA; }
+
+    .tool-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tool {
+      font-family: Consolas, monospace; font-size: .82rem; font-weight: 700;
+      background: #ffffff; border: 2px solid #99F6E4; border-bottom-width: 4px;
+      border-radius: 11px; padding: 7px 12px; color: #0F766E;
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .tool:hover { transform: translateY(-3px); }
+    .tool small { display: block; font-family: 'Comic Neue', cursive; font-weight: 400; color: #134E4A; opacity: .6; font-size: .74rem; }
+
+    .bool-strip { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 14px; }
+    .bool-box {
+      border: 2px solid #99F6E4; border-bottom-width: 4px; border-radius: 14px;
+      padding: 12px 16px; background: #ffffff; min-width: 168px;
+    }
+    .bool-box .bname { font-family: Consolas, monospace; font-size: .78rem; color: #134E4A; opacity: .6; }
+    .bool-box .bval { font-family: Consolas, monospace; font-weight: 800; font-size: 1.15rem; margin-top: 4px; }
+    .bool-box.t .bval { color: #0F766E; }
+    .bool-box.f .bval { color: #B91C1C; }
+
+    .tern {
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+      background: #ffffff; border: 2px solid #99F6E4; border-radius: 14px;
+      padding: 14px 16px; margin-top: 14px;
+      font-family: Consolas, monospace; font-weight: 700;
+    }
+    .tern span { padding: 7px 12px; border-radius: 9px; font-size: .92rem; }
+    .tern .t-true  { background: #CCFBF1; border: 2px solid #5EEAD4; color: #0F766E; }
+    .tern .t-cond  { background: #FEF3C7; border: 2px solid #FCD34D; color: #92400E; }
+    .tern .t-false { background: #FEE2E2; border: 2px solid #FCA5A5; color: #B91C1C; }
+    .tern .t-kw    { color: #134E4A; opacity: .5; padding: 7px 2px; }
+  </style>
+</head>
+<body class="bg-[#F0FDFA] text-[#134E4A] min-h-screen">
+
+  <nav class="fixed top-4 left-4 right-4 z-50">
+    <div class="max-w-6xl mx-auto bg-white/90 backdrop-blur-md rounded-2xl px-5 py-3 clay-teal flex items-center gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-[#0D9488] hover:text-[#134E4A] transition-colors duration-200">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        <span class="text-sm font-semibold">Python Basics</span>
+      </a>
+      <span class="text-[#134E4A]/25 text-sm">/</span>
+      <span class="heading font-bold text-[#134E4A] text-sm">Booleans &amp; the Ternary</span>
+    </div>
+  </nav>
+
+  <main class="px-4 pt-28 pb-16">
+    <section class="max-w-6xl mx-auto">
+
+      <!-- HERO -->
+      <div class="grid lg:grid-cols-[1fr_360px] gap-8 items-center mb-10">
+        <div>
+          <span class="text-xs font-bold tracking-widest uppercase text-[#0D9488] bg-teal-50 border border-teal-200 px-4 py-1.5 rounded-full">Topic 11</span>
+          <h1 class="heading text-5xl md:text-6xl font-extrabold text-[#134E4A] mt-4 mb-4 leading-tight">Booleans &amp; the Ternary ✅</h1>
+          <p class="text-lg text-[#134E4A]/65 max-w-2xl leading-relaxed">A comparison like <code class="bg-teal-50 px-1 rounded">age &gt; 18</code> is not just something you put inside an <code class="bg-teal-50 px-1 rounded">if</code> — it is a <strong>value</strong>, and values can be stored in variables. Give that variable a good name and your conditions start reading like English sentences. Then the <strong>ternary</strong> squeezes a whole four-line <code class="bg-teal-50 px-1 rounded">if/else</code> onto one line.</p>
+        </div>
+
+        <div class="bg-white rounded-[24px] p-5 clay hidden lg:block">
+          <div class="flex items-center gap-1.5 mb-3">
+            <span class="w-3 h-3 rounded-full bg-red-400"></span>
+            <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
+            <span class="w-3 h-3 rounded-full bg-green-400"></span>
+            <span class="text-xs text-[#134E4A]/40 ml-2 font-mono">booleans.py</span>
+          </div>
+          <div class="code" style="margin:0;">age = <span class="num">20</span>
+<span class="hl">is_adult = age &gt; <span class="num">18</span></span>
+
+<span class="kw">if</span> is_adult:
+<span class="ind">    <span class="fn">print</span>(<span class="str">'Have a Beer!'</span>)</span></div>
+        </div>
+      </div>
+
+      <!-- STEPS -->
+      <div class="space-y-6">
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">1</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">bool — the fifth type</h2>
+              <p class="text-[#134E4A]/65 mb-4">Everything you store has a <strong>type</strong>. Here is the roll-call, including the new one:</p>
+              <div class="code">i = <span class="num">5</span>              <span class="cm"># int      - a whole number</span>
+x = <span class="num">5.5</span>            <span class="cm"># float    - a number with a dot</span>
+name = <span class="str">'dana'</span>      <span class="cm"># str      - text</span>
+nothing = <span class="kw">None</span>     <span class="cm"># NoneType - "nothing yet"</span>
+<span class="hl">is_open = <span class="kw">True</span></span>      <span class="cm"># bool     - True / False</span></div>
+              <p class="text-[#134E4A]/65 mt-4 mb-2"><code>type()</code> asks Python what something is:</p>
+              <div class="code"><span class="fn">print</span>(<span class="fn">type</span>(name))
+<span class="fn">print</span>(<span class="fn">type</span>(i == <span class="num">6</span>))</div>
+              <div class="console">&lt;class 'str'&gt;
+&lt;class 'bool'&gt;</div>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                ⚠️ Capital letters matter: <code>True</code> and <code>False</code>, never <code>true</code> / <code>false</code>. And they are <strong>not</strong> strings — <code>'True'</code> in quotes is text, a completely different thing.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">2</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">A comparison IS a value</h2>
+              <p class="text-[#134E4A]/65 mb-4">This is the line that unlocks everything else. <code>i == 6</code> is a <em>question</em>, and Python answers it with a <em>value</em> — which means you can store the answer:</p>
+              <div class="code">i = <span class="num">5</span>
+<span class="hl">equal_6 = i == <span class="num">6</span></span>       <span class="cm"># stores False</span>
+<span class="hl">equal_5 = i == <span class="num">5</span></span>       <span class="cm"># stores True</span></div>
+              <div class="bool-strip">
+                <div class="bool-box f"><div class="bname">i == 6</div><div class="bval">False</div></div>
+                <div class="bool-box t"><div class="bname">i == 5</div><div class="bval">True</div></div>
+                <div class="bool-box t"><div class="bname">i &lt; 10</div><div class="bval">True</div></div>
+                <div class="bool-box f"><div class="bname">i &gt; 10 and i &lt; 3</div><div class="bval">False</div></div>
+              </div>
+              <div class="bg-[#F0FDFA] border border-teal-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                💡 Every comparison operator produces a <code>bool</code>: <code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code> — and so does any combination joined with <code>and</code>, <code>or</code>, <code>not</code>.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">3</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">Naming the condition</h2>
+              <p class="text-[#134E4A]/65 mb-4">Once it is stored, the name is what appears in the <code>if</code> — and a good name explains itself:</p>
+              <div class="code">age = <span class="num">20</span>
+is_adult = age &gt; <span class="num">18</span>
+
+<span class="kw">if</span> is_adult:                   <span class="cm"># reads like English</span>
+    <span class="fn">print</span>(<span class="str">'Have a Beer!'</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">'Have a Coke!'</span>)
+
+<span class="kw">if</span> <span class="kw">not</span> is_adult:               <span class="cm"># the opposite</span>
+    <span class="fn">print</span>(<span class="str">'Have a Coke!'</span>)</div>
+              <table class="trace">
+                <thead><tr><th>Write this</th><th>Not this</th></tr></thead>
+                <tbody>
+                  <tr><td><code>if is_adult:</code></td><td><code>if is_adult == True:</code></td></tr>
+                  <tr><td><code>if not is_adult:</code></td><td><code>if is_adult == False:</code></td></tr>
+                </tbody>
+              </table>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                ⚠️ The variable is <em>already</em> <code>True</code> or <code>False</code>. Comparing it to <code>True</code> adds nothing but noise — every Python programmer will tell you the same.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">4</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">Why bother — long conditions</h2>
+              <p class="text-[#134E4A]/65 mb-4">Three sides make a legal triangle only when every two together are longer than the third. As a raw <code>if</code> that is a mouthful:</p>
+              <div class="code"><span class="kw">if</span> a + b &gt; c <span class="kw">and</span> b + c &gt; a <span class="kw">and</span> c + a &gt; b:     <span class="cm"># ...what is this asking?</span>
+    <span class="fn">print</span>(<span class="str">'Legal Triangle'</span>)</div>
+              <p class="text-[#134E4A]/65 mt-4 mb-2">Name it once, then use the name as many times as you like:</p>
+              <div class="code">a = <span class="num">3</span>
+b = <span class="num">4</span>
+c = <span class="num">8</span>
+<span class="hl">is_legal = a + b &gt; c <span class="kw">and</span> b + c &gt; a <span class="kw">and</span> c + a &gt; b</span>
+
+<span class="kw">if</span> is_legal:
+    <span class="fn">print</span>(<span class="str">'Legal Triangle'</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">'Illegal Triangle'</span>)
+
+<span class="kw">if</span> is_legal:
+    <span class="fn">print</span>(<span class="str">'perimeter'</span>, a + b + c)</div>
+              <div class="console">Illegal Triangle</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">5</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">Splitting one condition into pieces</h2>
+              <p class="text-[#134E4A]/65 mb-4">To open a bank account you must be at least 21 <strong>and</strong> hold at least 5,000 in cash. In one line:</p>
+              <div class="code">is_eligible = age &gt;= <span class="num">21</span> <span class="kw">and</span> cash &gt;= <span class="num">5000</span></div>
+              <p class="text-[#134E4A]/65 mt-4 mb-2">Or as named pieces — longer, but each line says what it means:</p>
+              <div class="code"><span class="hl">is_old_enough = age &gt;= <span class="num">21</span>
+has_5000_cash = cash &gt;= <span class="num">5000</span>
+is_eligible = is_old_enough <span class="kw">and</span> has_5000_cash</span>
+
+<span class="kw">if</span> is_eligible:
+    <span class="fn">print</span>(<span class="str">'Bank account opened!'</span>)
+<span class="kw">else</span>:
+    <span class="kw">if</span> <span class="kw">not</span> is_old_enough:
+        <span class="fn">print</span>(<span class="str">f'You need {21 - age} more years'</span>)
+    <span class="kw">if</span> <span class="kw">not</span> has_5000_cash:
+        <span class="fn">print</span>(<span class="str">f'You need {5000 - cash} more cash'</span>)</div>
+              <div class="console">Enter your age: <span class="usr">19</span>
+Enter your cash: <span class="usr">3000</span>
+You need 2 more years
+You need 2000 more cash</div>
+              <div class="bg-[#F0FDFA] border border-teal-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                💡 Here is the real payoff: because each piece has a name, the <code>else</code> can say <strong>exactly what is missing</strong> — and print both lines when both are missing. A single combined condition cannot do that.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">6</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">The Ternary if</h2>
+              <p class="text-[#134E4A]/65 mb-4">This four-line shape appears constantly — pick one of two values:</p>
+              <div class="code"><span class="kw">if</span> is_even:
+    <span class="fn">print</span>(<span class="str">'even'</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">'odd'</span>)</div>
+              <p class="text-[#134E4A]/65 mt-4 mb-2">Python says the same thing on one line:</p>
+              <div class="code"><span class="fn">print</span>(<span class="hl"><span class="str">'even'</span> <span class="kw">if</span> is_even <span class="kw">else</span> <span class="str">'odd'</span></span>)</div>
+              <div class="tern">
+                <span class="t-true">'even'</span>
+                <span class="t-kw">if</span>
+                <span class="t-cond">is_even</span>
+                <span class="t-kw">else</span>
+                <span class="t-false">'odd'</span>
+              </div>
+              <table class="trace">
+                <thead><tr><th>Part</th><th>Meaning</th></tr></thead>
+                <tbody>
+                  <tr><td><code>'even'</code></td><td>the value you get when the condition is <strong>True</strong></td></tr>
+                  <tr><td><code>if is_even</code></td><td>the condition — the same thing you would put after a normal <code>if</code></td></tr>
+                  <tr><td><code>else 'odd'</code></td><td>the value you get when the condition is <strong>False</strong></td></tr>
+                </tbody>
+              </table>
+              <div class="bg-[#F0FDFA] border border-teal-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                💡 The order feels backwards — the <em>answer</em> comes before the <em>question</em>. Read it as an English sentence: "<em>print 'even', if the number is even, otherwise 'odd'</em>". That is exactly how it is written.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">7</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">The ternary is a value</h2>
+              <p class="text-[#134E4A]/65 mb-4">It does not have to sit inside <code>print</code> — it produces a value, so it can be stored, calculated with, or dropped straight into an f-string:</p>
+              <div class="code">answer = <span class="str">'even'</span> <span class="kw">if</span> is_even <span class="kw">else</span> <span class="str">'odd'</span>
+
+<span class="fn">print</span>(<span class="str">f'The number is {"even" <span class="kw">if</span> is_even <span class="kw">else</span> "odd"}'</span>)
+
+final = price * <span class="num">0.9</span> <span class="kw">if</span> is_member <span class="kw">else</span> price   <span class="cm"># 10% member discount</span></div>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                ⚠️ <strong>Only for genuinely small choices.</strong> A ternary inside a ternary — <code>'a' if x else 'b' if y else 'c'</code> — is legal Python and unreadable by humans. The moment you need a second condition, go back to <code>if / elif / else</code>.
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- CHEAT SHEET -->
+      <section class="bg-white rounded-[24px] p-7 clay-teal mt-8">
+        <h2 class="heading text-3xl font-extrabold mb-3">Quick Reference</h2>
+        <table class="trace">
+          <thead><tr><th>Written</th><th>Gives you</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><code>age &gt; 18</code></td><td>a <code>bool</code> — <code>True</code> or <code>False</code></td><td><code>True</code></td></tr>
+            <tr><td><code>is_adult = age &gt; 18</code></td><td>the same value, now with a name</td><td>—</td></tr>
+            <tr><td><code>if is_adult:</code></td><td>runs when it is <code>True</code></td><td>—</td></tr>
+            <tr><td><code>if not is_adult:</code></td><td>runs when it is <code>False</code></td><td>—</td></tr>
+            <tr><td><code>a and b</code></td><td><code>True</code> only if <strong>both</strong> are true</td><td><code>False</code></td></tr>
+            <tr><td><code>a or b</code></td><td><code>True</code> if <strong>at least one</strong> is true</td><td><code>True</code></td></tr>
+            <tr><td><code>type(x)</code></td><td>which type <code>x</code> is</td><td><code>&lt;class 'bool'&gt;</code></td></tr>
+            <tr><td><code>A if cond else B</code></td><td>the ternary — <code>A</code> when true, <code>B</code> when false</td><td><code>'even'</code></td></tr>
+          </tbody>
+        </table>
+        <p class="text-[#134E4A]/60 mt-6">Name booleans <code>is_…</code> or <code>has_…</code> and your <code>if</code> lines read like English. Every example here was written live in <a href="../lessons/11_lesson/11-lesson.html#topic-bool" class="text-[#0D9488] font-bold underline">Lesson 11</a>, and <a href="../04_conditionals/index.html" class="text-[#F97316] font-bold underline">Conditionals</a> covers the <code>if</code> itself.</p>
+      </section>
+
+    </section>
+  </main>
+
+</body>
+</html>

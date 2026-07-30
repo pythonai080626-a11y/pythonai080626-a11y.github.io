@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lesson 11 - match/case, booleans &amp; f-string tricks</title>
+  <style>
+    :root {
+      --bg-soft: #ffffff;
+      --green-1: #0f5a2e;
+      --green-2: #1f8f4e;
+      --green-3: #dbf6e5;
+      --mint: #e6fff2;
+      --text: #14281d;
+      --muted: #426654;
+      --border: #aadfbd;
+      --accent-a: #ddfbe7;
+      --accent-b: #fff4d8;
+      --code-bg: #0b2517;
+      --code-text: #d2ffe3;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Lucida Sans", "Segoe UI", sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 15% 10%, #e7fff0 0%, transparent 35%),
+                  radial-gradient(circle at 85% 18%, #fff5d6 0%, transparent 36%),
+                  linear-gradient(180deg, #f4fff6 0%, #ffffff 45%, #edfff4 100%);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    body::before, body::after {
+      content: "";
+      position: fixed;
+      width: 230px;
+      height: 230px;
+      z-index: -1;
+      border-radius: 999px;
+      filter: blur(2px);
+      opacity: 0.32;
+      animation: blobMove 8s ease-in-out infinite alternate;
+    }
+    body::before { background: #bff0d0; top: -30px; left: -40px; }
+    body::after { background: #ffe9a9; bottom: -40px; right: -40px; animation-delay: 1.4s; }
+
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 24px; }
+    .layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .side-nav {
+      position: sticky;
+      top: 14px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 8px 22px rgba(18,102,55,0.1);
+      padding: 12px;
+    }
+    .side-title { margin: 0 0 8px; font-size: 0.9rem; color: var(--green-1); font-weight: 700; }
+    .topic-link {
+      display: block;
+      width: 100%;
+      text-align: left;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      padding: 8px 10px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.89rem;
+      text-transform: lowercase;
+      margin-bottom: 4px;
+      transition: all 0.2s ease;
+    }
+    .topic-link:hover { background: #f0fff4; color: var(--green-1); border-color: var(--border); }
+    .topic-link.active { background: #e8faee; color: var(--green-1); border-color: var(--green-2); font-weight: 700; }
+
+    .hero {
+      background: linear-gradient(135deg, var(--bg-soft) 0%, var(--accent-a) 55%, var(--accent-b) 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 12px 30px rgba(24,110,58,0.12);
+      margin-bottom: 22px;
+      animation: riseIn 0.75s ease both;
+    }
+
+    h1, h2, h3 { margin-top: 0; color: var(--green-1); }
+    h1 { font-size: 2rem; margin-bottom: 8px; }
+    code { color: var(--green-1); font-weight: 700; }
+
+    .tag {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      background: var(--green-3);
+      color: var(--green-1);
+      border: 1px solid var(--border);
+      margin-bottom: 10px;
+    }
+
+    .card {
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 16px;
+      box-shadow: 0 7px 22px rgba(18,102,55,0.08);
+      animation: riseIn 0.65s ease both;
+    }
+
+    .topic-panel { display: none; }
+    .topic-panel.active { display: block; }
+    .step-title { margin: 0 0 12px; font-size: 1.25rem; }
+    .side-divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+    .side-section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--green-2);
+      padding: 4px 4px 6px;
+    }
+    .nav-back {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--green-2);
+      background: #e9fbe8;
+      color: var(--green-1);
+      text-decoration: none;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      width: 100%;
+      text-align: center;
+    }
+    .nav-back:hover { background: #d8f7df; transform: translateY(-1px); }
+
+    .note {
+      background: var(--mint);
+      border-left: 4px solid var(--green-2);
+      padding: 10px 14px;
+      color: var(--muted);
+      margin: 12px 0;
+      border-radius: 6px;
+      font-size: 0.94rem;
+    }
+    .warn {
+      background: #fff6e2;
+      border-left: 4px solid #e0a800;
+      padding: 10px 14px;
+      color: #6b4e00;
+      margin: 12px 0;
+      border-radius: 6px;
+      font-size: 0.94rem;
+    }
+    .big-result { font-size: 1.1rem; margin: 18px 0 8px; color: var(--green-1); font-weight: 700; }
+
+    .code {
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 10px;
+      border: 1px solid #2f5a3d;
+      padding: 16px 18px;
+      overflow-x: auto;
+      margin: 10px 0 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95rem;
+      white-space: pre;
+      line-height: 1.7;
+    }
+    .code .cm { color: #6dbf8a; }
+    .code .fn { color: #ffa657; }
+    .code .kw { color: #79c0ff; }
+    .code .num { color: #d2a8ff; }
+    .code .str { color: #ffd580; }
+    .code .hl { background: rgba(125,231,135,0.16); border-radius: 4px; }
+    .code .bad { background: rgba(248,113,113,0.16); border-radius: 4px; }
+
+    .console {
+      background: #101418;
+      color: #e6edf3;
+      border-radius: 10px;
+      border: 1px solid #30363d;
+      padding: 12px 18px;
+      overflow-x: auto;
+      margin: 10px 0 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92rem;
+      white-space: pre;
+      line-height: 1.7;
+    }
+    .console .usr { color: #7ee787; font-weight: 700; }
+    .console .dim { color: #8b949e; }
+
+    .ex-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .88rem;
+      margin: 10px 0 14px;
+    }
+    .ex-table th {
+      background: var(--green-3);
+      color: var(--green-1);
+      padding: 8px 12px;
+      text-align: left;
+      border: 1px solid var(--border);
+      font-size: .78rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+    .ex-table td { padding: 8px 12px; border: 1px solid var(--border); vertical-align: top; }
+    .ex-table tr:nth-child(even) td { background: #f4fff7; }
+    .task-box {
+      background: var(--mint);
+      border: 2px dashed var(--green-2);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin: 14px 0;
+    }
+    .task-box a {
+      color: var(--green-1);
+      font-weight: 800;
+      font-size: 1.02rem;
+      word-break: break-all;
+    }
+    .footer { text-align: center; color: var(--muted); font-size: 0.86rem; padding: 10px 0 16px; }
+
+    .task-list { padding-left: 22px; margin: 10px 0 0; }
+    .task-list li { margin-bottom: 10px; color: #1a3a2a; }
+    .task-list li strong { color: var(--green-1); }
+
+    .ex-title { display: flex; align-items: center; margin: 22px 0 8px; }
+    .ex-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--green-3); border: 2px solid var(--green-2);
+      color: var(--green-1); font-weight: 800; font-size: .88rem;
+      margin-right: 8px; flex-shrink: 0;
+    }
+    .ex-title h3 { margin: 0; font-size: 1.1rem; }
+
+    .kbd {
+      display: inline-block; padding: 2px 8px; border-radius: 6px;
+      background: #f0fff4; border: 1px solid var(--border);
+      border-bottom-width: 3px; font-family: Consolas, monospace;
+      font-size: .85rem; color: var(--green-1); font-weight: 700;
+    }
+
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 6px; }
+    .pill {
+      display: inline-block; padding: 4px 12px; border-radius: 999px;
+      background: #eafcef; border: 1px solid var(--border);
+      color: var(--green-1); font-weight: 700; font-size: .82rem;
+    }
+
+    .submission { background: var(--mint); border-color: var(--green-2); margin-top: 0; }
+    .submission a { color: var(--green-1); font-weight: 800; font-size: 1.05rem; word-break: break-all; }
+
+    .rtl { direction: rtl; text-align: right; }
+    .rtl .task-list { padding-left: 0; padding-right: 22px; }
+    .rtl .ex-title { flex-direction: row-reverse; justify-content: flex-end; }
+    .rtl .ex-num { margin-right: 0; margin-left: 8px; }
+    .rtl .ex-table th, .rtl .ex-table td { text-align: right; }
+    .rtl .pill-row { justify-content: flex-start; }
+
+    /* ── Variable boxes (None visual) ── */
+    .var-strip {
+      display: flex; flex-wrap: wrap; gap: 14px;
+      background: #f5fff9; border: 1px solid var(--border);
+      border-radius: 12px; padding: 16px 18px; margin: 12px 0 14px;
+    }
+    .var-box { text-align: center; min-width: 108px; }
+    .var-box .vname {
+      font-family: Consolas, monospace; font-size: .8rem; font-weight: 700;
+      color: var(--muted); margin-bottom: 5px;
+    }
+    .var-box .vval {
+      display: flex; align-items: center; justify-content: center;
+      height: 46px; border-radius: 10px;
+      font-family: Consolas, monospace; font-weight: 800; font-size: 1rem;
+      background: linear-gradient(160deg, #d6f8e4, #a9ecc6);
+      border: 1px solid #7fd6a3; color: #08351d;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+    }
+    .var-box.empty .vval {
+      background: repeating-linear-gradient(135deg, #f4f7f5 0 8px, #e9efeb 8px 16px);
+      border: 1px dashed #9fb5a8; color: #6d8479; font-style: italic;
+    }
+    .var-box.wrongv .vval {
+      background: linear-gradient(160deg, #ffe0d6, #ffc7b3);
+      border-color: #f0a184; color: #8c3312;
+    }
+    .var-box .vcap { font-size: .72rem; color: var(--muted); margin-top: 5px; }
+
+    /* ── Module toolbox ── */
+    .toolbox {
+      background: #f7fffb; border: 1px solid var(--border);
+      border-radius: 14px; padding: 16px 18px; margin: 14px 0;
+    }
+    .toolbox .tb-head {
+      display: flex; align-items: center; gap: 8px;
+      font-weight: 800; color: var(--green-1); margin-bottom: 10px;
+    }
+    .toolbox .tb-head .tb-ic {
+      width: 30px; height: 30px; border-radius: 9px; flex-shrink: 0;
+      background: linear-gradient(160deg, #2dd4bf, #0d9488);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 1rem;
+    }
+    .tool-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tool {
+      font-family: Consolas, monospace; font-size: .82rem; font-weight: 700;
+      background: #ffffff; border: 1px solid var(--border);
+      border-bottom-width: 3px; border-radius: 9px;
+      padding: 6px 11px; color: var(--green-1);
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .tool:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(18,102,55,0.16); }
+    .tool small { display: block; font-family: "Trebuchet MS", sans-serif; font-weight: 400; color: var(--muted); font-size: .72rem; }
+
+    /* ── Dice strip ── */
+    .dice-strip {
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+      background: #f5fff9; border: 1px solid var(--border);
+      border-radius: 12px; padding: 16px 18px; margin: 12px 0 14px;
+    }
+    .die {
+      width: 46px; height: 46px; border-radius: 11px; flex-shrink: 0;
+      background: linear-gradient(160deg, #ffffff, #eafcf2);
+      border: 2px solid var(--green-2);
+      box-shadow: 0 5px 12px rgba(18,102,55,0.18);
+      display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr);
+      padding: 6px; animation: dieTumble 3.6s ease-in-out infinite;
+    }
+    .die i { width: 7px; height: 7px; border-radius: 50%; background: #0f5a2e; align-self: center; justify-self: center; }
+    .die:nth-child(2) { animation-delay: .3s; }
+    .die:nth-child(3) { animation-delay: .6s; }
+    .die:nth-child(4) { animation-delay: .9s; }
+    .die:nth-child(5) { animation-delay: 1.2s; }
+    @keyframes dieTumble {
+      0%, 70%, 100% { transform: rotate(0deg); }
+      78% { transform: rotate(-9deg) translateY(-4px); }
+      86% { transform: rotate(8deg) translateY(-2px); }
+      94% { transform: rotate(-3deg); }
+    }
+
+    /* ── Two-run comparison ── */
+    .runs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0 14px; }
+    .run-pane { min-width: 0; }
+    .run-pane .run-cap {
+      font-size: .78rem; font-weight: 800; letter-spacing: .04em;
+      text-transform: uppercase; color: var(--green-2); margin-bottom: 4px;
+    }
+    .run-pane .console { margin: 0; font-size: .8rem; white-space: pre-wrap; word-break: break-word; }
+    .run-pane.diff .run-cap { color: #b4530f; }
+    @media (max-width: 700px) { .runs { grid-template-columns: 1fr; } }
+
+    /* ── Lottery balls ── */
+    .balls { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0 14px; justify-content: center; }
+    .ball {
+      width: 44px; height: 44px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: Consolas, monospace; font-weight: 800; font-size: .95rem;
+      color: #08351d;
+      background: radial-gradient(circle at 32% 28%, #ffffff 0%, #b9edd0 46%, #7fd6a3 100%);
+      border: 2px solid #4fbd82;
+      box-shadow: 0 6px 14px rgba(18,102,55,0.22);
+      animation: ballFloat 3.2s ease-in-out infinite;
+    }
+    .ball:nth-child(even) { animation-delay: .5s; }
+    .ball.dup {
+      background: radial-gradient(circle at 32% 28%, #ffffff 0%, #ffdcc9 46%, #ffb894 100%);
+      border-color: #ef9163; color: #8c3312;
+    }
+    @keyframes ballFloat { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+
+    /* ── One-at-a-time slides with prev / next ── */
+    .slide { display: none; animation: riseIn 0.4s ease both; }
+    .slide.active { display: block; }
+    .slide-nav {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border);
+    }
+    .sbtn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 18px; border-radius: 10px;
+      border: 1px solid var(--green-2); background: #e9fbe8;
+      color: var(--green-1); font-family: inherit; font-weight: 700; font-size: .92rem;
+      cursor: pointer; transition: all 0.2s ease;
+    }
+    .sbtn:hover:not(:disabled) { background: #d8f7df; transform: translateY(-1px); }
+    .sbtn:disabled { opacity: .35; cursor: default; }
+    .slide-dots { display: flex; align-items: center; gap: 7px; }
+    .sdot {
+      width: 11px; height: 11px; border-radius: 50%; padding: 0;
+      border: 1px solid var(--green-2); background: #ffffff;
+      cursor: pointer; transition: all 0.2s ease;
+    }
+    .sdot:hover { background: #cdf3da; }
+    .sdot.active { background: var(--green-2); transform: scale(1.25); }
+    .slide-count { font-size: .8rem; font-weight: 700; color: var(--muted); }
+    .slide .ex-title { margin-top: 0; }
+
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes blobMove {
+      from { transform: translate(0, 0) scale(1); }
+      to { transform: translate(24px, 18px) scale(1.06); }
+    }
+
+    @media (max-width: 760px) {
+      .wrap { padding: 14px; }
+      .layout { grid-template-columns: 1fr; }
+      .side-nav { position: static; }
+      h1 { font-size: 1.6rem; }
+      .code { font-size: 0.86rem; }
+      .ex-table { font-size: .8rem; }
+    }
+  
+    /* ── Lesson 11: boolean value boxes ── */
+    .bool-strip { display: flex; flex-wrap: wrap; gap: 12px; margin: 12px 0 14px; }
+    .bool-box {
+      border: 1px solid var(--border); border-radius: 12px;
+      padding: 12px 14px; background: #f7fffb; min-width: 150px;
+    }
+    .bool-box .bname { font-family: Consolas, monospace; font-size: .78rem; color: var(--muted); }
+    .bool-box .bval { font-family: Consolas, monospace; font-weight: 800; font-size: 1.05rem; margin-top: 4px; }
+    .bool-box.t .bval { color: #0f5a2e; }
+    .bool-box.f .bval { color: #b3261e; }
+
+    /* ── Lesson 11: ternary breakdown ── */
+    .tern {
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+      background: #f5fff9; border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px 16px; margin: 12px 0 14px;
+      font-family: Consolas, monospace; font-weight: 700;
+    }
+    .tern span { padding: 6px 11px; border-radius: 8px; font-size: .9rem; }
+    .tern .t-true  { background: #d6f8e4; border: 1px solid #7fd6a3; color: #08351d; }
+    .tern .t-cond  { background: #fff4d8; border: 1px solid #e6c46a; color: #6b4e00; }
+    .tern .t-false { background: #ffe0d6; border: 1px solid #f0a184; color: #8c3312; }
+    .tern .t-kw    { color: var(--muted); padding: 6px 2px; }
+
+    /* ── Lesson 11: playing cards ── */
+    .deck {
+      display: flex; flex-wrap: wrap; gap: 16px;
+      align-items: center; justify-content: center; margin: 14px 0 16px;
+    }
+    .pcard {
+      width: 74px; height: 104px; border-radius: 11px; flex-shrink: 0;
+      background: linear-gradient(160deg, #ffffff, #f3fff8);
+      border: 2px solid var(--green-2);
+      box-shadow: 0 6px 15px rgba(18,102,55,0.2);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 4px; animation: cardTilt 4s ease-in-out infinite;
+    }
+    .pcard:nth-child(3) { animation-delay: .8s; }
+    .pcard .rank { font-family: Consolas, monospace; font-size: 1.6rem; font-weight: 800; color: #0f5a2e; }
+    .pcard .suit { font-size: 1.1rem; }
+    .pcard.red .rank { color: #b3261e; }
+    .deck .vs { font-weight: 800; color: var(--muted); font-size: .95rem; }
+    @keyframes cardTilt {
+      0%, 100% { transform: rotate(-3deg) translateY(0); }
+      50%      { transform: rotate(3deg) translateY(-5px); }
+    }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <span class="tag">Lesson 11 - July 30, 2026</span>
+    <h1><code>match</code>/<code>case</code>, Booleans &amp; f-string Tricks 🃏</h1>
+    <p>We start by reviewing last lesson's homework — the <strong>guess the number</strong> game. Then we meet <strong><code>match</code>/<code>case</code></strong>, a cleaner way to write a long <code>if/elif</code> chain. We learn to store a comparison inside a <strong>boolean variable</strong> so conditions read like English, shrink a whole <code>if/else</code> into a one-line <strong>ternary</strong>, and finish with the <strong>formatting tricks</strong> that turn an f-string into a printed table. The lesson ends with a card game that uses all of it at once.</p>
+  </section>
+
+  <div class="layout">
+    <aside class="side-nav" aria-label="Topic navigation">
+      <div class="side-title">Lesson 11 topics</div>
+
+      <div class="side-section-label">0 · Homework review</div>
+      <button class="topic-link active" data-target="topic-hw-review">guess the number - solution</button>
+
+      <div class="side-section-label">1 · match / case</div>
+      <button class="topic-link" data-target="topic-match">match &amp; case</button>
+
+      <div class="side-section-label">2 · Booleans</div>
+      <button class="topic-link" data-target="topic-types">types &amp; the bool type</button>
+      <button class="topic-link" data-target="topic-bool">boolean variables</button>
+      <button class="topic-link" data-target="topic-ternary">the ternary if</button>
+
+      <div class="side-section-label">3 · Printing</div>
+      <button class="topic-link" data-target="topic-fstring">f-string format tricks</button>
+
+      <div class="side-section-label">4 · time</div>
+      <button class="topic-link" data-target="topic-sleep">time.sleep</button>
+
+      <div class="side-section-label">5 · Classroom</div>
+      <button class="topic-link" data-target="topic-cards">the card game 🃏</button>
+
+      <hr class="side-divider">
+      <button class="topic-link" data-target="topic-github">github folder</button>
+      <button class="topic-link" data-target="topic-exercise">exercise</button>
+      <button class="topic-link" data-target="topic-exercise-heb">exercise - עברית</button>
+
+      <div class="side-section-label">Navigation</div>
+      <a class="nav-back" href="../../index.html#lessons">Back to lessons</a>
+    </aside>
+
+    <main>
+      <!-- ═══ 0 · HOMEWORK REVIEW ═══ -->
+      <section class="card topic-panel active" id="topic-hw-review">
+        <span class="tag">hw_sol.py</span>
+        <h2 class="step-title">Homework Review — Guess the Number 🎯</h2>
+        <p>Last lesson's exercise: the computer picks a secret number, the player guesses until they get it, and the program counts the attempts. Here is the full solution — including the bonus <code>best_score</code> that starts as <code>None</code>.</p>
+
+        <div class="pill-row">
+          <span class="pill">outer while True → play again</span>
+          <span class="pill">inner while True → keep guessing</span>
+          <span class="pill">continue → reject junk input</span>
+          <span class="pill">break → stop on Bingo</span>
+        </div>
+
+        <div class="big-result">The full program</div>
+        <div class="code"><span class="kw">import</span> random
+
+best_score = <span class="kw">None</span>                          <span class="cm"># no game finished yet</span>
+
+<span class="kw">while</span> <span class="kw">True</span>:                                <span class="cm"># ① one whole GAME per round</span>
+    secret_number = random.<span class="fn">randint</span>(<span class="num">1</span>, <span class="num">100</span>)
+    number_of_guess = <span class="num">0</span>
+
+    <span class="bad">    <span class="fn">print</span>(secret_number)                    <span class="cm"># debug helper - delete before you submit!</span></span>
+
+<span class="hl">    <span class="kw">while</span> <span class="kw">True</span>:                            <span class="cm"># ② one GUESS per round</span>
+        guess = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'Guess a number [1-100]: '</span>))
+        <span class="kw">if</span> <span class="kw">not</span> <span class="num">1</span> &lt;= guess &lt;= <span class="num">100</span>:
+            <span class="fn">print</span>(<span class="str">'Guess a number from 1 to 100'</span>)
+            <span class="kw">continue</span>                        <span class="cm"># does NOT count as a guess</span>
+        number_of_guess += <span class="num">1</span>
+        <span class="kw">if</span> guess == secret_number:
+            <span class="fn">print</span>(<span class="str">'Bingo!'</span>)
+            <span class="kw">break</span>                           <span class="cm"># leaves the INNER loop only</span>
+        <span class="kw">elif</span> guess &gt; secret_number:
+            <span class="fn">print</span>(<span class="str">'Guess lower'</span>)
+        <span class="kw">else</span>:
+            <span class="fn">print</span>(<span class="str">'Guess higher'</span>)</span>
+
+    <span class="fn">print</span>(<span class="str">f"It took you {number_of_guess} attempts to guess the number!"</span>)
+
+    <span class="kw">if</span> best_score <span class="kw">is</span> <span class="kw">None</span> <span class="kw">or</span> number_of_guess &lt; best_score:
+        <span class="fn">print</span>(<span class="str">'Congratulations! You broke the record!'</span>)
+        best_score = number_of_guess
+    <span class="fn">print</span>(<span class="str">f"Best score is {best_score}"</span>)
+
+    yes_no = <span class="fn">input</span>(<span class="str">'Do you want to play again? [y/n]'</span>)
+    <span class="kw">if</span> yes_no == <span class="str">'n'</span>:
+        <span class="kw">break</span>                               <span class="cm"># leaves the OUTER loop - game over</span>
+
+<span class="fn">print</span>(<span class="str">'bye bye'</span>)</div>
+
+        <div class="console">Guess a number [1-100]: <span class="usr">50</span>
+Guess lower
+Guess a number [1-100]: <span class="usr">25</span>
+Guess higher
+Guess a number [1-100]: <span class="usr">37</span>
+Bingo!
+It took you 3 attempts to guess the number!
+Congratulations! You broke the record!
+Best score is 3
+Do you want to play again? [y/n]<span class="usr">n</span>
+bye bye</div>
+
+        <div class="big-result">The three ideas worth repeating</div>
+        <table class="ex-table">
+          <thead><tr><th>Line</th><th>Why it is written that way</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>continue</code> before <code>+= 1</code></td>
+              <td>An illegal guess is <em>not</em> a guess. <code>continue</code> jumps straight back to the top, so the counter never sees it.</td>
+            </tr>
+            <tr>
+              <td><code>break</code> in the inner loop</td>
+              <td><code>break</code> only ever leaves <strong>one</strong> loop — the closest one around it. The outer game loop keeps running, which is exactly what lets you play again.</td>
+            </tr>
+            <tr>
+              <td><code>best_score is None or ...</code></td>
+              <td>On the very first game there is nothing to compare against. <code>None</code> means "no record yet", and <code>or</code> short-circuits — if the left side is <code>True</code>, Python never even looks at the right side.</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="warn">
+          <strong>Two things to fix before submitting:</strong> delete the <code>print(secret_number)</code> debug line (it shows the answer!), and make sure <code>best_score = number_of_guess</code> happens <em>before</em> you print the record — otherwise you print the old score.
+        </div>
+      </section>
+
+      <!-- ═══ 1 · MATCH / CASE ═══ -->
+      <section class="card topic-panel" id="topic-match">
+        <span class="tag">match_case.py &nbsp;·&nbsp; New</span>
+        <h2 class="step-title"><code>match</code> / <code>case</code> — Choosing One Out of Many</h2>
+        <p>You already know how to pick one branch out of many: a long <code>if / elif / elif / else</code> chain. When every branch is comparing <strong>the same variable</strong> against <strong>a fixed value</strong>, Python offers a cleaner shape.</p>
+
+        <div class="big-result">The same program, written twice</div>
+        <div class="code">number = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'Enter a number between 1 and 5:'</span>))
+
+<span class="hl"><span class="kw">match</span> number:                       <span class="cm"># "look at number..."</span>
+    <span class="kw">case</span> <span class="num">1</span>:                        <span class="cm"># "...is it 1?"</span>
+        <span class="fn">print</span>(<span class="str">'You entered one'</span>)
+    <span class="kw">case</span> <span class="num">2</span>:
+        <span class="fn">print</span>(<span class="str">'You entered two'</span>)
+    <span class="kw">case</span> <span class="num">3</span>:
+        <span class="fn">print</span>(<span class="str">'You entered three'</span>)
+    <span class="kw">case</span> <span class="num">4</span>:
+        <span class="fn">print</span>(<span class="str">'You entered four'</span>)
+    <span class="kw">case</span> <span class="num">5</span>:
+        <span class="fn">print</span>(<span class="str">'You entered five'</span>)
+    <span class="kw">case</span> _:                        <span class="cm"># _ = "anything else" = else</span>
+        <span class="fn">print</span>(<span class="str">'number not in range 1-5'</span>)</span></div>
+
+        <div class="code"><span class="cm"># exactly the same behaviour with if / elif</span>
+<span class="kw">if</span> number == <span class="num">1</span>:
+    <span class="fn">print</span>(<span class="str">'one'</span>)
+<span class="kw">elif</span> number == <span class="num">2</span>:
+    <span class="fn">print</span>(<span class="str">'two'</span>)
+<span class="kw">elif</span> number == <span class="num">3</span>:
+    <span class="fn">print</span>(<span class="str">'three'</span>)
+<span class="kw">elif</span> number == <span class="num">4</span>:
+    <span class="fn">print</span>(<span class="str">'four'</span>)
+<span class="kw">elif</span> number == <span class="num">5</span>:
+    <span class="fn">print</span>(<span class="str">'five'</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">'number not in range 1-5'</span>)</div>
+
+        <div class="console">Enter a number between 1 and 5: <span class="usr">3</span>
+You entered three</div>
+
+        <div class="big-result">The rules</div>
+        <table class="ex-table">
+          <thead><tr><th>Rule</th><th>What it means</th></tr></thead>
+          <tbody>
+            <tr><td>The variable is named <strong>once</strong></td><td><code>match number:</code> at the top. You never repeat <code>number ==</code> on every line — that is the whole point.</td></tr>
+            <tr><td><code>case _:</code> is the <code>else</code></td><td>The underscore means "match anything". It is the same throwaway <code>_</code> you met in lesson 10. Put it <strong>last</strong>.</td></tr>
+            <tr><td>Only <strong>one</strong> case runs</td><td>Python runs the first case that matches and then jumps out. If you have seen <code>switch</code> in another language — there is <strong>no <code>break</code></strong> needed here.</td></tr>
+            <tr><td>Colons and indentation</td><td>Every <code>case</code> ends with <code>:</code> and its body is indented, exactly like <code>if</code>.</td></tr>
+            <tr><td>Needs Python <strong>3.10+</strong></td><td><code>match</code> was added in Python 3.10. On an older version you get a <code>SyntaxError</code>.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="big-result">It works on strings too</div>
+        <div class="code">name = <span class="fn">input</span>(<span class="str">'Enter a name: '</span>)
+<span class="kw">match</span> name:
+    <span class="kw">case</span> <span class="str">'danny'</span>:
+        <span class="fn">print</span>(<span class="str">'Hello Danny'</span>)
+    <span class="kw">case</span> <span class="str">'Shemesh'</span>:
+        <span class="fn">print</span>(<span class="str">'Hello Shemesh'</span>)</div>
+        <div class="warn">
+          There is <strong>no <code>case _</code></strong> in this one. Type any other name and the program prints <em>nothing at all</em> — no error, no message. A <code>match</code> with no matching case simply does nothing. Always ask yourself whether you want a default.
+        </div>
+
+        <div class="big-result">Several values in one case — the <code>|</code> symbol</div>
+        <p>To catch more than one value with a single branch, separate them with <code>|</code> (read it as "<em>or</em>"):</p>
+        <div class="code"><span class="kw">match</span> day:
+    <span class="kw">case</span> <span class="num">6</span> | <span class="num">7</span>:                    <span class="cm"># 6 OR 7</span>
+        <span class="fn">print</span>(<span class="str">'Weekend'</span>)
+    <span class="kw">case</span> _:
+        <span class="fn">print</span>(<span class="str">'A work day'</span>)</div>
+        <div class="note">
+          Inside a <code>case</code> the "or" symbol is <code>|</code>, <strong>not</strong> the word <code>or</code>. You will need this in today's first exercise.
+        </div>
+      </section>
+
+      <!-- ═══ 2 · TYPES ═══ -->
+      <section class="card topic-panel" id="topic-types">
+        <span class="tag">type_boolean.py</span>
+        <h2 class="step-title">Every Value Has a Type — Including <code>True</code></h2>
+        <p>A quick roll-call of everything we have stored in a variable so far, and the one new arrival:</p>
+
+        <div class="code">i = <span class="num">5</span>              <span class="cm"># int      - a whole number</span>
+x = <span class="num">5.5</span>            <span class="cm"># float    - a number with a dot</span>
+name = <span class="str">'dana'</span>      <span class="cm"># str      - text</span>
+nothing = <span class="kw">None</span>     <span class="cm"># NoneType - "nothing yet"  (lesson 10)</span>
+equal_6 = <span class="kw">True</span>     <span class="cm"># bool     - True / False   ← the new one</span>
+equal_6 = <span class="kw">False</span>    <span class="cm"># bool</span></div>
+
+        <div class="big-result"><code>type()</code> — asking Python what something is</div>
+        <div class="code"><span class="fn">print</span>(<span class="str">'name'</span>, <span class="fn">type</span>(name))
+<span class="fn">print</span>(<span class="fn">type</span>(i == <span class="num">6</span>))</div>
+        <div class="console">name &lt;class 'str'&gt;
+&lt;class 'bool'&gt;</div>
+
+        <div class="big-result">The important line</div>
+        <div class="code">i = <span class="num">5</span>
+equal_6 = <span class="hl">i == <span class="num">6</span></span>       <span class="cm"># → False   (5 is not 6)</span>
+equal_7 = <span class="hl">i == <span class="num">7</span></span>       <span class="cm"># → False</span></div>
+        <p>Look closely at what happened. <code>i == 6</code> is a <strong>question</strong>, and Python answers it with a <strong>value</strong> — <code>True</code> or <code>False</code>. And any value can be stored in a variable.</p>
+
+        <div class="bool-strip">
+          <div class="bool-box f"><div class="bname">i == 6</div><div class="bval">False</div></div>
+          <div class="bool-box t"><div class="bname">i == 5</div><div class="bval">True</div></div>
+          <div class="bool-box t"><div class="bname">i &lt; 10</div><div class="bval">True</div></div>
+          <div class="bool-box f"><div class="bname">i &gt; 10 and i &lt; 3</div><div class="bval">False</div></div>
+        </div>
+
+        <div class="note">
+          Capital letters matter: it is <code>True</code> and <code>False</code>, never <code>true</code> / <code>false</code>. And they are <strong>not</strong> strings — <code>'True'</code> with quotes is text, which is a completely different thing.
+        </div>
+      </section>
+
+      <!-- ═══ 2b · BOOLEAN VARIABLES ═══ -->
+      <section class="card topic-panel" id="topic-bool">
+        <span class="tag">type_boolean.py</span>
+        <h2 class="step-title">Boolean Variables — Giving a Condition a Name</h2>
+        <p>Once a comparison can be <em>stored</em>, you can give it a good name. That name is then readable inside the <code>if</code>:</p>
+
+        <div class="code">age = <span class="num">20</span>
+<span class="hl">is_adult = age &gt; <span class="num">18</span></span>            <span class="cm"># stores True</span>
+
+<span class="kw">if</span> is_adult:                   <span class="cm"># same as: if is_adult == True:</span>
+    <span class="fn">print</span>(<span class="str">'Have a Beer!'</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">'Have a Coke!'</span>)
+
+<span class="kw">if</span> <span class="kw">not</span> is_adult:               <span class="cm"># same as: if is_adult == False:</span>
+    <span class="fn">print</span>(<span class="str">'Have a Coke!'</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">'Have a Beer!'</span>)</div>
+
+        <div class="note">
+          <strong>Never write <code>if is_adult == True:</code></strong>. The variable is <em>already</em> <code>True</code> or <code>False</code> — comparing it to <code>True</code> adds nothing. Write <code>if is_adult:</code> for yes and <code>if not is_adult:</code> for no.
+        </div>
+
+        <div class="big-result">Why bother? Because long conditions become unreadable</div>
+        <p>Three sides make a legal triangle only when every two of them together are longer than the third. As a raw <code>if</code>, that is a mouthful:</p>
+        <div class="code">a = <span class="num">3</span>
+b = <span class="num">4</span>
+c = <span class="num">8</span>
+
+<span class="kw">if</span> a + b &gt; c <span class="kw">and</span> b + c &gt; a <span class="kw">and</span> c + a &gt; b:      <span class="cm"># ...what is this asking again?</span>
+    <span class="fn">print</span>(<span class="str">'Legal Triangle'</span>)</div>
+
+        <p>Give it a name once, then use the name:</p>
+        <div class="code"><span class="hl">is_legal = a + b &gt; c <span class="kw">and</span> b + c &gt; a <span class="kw">and</span> c + a &gt; b</span>
+
+<span class="kw">if</span> is_legal:
+    <span class="fn">print</span>(<span class="str">'Legal Triangle'</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">'Illegal Triangle'</span>)
+
+<span class="kw">if</span> is_legal:                              <span class="cm"># reuse it as many times as you like</span>
+    <span class="fn">print</span>(<span class="str">'hekef'</span>, a + b + c)</div>
+        <div class="console">Illegal Triangle</div>
+
+        <div class="big-result">Splitting one big condition into named pieces</div>
+        <p>To open a bank account you must be at least 21 <strong>and</strong> have at least 5,000 in cash. Written in one line:</p>
+        <div class="code">is_eligible_to_open_account = age &gt;= <span class="num">21</span> <span class="kw">and</span> cash &gt;= <span class="num">5000</span></div>
+        <p>Written as pieces — longer, but every line says what it means:</p>
+        <div class="code"><span class="hl">is_old_enough = age &gt;= <span class="num">21</span>
+has_5000_cash = cash &gt;= <span class="num">5000</span>
+is_eligible_to_open_account = is_old_enough <span class="kw">and</span> has_5000_cash</span>
+
+<span class="kw">if</span> is_eligible_to_open_account:
+    <span class="fn">print</span>(<span class="str">'Bank account opened!'</span>)
+<span class="kw">else</span>:
+    <span class="kw">if</span> <span class="kw">not</span> is_old_enough:
+        <span class="fn">print</span>(<span class="str">f'You need {21 - age} more years to open a bank account'</span>)
+    <span class="kw">if</span> <span class="kw">not</span> has_5000_cash:
+        <span class="fn">print</span>(<span class="str">f'You need {5000 - cash} more cash to open a bank account'</span>)</div>
+        <div class="console">Enter your age: <span class="usr">19</span>
+Enter your cash: <span class="usr">3000</span>
+You need 2 more years to open a bank account
+You need 2000 more cash to open a bank account</div>
+        <div class="note">
+          The split version has a real payoff: because each piece has its own name, the <code>else</code> can tell the user <strong>exactly what is missing</strong> — and if both are missing, it prints both lines. A single combined condition cannot do that.
+        </div>
+
+        <div class="big-result">Naming convention</div>
+        <div class="pill-row">
+          <span class="pill">is_adult</span>
+          <span class="pill">is_legal</span>
+          <span class="pill">is_even</span>
+          <span class="pill">is_positive</span>
+          <span class="pill">has_5000_cash</span>
+          <span class="pill">is_old_enough</span>
+        </div>
+        <p>Start boolean names with <code>is_</code> or <code>has_</code>. Then <code>if is_even:</code> reads like an English sentence, and anyone opening your file knows the variable holds <code>True</code>/<code>False</code> without having to look.</p>
+      </section>
+
+      <!-- ═══ 2c · TERNARY ═══ -->
+      <section class="card topic-panel" id="topic-ternary">
+        <span class="tag">New</span>
+        <h2 class="step-title">The Ternary <code>if</code> — A Whole <code>if/else</code> on One Line</h2>
+        <p>This four-line shape shows up constantly: choose between two values, print one of them.</p>
+
+        <div class="code">number = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'Enter a number: '</span>))
+is_even = number % <span class="num">2</span> == <span class="num">0</span>
+
+<span class="kw">if</span> is_even:
+    <span class="fn">print</span>(<span class="str">'even'</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">'odd'</span>)</div>
+
+        <p>Python can say the same thing in one line:</p>
+        <div class="code"><span class="fn">print</span>(<span class="hl"><span class="str">'even'</span> <span class="kw">if</span> is_even <span class="kw">else</span> <span class="str">'odd'</span></span>)</div>
+        <div class="console">Enter a number: <span class="usr">7</span>
+odd</div>
+
+        <div class="big-result">How to read it</div>
+        <div class="tern">
+          <span class="t-true">'even'</span>
+          <span class="t-kw">if</span>
+          <span class="t-cond">is_even</span>
+          <span class="t-kw">else</span>
+          <span class="t-false">'odd'</span>
+        </div>
+        <table class="ex-table">
+          <thead><tr><th>Part</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>'even'</code></td><td>the value you get <strong>if the condition is True</strong></td></tr>
+            <tr><td><code>if is_even</code></td><td>the condition — the same thing you would put after a normal <code>if</code></td></tr>
+            <tr><td><code>else 'odd'</code></td><td>the value you get <strong>if the condition is False</strong></td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          The order feels backwards at first — the <em>answer</em> comes before the <em>question</em>. Read it as an English sentence: "<em>print 'even', if the number is even, otherwise 'odd'</em>". That is exactly how it is written.
+        </div>
+
+        <div class="big-result">It produces a value, so you can store it</div>
+        <div class="code">answer = <span class="str">'even'</span> <span class="kw">if</span> is_even <span class="kw">else</span> <span class="str">'odd'</span>
+<span class="fn">print</span>(<span class="str">f'The number is {answer}'</span>)
+
+<span class="cm"># or drop it straight inside an f-string</span>
+<span class="fn">print</span>(<span class="str">f'The number is {"even" <span class="kw">if</span> is_even <span class="kw">else</span> "odd"}'</span>)
+
+price = <span class="num">100</span>
+final = price * <span class="num">0.9</span> <span class="kw">if</span> is_member <span class="kw">else</span> price   <span class="cm"># 10% off for members</span></div>
+
+        <div class="warn">
+          <strong>Use it only for genuinely small choices.</strong> A ternary inside a ternary — <code>'a' if x else 'b' if y else 'c'</code> — is legal Python and unreadable by humans. The moment you need more than one condition, go back to <code>if / elif / else</code>.
+        </div>
+      </section>
+
+      <!-- ═══ 3 · F-STRING FORMATTING ═══ -->
+      <section class="card topic-panel" id="topic-fstring">
+        <span class="tag">printf.py</span>
+        <h2 class="step-title">f-string Tricks — Making Output Look Right</h2>
+        <p>You already use f-strings to drop a value into a sentence. Everything after a <strong>colon</strong> inside the <code>{ }</code> is a <em>format spec</em>: an instruction about <strong>how</strong> to print that value. Six of them cover almost everything.</p>
+
+        <div class="code">price = <span class="num">59</span>
+<span class="fn">print</span>(<span class="str">f"The price is {price} dollars"</span>)
+
+a = <span class="num">3</span>
+b = <span class="num">4</span>
+<span class="fn">print</span>(<span class="str">f"{a} + {b} = {a+b}"</span>)              <span class="cm"># { } can hold a calculation</span>
+
+price = <span class="num">59</span>
+tax = <span class="num">0.25</span>
+<span class="fn">print</span>(<span class="str">f"The price is {price + (price * tax)} dollars"</span>)</div>
+        <div class="console">The price is 59 dollars
+3 + 4 = 7
+The price is 73.75 dollars</div>
+
+        <div class="slides" id="fmt-slides">
+
+          <!-- slide 1 -->
+          <div class="slide active">
+            <div class="ex-title"><span class="ex-num">1</span><h3><code>:.2f</code> — how many digits after the dot</h3></div>
+            <div class="code"><span class="kw">import</span> math
+price = <span class="num">59.23948762</span>
+
+<span class="fn">print</span>(<span class="str">'no round'</span>, math.<span class="fn">trunc</span>(price * <span class="num">100</span>) / <span class="num">100</span>)   <span class="cm"># the hard way</span>
+<span class="fn">print</span>(<span class="str">f"The price is {price<span class="hl">:.2f</span>} dollars"</span>)          <span class="cm"># the easy way</span></div>
+            <div class="console">no round 59.23
+The price is 59.24 dollars</div>
+            <div class="note">
+              Notice the two results differ. <code>math.trunc</code> <strong>chops</strong> the extra digits off (<code>59.23</code>), while <code>:.2f</code> <strong>rounds</strong> them (<code>59.24</code>). Rounding is almost always what you want for money.
+            </div>
+          </div>
+
+          <!-- slide 2 -->
+          <div class="slide">
+            <div class="ex-title"><span class="ex-num">2</span><h3><code>&lt;</code> <code>&gt;</code> <code>^</code> — alignment inside a fixed width</h3></div>
+            <div class="code">text = <span class="str">"Python"</span>
+
+<span class="fn">print</span>(<span class="str">f"|{text<span class="hl">:&lt;10</span>}|"</span>)   <span class="cm"># left,   width 10</span>
+<span class="fn">print</span>(<span class="str">f"|{text<span class="hl">:&gt;10</span>}|"</span>)   <span class="cm"># right,  width 10</span>
+<span class="fn">print</span>(<span class="str">f"|{text<span class="hl">:^10</span>}|"</span>)   <span class="cm"># center, width 10</span></div>
+            <div class="console">|Python    |
+|    Python|
+|  Python  |</div>
+            <div class="note">
+              The number is the <strong>total width</strong>, and Python pads with spaces to reach it. <code>&lt;</code> points left, <code>&gt;</code> points right, <code>^</code> is a roof in the middle — the symbol shows you which way the text is pushed.
+            </div>
+          </div>
+
+          <!-- slide 3 -->
+          <div class="slide">
+            <div class="ex-title"><span class="ex-num">3</span><h3>Alignment builds a table</h3></div>
+            <div class="code"><span class="fn">print</span>(<span class="str">f"|{<span class="str">'name'</span>: ^10}|{<span class="str">'age'</span>: ^10}|"</span>)
+<span class="fn">print</span>(<span class="str">"-"</span> * <span class="num">23</span>)
+<span class="fn">print</span>(<span class="str">f"|{<span class="str">'danny'</span>: ^10}|{<span class="str">'30'</span>: ^10}|"</span>)
+<span class="fn">print</span>(<span class="str">"-"</span> * <span class="num">23</span>)
+<span class="fn">print</span>(<span class="str">f"|{<span class="str">'sharon'</span>: ^10}|{<span class="str">'22'</span>: ^10}|"</span>)</div>
+            <div class="console">|   name   |   age    |
+-----------------------
+|  danny   |    30    |
+-----------------------
+|  sharon  |    22    |</div>
+            <div class="note">
+              Every column is exactly 10 wide, so the <code>|</code> characters line up no matter how long the names are. That is the whole trick behind printed tables — and <code>"-" * 23</code> repeats a character 23 times to draw the separator.
+            </div>
+            <div class="warn">
+              <strong>Watch your quotes.</strong> Writing <code>f"…{"name"}…"</code> — double quotes inside double quotes — only works in <strong>Python 3.12+</strong>. On 3.10 and 3.11 it is a <code>SyntaxError</code>. Use <code>'single'</code> quotes inside a <code>"double"</code>-quoted f-string and it works everywhere.
+            </div>
+          </div>
+
+          <!-- slide 4 -->
+          <div class="slide">
+            <div class="ex-title"><span class="ex-num">4</span><h3><code>,</code> and <code>_</code> — separating thousands</h3></div>
+            <div class="code">money = <span class="num">1234567.89</span>
+
+<span class="fn">print</span>(<span class="str">f"{money<span class="hl">:,.2f</span>}"</span>)   <span class="cm"># commas + 2 decimals</span>
+<span class="fn">print</span>(<span class="str">f"{money<span class="hl">:_</span>}"</span>)      <span class="cm"># underscores</span></div>
+            <div class="console">1,234,567.89
+1_234_567.89</div>
+            <div class="note">
+              You can combine specs: <code>:,.2f</code> is "commas <em>and</em> two decimals". Order matters — the separator comes first, the precision last.
+            </div>
+          </div>
+
+          <!-- slide 5 -->
+          <div class="slide">
+            <div class="ex-title"><span class="ex-num">5</span><h3><code>:05d</code> — padding a number with zeros</h3></div>
+            <div class="code">number = <span class="num">42</span>
+<span class="fn">print</span>(<span class="str">f"{number<span class="hl">:05d</span>}"</span>)     <span class="cm"># width 5, fill with zeros</span></div>
+            <div class="console">00042</div>
+            <div class="note">
+              Useful for invoice numbers, IDs, clock digits — anything that must always be the same length. The <code>d</code> means "whole number"; the <code>0</code> before the width says "pad with zeros instead of spaces".
+            </div>
+          </div>
+
+          <!-- slide 6 -->
+          <div class="slide">
+            <div class="ex-title"><span class="ex-num">6</span><h3><code>:.1%</code> and <code>:+</code> — percent and sign</h3></div>
+            <div class="code">percentage = <span class="num">0.756</span>
+<span class="fn">print</span>(<span class="str">f"{percentage<span class="hl">:.1%</span>}"</span>)   <span class="cm"># multiplies by 100 and adds %</span>
+
+pos = <span class="num">42</span>
+neg = -<span class="num">42</span>
+<span class="fn">print</span>(<span class="str">f"{pos<span class="hl">:+</span>}"</span>)            <span class="cm"># force a + on positive numbers</span>
+<span class="fn">print</span>(<span class="str">f"{neg}"</span>)             <span class="cm"># minus is always shown anyway</span></div>
+            <div class="console">75.6%
++42
+-42</div>
+            <div class="note">
+              <code>:.1%</code> does the ×100 <em>for</em> you — feed it <code>0.756</code>, not <code>75.6</code>. <code>:+</code> is for things like temperature changes or score differences where you want the plus sign to show.
+            </div>
+          </div>
+
+          <!-- slide 7 -->
+          <div class="slide">
+            <div class="ex-title"><span class="ex-num">7</span><h3>The whole cheat sheet</h3></div>
+            <table class="ex-table">
+              <thead><tr><th>Spec</th><th>Example</th><th>Result</th></tr></thead>
+              <tbody>
+                <tr><td><code>:.2f</code></td><td><code>f"{3.14159:.2f}"</code></td><td><code>3.14</code></td></tr>
+                <tr><td><code>:&lt;10</code></td><td><code>f"|{'hi':&lt;10}|"</code></td><td><code>|hi        |</code></td></tr>
+                <tr><td><code>:&gt;10</code></td><td><code>f"|{'hi':&gt;10}|"</code></td><td><code>|        hi|</code></td></tr>
+                <tr><td><code>:^10</code></td><td><code>f"|{'hi':^10}|"</code></td><td><code>|    hi    |</code></td></tr>
+                <tr><td><code>:,</code></td><td><code>f"{1234567:,}"</code></td><td><code>1,234,567</code></td></tr>
+                <tr><td><code>:,.2f</code></td><td><code>f"{1234567.891:,.2f}"</code></td><td><code>1,234,567.89</code></td></tr>
+                <tr><td><code>:_</code></td><td><code>f"{1234567:_}"</code></td><td><code>1_234_567</code></td></tr>
+                <tr><td><code>:05d</code></td><td><code>f"{42:05d}"</code></td><td><code>00042</code></td></tr>
+                <tr><td><code>:.1%</code></td><td><code>f"{0.756:.1%}"</code></td><td><code>75.6%</code></td></tr>
+                <tr><td><code>:+</code></td><td><code>f"{42:+}"</code></td><td><code>+42</code></td></tr>
+              </tbody>
+            </table>
+            <div class="note">
+              Every one of these goes <strong>after a colon</strong>, inside the curly braces: <code>{value<strong>:spec</strong>}</code>. Nothing before the colon changes — it is still the variable or expression you want printed.
+            </div>
+          </div>
+
+        </div>
+
+        <div class="slide-nav">
+          <button class="sbtn" id="slide-prev" type="button">‹ prev</button>
+          <div class="slide-dots" id="slide-dots"></div>
+          <span class="slide-count" id="slide-count"></span>
+          <button class="sbtn" id="slide-next" type="button">next ›</button>
+        </div>
+      </section>
+
+      <!-- ═══ 4 · TIME.SLEEP ═══ -->
+      <section class="card topic-panel" id="topic-sleep">
+        <span class="tag">cards.py &nbsp;·&nbsp; New</span>
+        <h2 class="step-title"><code>time.sleep</code> — Making the Program Wait</h2>
+        <p>Computers print instantly. Sometimes that is wrong: a card game is more fun if the cards appear one at a time, and a countdown is not a countdown if all the numbers land at once. <code>time.sleep</code> pauses the program.</p>
+
+        <div class="code"><span class="kw">import</span> time              <span class="cm"># a module, exactly like random</span>
+
+<span class="fn">print</span>(<span class="str">'first'</span>)
+<span class="hl">time.<span class="fn">sleep</span>(<span class="num">1</span>)</span>              <span class="cm"># wait 1 second, then carry on</span>
+<span class="fn">print</span>(<span class="str">'second'</span>)</div>
+        <div class="console">first
+<span class="dim">(1 second pause)</span>
+second</div>
+
+        <p>The number is <strong>seconds</strong>, and it may have a dot:</p>
+        <div class="code">time.<span class="fn">sleep</span>(<span class="num">1</span>)        <span class="cm"># one second</span>
+time.<span class="fn">sleep</span>(<span class="num">3</span>)        <span class="cm"># three seconds</span>
+time.<span class="fn">sleep</span>(<span class="num">0.5</span>)      <span class="cm"># half a second</span>
+time.<span class="fn">sleep</span>(<span class="num">0.1</span>)      <span class="cm"># a tenth of a second - a fast animation</span></div>
+
+        <div class="big-result">Inside a loop</div>
+        <p>Put it in a loop and you get an animation. This is exactly today's second exercise:</p>
+        <div class="code"><span class="kw">import</span> time
+
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">5</span>, <span class="num">0</span>, -<span class="num">1</span>):     <span class="cm"># 5, 4, 3, 2, 1 - counting DOWN</span>
+    <span class="fn">print</span>(i)
+    time.<span class="fn">sleep</span>(<span class="num">1</span>)
+<span class="fn">print</span>(<span class="str">'0 - Launch 🚀'</span>)</div>
+        <div class="console">5
+<span class="dim">(1s)</span>
+4
+<span class="dim">(1s)</span>
+3
+<span class="dim">(1s)</span>
+2
+<span class="dim">(1s)</span>
+1
+<span class="dim">(1s)</span>
+0 - Launch 🚀</div>
+        <div class="note">
+          <code>range(5, 0, -1)</code> is a <strong>negative step</strong> — it walks backwards from <code>5</code> down to <code>1</code> (the stop value <code>0</code> is excluded, as always). You can also write five separate <code>print</code> / <code>sleep</code> pairs; the loop is just shorter.
+        </div>
+        <div class="warn">
+          <strong>It really does stop everything.</strong> During <code>time.sleep(3)</code> your program does nothing at all — no printing, no reading input. That is the point, but it means <code>time.sleep(60)</code> in a loop makes a program that looks frozen. And do not forget <code>import time</code> at the top, or you get <code>NameError: name 'time' is not defined</code>.
+        </div>
+      </section>
+
+      <!-- ═══ 5 · CARD GAME ═══ -->
+      <section class="card topic-panel" id="topic-cards">
+        <span class="tag">cards.py</span>
+        <h2 class="step-title">Classroom — The Card Game 🃏</h2>
+        <p>One small program that uses <strong>everything</strong> from today plus <code>random</code> from last lesson. The player and the computer each draw one card; the higher card wins.</p>
+
+        <div class="big-result">The problem</div>
+        <p>A deck runs <code>2 3 4 5 6 7 8 9 10 J Q K A</code>. Computers compare numbers, not letters — so we number them <code>2</code>…<code>14</code>, where <code>11=J</code>, <code>12=Q</code>, <code>13=K</code>, <code>14=A</code>. We draw a <em>number</em> and then translate it into what the player sees.</p>
+
+        <table class="ex-table">
+          <thead><tr><th>Card</th><th>2 … 10</th><th>J</th><th>Q</th><th>K</th><th>A</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Value</strong></td><td>2 … 10</td><td>11</td><td>12</td><td>13</td><td>14</td></tr>
+          </tbody>
+        </table>
+
+        <div class="deck">
+          <div class="pcard red"><span class="rank">7</span><span class="suit">❤️</span></div>
+          <span class="vs">vs</span>
+          <div class="pcard"><span class="rank">K</span><span class="suit">♠️</span></div>
+        </div>
+
+        <div class="big-result">Drawing one card</div>
+        <div class="code"><span class="kw">import</span> random
+<span class="kw">import</span> time
+
+user_card_number = random.<span class="fn">randint</span>(<span class="num">2</span>, <span class="num">14</span>)      <span class="cm"># 2..14 - both ends included</span>
+
+<span class="hl"><span class="kw">match</span> user_card_number:                     <span class="cm"># number → what we show</span>
+    <span class="kw">case</span> <span class="num">11</span>:
+        user_display = <span class="str">'J'</span>
+    <span class="kw">case</span> <span class="num">12</span>:
+        user_display = <span class="str">'Q'</span>
+    <span class="kw">case</span> <span class="num">13</span>:
+        user_display = <span class="str">'K'</span>
+    <span class="kw">case</span> <span class="num">14</span>:
+        user_display = <span class="str">'A'</span>
+    <span class="kw">case</span> _:                                <span class="cm"># 2..10 show themselves</span>
+        user_display = user_card_number</span>
+
+user_color = random.<span class="fn">choice</span>([<span class="str">"❤️"</span>, <span class="str">"♦️"</span>, <span class="str">"♣️"</span>, <span class="str">"♠️"</span>])
+
+<span class="fn">print</span>(<span class="str">f"{user_display}{user_color}"</span>)             <span class="cm"># 7❤️</span>
+time.<span class="fn">sleep</span>(<span class="num">1</span>)                              <span class="cm"># a 1 second pause for drama</span></div>
+
+        <div class="note">
+          This is <code>match</code> at its best: one variable, compared against fixed values, with <code>case _</code> catching the whole boring 2–10 range in a single line. Written as <code>if/elif</code> it would be five lines of <code>user_card_number ==</code>.
+        </div>
+
+        <div class="big-result">Both cards, then the winner</div>
+        <div class="code"><span class="cm"># ... exactly the same block again for computer_card_number ...</span>
+
+<span class="kw">if</span> user_card_number &gt; computer_card_number:
+    <span class="fn">print</span>(<span class="str">'You Won!'</span>)
+<span class="kw">elif</span> user_card_number &lt; computer_card_number:
+    <span class="fn">print</span>(<span class="str">'You Lost!'</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">'Draw!'</span>)</div>
+
+        <div class="console">Q♦️
+<span class="dim">(1 second pause)</span>
+7♠️
+You Won!</div>
+
+        <div class="warn">
+          <strong>Compare the numbers, not the display!</strong> <code>user_card_number &gt; computer_card_number</code> compares <code>12 &gt; 7</code>. If you compared <code>user_display &gt; computer_display</code> you would be comparing the <em>text</em> <code>'Q'</code> against <code>'7'</code> — and Python would either crash or give a nonsense answer.
+        </div>
+
+        <div class="note">
+          <strong>Try it at home:</strong> the file ends with the comment <em>"make 5 rounds — count the wins, print the final score and who won the game"</em>. Wrap everything above in a <code>for</code> loop, keep two counters, and you have a full match. This one is not graded — today's homework is the three questions in the <em>exercise</em> tab.
+        </div>
+      </section>
+
+      <!-- ═══ GITHUB ═══ -->
+      <section class="card topic-panel" id="topic-github">
+        <span class="tag">GitHub</span>
+        <h2 class="step-title">Lesson 11 GitHub Folder</h2>
+        <p>All the code from today's lesson:</p>
+        <div class="task-box">
+          <strong>Lesson folder:</strong><br>
+          <a href="https://github.com/pythonai080626-a11y/30.07.2026" target="_blank" rel="noopener">
+            https://github.com/pythonai080626-a11y/30.07.2026
+          </a>
+        </div>
+        <table class="ex-table">
+          <thead><tr><th>File</th><th>What it shows</th></tr></thead>
+          <tbody>
+            <tr><td>hw_sol.py</td><td>Solution to lesson 10's homework — guess the number, with <code>best_score = None</code> and replay</td></tr>
+            <tr><td>match_case.py</td><td><code>match</code> / <code>case</code> / <code>case _</code>, the same thing as <code>if/elif</code>, and matching on strings</td></tr>
+            <tr><td>type_boolean.py</td><td><code>type()</code>, the <code>bool</code> type, boolean variables, the triangle &amp; bank-account examples, and the ternary <code>if</code></td></tr>
+            <tr><td>printf.py</td><td>f-string format specs — <code>.2f</code>, alignment, <code>,</code> and <code>_</code>, <code>05d</code>, <code>.1%</code>, <code>+</code></td></tr>
+            <tr><td>cards.py</td><td>The card game — <code>randint</code>, <code>choice</code>, <code>match</code> and <code>time.sleep</code> together</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          Topic pages for today: <a href="../../10_match_case/index.html">match &amp; case</a>, <a href="../../11_booleans/index.html">Booleans &amp; the Ternary</a> and <a href="../../12_fstrings/index.html">f-string Tricks</a>. Also useful: <a href="../../04_conditionals/index.html">Conditionals</a> and <a href="../../08_random/index.html">Random &amp; Modules</a>.
+        </div>
+      </section>
+
+      <!-- ═══ EXERCISE (English) ═══ -->
+      <section class="card topic-panel" id="topic-exercise">
+        <span class="tag">Homework</span>
+        <h2 class="step-title">Practice — 3 Questions</h2>
+        <p>Solve <strong>at least one</strong> question — you are encouraged to try more.<br>
+           These are <strong>Python only</strong>. Write each one as a <code>.py</code> file in PyCharm and run with <span class="kbd">Shift</span> + <span class="kbd">F10</span>.</p>
+
+        <!-- Exercise 1 -->
+        <div class="ex-title">
+          <span class="ex-num">1</span>
+          <h3>Sound system 🔊 <span style="font-size:.8rem;font-weight:400;opacity:.6">(match / case)</span></h3>
+        </div>
+        <p>A sound system has volume levels from <strong>1 to 10</strong>. Ask the user for a whole number and print the matching description using <code>match</code> / <code>case</code>.</p>
+        <table class="ex-table">
+          <thead><tr><th>Volume</th><th>Print</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>very quiet</td></tr>
+            <tr><td>2</td><td>quiet</td></tr>
+            <tr><td>3</td><td>low</td></tr>
+            <tr><td>4</td><td>low</td></tr>
+            <tr><td>5</td><td>medium</td></tr>
+            <tr><td>6</td><td>medium high</td></tr>
+            <tr><td>7</td><td>loud</td></tr>
+            <tr><td>8</td><td>very loud</td></tr>
+            <tr><td>9 and 10</td><td>max volume</td></tr>
+            <tr><td>anything else</td><td>invalid volume</td></tr>
+          </tbody>
+        </table>
+        <div class="console">Enter volume [1-10]: <span class="usr">6</span>
+medium high</div>
+        <div class="console">Enter volume [1-10]: <span class="usr">42</span>
+invalid volume</div>
+        <div class="note">
+          <strong>Hint:</strong> two rows repeat a description and two share one — that is what <code>|</code> is for. <code>case 3 | 4:</code> and <code>case 9 | 10:</code> each handle both values in a single branch. Use <code>case _:</code> for <em>invalid volume</em>.
+        </div>
+
+        <!-- Exercise 2 -->
+        <div class="ex-title">
+          <span class="ex-num">2</span>
+          <h3>Countdown 🚀 <span style="font-size:.8rem;font-weight:400;opacity:.6">(time.sleep)</span></h3>
+        </div>
+        <p>Use <code>time.sleep</code> to produce a launch countdown. Print <code>5</code>, wait one second, print <code>4</code>, wait one second… down to <code>1</code>, wait one more second, then print <code>0 - Launch 🚀</code>.</p>
+        <div class="console">5
+<span class="dim">(1 second)</span>
+4
+<span class="dim">(1 second)</span>
+3
+<span class="dim">(1 second)</span>
+2
+<span class="dim">(1 second)</span>
+1
+<span class="dim">(1 second)</span>
+0 - Launch 🚀</div>
+        <div class="big-result">The two rules</div>
+        <div class="code"><span class="kw">import</span> time
+
+time.<span class="fn">sleep</span>(<span class="num">1</span>)</div>
+        <ol class="task-list">
+          <li>Use <strong><code>import time</code></strong> at the top of the file.</li>
+          <li>Use <strong><code>time.sleep(1)</code></strong> between the prints.</li>
+        </ol>
+        <div class="note">
+          <strong>Bonus:</strong> do it with a loop instead of five copy-pasted lines — <code>for i in range(5, 0, -1):</code> counts down for you.
+        </div>
+
+        <!-- Exercise 3 -->
+        <div class="ex-title">
+          <span class="ex-num">3</span>
+          <h3>Restaurant recommendation 🍽️ <span style="font-size:.8rem;font-weight:400;opacity:.6">(booleans)</span></h3>
+        </div>
+        <p>Ask the user for two things:</p>
+        <ol class="task-list">
+          <li>How long the restaurant took to bring the meal, <strong>in minutes</strong></li>
+          <li>The <strong>price</strong> of the meal, in shekels</li>
+        </ol>
+        <p>Now build two <strong>boolean variables</strong>:</p>
+        <table class="ex-table">
+          <thead><tr><th>Variable</th><th>Is <code>True</code> when</th></tr></thead>
+          <tbody>
+            <tr><td><code>is_quick_service</code></td><td>the time is <strong>less than 15</strong> minutes</td></tr>
+            <tr><td><code>is_expensive</code></td><td>the price is <strong>more than 100</strong> shekels</td></tr>
+          </tbody>
+        </table>
+        <p>Then decide:</p>
+        <ol class="task-list">
+          <li>If <code>is_quick_service</code> <strong>and not</strong> <code>is_expensive</code> → print <code>recommended</code></li>
+          <li>Otherwise → print <code>not recommended</code></li>
+        </ol>
+        <div class="console">How many minutes did the meal take? <span class="usr">10</span>
+How much did it cost? <span class="usr">80</span>
+recommended</div>
+        <div class="console">How many minutes did the meal take? <span class="usr">25</span>
+How much did it cost? <span class="usr">80</span>
+not recommended</div>
+        <div class="note">
+          <strong>Hint:</strong> do not write the comparisons inside the <code>if</code>. Store them first — <code>is_quick_service = minutes &lt; 15</code> — then the condition reads like English: <code>if is_quick_service and not is_expensive:</code>.
+        </div>
+
+        <div class="big-result">Submission</div>
+        <div class="card submission">
+          <ol class="task-list">
+            <li><strong>Write the .py program(s)</strong> in PyCharm.</li>
+            <li><strong>Upload to GitHub</strong> and send the link to:<br>
+              <a href="mailto:pythonai080626+hw11@gmail.com">pythonai080626+hw11@gmail.com</a>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ═══ EXERCISE (Hebrew) ═══ -->
+      <section class="card topic-panel rtl" id="topic-exercise-heb" lang="he" dir="rtl">
+        <span class="tag">שיעורי בית</span>
+        <h2 class="step-title">תרגול — 3 שאלות</h2>
+        <p>פתרו <strong>לפחות שאלה אחת</strong> — מומלץ לנסות יותר.<br>
+           התרגילים הם <strong>בפייתון בלבד</strong>. כתבו כל אחד בקובץ <code>.py</code> ב-PyCharm והריצו עם <span class="kbd">Shift</span> + <span class="kbd">F10</span>.</p>
+
+        <!-- Exercise 1 -->
+        <div class="ex-title">
+          <span class="ex-num">1</span>
+          <h3>מערכת סאונד 🔊 <span style="font-size:.8rem;font-weight:400;opacity:.6">(match / case)</span></h3>
+        </div>
+        <p>במערכת סאונד יש דרגות עוצמה מ-<strong>1 עד 10</strong>. בקשו מהמשתמש מספר שלם והדפיסו את התיאור המתאים בעזרת <code>match</code> / <code>case</code>.</p>
+        <table class="ex-table">
+          <thead><tr><th>עוצמה</th><th>להדפיס</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>very quiet</td></tr>
+            <tr><td>2</td><td>quiet</td></tr>
+            <tr><td>3</td><td>low</td></tr>
+            <tr><td>4</td><td>low</td></tr>
+            <tr><td>5</td><td>medium</td></tr>
+            <tr><td>6</td><td>medium high</td></tr>
+            <tr><td>7</td><td>loud</td></tr>
+            <tr><td>8</td><td>very loud</td></tr>
+            <tr><td>9 ו-10</td><td>max volume</td></tr>
+            <tr><td>כל דבר אחר</td><td>invalid volume</td></tr>
+          </tbody>
+        </table>
+        <div class="console" dir="ltr">Enter volume [1-10]: <span class="usr">6</span>
+medium high</div>
+        <div class="console" dir="ltr">Enter volume [1-10]: <span class="usr">42</span>
+invalid volume</div>
+        <div class="note">
+          <strong>רמז:</strong> שתי שורות חוזרות על אותו תיאור ושתיים חולקות אחד — בדיוק בשביל זה יש <code>|</code>. <code dir="ltr">case 3 | 4:</code> ו-<code dir="ltr">case 9 | 10:</code> מטפלים בשני הערכים בענף אחד. השתמשו ב-<code>case _:</code> עבור <em>invalid volume</em>.
+        </div>
+
+        <!-- Exercise 2 -->
+        <div class="ex-title">
+          <span class="ex-num">2</span>
+          <h3>ספירה לאחור 🚀 <span style="font-size:.8rem;font-weight:400;opacity:.6">(time.sleep)</span></h3>
+        </div>
+        <p>השתמשו ב-<code>time.sleep</code> כדי ליצור ספירה לאחור לשיגור. הדפיסו <code>5</code>, המתינו שנייה, הדפיסו <code>4</code>, המתינו שנייה… עד <code>1</code>, המתינו עוד שנייה, ואז הדפיסו <code>0 - Launch 🚀</code>.</p>
+        <div class="console" dir="ltr">5
+<span class="dim">(1 second)</span>
+4
+<span class="dim">(1 second)</span>
+3
+<span class="dim">(1 second)</span>
+2
+<span class="dim">(1 second)</span>
+1
+<span class="dim">(1 second)</span>
+0 - Launch 🚀</div>
+        <div class="big-result">שני הכללים</div>
+        <div class="code" dir="ltr"><span class="kw">import</span> time
+
+time.<span class="fn">sleep</span>(<span class="num">1</span>)</div>
+        <ol class="task-list">
+          <li>השתמשו ב-<strong><code>import time</code></strong> בראש הקובץ.</li>
+          <li>השתמשו ב-<strong><code>time.sleep(1)</code></strong> בין ההדפסות.</li>
+        </ol>
+        <div class="note">
+          <strong>בונוס:</strong> עשו זאת עם לולאה במקום חמש שורות מועתקות — <code dir="ltr">for i in range(5, 0, -1):</code> סופר לאחור בשבילכם.
+        </div>
+
+        <!-- Exercise 3 -->
+        <div class="ex-title">
+          <span class="ex-num">3</span>
+          <h3>המלצה על מסעדה 🍽️ <span style="font-size:.8rem;font-weight:400;opacity:.6">(משתנים בוליאניים)</span></h3>
+        </div>
+        <p>בקשו מהמשתמש שני נתונים:</p>
+        <ol class="task-list">
+          <li>כמה זמן לקח למסעדה להביא את הארוחה, <strong>בדקות</strong></li>
+          <li><strong>המחיר</strong> של הארוחה, בשקלים</li>
+        </ol>
+        <p>עכשיו בנו שני <strong>משתנים בוליאניים</strong>:</p>
+        <table class="ex-table">
+          <thead><tr><th>משתנה</th><th>מקבל <code>True</code> כאשר</th></tr></thead>
+          <tbody>
+            <tr><td><code>is_quick_service</code></td><td>הזמן <strong>קטן מ-15</strong> דקות</td></tr>
+            <tr><td><code>is_expensive</code></td><td>המחיר <strong>גדול מ-100</strong> שקלים</td></tr>
+          </tbody>
+        </table>
+        <p>ואז החליטו:</p>
+        <ol class="task-list">
+          <li>אם <code>is_quick_service</code> <strong>וגם לא</strong> <code>is_expensive</code> ← הדפיסו <code>recommended</code></li>
+          <li>אחרת ← הדפיסו <code>not recommended</code></li>
+        </ol>
+        <div class="console" dir="ltr">How many minutes did the meal take? <span class="usr">10</span>
+How much did it cost? <span class="usr">80</span>
+recommended</div>
+        <div class="console" dir="ltr">How many minutes did the meal take? <span class="usr">25</span>
+How much did it cost? <span class="usr">80</span>
+not recommended</div>
+        <div class="note">
+          <strong>רמז:</strong> אל תכתבו את ההשוואות בתוך ה-<code>if</code>. שמרו אותן קודם — <code dir="ltr">is_quick_service = minutes &lt; 15</code> — ואז התנאי נקרא כמו אנגלית: <code dir="ltr">if is_quick_service and not is_expensive:</code>.
+        </div>
+
+        <div class="big-result">הגשה</div>
+        <div class="card submission">
+          <ol class="task-list">
+            <li><strong>כתבו את התוכנית/ות</strong> ב-PyCharm.</li>
+            <li><strong>העלו ל-GitHub</strong> ושלחו את הקישור ל:<br>
+              <a href="mailto:pythonai080626+hw11@gmail.com">pythonai080626+hw11@gmail.com</a>
+            </li>
+          </ol>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="footer">
+    Python Basics - Lesson 11 - July 30, 2026 - match/case, booleans &amp; f-string tricks
+  </footer>
+</div>
+
+<script>
+  const links = document.querySelectorAll('.topic-link');
+  const panels = document.querySelectorAll('.topic-panel');
+
+  function showTopic(id) {
+    panels.forEach(panel => panel.classList.toggle('active', panel.id === id));
+    links.forEach(link => link.classList.toggle('active', link.dataset.target === id));
+  }
+
+  links.forEach(link => {
+    link.addEventListener('click', () => {
+      showTopic(link.dataset.target);
+      location.hash = link.dataset.target;
+    });
+  });
+
+  const hash = location.hash.replace('#', '');
+  if (hash && document.getElementById(hash)) showTopic(hash);
+
+  // ── one-at-a-time slides inside the f-string panel ──
+  const slides = document.querySelectorAll('#fmt-slides .slide');
+  const prevBtn = document.getElementById('slide-prev');
+  const nextBtn = document.getElementById('slide-next');
+  const dotsBox = document.getElementById('slide-dots');
+  const countEl = document.getElementById('slide-count');
+  let current = 0;
+
+  slides.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.type = 'button';
+    dot.className = 'sdot';
+    dot.setAttribute('aria-label', 'go to slide ' + (i + 1));
+    dot.addEventListener('click', () => showSlide(i));
+    dotsBox.appendChild(dot);
+  });
+  const dots = dotsBox.querySelectorAll('.sdot');
+
+  function showSlide(n) {
+    current = Math.max(0, Math.min(n, slides.length - 1));
+    slides.forEach((s, i) => s.classList.toggle('active', i === current));
+    dots.forEach((d, i) => d.classList.toggle('active', i === current));
+    countEl.textContent = (current + 1) + ' / ' + slides.length;
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === slides.length - 1;
+  }
+
+  prevBtn.addEventListener('click', () => showSlide(current - 1));
+  nextBtn.addEventListener('click', () => showSlide(current + 1));
+  showSlide(0);
+</script>
+</body>
+</html>
