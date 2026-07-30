@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Quiz - 20 Questions</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: #46178f;
+    color: #fff;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* floating particles */
+  .particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .particle { position: absolute; border-radius: 50%; opacity: .15; animation: float linear infinite; }
+  @keyframes float {
+    0%   { transform: translateY(110vh) rotate(0deg); }
+    100% { transform: translateY(-10vh) rotate(720deg); }
+  }
+
+  .screen {
+    display: none; min-height: 100vh; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 20px; position: relative; z-index: 1;
+  }
+  .screen.active { display: flex; }
+
+  .logo {
+    font-size: 2.6rem; font-weight: 900; text-align: center;
+    text-shadow: 0 4px 20px rgba(0,0,0,.4); margin-bottom: 20px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+
+  .card {
+    background: rgba(255,255,255,.08);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 20px; padding: 32px;
+    width: 100%; max-width: 560px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.3);
+    text-align: center;
+  }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 15px 28px; border-radius: 12px; border: none;
+    font-family: inherit; font-weight: 800; font-size: 1.1rem;
+    cursor: pointer; width: 100%;
+    transition: transform .1s, filter .1s;
+  }
+  .btn:hover  { filter: brightness(1.1); }
+  .btn:active { transform: scale(.97); }
+  .btn-primary { background: #fff; color: #46178f; box-shadow: 0 4px 16px rgba(0,0,0,.2); }
+  .btn-ghost   { background: rgba(255,255,255,.15); color: #fff; margin-top: 12px; }
+
+  .rules { text-align: left; margin: 22px 0 26px; }
+  .rule {
+    display: flex; align-items: center; gap: 12px;
+    background: rgba(0,0,0,.22); border-radius: 12px;
+    padding: 12px 16px; margin-bottom: 10px; font-weight: 700; font-size: .98rem;
+  }
+  .rule .ic { font-size: 1.35rem; flex-shrink: 0; }
+
+  /* ── question screen ── */
+  .q-header {
+    display: flex; align-items: center; justify-content: space-between;
+    width: 100%; max-width: 900px; margin-bottom: 16px; gap: 16px;
+  }
+  .q-progress { font-weight: 800; font-size: 1.05rem; opacity: .85; }
+  .q-score    { font-weight: 800; font-size: 1.05rem; opacity: .85; }
+
+  .timer-wrap { position: relative; width: 72px; height: 72px; flex-shrink: 0; }
+  .timer-svg { transform: rotate(-90deg); }
+  .timer-track { fill: none; stroke: rgba(255,255,255,.15); stroke-width: 6; }
+  .timer-ring  { fill: none; stroke-width: 6; stroke-linecap: round;
+                 transition: stroke-dashoffset 1s linear, stroke .5s; }
+  .timer-num {
+    position: absolute; inset: 0; display: flex;
+    align-items: center; justify-content: center;
+    font-size: 1.4rem; font-weight: 900;
+  }
+
+  .code-wrap { width: 100%; max-width: 900px; margin-bottom: 14px; }
+  .code-label {
+    font-size: .78rem; font-weight: 700; opacity: .6; margin-bottom: 6px;
+    font-family: monospace; letter-spacing: .05em;
+  }
+  .code-block {
+    background: rgba(0,0,0,.45);
+    border: 1px solid rgba(255,255,255,.10);
+    border-left: 4px solid #ffd700;
+    border-radius: 10px; padding: 14px 18px; margin: 0;
+    overflow-x: auto;
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: 1rem; line-height: 1.55; white-space: pre; tab-size: 4;
+  }
+  .code-block .kw  { color: #ff79c6; font-weight: 700; }
+  .code-block .bi  { color: #8be9fd; }
+  .code-block .num { color: #bd93f9; }
+  .code-block .str { color: #f1fa8c; }
+  .code-block .com { color: #6f7d92; font-style: italic; }
+
+  .q-text {
+    width: 100%; max-width: 900px;
+    background: rgba(0,0,0,.3); border-radius: 16px;
+    padding: 18px 24px; font-size: 1.2rem; font-weight: 800;
+    text-align: center; line-height: 1.5; margin-bottom: 18px;
+    white-space: pre-wrap;
+  }
+
+  .answers-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    width: 100%; max-width: 900px;
+  }
+  .answer-btn {
+    display: flex; align-items: center; gap: 12px;
+    padding: 18px 20px; border: none; border-radius: 12px;
+    color: #fff; font-family: inherit; font-weight: 800;
+    cursor: pointer; text-align: left; min-height: 76px;
+    box-shadow: 0 4px 0 rgba(0,0,0,.25);
+    transition: transform .12s, filter .12s, opacity .3s;
+  }
+  .answer-btn:hover:not(:disabled)  { transform: scale(1.03); filter: brightness(1.12); }
+  .answer-btn:active:not(:disabled) { transform: scale(.97); }
+  .answer-btn:disabled { cursor: default; }
+  .answer-btn.dimmed   { opacity: .35; }
+  .answer-btn.is-correct { outline: 5px solid #fff; outline-offset: 2px; }
+  .answer-btn.is-wrong   { outline: 5px solid #000; outline-offset: 2px; opacity: .8; }
+  .answer-btn[data-idx="0"] { background: #e21b3c; }
+  .answer-btn[data-idx="1"] { background: #1368ce; }
+  .answer-btn[data-idx="2"] { background: #d89e00; }
+  .answer-btn[data-idx="3"] { background: #26890c; }
+  .answer-icon { font-size: 1.5rem; flex-shrink: 0; }
+  .answer-text {
+    font-family: Consolas, 'Courier New', monospace;
+    font-size: .95rem; line-height: 1.4; white-space: pre-wrap;
+  }
+  .answer-text.plain { font-family: inherit; font-size: 1rem; white-space: normal; }
+
+  /* ── feedback banner ── */
+  .feedback {
+    width: 100%; max-width: 900px; margin-top: 16px;
+    border-radius: 16px; padding: 18px 24px; text-align: center;
+    animation: popIn .35s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  .feedback.good { background: #26890c; }
+  .feedback.bad  { background: #e21b3c; }
+  .feedback.out  { background: #6b21a8; border: 2px solid rgba(255,255,255,.35); }
+  .fb-emoji { font-size: 2.4rem; line-height: 1; }
+  .fb-title { font-size: 1.5rem; font-weight: 900; margin: 6px 0 4px; }
+  .fb-detail { font-size: 1rem; font-weight: 700; opacity: .92; }
+  .fb-detail code {
+    background: rgba(0,0,0,.28); padding: 2px 8px; border-radius: 6px;
+    font-family: Consolas, monospace; white-space: pre-wrap;
+  }
+  @keyframes popIn {
+    from { transform: scale(.7); opacity: 0; }
+    to   { transform: scale(1);  opacity: 1; }
+  }
+  .next-btn { max-width: 900px; margin-top: 14px; }
+
+  /* ── result screen ── */
+  .result-emoji { font-size: 4.5rem; line-height: 1; margin-bottom: 8px; }
+  .result-title { font-size: 2rem; font-weight: 900; margin-bottom: 18px; }
+  .score-ring-wrap { position: relative; width: 190px; height: 190px; margin: 0 auto 18px; }
+  .score-track { fill: none; stroke: rgba(255,255,255,.15); stroke-width: 14; }
+  .score-fill  { fill: none; stroke: #ffd700; stroke-width: 14; stroke-linecap: round;
+                 transition: stroke-dashoffset 1.4s cubic-bezier(.22,1,.36,1); }
+  .score-mid {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+  }
+  .score-big  { font-size: 3rem; font-weight: 900; line-height: 1; }
+  .score-of   { font-size: 1rem; font-weight: 700; opacity: .7; }
+  .score-pct  { font-size: 1.05rem; font-weight: 800; opacity: .85; margin-top: 4px; }
+  .result-msg { font-size: 1.05rem; font-weight: 700; opacity: .9; margin-bottom: 24px; line-height: 1.5; }
+
+  .review { width: 100%; max-width: 560px; margin-top: 4px; text-align: left; }
+  .review-title { font-weight: 800; font-size: .95rem; opacity: .75; margin-bottom: 8px; }
+  .review-row {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(0,0,0,.22); border-radius: 10px;
+    padding: 9px 14px; margin-bottom: 7px; font-size: .88rem; font-weight: 700;
+  }
+  .review-row .rnum { opacity: .55; min-width: 26px; }
+  .review-row .rmark { font-size: 1.05rem; }
+  .review-row .rq { flex: 1; opacity: .85; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .back-link {
+    position: fixed; top: 16px; left: 16px; z-index: 20;
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.18);
+    color: #fff; text-decoration: none; font-weight: 700; font-size: .85rem;
+    padding: 8px 14px; border-radius: 999px; backdrop-filter: blur(6px);
+    transition: background .2s;
+  }
+  .back-link:hover { background: rgba(0,0,0,.5); }
+
+  @media (max-width: 700px) {
+    .answers-grid { grid-template-columns: 1fr; }
+    .logo { font-size: 2rem; }
+    .q-text { font-size: 1.02rem; }
+    .code-block { font-size: .86rem; }
+    .answer-btn { min-height: 62px; padding: 14px 16px; }
+    .back-link { position: static; margin-bottom: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="particles" id="particles"></div>
+
+<!-- ══════════ START ══════════ -->
+<div class="screen active" id="screen-start">
+  <a class="back-link" href="../index.html">← Python Basics</a>
+  <div class="logo">🐍 Python Quiz</div>
+  <div class="card">
+    <p style="font-size:1.05rem;font-weight:700;opacity:.9">
+      20 questions on the Python basics — loops, <code>%</code>, <code>//</code>,
+      <code>if/elif</code>, <code>random</code> and more.
+    </p>
+    <div class="rules">
+      <div class="rule"><span class="ic">⏱️</span><span>60 seconds for each question</span></div>
+      <div class="rule"><span class="ic">✅</span><span>You are told straight away if you were right</span></div>
+      <div class="rule"><span class="ic">🏁</span><span>Your total score appears at the end</span></div>
+    </div>
+    <button class="btn btn-primary" id="btn-start">Start the quiz →</button>
+  </div>
+</div>
+
+<!-- ══════════ QUESTION ══════════ -->
+<div class="screen" id="screen-question">
+  <div class="q-header">
+    <span class="q-progress" id="q-progress"></span>
+    <div class="timer-wrap">
+      <svg class="timer-svg" width="72" height="72">
+        <circle class="timer-track" cx="36" cy="36" r="30"/>
+        <circle class="timer-ring" id="timer-ring" cx="36" cy="36" r="30"/>
+      </svg>
+      <div class="timer-num" id="timer-num">60</div>
+    </div>
+    <span class="q-score" id="q-score"></span>
+  </div>
+
+  <div class="code-wrap" id="code-wrap" style="display:none">
+    <div class="code-label">PYTHON</div>
+    <pre class="code-block" id="code-block"></pre>
+  </div>
+
+  <div class="q-text" id="q-text"></div>
+  <div class="answers-grid" id="answers-grid"></div>
+
+  <div id="feedback-slot" style="width:100%;max-width:900px;display:flex;flex-direction:column;align-items:center"></div>
+</div>
+
+<!-- ══════════ RESULT ══════════ -->
+<div class="screen" id="screen-result">
+  <a class="back-link" href="../index.html">← Python Basics</a>
+  <div class="card">
+    <div class="result-emoji" id="result-emoji">🎉</div>
+    <div class="result-title" id="result-title">Quiz complete!</div>
+
+    <div class="score-ring-wrap">
+      <svg width="190" height="190" style="transform:rotate(-90deg)">
+        <circle class="score-track" cx="95" cy="95" r="80"/>
+        <circle class="score-fill" id="score-fill" cx="95" cy="95" r="80"/>
+      </svg>
+      <div class="score-mid">
+        <div class="score-big" id="score-big">0</div>
+        <div class="score-of" id="score-of">out of 20</div>
+        <div class="score-pct" id="score-pct">0%</div>
+      </div>
+    </div>
+
+    <div class="result-msg" id="result-msg"></div>
+    <button class="btn btn-primary" id="btn-again">Play again 🔁</button>
+    <a class="btn btn-ghost" href="../index.html">Back to Python Basics</a>
+
+    <div class="review">
+      <div class="review-title">Question by question</div>
+      <div id="review-list"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════ QUESTIONS ══════════ */
+const QUESTIONS = [
+  {
+    "q": "What does this code print?",
+    "code": "for i in range(3):\n    print(i)",
+    "options": [
+      "0\n1\n2",
+      "1\n2\n3",
+      "0\n1\n2\n3",
+      "3"
+    ],
+    "correct": 0
+  },
+  {
+    "q": "What is printed?",
+    "code": "print(17 % 5)",
+    "options": [
+      "3",
+      "3.4",
+      "2",
+      "12"
+    ],
+    "correct": 2
+  },
+  {
+    "q": "What are the two printed values?",
+    "code": "print(17 // 5)\nprint(17 / 5)",
+    "options": [
+      "3.4  then  3",
+      "3  then  3.4",
+      "3  then  3",
+      "2  then  3.4"
+    ],
+    "correct": 1
+  },
+  {
+    "q": "What is printed?",
+    "code": "n = 0\nwhile True:\n    n += 1\n    if n == 3:\n        break\nprint(n)",
+    "options": [
+      "0",
+      "2",
+      "3",
+      "Nothing — infinite loop"
+    ],
+    "correct": 2
+  },
+  {
+    "q": "What is the output?",
+    "code": "for i in range(5):\n    if i == 2:\n        continue\n    print(i, end=\" \")",
+    "options": [
+      "0 1 2 3 4",
+      "0 1 3 4",
+      "0 1",
+      "2"
+    ],
+    "correct": 1
+  },
+  {
+    "q": "What is printed?",
+    "code": "x = 7\nif x > 10:\n    print(\"big\")\nelif x > 5:\n    print(\"medium\")\nelif x > 3:\n    print(\"small\")\nelse:\n    print(\"tiny\")",
+    "options": [
+      "big",
+      "medium",
+      "medium\nsmall",
+      "tiny"
+    ],
+    "correct": 1
+  },
+  {
+    "q": "What is the output?",
+    "code": "for i in range(1, 10, 2):\n    print(i, end=\" \")",
+    "options": [
+      "1 3 5 7 9",
+      "1 3 5 7 9 11",
+      "2 4 6 8",
+      "1 2 3 ... 10"
+    ],
+    "correct": 0
+  },
+  {
+    "q": "What is the output?",
+    "code": "for i in range(1, 6):\n    if i % 2 == 0:\n        print(\"even\", end=\" \")\n    elif i % 3 == 0:\n        print(\"three\", end=\" \")\n    else:\n        print(i, end=\" \")",
+    "options": [
+      "1 even three even 5",
+      "1 even 3 even 5",
+      "1 2 three 4 5",
+      "even three even"
+    ],
+    "correct": 0
+  },
+  {
+    "q": "Why is \"_\" used here instead of a name like i?",
+    "code": "for _ in range(3):\n    print(\"hi\")",
+    "options": [
+      "\"_\" is a special Python keyword for loops",
+      "Because we never use the loop value — \"_\" means 'ignore it'",
+      "It makes the loop run 3 times faster",
+      "It is a syntax error — Python needs a real name"
+    ],
+    "correct": 1
+  },
+  {
+    "q": "What are the two printed values?",
+    "code": "def add(a, b):\n    print(a + b)\n\nx = add(2, 3)\nprint(x)",
+    "options": [
+      "5  then  None",
+      "5  then  5",
+      "None  then  5",
+      "Error — add() returns nothing"
+    ],
+    "correct": 0
+  },
+  {
+    "q": "What is the value of count at the end?",
+    "code": "count = 0\nfor i in range(1, 11):\n    if i % 2 == 0:\n        count += 1\nprint(count)",
+    "options": [
+      "4",
+      "5",
+      "6",
+      "10"
+    ],
+    "correct": 1
+  },
+  {
+    "q": "What is printed?",
+    "code": "i = 0\nwhile i < 5:\n    i += 2\nprint(i)",
+    "options": [
+      "4",
+      "5",
+      "6",
+      "The loop never ends"
+    ],
+    "correct": 2
+  },
+  {
+    "q": "What is the output?",
+    "code": "for i in range(10):\n    if i * i > 10:\n        break\n    print(i, end=\" \")",
+    "options": [
+      "0 1 2 3",
+      "0 1 2 3 4",
+      "0 1 2",
+      "0 1 2 3 4 5 6 7 8 9"
+    ],
+    "correct": 0
+  },
+  {
+    "q": "What is the difference between break and continue?",
+    "code": null,
+    "options": [
+      "break skips one iteration; continue stops the loop",
+      "break stops the whole loop; continue skips to the next iteration",
+      "They do exactly the same thing",
+      "Both of them stop the program"
+    ],
+    "correct": 1
+  },
+  {
+    "q": "Nested loops!\nWhat is the output?",
+    "code": "for i in range(3):\n    for j in range(3):\n        if j == 1:\n            break\n        print(i, j, end=\"  \")",
+    "options": [
+      "0 0",
+      "0 0  1 0  2 0",
+      "0 0  0 1  0 2",
+      "0 0  1 1  2 2"
+    ],
+    "correct": 1
+  },
+  {
+    "q": "Which values can x get?",
+    "code": "import random\nx = random.randint(1, 6)",
+    "options": [
+      "1, 2, 3, 4, 5 or 6",
+      "1, 2, 3, 4 or 5",
+      "Any float between 1 and 6",
+      "0, 1, 2, 3, 4, 5 or 6"
+    ],
+    "correct": 0
+  },
+  {
+    "q": "Which values can x get?",
+    "code": "import random\nx = random.choice([10, 20, 30])",
+    "options": [
+      "0, 1 or 2 (an index)",
+      "Always 10",
+      "10, 20 or 30",
+      "Any number between 10 and 30"
+    ],
+    "correct": 2
+  },
+  {
+    "q": "What are the two printed values?",
+    "code": "n = 253\nprint(n % 10)\nprint(n // 10)",
+    "options": [
+      "25  then  3",
+      "3  then  25",
+      "3  then  25.3",
+      "2  then  53"
+    ],
+    "correct": 1
+  },
+  {
+    "q": "What is the output?",
+    "code": "i = 0\nwhile i < 10:\n    i += 1\n    if i % 2 == 0:\n        continue\n    if i > 5:\n        break\n    print(i, end=\" \")",
+    "options": [
+      "1 2 3 4 5",
+      "1 3 5 7",
+      "1 3 5",
+      "2 4 6"
+    ],
+    "correct": 2
+  },
+  {
+    "q": "This is a number guessing game.\nWhat does the last line print?",
+    "code": "import random\nsecret = random.randint(1, 100)\ntries = 0\nwhile True:\n    guess = int(input())\n    tries += 1\n    if guess == secret:\n        break\nprint(tries)",
+    "options": [
+      "The secret number",
+      "Always 1",
+      "How many guesses it took to find the secret",
+      "Nothing — the loop never ends"
+    ],
+    "correct": 2
+  }
+];
+
+const TIME_LIMIT = 60;
+const ICONS = ['▲', '◆', '●', '■'];
+
+/* ══════════ Python syntax highlighting ══════════ */
+function escHtml(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+const PY_KEYWORDS = /^(?:False|None|True|and|as|assert|break|class|continue|def|del|elif|else|except|finally|for|from|global|if|import|in|is|lambda|not|or|pass|raise|return|try|while|with|yield)$/;
+const PY_BUILTINS = /^(?:print|range|len|int|str|float|input|random|randint|randrange|choice|shuffle|list|sum|abs|type|round|bool|enumerate|min|max|time|sleep)$/;
+
+function highlightPython(code) {
+  const token = /(#[^\n]*)|('(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*")|(\b\d+\.?\d*\b)|([A-Za-z_]\w*)/g;
+  let out = '', last = 0, m;
+  while ((m = token.exec(code)) !== null) {
+    out += escHtml(code.slice(last, m.index));
+    const t = escHtml(m[0]);
+    if      (m[1]) out += '<span class="com">' + t + '</span>';
+    else if (m[2]) out += '<span class="str">' + t + '</span>';
+    else if (m[3]) out += '<span class="num">' + t + '</span>';
+    else if (PY_KEYWORDS.test(m[4])) out += '<span class="kw">' + t + '</span>';
+    else if (PY_BUILTINS.test(m[4])) out += '<span class="bi">' + t + '</span>';
+    else out += t;
+    last = m.index + m[0].length;
+  }
+  return out + escHtml(code.slice(last));
+}
+
+function isCodeOption(opt) {
+  return /^[\s\d.,\-]+$/.test(opt) || /\n/.test(opt) ||
+         /[(){}\[\]=<>%*+]|print|range|random/.test(opt);
+}
+
+/* ══════════ state ══════════ */
+let index = 0;
+let score = 0;
+let answered = false;
+let ticker = null;
+let remaining = TIME_LIMIT;
+const results = [];
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+/* ══════════ question ══════════ */
+function renderQuestion() {
+  const q = QUESTIONS[index];
+  answered = false;
+
+  document.getElementById('q-progress').textContent = 'Question ' + (index + 1) + ' of ' + QUESTIONS.length;
+  document.getElementById('q-score').textContent = '✅ ' + score;
+
+  const wrap = document.getElementById('code-wrap');
+  if (q.code) {
+    document.getElementById('code-block').innerHTML = highlightPython(q.code);
+    wrap.style.display = 'block';
+  } else {
+    wrap.style.display = 'none';
+  }
+
+  document.getElementById('q-text').textContent = q.q;
+
+  const grid = document.getElementById('answers-grid');
+  grid.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'answer-btn';
+    btn.dataset.idx = i;
+    btn.innerHTML = '<span class="answer-icon">' + ICONS[i] + '</span>' +
+                    '<span class="answer-text ' + (isCodeOption(opt) ? '' : 'plain') + '">' +
+                    escHtml(opt) + '</span>';
+    btn.onclick = () => submit(i);
+    grid.appendChild(btn);
+  });
+
+  document.getElementById('feedback-slot').innerHTML = '';
+  startTimer();
+  showScreen('screen-question');
+}
+
+function startTimer() {
+  const ring = document.getElementById('timer-ring');
+  const numEl = document.getElementById('timer-num');
+  const circ = 2 * Math.PI * 30;
+
+  remaining = TIME_LIMIT;
+  ring.style.strokeDasharray = circ;
+  ring.style.strokeDashoffset = 0;
+  ring.style.stroke = '#26890c';
+  numEl.textContent = remaining;
+  numEl.style.color = '#fff';
+
+  clearInterval(ticker);
+  ticker = setInterval(() => {
+    remaining--;
+    numEl.textContent = Math.max(0, remaining);
+    ring.style.strokeDashoffset = circ * (1 - remaining / TIME_LIMIT);
+
+    if (remaining > 20)      ring.style.stroke = '#26890c';
+    else if (remaining > 10) ring.style.stroke = '#d89e00';
+    else                     ring.style.stroke = '#e21b3c';
+    numEl.style.color = remaining <= 5 ? '#ff8080' : '#fff';
+
+    if (remaining <= 0) submit(null);
+  }, 1000);
+}
+
+/* ══════════ answering ══════════ */
+function submit(choice) {
+  if (answered) return;
+  answered = true;
+  clearInterval(ticker);
+
+  const q = QUESTIONS[index];
+  const isCorrect = choice === q.correct;
+  if (isCorrect) score++;
+  results.push({ q: q.q, code: q.code, correct: isCorrect, timedOut: choice === null });
+
+  document.querySelectorAll('.answer-btn').forEach((b, i) => {
+    b.disabled = true;
+    if (i === q.correct) b.classList.add('is-correct');
+    else if (i === choice) b.classList.add('is-wrong');
+    else b.classList.add('dimmed');
+  });
+
+  document.getElementById('q-score').textContent = '✅ ' + score;
+  showFeedback(isCorrect, choice === null, q);
+}
+
+function showFeedback(isCorrect, timedOut, q) {
+  const slot = document.getElementById('feedback-slot');
+  const kind = isCorrect ? 'good' : (timedOut ? 'out' : 'bad');
+  const emoji = isCorrect ? '🎉' : (timedOut ? '⏰' : '😢');
+  const title = isCorrect ? 'Correct!' : (timedOut ? "Time's up!" : 'Wrong');
+
+  let detail;
+  if (isCorrect) {
+    detail = 'Nice one — that is ' + score + ' correct so far.';
+  } else {
+    detail = 'The answer was ' + ICONS[q.correct] + ' <code>' +
+             escHtml(q.options[q.correct]).replace(/\n/g, ' ⏎ ') + '</code>';
+  }
+
+  const last = index === QUESTIONS.length - 1;
+  slot.innerHTML =
+    '<div class="feedback ' + kind + '">' +
+      '<div class="fb-emoji">' + emoji + '</div>' +
+      '<div class="fb-title">' + title + '</div>' +
+      '<div class="fb-detail">' + detail + '</div>' +
+    '</div>' +
+    '<button class="btn btn-primary next-btn" id="btn-next">' +
+      (last ? 'See my score 🏁' : 'Next question →') +
+    '</button>';
+
+  document.getElementById('btn-next').onclick = next;
+  document.getElementById('btn-next').focus();
+}
+
+function next() {
+  index++;
+  if (index >= QUESTIONS.length) showResult();
+  else renderQuestion();
+}
+
+/* ══════════ result ══════════ */
+function showResult() {
+  const total = QUESTIONS.length;
+  const pct = Math.round(score / total * 100);
+
+  document.getElementById('score-big').textContent = score;
+  document.getElementById('score-of').textContent = 'out of ' + total;
+  document.getElementById('score-pct').textContent = pct + '%';
+
+  let emoji, title, msg;
+  if (pct === 100)     { emoji = '🏆'; title = 'Perfect score!';  msg = 'Every single one correct. You know your Python basics.'; }
+  else if (pct >= 80)  { emoji = '🎉'; title = 'Excellent!';      msg = 'Strong result — just a couple to review.'; }
+  else if (pct >= 60)  { emoji = '👍'; title = 'Good job!';       msg = 'Solid. Look back at the ones you missed and try again.'; }
+  else if (pct >= 40)  { emoji = '📚'; title = 'Keep practising'; msg = 'You are getting there. Re-read the lessons and go again.'; }
+  else                 { emoji = '💪'; title = 'Try again';       msg = 'Do not worry — go through the lessons and come back.'; }
+
+  document.getElementById('result-emoji').textContent = emoji;
+  document.getElementById('result-title').textContent = title;
+  document.getElementById('result-msg').textContent =
+    'You answered ' + score + ' out of ' + total + ' correctly. ' + msg;
+
+  const fill = document.getElementById('score-fill');
+  const circ = 2 * Math.PI * 80;
+  fill.style.strokeDasharray = circ;
+  fill.style.strokeDashoffset = circ;
+  setTimeout(() => { fill.style.strokeDashoffset = circ * (1 - score / total); }, 120);
+
+  const list = document.getElementById('review-list');
+  list.innerHTML = '';
+  results.forEach((r, i) => {
+    const row = document.createElement('div');
+    row.className = 'review-row';
+    const label = r.code ? r.code.split('\n')[0] : r.q;
+    row.innerHTML = '<span class="rnum">' + (i + 1) + '.</span>' +
+                    '<span class="rmark">' + (r.correct ? '✅' : (r.timedOut ? '⏰' : '❌')) + '</span>' +
+                    '<span class="rq">' + escHtml(label) + '</span>';
+    list.appendChild(row);
+  });
+
+  showScreen('screen-result');
+}
+
+/* ══════════ wiring ══════════ */
+function startQuiz() {
+  index = 0;
+  score = 0;
+  results.length = 0;
+  renderQuestion();
+}
+
+document.getElementById('btn-start').onclick = startQuiz;
+document.getElementById('btn-again').onclick = startQuiz;
+
+/* keyboard: 1-4 to answer, Enter for next */
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('screen-question').classList.contains('active')) return;
+  if (!answered && ['1', '2', '3', '4'].includes(e.key)) submit(Number(e.key) - 1);
+  else if (answered && e.key === 'Enter') next();
+});
+
+/* background particles */
+(function () {
+  const box = document.getElementById('particles');
+  const colors = ['#e21b3c', '#1368ce', '#d89e00', '#26890c', '#ffffff'];
+  for (let i = 0; i < 18; i++) {
+    const p = document.createElement('div');
+    const size = 8 + Math.random() * 26;
+    p.className = 'particle';
+    p.style.width = size + 'px';
+    p.style.height = size + 'px';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.background = colors[i % colors.length];
+    p.style.animationDuration = (12 + Math.random() * 14) + 's';
+    p.style.animationDelay = (-Math.random() * 20) + 's';
+    box.appendChild(p);
+  }
+})();
+</script>
+</body>
+</html>
