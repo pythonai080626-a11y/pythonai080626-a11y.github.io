@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python f-string Formatting Tricks</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Comic+Neue:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Comic Neue', cursive; }
+    h1, h2, h3, .heading { font-family: 'Baloo 2', cursive; }
+    .clay {
+      border: 3px solid rgba(249,115,22,0.18);
+      box-shadow: 5px 5px 0 rgba(249,115,22,0.22), inset 0 1px 0 rgba(255,255,255,0.65);
+    }
+    .clay-teal {
+      border: 3px solid rgba(13,148,136,0.18);
+      box-shadow: 5px 5px 0 rgba(13,148,136,0.22), inset 0 1px 0 rgba(255,255,255,0.65);
+    }
+    .step-card { transition: transform .2s ease, box-shadow .2s ease; }
+    .step-card:hover { transform: translateY(-4px); }
+
+    .code {
+      background: #0b2517; color: #d2ffe3;
+      border-radius: 14px; border: 1px solid #2f5a3d;
+      padding: 14px 18px; overflow-x: auto; margin: 12px 0 4px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95rem; white-space: pre; line-height: 1.7;
+    }
+    .code .cm { color: #6dbf8a; }
+    .code .fn { color: #ffa657; }
+    .code .kw { color: #79c0ff; }
+    .code .str { color: #ffd580; }
+    .code .num { color: #d2a8ff; }
+    .code .ind { background: rgba(125,231,135,0.14); border-radius: 4px; }
+    .code .hl { background: rgba(125,231,135,0.16); border-radius: 4px; }
+    .code .bad { background: rgba(248,113,113,0.16); border-radius: 4px; }
+
+    .console {
+      background: #101418; color: #e6edf3;
+      border-radius: 14px; border: 1px solid #30363d;
+      padding: 12px 18px; overflow-x: auto; margin: 12px 0 4px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92rem; white-space: pre; line-height: 1.7;
+    }
+    .console .usr { color: #7ee787; font-weight: 700; }
+    .console .dim { color: #8b949e; }
+    .console .err { color: #ff9f9f; }
+
+    .kbd {
+      display: inline-block; padding: 2px 10px; border-radius: 8px;
+      background: #FFF7ED; border: 2px solid #FED7AA;
+      border-bottom-width: 4px; font-family: Consolas, monospace;
+      font-size: .85rem; color: #C2410C; font-weight: 700;
+    }
+
+    .step-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 44px; height: 44px; border-radius: 14px; flex-shrink: 0;
+      background: #FFEDD5; border: 3px solid #F97316;
+      color: #C2410C; font-weight: 800; font-size: 1.25rem;
+      font-family: 'Baloo 2', cursive;
+    }
+
+    .trace { width: 100%; border-collapse: collapse; font-size: .9rem; margin-top: 12px; }
+    .trace th {
+      background: #FFEDD5; color: #C2410C; text-align: left;
+      padding: 8px 12px; border: 2px solid #FED7AA;
+      font-size: .75rem; letter-spacing: .06em; text-transform: uppercase;
+      font-family: 'Baloo 2', cursive;
+    }
+    .trace td { padding: 8px 12px; border: 2px solid #FFEDD5; color: #134E4A; }
+    .trace tr:nth-child(even) td { background: #FFF7ED; }
+
+    .tool-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tool {
+      font-family: Consolas, monospace; font-size: .82rem; font-weight: 700;
+      background: #ffffff; border: 2px solid #FED7AA; border-bottom-width: 4px;
+      border-radius: 11px; padding: 7px 12px; color: #C2410C;
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .tool:hover { transform: translateY(-3px); }
+    .tool small { display: block; font-family: 'Comic Neue', cursive; font-weight: 400; color: #134E4A; opacity: .6; font-size: .74rem; }
+
+    .spec-split {
+      display: flex; flex-wrap: wrap; gap: 6px; align-items: center;
+      background: #ffffff; border: 2px solid #FED7AA; border-radius: 14px;
+      padding: 16px 18px; margin-top: 14px;
+      font-family: Consolas, monospace; font-weight: 800; font-size: 1.15rem;
+    }
+    .spec-split span { padding: 8px 12px; border-radius: 9px; }
+    .spec-split .s-val  { background: #CCFBF1; border: 2px solid #5EEAD4; color: #0F766E; }
+    .spec-split .s-col  { background: #FEE2E2; border: 2px solid #FCA5A5; color: #B91C1C; }
+    .spec-split .s-spec { background: #FFEDD5; border: 2px solid #FDBA74; color: #C2410C; }
+    .spec-split .s-plain { color: #134E4A; opacity: .45; }
+    .spec-cap { font-family: 'Comic Neue', cursive; font-weight: 400; font-size: .8rem; opacity: .6; display:block; margin-top:2px; }
+  </style>
+</head>
+<body class="bg-[#FFFBF5] text-[#134E4A] min-h-screen">
+
+  <nav class="fixed top-4 left-4 right-4 z-50">
+    <div class="max-w-6xl mx-auto bg-white/90 backdrop-blur-md rounded-2xl px-5 py-3 clay flex items-center gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-[#F97316] hover:text-[#134E4A] transition-colors duration-200">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        <span class="text-sm font-semibold">Python Basics</span>
+      </a>
+      <span class="text-[#134E4A]/25 text-sm">/</span>
+      <span class="heading font-bold text-[#134E4A] text-sm">f-string Tricks</span>
+    </div>
+  </nav>
+
+  <main class="px-4 pt-28 pb-16">
+    <section class="max-w-6xl mx-auto">
+
+      <!-- HERO -->
+      <div class="grid lg:grid-cols-[1fr_360px] gap-8 items-center mb-10">
+        <div>
+          <span class="text-xs font-bold tracking-widest uppercase text-[#F97316] bg-orange-50 border border-orange-200 px-4 py-1.5 rounded-full">Topic 12</span>
+          <h1 class="heading text-5xl md:text-6xl font-extrabold text-[#134E4A] mt-4 mb-4 leading-tight">f-string Tricks 🖨️</h1>
+          <p class="text-lg text-[#134E4A]/65 max-w-2xl leading-relaxed">You already drop values into a sentence with <code class="bg-orange-50 px-1 rounded">f"…{price}…"</code>. Add a <strong>colon</strong> inside the braces and everything after it becomes a <strong>format spec</strong> — an instruction about <em>how</em> to print that value. Two decimal places, aligned columns, thousands separators, percentages. Six specs cover almost everything you will ever need.</p>
+        </div>
+
+        <div class="bg-white rounded-[24px] p-5 clay-teal hidden lg:block">
+          <div class="flex items-center gap-1.5 mb-3">
+            <span class="w-3 h-3 rounded-full bg-red-400"></span>
+            <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
+            <span class="w-3 h-3 rounded-full bg-green-400"></span>
+            <span class="text-xs text-[#134E4A]/40 ml-2 font-mono">printf.py</span>
+          </div>
+          <div class="code" style="margin:0;">money = <span class="num">1234567.891</span>
+
+<span class="fn">print</span>(<span class="str">f"{money<span class="hl">:,.2f</span>}"</span>)
+<span class="cm"># 1,234,567.89</span></div>
+        </div>
+      </div>
+
+      <!-- STEPS -->
+      <div class="space-y-6">
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">1</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">The Shape</h2>
+              <p class="text-[#134E4A]/65 mb-4">Nothing before the colon changes — it is still the variable or expression you want printed. The spec goes after:</p>
+              <div class="spec-split">
+                <span class="s-plain">{</span>
+                <span class="s-val">money<span class="spec-cap">what to print</span></span>
+                <span class="s-col">:<span class="spec-cap">the colon</span></span>
+                <span class="s-spec">,.2f<span class="spec-cap">how to print it</span></span>
+                <span class="s-plain">}</span>
+              </div>
+              <p class="text-[#134E4A]/65 mt-4 mb-2">Without a spec it prints whatever Python thinks is reasonable — which for money is usually wrong:</p>
+              <div class="code">price = <span class="num">59.23948762</span>
+
+<span class="fn">print</span>(<span class="str">f"The price is {price} dollars"</span>)
+<span class="fn">print</span>(<span class="str">f"The price is {price<span class="hl">:.2f</span>} dollars"</span>)</div>
+              <div class="console">The price is 59.23948762 dollars
+The price is 59.24 dollars</div>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                💡 The braces can hold a whole calculation, not just a name: <code>f"{a} + {b} = {a+b}"</code> and <code>f"{price + (price * tax)}"</code> both work.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">2</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">:.2f — digits after the dot</h2>
+              <p class="text-[#134E4A]/65 mb-4"><code>.2f</code> means "a float, with exactly 2 digits after the dot". Change the number for more or fewer:</p>
+              <div class="code">pi = <span class="num">3.14159265</span>
+
+<span class="fn">print</span>(<span class="str">f"{pi:.2f}"</span>)      <span class="cm"># 3.14</span>
+<span class="fn">print</span>(<span class="str">f"{pi:.4f}"</span>)      <span class="cm"># 3.1416</span>
+<span class="fn">print</span>(<span class="str">f"{pi:.0f}"</span>)      <span class="cm"># 3</span></div>
+              <p class="text-[#134E4A]/65 mt-4 mb-2">There is an older, harder way to do this — worth seeing once so you appreciate the spec:</p>
+              <div class="code"><span class="kw">import</span> math
+price = <span class="num">59.23948762</span>
+
+<span class="fn">print</span>(math.<span class="fn">trunc</span>(price * <span class="num">100</span>) / <span class="num">100</span>)   <span class="cm"># chops  -> 59.23</span>
+<span class="fn">print</span>(<span class="str">f"{price:.2f}"</span>)                  <span class="cm"># rounds -> 59.24</span></div>
+              <div class="console">59.23
+59.24</div>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                ⚠️ The two results differ! <code>math.trunc</code> <strong>chops</strong> the extra digits off, while <code>:.2f</code> <strong>rounds</strong> them. For money you almost always want rounding.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">3</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">&lt; &gt; ^ — alignment and width</h2>
+              <p class="text-[#134E4A]/65 mb-4">A number after the alignment symbol is the <strong>total width</strong>. Python pads with spaces to reach it:</p>
+              <div class="code">text = <span class="str">"Python"</span>
+
+<span class="fn">print</span>(<span class="str">f"|{text<span class="hl">:&lt;10</span>}|"</span>)   <span class="cm"># left</span>
+<span class="fn">print</span>(<span class="str">f"|{text<span class="hl">:&gt;10</span>}|"</span>)   <span class="cm"># right</span>
+<span class="fn">print</span>(<span class="str">f"|{text<span class="hl">:^10</span>}|"</span>)   <span class="cm"># center</span></div>
+              <div class="console">|Python    |
+|    Python|
+|  Python  |</div>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                💡 The symbol shows you which way the text is pushed: <code>&lt;</code> points left, <code>&gt;</code> points right, <code>^</code> is a roof in the middle.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">4</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">Alignment builds a table</h2>
+              <p class="text-[#134E4A]/65 mb-4">This is the whole trick behind printed tables. Fix every column at the same width and the <code>|</code> separators line up no matter how long the names are:</p>
+              <div class="code"><span class="fn">print</span>(<span class="str">f"|{'name':^10}|{'age':^10}|"</span>)
+<span class="fn">print</span>(<span class="str">"-"</span> * <span class="num">23</span>)
+<span class="fn">print</span>(<span class="str">f"|{'danny':^10}|{'30':^10}|"</span>)
+<span class="fn">print</span>(<span class="str">"-"</span> * <span class="num">23</span>)
+<span class="fn">print</span>(<span class="str">f"|{'sharon':^10}|{'22':^10}|"</span>)</div>
+              <div class="console">|   name   |   age    |
+-----------------------
+|  danny   |    30    |
+-----------------------
+|  sharon  |    22    |</div>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                💡 <code>"-" * 23</code> repeats a character 23 times to draw the separator line — a string times a number is that string repeated.
+              </div>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                ⚠️ <strong>Watch your quotes.</strong> Writing <code>f"…{"name"}…"</code> — double quotes inside a double-quoted f-string — only works in <strong>Python 3.12+</strong>. On 3.10 and 3.11 it is a <code>SyntaxError: f-string: expecting '}'</code>. Use <code>'single'</code> quotes inside a <code>"double"</code>-quoted f-string and it works everywhere.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">5</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">, and _ — thousands separators</h2>
+              <p class="text-[#134E4A]/65 mb-4">Long numbers are unreadable without separators. One character fixes it:</p>
+              <div class="code">money = <span class="num">1234567.89</span>
+
+<span class="fn">print</span>(<span class="str">f"{money<span class="hl">:,</span>}"</span>)       <span class="cm"># 1,234,567.89</span>
+<span class="fn">print</span>(<span class="str">f"{money<span class="hl">:,.2f</span>}"</span>)    <span class="cm"># 1,234,567.89  (also forces 2 decimals)</span>
+<span class="fn">print</span>(<span class="str">f"{money<span class="hl">:_</span>}"</span>)       <span class="cm"># 1_234_567.89</span></div>
+              <div class="console">1,234,567.89
+1,234,567.89
+1_234_567.89</div>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                💡 Specs combine, and the order is fixed: <strong>separator first, precision last</strong>. <code>:,.2f</code> is right; <code>:.2f,</code> is an error.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">6</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">:05d — padding with zeros</h2>
+              <p class="text-[#134E4A]/65 mb-4"><code>d</code> means "whole number". A <code>0</code> before the width says "pad with zeros instead of spaces":</p>
+              <div class="code">number = <span class="num">42</span>
+
+<span class="fn">print</span>(<span class="str">f"{number<span class="hl">:05d</span>}"</span>)    <span class="cm"># 00042</span>
+<span class="fn">print</span>(<span class="str">f"{number:5d}"</span>)     <span class="cm"># "   42"  - spaces instead</span>
+<span class="fn">print</span>(<span class="str">f"{7:02d}:{5:02d}"</span>)  <span class="cm"># 07:05   - a clock</span></div>
+              <div class="console">00042
+   42
+07:05</div>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                💡 Useful anywhere a value must always be the same length — invoice numbers, IDs, clock digits, file names that need to sort correctly.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">7</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">:.1% and :+ — percent and sign</h2>
+              <p class="text-[#134E4A]/65 mb-4"><code>%</code> multiplies by 100 and appends the sign for you:</p>
+              <div class="code">percentage = <span class="num">0.756</span>
+
+<span class="fn">print</span>(<span class="str">f"{percentage<span class="hl">:.1%</span>}"</span>)   <span class="cm"># 75.6%</span>
+<span class="fn">print</span>(<span class="str">f"{percentage:.0%}"</span>)   <span class="cm"># 76%</span></div>
+              <p class="text-[#134E4A]/65 mt-4 mb-2"><code>+</code> forces a sign to show even on positive numbers:</p>
+              <div class="code"><span class="fn">print</span>(<span class="str">f"{42<span class="hl">:+</span>}"</span>)    <span class="cm"># +42</span>
+<span class="fn">print</span>(<span class="str">f"{-42}"</span>)     <span class="cm"># -42  (minus always shows anyway)</span></div>
+              <div class="console">75.6%
+76%
++42
+-42</div>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                ⚠️ Feed <code>:%</code> the <strong>fraction</strong>, not the percentage — <code>0.756</code>, not <code>75.6</code>. Getting this backwards gives you <code>7560.0%</code>.
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- CHEAT SHEET -->
+      <section class="bg-white rounded-[24px] p-7 clay mt-8">
+        <h2 class="heading text-3xl font-extrabold mb-3">Quick Reference</h2>
+        <table class="trace">
+          <thead><tr><th>Spec</th><th>Example</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr><td><code>:.2f</code></td><td><code>f"{3.14159:.2f}"</code></td><td><code>3.14</code></td></tr>
+            <tr><td><code>:&lt;10</code></td><td><code>f"|{'hi':&lt;10}|"</code></td><td><code>|hi&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|</code></td></tr>
+            <tr><td><code>:&gt;10</code></td><td><code>f"|{'hi':&gt;10}|"</code></td><td><code>|&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;hi|</code></td></tr>
+            <tr><td><code>:^10</code></td><td><code>f"|{'hi':^10}|"</code></td><td><code>|&nbsp;&nbsp;&nbsp;&nbsp;hi&nbsp;&nbsp;&nbsp;&nbsp;|</code></td></tr>
+            <tr><td><code>:,</code></td><td><code>f"{1234567:,}"</code></td><td><code>1,234,567</code></td></tr>
+            <tr><td><code>:,.2f</code></td><td><code>f"{1234567.891:,.2f}"</code></td><td><code>1,234,567.89</code></td></tr>
+            <tr><td><code>:_</code></td><td><code>f"{1234567:_}"</code></td><td><code>1_234_567</code></td></tr>
+            <tr><td><code>:05d</code></td><td><code>f"{42:05d}"</code></td><td><code>00042</code></td></tr>
+            <tr><td><code>:.1%</code></td><td><code>f"{0.756:.1%}"</code></td><td><code>75.6%</code></td></tr>
+            <tr><td><code>:+</code></td><td><code>f"{42:+}"</code></td><td><code>+42</code></td></tr>
+          </tbody>
+        </table>
+        <p class="text-[#134E4A]/60 mt-6">Every spec goes <strong>after a colon</strong>, inside the braces: <code>{value:spec}</code>. All of these were typed live in <a href="../lessons/11_lesson/11-lesson.html#topic-fstring" class="text-[#0D9488] font-bold underline">Lesson 11</a>.</p>
+      </section>
+
+    </section>
+  </main>
+
+</body>
+</html>
