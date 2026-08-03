@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lesson 12 - Strings, Slicing &amp; Regex</title>
+  <style>
+    :root {
+      --bg-soft: #ffffff;
+      --green-1: #0f5a2e;
+      --green-2: #1f8f4e;
+      --green-3: #dbf6e5;
+      --mint: #e6fff2;
+      --text: #14281d;
+      --muted: #426654;
+      --border: #aadfbd;
+      --accent-a: #ddfbe7;
+      --accent-b: #fff4d8;
+      --code-bg: #0b2517;
+      --code-text: #d2ffe3;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Lucida Sans", "Segoe UI", sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 15% 10%, #e7fff0 0%, transparent 35%),
+                  radial-gradient(circle at 85% 18%, #fff5d6 0%, transparent 36%),
+                  linear-gradient(180deg, #f4fff6 0%, #ffffff 45%, #edfff4 100%);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    body::before, body::after {
+      content: "";
+      position: fixed;
+      width: 230px;
+      height: 230px;
+      z-index: -1;
+      border-radius: 999px;
+      filter: blur(2px);
+      opacity: 0.32;
+      animation: blobMove 8s ease-in-out infinite alternate;
+    }
+    body::before { background: #bff0d0; top: -30px; left: -40px; }
+    body::after { background: #ffe9a9; bottom: -40px; right: -40px; animation-delay: 1.4s; }
+
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 24px; }
+    .layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .side-nav {
+      position: sticky;
+      top: 14px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 8px 22px rgba(18,102,55,0.1);
+      padding: 12px;
+    }
+    .side-title { margin: 0 0 8px; font-size: 0.9rem; color: var(--green-1); font-weight: 700; }
+    .topic-link {
+      display: block;
+      width: 100%;
+      text-align: left;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      padding: 8px 10px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.89rem;
+      text-transform: lowercase;
+      margin-bottom: 4px;
+      transition: all 0.2s ease;
+    }
+    .topic-link:hover { background: #f0fff4; color: var(--green-1); border-color: var(--border); }
+    .topic-link.active { background: #e8faee; color: var(--green-1); border-color: var(--green-2); font-weight: 700; }
+
+    .hero {
+      background: linear-gradient(135deg, var(--bg-soft) 0%, var(--accent-a) 55%, var(--accent-b) 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 12px 30px rgba(24,110,58,0.12);
+      margin-bottom: 22px;
+      animation: riseIn 0.75s ease both;
+    }
+
+    h1, h2, h3 { margin-top: 0; color: var(--green-1); }
+    h1 { font-size: 2rem; margin-bottom: 8px; }
+    code { color: var(--green-1); font-weight: 700; }
+
+    .tag {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      background: var(--green-3);
+      color: var(--green-1);
+      border: 1px solid var(--border);
+      margin-bottom: 10px;
+    }
+
+    .card {
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 16px;
+      box-shadow: 0 7px 22px rgba(18,102,55,0.08);
+      animation: riseIn 0.65s ease both;
+    }
+
+    .topic-panel { display: none; }
+    .topic-panel.active { display: block; }
+    .step-title { margin: 0 0 12px; font-size: 1.25rem; }
+    .side-divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+    .side-section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--green-2);
+      padding: 4px 4px 6px;
+    }
+    .nav-back {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--green-2);
+      background: #e9fbe8;
+      color: var(--green-1);
+      text-decoration: none;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      width: 100%;
+      text-align: center;
+    }
+    .nav-back:hover { background: #d8f7df; transform: translateY(-1px); }
+
+    .note {
+      background: var(--mint);
+      border-left: 4px solid var(--green-2);
+      padding: 10px 14px;
+      color: var(--muted);
+      margin: 12px 0;
+      border-radius: 6px;
+      font-size: 0.94rem;
+    }
+    .warn {
+      background: #fff6e2;
+      border-left: 4px solid #e0a800;
+      padding: 10px 14px;
+      color: #6b4e00;
+      margin: 12px 0;
+      border-radius: 6px;
+      font-size: 0.94rem;
+    }
+    .big-result { font-size: 1.1rem; margin: 18px 0 8px; color: var(--green-1); font-weight: 700; }
+
+    .code {
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 10px;
+      border: 1px solid #2f5a3d;
+      padding: 16px 18px;
+      overflow-x: auto;
+      margin: 10px 0 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95rem;
+      white-space: pre;
+      line-height: 1.7;
+    }
+    .code .cm { color: #6dbf8a; }
+    .code .fn { color: #ffa657; }
+    .code .kw { color: #79c0ff; }
+    .code .num { color: #d2a8ff; }
+    .code .str { color: #ffd580; }
+    .code .hl { background: rgba(125,231,135,0.16); border-radius: 4px; }
+    .code .bad { background: rgba(248,113,113,0.16); border-radius: 4px; }
+
+    .console {
+      background: #101418;
+      color: #e6edf3;
+      border-radius: 10px;
+      border: 1px solid #30363d;
+      padding: 12px 18px;
+      overflow-x: auto;
+      margin: 10px 0 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92rem;
+      white-space: pre;
+      line-height: 1.7;
+    }
+    .console .usr { color: #7ee787; font-weight: 700; }
+    .console .dim { color: #8b949e; }
+    .console .err { color: #ff9f9f; }
+
+    .ex-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .88rem;
+      margin: 10px 0 14px;
+    }
+    .ex-table th {
+      background: var(--green-3);
+      color: var(--green-1);
+      padding: 8px 12px;
+      text-align: left;
+      border: 1px solid var(--border);
+      font-size: .78rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+    .ex-table td { padding: 8px 12px; border: 1px solid var(--border); vertical-align: top; }
+    .ex-table tr:nth-child(even) td { background: #f4fff7; }
+    .task-box {
+      background: var(--mint);
+      border: 2px dashed var(--green-2);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin: 14px 0;
+    }
+    .task-box a {
+      color: var(--green-1);
+      font-weight: 800;
+      font-size: 1.02rem;
+      word-break: break-all;
+    }
+    .footer { text-align: center; color: var(--muted); font-size: 0.86rem; padding: 10px 0 16px; }
+
+    .task-list { padding-left: 22px; margin: 10px 0 0; }
+    .task-list li { margin-bottom: 10px; color: #1a3a2a; }
+    .task-list li strong { color: var(--green-1); }
+
+    .ex-title { display: flex; align-items: center; margin: 22px 0 8px; }
+    .ex-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--green-3); border: 2px solid var(--green-2);
+      color: var(--green-1); font-weight: 800; font-size: .88rem;
+      margin-right: 8px; flex-shrink: 0;
+    }
+    .ex-title h3 { margin: 0; font-size: 1.1rem; }
+
+    .kbd {
+      display: inline-block; padding: 2px 8px; border-radius: 6px;
+      background: #f0fff4; border: 1px solid var(--border);
+      border-bottom-width: 3px; font-family: Consolas, monospace;
+      font-size: .85rem; color: var(--green-1); font-weight: 700;
+    }
+
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 6px; }
+    .pill {
+      display: inline-block; padding: 4px 12px; border-radius: 999px;
+      background: #eafcef; border: 1px solid var(--border);
+      color: var(--green-1); font-weight: 700; font-size: .82rem;
+    }
+
+    .submission { background: var(--mint); border-color: var(--green-2); margin-top: 0; }
+    .submission a { color: var(--green-1); font-weight: 800; font-size: 1.05rem; word-break: break-all; }
+
+    .rtl { direction: rtl; text-align: right; }
+    .rtl .task-list { padding-left: 0; padding-right: 22px; }
+    .rtl .ex-title { flex-direction: row-reverse; justify-content: flex-end; }
+    .rtl .ex-num { margin-right: 0; margin-left: 8px; }
+    .rtl .ex-table th, .rtl .ex-table td { text-align: right; }
+    .rtl .pill-row { justify-content: flex-start; }
+
+    /* ── Module toolbox ── */
+    .toolbox {
+      background: #f7fffb; border: 1px solid var(--border);
+      border-radius: 14px; padding: 16px 18px; margin: 14px 0;
+    }
+    .toolbox .tb-head {
+      display: flex; align-items: center; gap: 8px;
+      font-weight: 800; color: var(--green-1); margin-bottom: 10px;
+    }
+    .toolbox .tb-head .tb-ic {
+      width: 30px; height: 30px; border-radius: 9px; flex-shrink: 0;
+      background: linear-gradient(160deg, #2dd4bf, #0d9488);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 1rem;
+    }
+    .tool-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tool {
+      font-family: Consolas, monospace; font-size: .82rem; font-weight: 700;
+      background: #ffffff; border: 1px solid var(--border);
+      border-bottom-width: 3px; border-radius: 9px;
+      padding: 6px 11px; color: var(--green-1);
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .tool:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(18,102,55,0.16); }
+    .tool small { display: block; font-family: "Trebuchet MS", sans-serif; font-weight: 400; color: var(--muted); font-size: .72rem; }
+
+    /* ── boolean value boxes ── */
+    .bool-strip { display: flex; flex-wrap: wrap; gap: 12px; margin: 12px 0 14px; }
+    .bool-box {
+      border: 1px solid var(--border); border-radius: 12px;
+      padding: 12px 14px; background: #f7fffb; min-width: 150px;
+    }
+    .bool-box .bname { font-family: Consolas, monospace; font-size: .78rem; color: var(--muted); }
+    .bool-box .bval { font-family: Consolas, monospace; font-weight: 800; font-size: 1.05rem; margin-top: 4px; }
+    .bool-box.t .bval { color: #0f5a2e; }
+    .bool-box.f .bval { color: #b3261e; }
+
+    /* ── ternary breakdown ── */
+    .tern {
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+      background: #f5fff9; border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px 16px; margin: 12px 0 14px;
+      font-family: Consolas, monospace; font-weight: 700;
+    }
+    .tern span { padding: 6px 11px; border-radius: 8px; font-size: .9rem; }
+    .tern .t-true  { background: #d6f8e4; border: 1px solid #7fd6a3; color: #08351d; }
+    .tern .t-cond  { background: #fff4d8; border: 1px solid #e6c46a; color: #6b4e00; }
+    .tern .t-false { background: #ffe0d6; border: 1px solid #f0a184; color: #8c3312; }
+    .tern .t-kw    { color: var(--muted); padding: 6px 2px; }
+
+    /* ── Lesson 12: character map for indexing ── */
+    .charmap {
+      display: flex; flex-wrap: wrap; gap: 7px; justify-content: center;
+      background: #f5fff9; border: 1px solid var(--border);
+      border-radius: 12px; padding: 16px 18px; margin: 12px 0 14px;
+    }
+    .ch { text-align: center; }
+    .ch .cbox {
+      display: flex; align-items: center; justify-content: center;
+      width: 46px; height: 48px; border-radius: 10px;
+      font-family: Consolas, monospace; font-weight: 800; font-size: 1.2rem;
+      background: linear-gradient(160deg, #d6f8e4, #a9ecc6);
+      border: 1px solid #7fd6a3; color: #08351d;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+    }
+    .ch .cidx { display: block; font-family: Consolas, monospace; font-size: .76rem; font-weight: 800; color: var(--green-2); margin-top: 4px; }
+    .ch .cneg { display: block; font-family: Consolas, monospace; font-size: .72rem; color: #b4530f; }
+    .ch.sel .cbox { background: linear-gradient(160deg, #fff0c2, #ffd980); border-color: #e0a800; }
+    .ch.off .cbox { background: repeating-linear-gradient(135deg, #f4f7f5 0 8px, #e9efeb 8px 16px); border: 1px dashed #9fb5a8; color: #6d8479; }
+    .charmap-cap { text-align: center; font-family: Consolas, monospace; font-weight: 800; color: var(--green-1); margin-bottom: 4px; }
+
+    /* ── Lesson 12: regex breakdown ── */
+    .rx {
+      display: flex; flex-wrap: wrap; gap: 7px; align-items: center;
+      background: #f5fff9; border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px 16px; margin: 12px 0 14px;
+      font-family: Consolas, monospace; font-weight: 700;
+    }
+    .rx span { padding: 6px 10px; border-radius: 8px; font-size: .85rem; border: 1px solid; }
+    .rx .r-anchor { background: #e6eeff; border-color: #9fb8f0; color: #1b3f8f; }
+    .rx .r-look   { background: #d6f8e4; border-color: #7fd6a3; color: #08351d; }
+    .rx .r-len    { background: #fff4d8; border-color: #e6c46a; color: #6b4e00; }
+
+    /* ── Lesson 12: before / after string boxes ── */
+    .ba { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 12px 0 14px; }
+    .ba .bx {
+      font-family: Consolas, monospace; font-weight: 700; font-size: .95rem;
+      background: #ffffff; border: 1px solid var(--border);
+      border-bottom-width: 3px; border-radius: 10px; padding: 9px 13px; color: var(--green-1);
+      white-space: pre;
+    }
+    .ba .bx.old { background: #fff6e2; border-color: #e6c46a; color: #6b4e00; }
+    .ba .arw { font-weight: 800; color: var(--muted); }
+
+    /* ── One-at-a-time slides with prev / next ── */
+    .slide { display: none; animation: riseIn 0.4s ease both; }
+    .slide.active { display: block; }
+    .slide-nav {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border);
+    }
+    .sbtn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 18px; border-radius: 10px;
+      border: 1px solid var(--green-2); background: #e9fbe8;
+      color: var(--green-1); font-family: inherit; font-weight: 700; font-size: .92rem;
+      cursor: pointer; transition: all 0.2s ease;
+    }
+    .sbtn:hover:not(:disabled) { background: #d8f7df; transform: translateY(-1px); }
+    .sbtn:disabled { opacity: .35; cursor: default; }
+    .slide-dots { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+    .sdot {
+      width: 11px; height: 11px; border-radius: 50%; padding: 0;
+      border: 1px solid var(--green-2); background: #ffffff;
+      cursor: pointer; transition: all 0.2s ease;
+    }
+    .sdot:hover { background: #cdf3da; }
+    .sdot.active { background: var(--green-2); transform: scale(1.25); }
+    .slide-count { font-size: .8rem; font-weight: 700; color: var(--muted); }
+    .slide .ex-title { margin-top: 0; }
+
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes blobMove {
+      from { transform: translate(0, 0) scale(1); }
+      to { transform: translate(24px, 18px) scale(1.06); }
+    }
+
+    @media (max-width: 760px) {
+      .wrap { padding: 14px; }
+      .layout { grid-template-columns: 1fr; }
+      .side-nav { position: static; }
+      h1 { font-size: 1.6rem; }
+      .code { font-size: 0.86rem; }
+      .ex-table { font-size: .8rem; }
+      .ch .cbox { width: 36px; height: 40px; font-size: 1rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <span class="tag">Lesson 12 - August 3, 2026</span>
+    <h1>Strings, Slicing &amp; a First Look at Regex ✂️</h1>
+    <p>Today the <strong><code>str</code></strong> type gets the full treatment. A string is not just text you print — it is an object with <strong>methods</strong> attached to it: <code>upper</code>, <code>strip</code>, <code>replace</code>, <code>split</code>, <code>center</code> and a family of <code>is…</code> questions that answer <code>True</code>/<code>False</code>. Then we learn that a string is also a <strong>sequence of characters</strong> you can index and slice — <code>text[0]</code>, <code>text[1:4]</code>, and the famous <code>text[::-1]</code> that reverses it. We add the f-string specs we were still missing, and finish with a two-minute taste of <strong>regular expressions</strong>.</p>
+  </section>
+
+  <div class="layout">
+    <aside class="side-nav" aria-label="Topic navigation">
+      <div class="side-title">Lesson 12 topics</div>
+
+      <div class="side-section-label">1 · The str type</div>
+      <button class="topic-link active" data-target="topic-str">str, len &amp; methods</button>
+      <button class="topic-link" data-target="topic-methods">the method tour</button>
+
+      <div class="side-section-label">2 · Characters</div>
+      <button class="topic-link" data-target="topic-slicing">index &amp; slicing</button>
+      <button class="topic-link" data-target="topic-loop">looping over a string</button>
+
+      <div class="side-section-label">3 · Printing</div>
+      <button class="topic-link" data-target="topic-printf">f-string, the rest of it</button>
+
+      <div class="side-section-label">4 · Regex</div>
+      <button class="topic-link" data-target="topic-regex">re.match &amp; patterns</button>
+
+      <div class="side-section-label">5 · Classroom</div>
+      <button class="topic-link" data-target="topic-classroom">solved in class</button>
+
+      <hr class="side-divider">
+      <button class="topic-link" data-target="topic-github">github folder</button>
+      <button class="topic-link" data-target="topic-exercise">exercise</button>
+      <button class="topic-link" data-target="topic-exercise-heb">exercise - עברית</button>
+
+      <div class="side-section-label">Navigation</div>
+      <a class="nav-back" href="../../index.html#lessons">Back to lessons</a>
+    </aside>
+
+    <main>
+      <!-- ═══ 1 · THE STR TYPE ═══ -->
+      <section class="card topic-panel active" id="topic-str">
+        <span class="tag">01_str.py</span>
+        <h2 class="step-title">The <code>str</code> Type — Text That Knows Things About Itself</h2>
+        <p>You have been using strings since lesson 3. Today we find out that a string carries a whole toolbox around with it.</p>
+
+        <div class="code">name = <span class="str">'Danny'</span>          <span class="cm"># input('name?')</span>
+<span class="fn">print</span>(<span class="fn">type</span>(name))</div>
+        <div class="console">&lt;class 'str'&gt;</div>
+
+        <div class="big-result"><code>len()</code> — how many characters</div>
+        <div class="code"><span class="fn">print</span>(<span class="str">'length of Danny is'</span>, <span class="fn">len</span>(name))
+<span class="fn">print</span>(<span class="str">f'length of Danny is {<span class="hl"><span class="fn">len</span>(name)</span>} characters'</span>)</div>
+        <div class="console">length of Danny is 5
+length of Danny is 5 characters</div>
+        <div class="note">
+          <code>len</code> is a plain function — the same one you will later use on lists. It goes <strong>around</strong> the value: <code>len(name)</code>. And remember from lesson 11 that an f-string can hold a whole expression, so <code>{len(name)}</code> works exactly as you would hope.
+        </div>
+
+        <div class="big-result">The dot — calling a <em>method</em></div>
+        <p>Everything else today is written the other way around: the value comes <strong>first</strong>, then a dot, then the name of what you want.</p>
+        <div class="code">name = <span class="str">'danny'</span>
+
+<span class="fn">print</span>(<span class="hl">name.<span class="fn">upper</span>()</span>)         <span class="cm"># DANNY   ← the normal way</span>
+<span class="fn">print</span>(<span class="fn">str</span>.<span class="fn">upper</span>(name))      <span class="cm"># DANNY   ← the same thing, written the long way</span></div>
+        <div class="console">DANNY
+DANNY</div>
+        <div class="note">
+          Both lines do exactly the same work. <code>name.upper()</code> is the version you will write for the rest of your life; <code>str.upper(name)</code> is shown once so you can see what the dot really means — "<em>run the <code>str</code> function called <code>upper</code>, on this string</em>". Note the <strong>empty parentheses</strong>: <code>upper()</code>, not <code>upper</code>. Without them nothing runs.
+        </div>
+
+        <div class="big-result">⚠️ A string never changes</div>
+        <p>This is the single most important idea of the lesson. A method does <strong>not</strong> edit your string — it hands you back a <strong>new</strong> one.</p>
+        <div class="code">name = <span class="str">'danny'</span>
+name.<span class="fn">upper</span>()               <span class="cm"># ← the result is thrown away!</span>
+<span class="fn">print</span>(name)                 <span class="cm"># danny  - nothing happened</span>
+
+<span class="hl">name = name.<span class="fn">upper</span>()</span>        <span class="cm"># ← store it back, now it counts</span>
+<span class="fn">print</span>(name)                 <span class="cm"># DANNY</span></div>
+        <div class="ba">
+          <span class="bx old">'danny'</span>
+          <span class="arw">.upper() →</span>
+          <span class="bx">'DANNY'</span>
+          <span class="arw">(a brand new string)</span>
+        </div>
+        <div class="warn">
+          If a line that calls a method does not <strong>print</strong> the result or <strong>assign</strong> it to a variable, that line did nothing at all. This is the number-one beginner bug with strings.
+        </div>
+
+        <div class="toolbox">
+          <div class="tb-head"><span class="tb-ic">🧰</span> Everything the string toolbox gave us today</div>
+          <div class="tool-grid">
+            <span class="tool">len(s)<small>how many characters</small></span>
+            <span class="tool">.upper()<small>ALL CAPS</small></span>
+            <span class="tool">.lower()<small>all small</small></span>
+            <span class="tool">.swapcase()<small>flip each letter</small></span>
+            <span class="tool">.capitalize()<small>First letter only</small></span>
+            <span class="tool">.title()<small>Every Word</small></span>
+            <span class="tool">.replace(old, new)<small>swap text</small></span>
+            <span class="tool">.split(sep)<small>text → list of words</small></span>
+            <span class="tool">.strip()<small>trim the edges</small></span>
+            <span class="tool">.startswith(x)<small>True / False</small></span>
+            <span class="tool">.endswith(x)<small>True / False</small></span>
+            <span class="tool">.isalpha()<small>letters only?</small></span>
+            <span class="tool">.isdigit()<small>digits only?</small></span>
+            <span class="tool">.islower()<small>all lowercase?</small></span>
+            <span class="tool">.isupper()<small>all uppercase?</small></span>
+            <span class="tool">.isspace()<small>only spaces?</small></span>
+            <span class="tool">.zfill(n)<small>pad with zeros</small></span>
+            <span class="tool">.center(n, ch)<small>center in width n</small></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ 1b · THE METHOD TOUR (SLIDES) ═══ -->
+      <section class="card topic-panel" id="topic-methods">
+        <span class="tag">01_str.py</span>
+        <h2 class="step-title">The Method Tour 🧰</h2>
+        <p>Nine slides, one idea each. Use <strong>prev / next</strong> at the bottom.</p>
+
+        <div class="slides" id="fmt-slides">
+
+          <!-- slide 1 -->
+          <div class="slide active">
+            <div class="ex-title"><span class="ex-num">1</span><h3><code>.upper()</code> and <code>.lower()</code></h3></div>
+            <div class="code">name = <span class="str">'danny'</span>
+<span class="fn">print</span>(name.<span class="fn">upper</span>())        <span class="cm"># DANNY</span>
+
+yossi = <span class="str">'YOSI'</span>
+<span class="fn">print</span>(yossi.<span class="fn">lower</span>())      <span class="cm"># yosi</span></div>
+            <div class="console">DANNY
+yosi</div>
+            <div class="note">
+              The classic real use: comparing user input. <code>answer.lower() == 'yes'</code> accepts <code>Yes</code>, <code>YES</code> and <code>yEs</code> in one line, instead of an <code>if</code> with four <code>or</code>s.
+            </div>
+          </div>
+
+          <!-- slide 2 -->
+          <div class="slide">
+            <div class="ex-title"><span class="ex-num">2</span><h3><code>.swapcase()</code> — flip every letter</h3></div>
+            <div class="code"><span class="fn">print</span>(<span class="str">"AasdasBcccC"</span>.<span class="fn">swapcase</span>())
+<span class="fn">print</span>(<span class="str">"AasdasBcccC"</span>.<span class="fn">swapcase</span>().<span class="fn">swapcase</span>())   <span class="cm"># back to the start</span></div>
+            <div class="console">aASDASbCCCc
+AasdasBcccC</div>
+            <div class="note">
+              Two dots in a row is <strong>chaining</strong>: the first <code>swapcase()</code> produces a new string, and the second one runs on <em>that</em>. Read it left to right, like a little assembly line. Swapping twice returns the original — a nice way to prove the string itself was never touched.
+            </div>
+          </div>
+
+          <!-- slide 3 -->
+          <div class="slide">
+            <div class="ex-title"><span class="ex-num">3</span><h3><code>.capitalize()</code> vs <code>.title()</code></h3></div>
+            <div class="code">text8 = <span class="str">"hello, world!! Good morning"</span>
+<span class="fn">print</span>(text8.<span class="fn">capitalize</span>())    <span class="cm"># only the FIRST letter</span>
+
+text9 = <span class="str">"hello, world!! good morNing"</span>
+<span class="fn">print</span>(text9.<span class="fn">title</span>())         <span class="cm"># EVERY word</span></div>
+            <div class="console">Hello, world!! good morning
+Hello, World!! Good Morning</div>
+            <div class="warn">
+              Look carefully at <code>capitalize()</code>: it did not only add a capital <code>H</code> — it also pushed the existing capital <code>G</code> of <code>Good</code> back down to lowercase. Both methods force <strong>everything else</strong> to lowercase.
+            </div>
+          </div>
+
+          <!-- slide 4 -->
+          <div class="slide">
+            <div class="ex-title"><span class="ex-num">4</span><h3><code>.replace(old, new)</code> — swap text</h3></div>
+            <div class="code">sentence = <span class="str">"Hello, World!!"</span>
+<span class="fn">print</span>(sentence.<span class="fn">replace</span>(<span class="str">"World"</span>, <span class="str">"Universe"</span>))
+<span class="fn">print</span>(<span class="fn">str</span>.<span class="fn">replace</span>(sentence, <span class="str">"World"</span>, <span class="str">"Universe"</span>))   <span class="cm"># same thing</span></div>
+            <div class="console">Hello, Universe!!
+Hello, Universe!!</div>
+            <div class="note">
+              It replaces <strong>every</strong> occurrence, not just the first. And if the old text is not there at all, nothing happens — no error, you simply get the same text back.
+            </div>
+          </div>
+
+          <!-- slide 5 -->
+          <div class="slide">
+            <div class="ex-title"><span class="ex-num">5</span><h3><code>.split(sep)</code> — one string → many</h3></div>
+            <div class="code">sentence: <span class="fn">str</span> = <span class="str">"Hello, World!! good morning"</span>
+<span class="fn">print</span>(sentence.<span class="fn">split</span>())          <span class="cm"># no argument = split on spaces</span>
+
+sentence = <span class="str">"Hello*python*class*vip"</span>
+<span class="fn">print</span>(sentence.<span class="fn">split</span>(<span class="str">'*'</span>))       <span class="cm"># split on a * instead</span></div>
+            <div class="console">['Hello,', 'World!!', 'good', 'morning']
+['Hello', 'python', 'class', 'vip']</div>
+            <div class="note">
+              Those square brackets are a <strong>list</strong> — the next big type we will meet. For today just notice the shape: <code>split</code> cuts the text everywhere it sees the separator and hands you the pieces. Notice also <code>sentence: str = "…"</code> — an optional <em>type hint</em>; it changes nothing at run time, it just tells you (and PyCharm) what belongs in that variable.
+            </div>
+          </div>
+
+          <!-- slide 6 -->
+          <div class="slide">
+            <div class="ex-title"><span class="ex-num">6</span><h3><code>.strip()</code> — trim the edges</h3></div>
+            <div class="code">sentence = <span class="str">"   Hello, World!!   "</span>
+<span class="fn">print</span>(<span class="str">f"'{sentence}'"</span>, <span class="str">'strip='</span>, sentence.<span class="fn">strip</span>())
+<span class="fn">print</span>(<span class="str">f"'{sentence}'"</span>, sentence.<span class="fn">split</span>())</div>
+            <div class="console">'   Hello, World!!   ' strip= Hello, World!!
+'   Hello, World!!   ' ['Hello,', 'World!!']</div>
+            <div class="note">
+              <code>strip()</code> removes spaces from the <strong>start and the end only</strong> — spaces in the middle stay. The quotes around <code>'{sentence}'</code> in the f-string are a trick worth stealing: without them you cannot see the spaces at all.
+            </div>
+            <div class="big-result">Chaining three methods</div>
+            <div class="code">user_input = <span class="str">"   jOhN_dOe_2026   "</span>
+<span class="fn">print</span>(<span class="hl">user_input.<span class="fn">strip</span>().<span class="fn">lower</span>().<span class="fn">replace</span>(<span class="str">"_"</span>, <span class="str">"-"</span>)</span>)</div>
+            <div class="console">john-doe-2026</div>
+            <div class="ba">
+              <span class="bx old">'   jOhN_dOe_2026   '</span>
+              <span class="arw">→ strip →</span>
+              <span class="bx">'jOhN_dOe_2026'</span>
+              <span class="arw">→ lower →</span>
+              <span class="bx">'john_doe_2026'</span>
+              <span class="arw">→ replace →</span>
+              <span class="bx">'john-doe-2026'</span>
+            </div>
+          </div>
+
+          <!-- slide 7 -->
+          <div class="slide">
+            <div class="ex-title"><span class="ex-num">7</span><h3><code>.startswith()</code> / <code>.endswith()</code></h3></div>
+            <div class="code">sentence = <span class="str">"Hello, World!! good morning"</span>
+
+<span class="fn">print</span>(<span class="str">'startswith("Hello") ?'</span>, sentence.<span class="fn">startswith</span>(<span class="str">"Hello"</span>))
+<span class="fn">print</span>(<span class="str">'endswith("morning") ?'</span>, sentence.<span class="fn">endswith</span>(<span class="str">"morning"</span>))</div>
+            <div class="console">startswith("Hello") ? True
+endswith("morning") ? True</div>
+            <div class="note">
+              These give you back a <strong>bool</strong> — exactly the <code>True</code>/<code>False</code> value from lesson 11. So you can name it and use it: <code>is_greeting = sentence.startswith("Hello")</code>, then <code>if is_greeting:</code>.
+            </div>
+          </div>
+
+          <!-- slide 8 -->
+          <div class="slide">
+            <div class="ex-title"><span class="ex-num">8</span><h3>The <code>is…</code> family — questions that answer True / False</h3></div>
+            <div class="code"><span class="fn">print</span>(<span class="str">"1234"</span>.<span class="fn">isalpha</span>())     <span class="cm"># False - digits are not letters</span>
+<span class="fn">print</span>(<span class="str">"abcd"</span>.<span class="fn">isalpha</span>())     <span class="cm"># True</span>
+<span class="fn">print</span>(<span class="str">"abcd_"</span>.<span class="fn">isalpha</span>())    <span class="cm"># False - _ is not a letter</span>
+<span class="fn">print</span>(<span class="str">"abcd1*"</span>.<span class="fn">isalpha</span>())   <span class="cm"># False</span>
+
+<span class="fn">print</span>(<span class="str">"1234"</span>.<span class="fn">isdigit</span>())     <span class="cm"># True</span>
+<span class="fn">print</span>(<span class="str">"abcd1"</span>.<span class="fn">isdigit</span>())    <span class="cm"># False - one letter is enough to fail</span>
+
+<span class="fn">print</span>(<span class="str">"Aab"</span>.<span class="fn">islower</span>())      <span class="cm"># False</span>
+<span class="fn">print</span>(<span class="str">"aab"</span>.<span class="fn">islower</span>())      <span class="cm"># True</span>
+<span class="fn">print</span>(<span class="str">"ABC"</span>.<span class="fn">isupper</span>())      <span class="cm"># True</span>
+
+<span class="fn">print</span>(<span class="str">"    "</span>.<span class="fn">isspace</span>())     <span class="cm"># True</span></div>
+            <div class="bool-strip">
+              <div class="bool-box f"><div class="bname">"python3".isalpha()</div><div class="bval">False</div></div>
+              <div class="bool-box f"><div class="bname">"12 34".isdigit()</div><div class="bval">False</div></div>
+              <div class="bool-box t"><div class="bname">"   ".isspace()</div><div class="bval">True</div></div>
+              <div class="bool-box t"><div class="bname">"HELLO".isupper()</div><div class="bval">True</div></div>
+              <div class="bool-box t"><div class="bname">"hi".islower()</div><div class="bval">True</div></div>
+            </div>
+            <div class="warn">
+              The rule is <strong>every character must pass</strong>. <code>"python3"</code> fails <code>isalpha()</code> because of one digit; <code>"12 34"</code> fails <code>isdigit()</code> because of one space. There is no "mostly".
+            </div>
+            <div class="note">
+              <code>isdigit()</code> is the honest way to check user input before <code>int()</code>. <code>int('abc')</code> crashes with <code>ValueError</code> — <code>if answer.isdigit():</code> lets you ask first.
+            </div>
+          </div>
+
+          <!-- slide 9 -->
+          <div class="slide">
+            <div class="ex-title"><span class="ex-num">9</span><h3><code>.zfill()</code> and <code>.center()</code> — padding</h3></div>
+            <div class="code"><span class="fn">print</span>(<span class="str">"42"</span>.<span class="fn">zfill</span>(<span class="num">5</span>))                  <span class="cm"># 00042</span>
+
+<span class="fn">print</span>(<span class="str">'123456789ABC'</span>)                 <span class="cm"># a ruler, to count the width</span>
+<span class="fn">print</span>(<span class="str">f"{<span class="str">'Hello!'</span>.<span class="fn">center</span>(<span class="num">11</span>, <span class="str">'-'</span>)}hi"</span>)   <span class="cm"># fill with dashes</span>
+<span class="fn">print</span>(<span class="str">'Hello!'</span>.<span class="fn">center</span>(<span class="num">11</span>, <span class="str">' '</span>))        <span class="cm"># fill with spaces</span></div>
+            <div class="console">00042
+123456789ABC
+---Hello!--hi
+   Hello!  </div>
+            <div class="note">
+              <code>center(11, '-')</code> means "make it 11 characters wide, pad with <code>-</code>". <code>'Hello!'</code> is 6 long, so 5 dashes are shared — and when the padding does not divide evenly, Python is allowed to put the extra one on either side. Do not count on perfect symmetry.
+            </div>
+            <div class="big-result">Two ways to say the same thing</div>
+            <table class="ex-table">
+              <thead><tr><th>Method on a string</th><th>f-string spec</th><th>Result</th></tr></thead>
+              <tbody>
+                <tr><td><code>"42".zfill(5)</code></td><td><code>f"{42:05}"</code></td><td><code>00042</code></td></tr>
+                <tr><td><code>'hi'.center(10)</code></td><td><code>f"{'hi':^10}"</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;hi&nbsp;&nbsp;&nbsp;&nbsp;</code></td></tr>
+                <tr><td><code>'hi'.center(10, '*')</code></td><td><code>f"{'hi':*^10}"</code></td><td><code>****hi****</code></td></tr>
+              </tbody>
+            </table>
+            <div class="note">
+              The method works on a <strong>string</strong>; the f-string spec works on <strong>anything</strong>, including numbers, without converting first. That is why <code>zfill</code> needed the quotes around <code>"42"</code>.
+            </div>
+          </div>
+
+        </div>
+
+        <div class="slide-nav">
+          <button class="sbtn" id="slide-prev" type="button">‹ prev</button>
+          <div class="slide-dots" id="slide-dots"></div>
+          <span class="slide-count" id="slide-count"></span>
+          <button class="sbtn" id="slide-next" type="button">next ›</button>
+        </div>
+      </section>
+
+      <!-- ═══ 2 · SLICING ═══ -->
+      <section class="card topic-panel" id="topic-slicing">
+        <span class="tag">01_str.py &nbsp;·&nbsp; New</span>
+        <h2 class="step-title">A String Is a Row of Characters — Index &amp; Slicing</h2>
+        <p>Every character sits at a numbered position. Counting starts at <strong>0</strong>, and you can also count backwards from the end with negative numbers.</p>
+
+        <div class="charmap-cap">"Python"</div>
+        <div class="charmap">
+          <div class="ch"><span class="cbox">P</span><span class="cidx">0</span><span class="cneg">-6</span></div>
+          <div class="ch"><span class="cbox">y</span><span class="cidx">1</span><span class="cneg">-5</span></div>
+          <div class="ch"><span class="cbox">t</span><span class="cidx">2</span><span class="cneg">-4</span></div>
+          <div class="ch"><span class="cbox">h</span><span class="cidx">3</span><span class="cneg">-3</span></div>
+          <div class="ch"><span class="cbox">o</span><span class="cidx">4</span><span class="cneg">-2</span></div>
+          <div class="ch"><span class="cbox">n</span><span class="cidx">5</span><span class="cneg">-1</span></div>
+        </div>
+
+        <div class="code">text = <span class="str">"Hello python course"</span>
+<span class="cm">#       0123456789...</span>
+
+<span class="fn">print</span>(text[<span class="num">0</span>])      <span class="cm"># H   - the first character</span>
+<span class="fn">print</span>(text[-<span class="num">1</span>])     <span class="cm"># e   - the LAST character</span></div>
+        <div class="console">H
+e</div>
+        <div class="note">
+          <code>[-1]</code> is the everyday way to reach the last character. It saves you from writing <code>text[len(text) - 1]</code>, and it still works after the text changes length.
+        </div>
+
+        <div class="big-result">Slicing — <code>[start:stop]</code></div>
+        <p>Two numbers with a colon give you a <strong>piece</strong> of the string. The <code>start</code> is included, the <code>stop</code> is <strong>not</strong> — exactly like <code>range()</code> in lesson 6.</p>
+
+        <div class="charmap-cap">"Python"[2:5] → 'tho'</div>
+        <div class="charmap">
+          <div class="ch off"><span class="cbox">P</span><span class="cidx">0</span></div>
+          <div class="ch off"><span class="cbox">y</span><span class="cidx">1</span></div>
+          <div class="ch sel"><span class="cbox">t</span><span class="cidx">2</span></div>
+          <div class="ch sel"><span class="cbox">h</span><span class="cidx">3</span></div>
+          <div class="ch sel"><span class="cbox">o</span><span class="cidx">4</span></div>
+          <div class="ch off"><span class="cbox">n</span><span class="cidx">5</span><span class="cneg">stop</span></div>
+        </div>
+
+        <div class="code">text = <span class="str">"Hello python course"</span>
+
+<span class="fn">print</span>(text[<span class="num">0</span>:<span class="num">3</span>])    <span class="cm"># Hel   - 0,1,2   (3 not included)</span>
+<span class="fn">print</span>(text[<span class="num">1</span>:<span class="num">4</span>])    <span class="cm"># ell</span>
+<span class="fn">print</span>(text[<span class="num">0</span>:<span class="num">5</span>])    <span class="cm"># Hello</span>
+<span class="fn">print</span>(text[:<span class="num">5</span>])     <span class="cm"># Hello  - leave start out = from the beginning</span>
+<span class="fn">print</span>(text[<span class="num">0</span>:])     <span class="cm"># the whole string - leave stop out = to the end</span>
+<span class="fn">print</span>(text[:])      <span class="cm"># the whole string</span></div>
+        <div class="console">Hel
+ell
+Hello
+Hello
+Hello python course
+Hello python course</div>
+
+        <div class="big-result">The third number — <code>[start:stop:step]</code></div>
+        <div class="code"><span class="fn">print</span>(<span class="fn">len</span>(text))       <span class="cm"># 19</span>
+
+<span class="fn">print</span>(text[<span class="num">1</span>:<span class="num">8</span>:<span class="num">2</span>])   <span class="cm"># take every 2nd character between 1 and 8</span>
+<span class="fn">print</span>(text[::<span class="num">2</span>])     <span class="cm"># every 2nd character of the whole string</span>
+<span class="fn">print</span>(<span class="hl">text[::-<span class="num">1</span>]</span>)    <span class="cm"># step BACKWARDS = reversed!</span></div>
+        <div class="console">19
+el y
+Hlopto ore
+esruoc nohtyp olleH</div>
+        <div class="note">
+          <code>[::-1]</code> is the one to memorise: no start, no stop, step of <code>-1</code> — "<em>walk the whole string backwards</em>". It is how Python programmers reverse text, and it is today's third exercise.
+        </div>
+
+        <div class="big-result">A real use — is it a palindrome?</div>
+        <div class="code">msg = <span class="str">"step on no pets"</span>
+<span class="fn">print</span>(msg == msg[::-<span class="num">1</span>])
+
+<span class="kw">if</span> msg == msg[::-<span class="num">1</span>]:
+    <span class="fn">print</span>(<span class="str">'reverse equals original'</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">'reverse not equals original'</span>)</div>
+        <div class="console">True
+reverse equals original</div>
+        <div class="warn">
+          <strong>Careful with the last index.</strong> <code>"Hello python course"</code> has <code>len</code> 19, so the valid indexes are <code>0</code>…<code>18</code>. Writing <code>text[19]</code> gives <code>IndexError: string index out of range</code>. But <em>slicing</em> is forgiving — <code>text[0:19]</code> and even <code>text[0:500]</code> are perfectly happy. Indexing is strict, slicing is not.
+        </div>
+      </section>
+
+      <!-- ═══ 2b · LOOPING ═══ -->
+      <section class="card topic-panel" id="topic-loop">
+        <span class="tag">01_str.py</span>
+        <h2 class="step-title">Looping Over a String — Two Ways</h2>
+        <p>The task: print every character of a sentence on its own line, but skip the spaces.</p>
+
+        <div class="big-result">Way 1 — by index, with <code>range</code></div>
+        <div class="code">mech = <span class="str">"Python Core Study Mechanics"</span>
+
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">0</span>, <span class="fn">len</span>(mech)):
+    <span class="kw">if</span> <span class="kw">not</span> mech[i].<span class="fn">isspace</span>():     <span class="cm"># same as: if mech[i] != ' '</span>
+        <span class="fn">print</span>(mech[i])</div>
+        <div class="note">
+          <code>range(0, len(mech))</code> — <strong>not</strong> a hard-coded <code>range(0, 27)</code>. The moment you change the sentence, a hard-coded number is wrong and you get an <code>IndexError</code>. <code>len()</code> keeps the loop honest.
+        </div>
+
+        <div class="big-result">Way 2 — <em>for-each</em>, straight over the characters</div>
+        <div class="code"><span class="kw">for</span> c <span class="kw">in</span> <span class="str">"hello"</span>:            <span class="cm"># c is the character itself</span>
+    <span class="fn">print</span>(c)
+
+<span class="kw">for</span> c <span class="kw">in</span> mech:
+    <span class="kw">if</span> <span class="kw">not</span> c.<span class="fn">isspace</span>():
+        <span class="fn">print</span>(c)</div>
+        <div class="console">h
+e
+l
+l
+o
+P
+y
+t
+h
+o
+n
+C
+<span class="dim">... and so on</span></div>
+        <div class="note">
+          <strong>This is new and it is a big deal.</strong> Until today, <code>for</code> always walked over <code>range(...)</code> — a run of numbers. It turns out <code>for</code> can walk over a <strong>string</strong> too, handing you one character per round. No index, no <code>len</code>, no square brackets.
+        </div>
+
+        <table class="ex-table">
+          <thead><tr><th></th><th><code>for i in range(len(s))</code></th><th><code>for c in s</code></th></tr></thead>
+          <tbody>
+            <tr><td>What the variable holds</td><td>a <strong>number</strong> — the position</td><td>the <strong>character</strong> itself</td></tr>
+            <tr><td>Getting the character</td><td><code>s[i]</code></td><td><code>c</code></td></tr>
+            <tr><td>Use it when…</td><td>you need to know <em>where</em> you are</td><td>you only care <em>what</em> is there</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          Prefer the for-each version. It is shorter, it cannot go out of range, and it says exactly what you mean.
+        </div>
+      </section>
+
+      <!-- ═══ 3 · F-STRING, THE REST ═══ -->
+      <section class="card topic-panel" id="topic-printf">
+        <span class="tag">02_str_printf.py</span>
+        <h2 class="step-title">f-strings — The Specs We Were Still Missing</h2>
+        <p>Lesson 11 covered <code>.2f</code>, <code>&lt; &gt; ^</code>, <code>,</code>, <code>05d</code>, <code>.1%</code> and <code>+</code>. Today's file adds four more that finish the picture.</p>
+
+        <div class="big-result">1 · A width on its own — and the default direction</div>
+        <div class="code">x = <span class="num">5</span>
+<span class="fn">print</span>(<span class="str">f"{x<span class="hl">:5</span>}"</span>)      <span class="cm"># minimum width 5</span>
+
+text = <span class="str">"Python"</span>
+<span class="fn">print</span>(<span class="str">f"|{text<span class="hl">:10</span>}|"</span>)</div>
+        <div class="console">    5
+|Python    |</div>
+        <div class="warn">
+          A width with <strong>no</strong> alignment symbol does not mean "left". Python's default depends on the type: <strong>numbers go right</strong>, <strong>text goes left</strong>. If you are building a table with a mix of both, always write the <code>&lt;</code>, <code>&gt;</code> or <code>^</code> yourself — otherwise your columns fight each other.
+        </div>
+
+        <div class="big-result">2 · A fill character — put it <em>before</em> the alignment</div>
+        <div class="code">x = <span class="num">5</span>
+
+<span class="fn">print</span>(<span class="str">f"{x<span class="hl">:*&lt;5</span>}"</span>)     <span class="cm"># 5****</span>
+<span class="fn">print</span>(<span class="str">f"{x<span class="hl">:*&gt;5</span>}"</span>)     <span class="cm"># ****5</span>
+<span class="fn">print</span>(<span class="str">f"{x<span class="hl">:*^5</span>}"</span>)     <span class="cm"># **5**</span></div>
+        <div class="console">5****
+****5
+**5**</div>
+        <div class="note">
+          The order inside the spec is <strong>fill, then alignment, then width</strong>: <code>*</code> <code>^</code> <code>5</code>. Any single character works — <code>.</code> for a menu's dotted line, <code>-</code> for a separator, <code>0</code> for zero padding (which is exactly what <code>:05</code> is short for).
+        </div>
+
+        <div class="big-result">3 · <code>.5</code> on text — cut it short</div>
+        <div class="code">text = <span class="str">"HelloWorld"</span>
+
+<span class="fn">print</span>(<span class="str">f"{text<span class="hl">:.5</span>}"</span>)      <span class="cm"># Hello - keep at most 5 characters</span>
+<span class="fn">print</span>(<span class="str">f"{text[:<span class="num">5</span>]}"</span>)     <span class="cm"># Hello - the same, using a slice</span></div>
+        <div class="console">Hello
+Hello</div>
+        <div class="note">
+          Same dot, different meaning. On a <strong>number</strong>, <code>.5</code> means "5 digits after the point"; on <strong>text</strong> it means "at most 5 characters". Handy for keeping a long name from breaking a column.
+        </div>
+
+        <div class="big-result">4 · Width <em>and</em> precision together</div>
+        <div class="code">pi = <span class="num">3.14159</span>
+<span class="fn">print</span>(<span class="str">f"{pi<span class="hl">:8.2f</span>}"</span>)      <span class="cm"># 8 wide, 2 decimals</span></div>
+        <div class="console">    3.14</div>
+        <div class="note">
+          Read it as two separate instructions glued together: <code>8</code> = the total width of the column, <code>.2f</code> = the number itself. This is the spec that makes a column of prices line up on the decimal point.
+        </div>
+
+        <div class="big-result">And the ones you already knew</div>
+        <div class="code">x = <span class="num">42</span>
+<span class="fn">print</span>(<span class="str">f"{x:05}"</span>)        <span class="cm"># 00042</span>
+
+<span class="fn">print</span>(<span class="str">f"{<span class="num">10</span>:+}"</span>)        <span class="cm"># +10</span>
+<span class="fn">print</span>(<span class="str">f"{-<span class="num">10</span>:+}"</span>)       <span class="cm"># -10</span>
+
+pi = <span class="num">3.1415926</span>
+<span class="fn">print</span>(<span class="str">f"{pi:.2f}"</span>)      <span class="cm"># 3.14</span>
+<span class="fn">print</span>(<span class="str">f"{pi:.4f}"</span>)      <span class="cm"># 3.1416</span>
+
+<span class="fn">print</span>(<span class="str">f"{<span class="num">123456789</span>:,}"</span>)  <span class="cm"># 123,456,789</span>
+<span class="fn">print</span>(<span class="str">f"{<span class="num">0.375</span>:.2%}"</span>)   <span class="cm"># 37.50%</span></div>
+        <div class="console">00042
++10
+-10
+3.14
+3.1416
+123,456,789
+37.50%</div>
+        <div class="note">
+          The full reference lives on the <a href="../../12_fstrings/index.html">f-string Tricks</a> topic page — it now includes today's four additions.
+        </div>
+      </section>
+
+      <!-- ═══ 4 · REGEX ═══ -->
+      <section class="card topic-panel" id="topic-regex">
+        <span class="tag">03_str_regex.py &nbsp;·&nbsp; New</span>
+        <h2 class="step-title">Regular Expressions — A First Look 🔍</h2>
+        <p>Checking a password by hand needs a loop and four boolean variables. A <strong>regular expression</strong> ("regex") describes the whole rule as one pattern string, and the <code>re</code> module checks it for you.</p>
+
+        <div class="code"><span class="kw">import</span> re
+
+password = <span class="fn">input</span>(<span class="str">"Password: "</span>)
+
+<span class="cm"># Regular Expression</span>
+pattern = <span class="str">r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{12,}$'</span>
+
+<span class="kw">if</span> re.<span class="fn">match</span>(pattern, password):
+    <span class="fn">print</span>(<span class="str">'Valid'</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">'Invalid'</span>)</div>
+        <div class="console">Password: <span class="usr">hello</span>
+Invalid</div>
+        <div class="console">Password: <span class="usr">MyDogEats42!x</span>
+Valid</div>
+
+        <div class="big-result">Reading the pattern piece by piece</div>
+        <div class="rx">
+          <span class="r-anchor">^</span>
+          <span class="r-look">(?=.*[a-z])</span>
+          <span class="r-look">(?=.*[A-Z])</span>
+          <span class="r-look">(?=.*\d)</span>
+          <span class="r-look">(?=.*[^A-Za-z0-9])</span>
+          <span class="r-len">.{12,}</span>
+          <span class="r-anchor">$</span>
+        </div>
+        <table class="ex-table">
+          <thead><tr><th>Piece</th><th>What it demands</th></tr></thead>
+          <tbody>
+            <tr><td><code>r'…'</code></td><td>A <strong>raw string</strong>. Without the <code>r</code>, Python would try to interpret <code>\d</code> as an escape code. In a regex you always want the backslash left alone — so patterns are always written <code>r'…'</code>.</td></tr>
+            <tr><td><code>^</code> … <code>$</code></td><td>Start of the text … end of the text. Together they mean "the <em>whole</em> string must fit", not just some part of it.</td></tr>
+            <tr><td><code>(?=.*[a-z])</code></td><td>"Somewhere ahead there is a lowercase letter." <code>[a-z]</code> is a <em>range</em> of characters and <code>.*</code> is "anything, any amount".</td></tr>
+            <tr><td><code>(?=.*[A-Z])</code></td><td>…and an uppercase letter.</td></tr>
+            <tr><td><code>(?=.*\d)</code></td><td>…and a digit. <code>\d</code> is the shortcut for "any digit".</td></tr>
+            <tr><td><code>(?=.*[^A-Za-z0-9])</code></td><td>…and a special character. The <code>^</code> <em>inside</em> square brackets means <strong>not</strong> — so: something that is not a letter and not a digit.</td></tr>
+            <tr><td><code>.{12,}</code></td><td>At least 12 characters in total. <code>{12,}</code> is "12 or more".</td></tr>
+          </tbody>
+        </table>
+
+        <div class="big-result">🐞 The bug that was in the file</div>
+        <p>The version we typed in class had this line, and it printed <code>Invalid</code> for <strong>every</strong> password — even correct ones:</p>
+        <div class="code"><span class="bad"><span class="kw">if</span> re.<span class="fn">match</span>(pattern, password) == <span class="kw">True</span>:</span>   <span class="cm"># always False!</span>
+    <span class="fn">print</span>(<span class="str">'Valid'</span>)</div>
+        <p>Why? Because <code>re.match</code> does not return <code>True</code>. It returns a <strong>match object</strong> when the pattern fits, and <code>None</code> when it does not:</p>
+        <div class="console">&gt;&gt;&gt; re.match(pattern, 'MyDogEats42!x')
+&lt;re.Match object; span=(0, 13), match='MyDogEats42!x'&gt;
+
+&gt;&gt;&gt; re.match(pattern, 'MyDogEats42!x') == True
+False                       <span class="dim">← a Match object is not the value True</span>
+
+&gt;&gt;&gt; <span class="fn">bool</span>(re.match(pattern, 'MyDogEats42!x'))
+True                        <span class="dim">← but it IS truthy</span></div>
+        <div class="warn">
+          This is lesson 11's rule earning its keep: <strong>never write <code>== True</code></strong>. Just put the value in the <code>if</code> — <code>if re.match(pattern, password):</code> — and Python asks "is there something here?" instead of "is this exactly the value <code>True</code>?". A match object counts as yes; <code>None</code> counts as no.
+        </div>
+        <div class="note">
+          Regex is a whole language of its own and you are not expected to write one from memory today. Recognise it, know that <code>re.match</code> is how you use it, and know it returns a match-or-<code>None</code>. When you want the whole picture — <code>\d</code>, <code>\w</code>, <code>[a-z]</code>, the <code>+ * ?</code> counters, groups, and ready-made patterns for email / phone / date — it is all on the <a href="../../15_regex/index.html">Regular Expressions</a> topic page.
+        </div>
+      </section>
+
+      <!-- ═══ 5 · CLASSROOM ═══ -->
+      <section class="card topic-panel" id="topic-classroom">
+        <span class="tag">01_str.py</span>
+        <h2 class="step-title">Solved in Class ✍️</h2>
+        <p>The seven little problems from the bottom of <code>01_str.py</code>.</p>
+
+        <div class="ex-title"><span class="ex-num">1</span><h3>Fix the f-string</h3></div>
+        <div class="code">name = <span class="str">"Danny"</span>
+<span class="bad"><span class="fn">print</span>(<span class="str">f"{name} your name is in length len(name)"</span>)</span>   <span class="cm"># prints the words "len(name)"</span>
+
+<span class="fn">print</span>(<span class="str">f"{name} your name is in length {<span class="fn">len</span>(name)}"</span>)   <span class="cm"># ✔</span></div>
+        <div class="console">Danny your name is in length 5</div>
+        <div class="note">Outside the curly braces, everything is literal text. Anything you want <em>evaluated</em> has to be inside <code>{ }</code>.</div>
+
+        <div class="ex-title"><span class="ex-num">2</span><h3>An ID card, using <code>center</code></h3></div>
+        <div class="code">first_name = <span class="str">"Petros"</span>
+last_name = <span class="str">"Borchardt"</span>
+id_num = <span class="str">"63 251283 B 185"</span>
+phone = <span class="str">"0419-0288803"</span>
+
+<span class="fn">print</span>(<span class="str">f"| {(last_name + <span class="str">', '</span> + first_name).<span class="fn">center</span>(<span class="num">22</span>)} |"</span>)
+<span class="fn">print</span>(<span class="str">f"| {(<span class="str">'ID: ['</span> + id_num + <span class="str">']'</span>).<span class="fn">center</span>(<span class="num">22</span>)} |"</span>)
+<span class="fn">print</span>(<span class="str">f"| {(<span class="str">'Phone: '</span> + phone).<span class="fn">center</span>(<span class="num">22</span>)} |"</span>)</div>
+        <div class="console">|   Borchardt, Petros    |
+| ID: [63 251283 B 185]  |
+|  Phone: 0419-0288803   |</div>
+        <div class="note">
+          Two ideas in one line: <code>+</code> glues strings together <em>first</em> (inside the parentheses), and only the finished sentence gets centered. Centering each piece separately would give you a completely different layout.
+        </div>
+        <div class="warn">
+          In class this was typed with <strong>double</strong> quotes inside a double-quoted f-string: <code>f"| {(last_name + ", " + first_name)…}"</code>. That only runs on <strong>Python 3.12+</strong>. On 3.10 / 3.11 it is a <code>SyntaxError</code>. Use <code>'single'</code> quotes inside a <code>"double"</code>-quoted f-string and it works everywhere.
+        </div>
+
+        <div class="ex-title"><span class="ex-num">3</span><h3>Clean a dirty input</h3></div>
+        <p>Strip the outer spaces, lowercase everything, turn <code>_</code> into <code>-</code>:</p>
+        <div class="code">user_input = <span class="str">"   jOhN_dOe_2026   "</span>
+
+<span class="cm"># in one chain</span>
+<span class="fn">print</span>(user_input.<span class="fn">strip</span>().<span class="fn">lower</span>().<span class="fn">replace</span>(<span class="str">"_"</span>, <span class="str">"-"</span>))
+
+<span class="cm"># or step by step - same result, easier to debug</span>
+strip_txt = user_input.<span class="fn">strip</span>()
+lower_text = strip_txt.<span class="fn">lower</span>()
+replace_hyphen = lower_text.<span class="fn">replace</span>(<span class="str">"_"</span>, <span class="str">"-"</span>)
+<span class="fn">print</span>(replace_hyphen)</div>
+        <div class="console">john-doe-2026
+john-doe-2026</div>
+
+        <div class="ex-title"><span class="ex-num">4</span><h3>True or False?</h3></div>
+        <table class="ex-table">
+          <thead><tr><th>Expression</th><th>Answer</th><th>Because</th></tr></thead>
+          <tbody>
+            <tr><td><code>"python3".isalpha()</code></td><td><strong>False</strong></td><td>the <code>3</code> is not a letter</td></tr>
+            <tr><td><code>"12 34".isdigit()</code></td><td><strong>False</strong></td><td>the space is not a digit</td></tr>
+            <tr><td><code>"   ".isspace()</code></td><td><strong>True</strong></td><td>nothing but spaces</td></tr>
+            <tr><td><code>"HELLO".isupper()</code></td><td><strong>True</strong></td><td>every letter is capital</td></tr>
+            <tr><td><code>"hi".islower()</code></td><td><strong>True</strong></td><td>every letter is small</td></tr>
+          </tbody>
+        </table>
+
+        <div class="ex-title"><span class="ex-num">5</span><h3>Reverse equals original?</h3></div>
+        <div class="code">msg = <span class="str">"step on no pets"</span>
+<span class="fn">print</span>(msg == msg[::-<span class="num">1</span>])
+
+<span class="kw">if</span> msg == msg[::-<span class="num">1</span>]:
+    <span class="fn">print</span>(<span class="str">'reverse equals original'</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">'reverse not equals original'</span>)</div>
+        <div class="console">True
+reverse equals original</div>
+
+        <div class="ex-title"><span class="ex-num">6</span><h3>First word, last word, all words</h3></div>
+        <div class="code">mech = <span class="str">"Python Core Study Mechanics"</span>
+
+<span class="fn">print</span>(mech.<span class="fn">startswith</span>(<span class="str">"Python"</span>))
+<span class="fn">print</span>(mech.<span class="fn">endswith</span>(<span class="str">"Mechanics"</span>))
+<span class="fn">print</span>(mech.<span class="fn">split</span>())</div>
+        <div class="console">True
+True
+['Python', 'Core', 'Study', 'Mechanics']</div>
+
+        <div class="ex-title"><span class="ex-num">7</span><h3>Every character on its own line, no spaces</h3></div>
+        <div class="code">mech = <span class="str">"Python Core Study Mechanics"</span>
+
+<span class="cm"># by index</span>
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">0</span>, <span class="fn">len</span>(mech)):
+    <span class="kw">if</span> <span class="kw">not</span> mech[i].<span class="fn">isspace</span>():
+        <span class="fn">print</span>(mech[i])
+
+<span class="cm"># for-each - shorter and safer</span>
+<span class="kw">for</span> c <span class="kw">in</span> mech:
+    <span class="kw">if</span> <span class="kw">not</span> c.<span class="fn">isspace</span>():
+        <span class="fn">print</span>(c)</div>
+        <div class="console">P
+y
+t
+h
+o
+n
+C
+o
+r
+e
+<span class="dim">... and so on</span></div>
+        <div class="note">
+          The first version had <code>range(0, 26 + 1)</code> hard-coded in class. It happens to work for this exact sentence — change one word and it breaks. <code>len(mech)</code> is always right.
+        </div>
+      </section>
+
+      <!-- ═══ GITHUB ═══ -->
+      <section class="card topic-panel" id="topic-github">
+        <span class="tag">GitHub</span>
+        <h2 class="step-title">Lesson 12 GitHub Folder</h2>
+        <p>All the code from today's lesson:</p>
+        <div class="task-box">
+          <strong>Lesson folder:</strong><br>
+          <a href="https://github.com/pythonai080626-a11y/03.08.2026" target="_blank" rel="noopener">
+            https://github.com/pythonai080626-a11y/03.08.2026
+          </a>
+        </div>
+        <table class="ex-table">
+          <thead><tr><th>File</th><th>What it shows</th></tr></thead>
+          <tbody>
+            <tr><td>01_str.py</td><td>The <code>str</code> type and <code>len</code>; <code>upper</code> / <code>lower</code> / <code>swapcase</code> / <code>capitalize</code> / <code>title</code>; <code>replace</code>, <code>split</code>, <code>strip</code>; <code>startswith</code> / <code>endswith</code>; the <code>is…</code> family; <code>zfill</code> and <code>center</code>; indexing &amp; slicing; looping over characters — plus the seven in-class exercises</td></tr>
+            <tr><td>02_str_printf.py</td><td>f-string specs: bare width, alignment, <strong>fill characters</strong>, <code>.5</code> on text, <code>05</code>, <code>+</code>, <code>.2f</code>, <strong><code>8.2f</code></strong>, <code>,</code> and <code>.2%</code></td></tr>
+            <tr><td>03_str_regex.py</td><td><code>import re</code>, a password pattern, and the <code>== True</code> bug</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          Topic pages for today: <a href="../../14_strings/index.html">Strings &amp; Slicing</a>, <a href="../../12_fstrings/index.html">f-string Tricks</a> and <a href="../../15_regex/index.html">Regular Expressions</a>. Also useful: <a href="../../11_booleans/index.html">Booleans &amp; the Ternary</a> and <a href="../../06_for_loops/index.html">For Loops</a>.
+        </div>
+      </section>
+
+      <!-- ═══ EXERCISE (English) ═══ -->
+      <section class="card topic-panel" id="topic-exercise">
+        <span class="tag">Homework</span>
+        <h2 class="step-title">Practice — 1 Question</h2>
+        <p>One question, and it uses almost everything from today.<br>
+           <strong>Python only</strong>. Write it as a <code>.py</code> file in PyCharm and run with <span class="kbd">Shift</span> + <span class="kbd">F10</span>.</p>
+
+        <div class="ex-title">
+          <span class="ex-num">1</span>
+          <h3>Examine a product code 📦</h3>
+        </div>
+        <p>Given:</p>
+        <div class="code">product_code = <span class="str">"  book-582  "</span></div>
+
+        <p>Write code that:</p>
+        <ol class="task-list">
+          <li><strong>Removes</strong> the surrounding spaces.</li>
+          <li><strong>Splits</strong> the value into the product name and the number.</li>
+          <li>Checks whether the product <strong>name</strong> contains only letters.</li>
+          <li>Checks whether the <strong>number</strong> contains only digits.</li>
+          <li><strong>Prints</strong> the product name in uppercase, and the number padded to six digits using <code>zfill()</code>.</li>
+        </ol>
+
+        <div class="big-result">Expected output</div>
+        <div class="console">Product: BOOK
+Number: 000582
+Valid name: True
+Valid number: True</div>
+
+        <div class="big-result">The tools you need</div>
+        <div class="pill-row">
+          <span class="pill">.strip()</span>
+          <span class="pill">.split('-')</span>
+          <span class="pill">.upper()</span>
+          <span class="pill">.zfill(6)</span>
+          <span class="pill">.isalpha()</span>
+          <span class="pill">.isdigit()</span>
+        </div>
+
+        <div class="note">
+          <strong>Hint 1 — the split.</strong> <code>"book-582".split('-')</code> hands you back a list of the two pieces: <code>['book', '582']</code>. Reach into it with square brackets, exactly the way you index a string:
+          <div class="code">parts = clean_code.<span class="fn">split</span>(<span class="str">'-'</span>)
+name = parts[<span class="num">0</span>]        <span class="cm"># 'book'</span>
+number = parts[<span class="num">1</span>]      <span class="cm"># '582'</span></div>
+        </div>
+        <div class="note">
+          <strong>Hint 2 — strip first, split second.</strong> Do it the other way round and the name still carries its leading spaces, so <code>isalpha()</code> comes back <code>False</code>. You can chain both in one line: <code>product_code.strip().split('-')</code>.
+        </div>
+        <div class="note">
+          <strong>Hint 3 — the number is text, not a number.</strong> <code>'582'</code> came out of a string, so it is still a <code>str</code> — which is exactly why <code>.zfill(6)</code> and <code>.isdigit()</code> work on it. Do not call <code>int()</code> on it.
+        </div>
+        <div class="warn">
+          <strong>Check yourself:</strong> change the value to <code>"  chair-77x  "</code> and run again. You should get <code>Valid number: False</code>, because <code>'77x'</code> has a letter in it — while the first four lines still print without crashing.
+        </div>
+
+        <div class="big-result">Submission</div>
+        <div class="card submission">
+          <ol class="task-list">
+            <li><strong>Write the .py program(s)</strong> in PyCharm.</li>
+            <li><strong>Upload to GitHub</strong> and send the link to:<br>
+              <a href="mailto:pythonai080626+hw12@gmail.com">pythonai080626+hw12@gmail.com</a>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ═══ EXERCISE (Hebrew) ═══ -->
+      <section class="card topic-panel rtl" id="topic-exercise-heb" lang="he" dir="rtl">
+        <span class="tag">שיעורי בית</span>
+        <h2 class="step-title">תרגול — שאלה אחת</h2>
+        <p>שאלה אחת, והיא משתמשת כמעט בכל מה שלמדנו היום.<br>
+           <strong>בפייתון בלבד</strong>. כתבו אותה בקובץ <code>.py</code> ב-PyCharm והריצו עם <span class="kbd">Shift</span> + <span class="kbd">F10</span>.</p>
+
+        <div class="ex-title">
+          <span class="ex-num">1</span>
+          <h3>בדיקת קוד מוצר 📦</h3>
+        </div>
+        <p>נתון:</p>
+        <div class="code" dir="ltr">product_code = <span class="str">"  book-582  "</span></div>
+
+        <p>כתבו קוד ש:</p>
+        <ol class="task-list">
+          <li><strong>מסיר</strong> את הרווחים מסביב.</li>
+          <li><strong>מפצל</strong> את הערך לשם המוצר ולמספר.</li>
+          <li>בודק האם <strong>שם</strong> המוצר מכיל אותיות בלבד.</li>
+          <li>בודק האם <strong>המספר</strong> מכיל ספרות בלבד.</li>
+          <li><strong>מדפיס</strong> את שם המוצר באותיות גדולות, ואת המספר מרופד ל-6 ספרות בעזרת <code dir="ltr">zfill()</code>.</li>
+        </ol>
+
+        <div class="big-result">הפלט הצפוי</div>
+        <div class="console" dir="ltr">Product: BOOK
+Number: 000582
+Valid name: True
+Valid number: True</div>
+
+        <div class="big-result">הכלים שתצטרכו</div>
+        <div class="pill-row">
+          <span class="pill">.strip()</span>
+          <span class="pill">.split('-')</span>
+          <span class="pill">.upper()</span>
+          <span class="pill">.zfill(6)</span>
+          <span class="pill">.isalpha()</span>
+          <span class="pill">.isdigit()</span>
+        </div>
+
+        <div class="note">
+          <strong>רמז 1 — הפיצול.</strong> <code dir="ltr">"book-582".split('-')</code> מחזיר רשימה עם שני החלקים: <code dir="ltr">['book', '582']</code>. ניגשים אליהם בסוגריים מרובעים, בדיוק כמו אינדקס במחרוזת:
+          <div class="code" dir="ltr">parts = clean_code.<span class="fn">split</span>(<span class="str">'-'</span>)
+name = parts[<span class="num">0</span>]        <span class="cm"># 'book'</span>
+number = parts[<span class="num">1</span>]      <span class="cm"># '582'</span></div>
+        </div>
+        <div class="note">
+          <strong>רמז 2 — קודם strip, אחר כך split.</strong> בסדר ההפוך השם עדיין נושא איתו את הרווחים שלפניו, ולכן <code dir="ltr">isalpha()</code> יחזיר <code>False</code>. אפשר לשרשר את שניהם בשורה אחת: <code dir="ltr">product_code.strip().split('-')</code>.
+        </div>
+        <div class="note">
+          <strong>רמז 3 — המספר הוא טקסט, לא מספר.</strong> <code dir="ltr">'582'</code> יצא ממחרוזת ולכן הוא עדיין <code>str</code> — ובדיוק בגלל זה <code dir="ltr">.zfill(6)</code> ו-<code dir="ltr">.isdigit()</code> עובדים עליו. אל תפעילו עליו <code dir="ltr">int()</code>.
+        </div>
+        <div class="warn">
+          <strong>בדקו את עצמכם:</strong> שנו את הערך ל-<code dir="ltr">"  chair-77x  "</code> והריצו שוב. אמורים לקבל <code dir="ltr">Valid number: False</code>, כי ב-<code dir="ltr">'77x'</code> יש אות — וארבע השורות הראשונות עדיין מודפסות בלי לקרוס.
+        </div>
+
+        <div class="big-result">הגשה</div>
+        <div class="card submission">
+          <ol class="task-list">
+            <li><strong>כתבו את התוכנית/ות</strong> ב-PyCharm.</li>
+            <li><strong>העלו ל-GitHub</strong> ושלחו את הקישור ל:<br>
+              <a href="mailto:pythonai080626+hw12@gmail.com">pythonai080626+hw12@gmail.com</a>
+            </li>
+          </ol>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="footer">
+    Python Basics - Lesson 12 - August 3, 2026 - strings, slicing &amp; regex
+  </footer>
+</div>
+
+<script>
+  const links = document.querySelectorAll('.topic-link');
+  const panels = document.querySelectorAll('.topic-panel');
+
+  function showTopic(id) {
+    panels.forEach(panel => panel.classList.toggle('active', panel.id === id));
+    links.forEach(link => link.classList.toggle('active', link.dataset.target === id));
+  }
+
+  links.forEach(link => {
+    link.addEventListener('click', () => {
+      showTopic(link.dataset.target);
+      location.hash = link.dataset.target;
+    });
+  });
+
+  const hash = location.hash.replace('#', '');
+  if (hash && document.getElementById(hash)) showTopic(hash);
+
+  // ── one-at-a-time slides inside the method-tour panel ──
+  const slides = document.querySelectorAll('#fmt-slides .slide');
+  const prevBtn = document.getElementById('slide-prev');
+  const nextBtn = document.getElementById('slide-next');
+  const dotsBox = document.getElementById('slide-dots');
+  const countEl = document.getElementById('slide-count');
+  let current = 0;
+
+  slides.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.type = 'button';
+    dot.className = 'sdot';
+    dot.setAttribute('aria-label', 'go to slide ' + (i + 1));
+    dot.addEventListener('click', () => showSlide(i));
+    dotsBox.appendChild(dot);
+  });
+  const dots = dotsBox.querySelectorAll('.sdot');
+
+  function showSlide(n) {
+    current = Math.max(0, Math.min(n, slides.length - 1));
+    slides.forEach((s, i) => s.classList.toggle('active', i === current));
+    dots.forEach((d, i) => d.classList.toggle('active', i === current));
+    countEl.textContent = (current + 1) + ' / ' + slides.length;
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === slides.length - 1;
+  }
+
+  prevBtn.addEventListener('click', () => showSlide(current - 1));
+  nextBtn.addEventListener('click', () => showSlide(current + 1));
+  showSlide(0);
+</script>
+</body>
+</html>

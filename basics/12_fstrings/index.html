@@ -119,7 +119,7 @@
         <div>
           <span class="text-xs font-bold tracking-widest uppercase text-[#F97316] bg-orange-50 border border-orange-200 px-4 py-1.5 rounded-full">Topic 12</span>
           <h1 class="heading text-5xl md:text-6xl font-extrabold text-[#134E4A] mt-4 mb-4 leading-tight">f-string Tricks 🖨️</h1>
-          <p class="text-lg text-[#134E4A]/65 max-w-2xl leading-relaxed">You already drop values into a sentence with <code class="bg-orange-50 px-1 rounded">f"…{price}…"</code>. Add a <strong>colon</strong> inside the braces and everything after it becomes a <strong>format spec</strong> — an instruction about <em>how</em> to print that value. Two decimal places, aligned columns, thousands separators, percentages. Six specs cover almost everything you will ever need.</p>
+          <p class="text-lg text-[#134E4A]/65 max-w-2xl leading-relaxed">You already drop values into a sentence with <code class="bg-orange-50 px-1 rounded">f"…{price}…"</code>. Add a <strong>colon</strong> inside the braces and everything after it becomes a <strong>format spec</strong> — an instruction about <em>how</em> to print that value. Two decimal places, aligned columns, fill characters, thousands separators, percentages. A handful of specs cover almost everything you will ever need.</p>
         </div>
 
         <div class="bg-white rounded-[24px] p-5 clay-teal hidden lg:block">
@@ -303,6 +303,101 @@ price = <span class="num">59.23948762</span>
             </div>
           </div>
         </article>
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">8</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">A width on its own — and who goes where</h2>
+              <p class="text-[#134E4A]/65 mb-4">You can give a width with <strong>no</strong> alignment symbol. But "no symbol" does not mean "left":</p>
+              <div class="code">x = <span class="num">5</span>
+<span class="fn">print</span>(<span class="str">f"|{x<span class="hl">:5</span>}|"</span>)         <span class="cm"># a number  → pushed RIGHT</span>
+
+text = <span class="str">"Python"</span>
+<span class="fn">print</span>(<span class="str">f"|{text<span class="hl">:10</span>}|"</span>)     <span class="cm"># text      → pushed LEFT</span></div>
+              <div class="console">|    5|
+|Python    |</div>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                ⚠️ Python's default depends on the <strong>type</strong>: numbers go right, text goes left. In a table with a mix of both, always write the <code>&lt;</code>, <code>&gt;</code> or <code>^</code> yourself — otherwise your columns fight each other.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">9</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">A fill character — pad with something else</h2>
+              <p class="text-[#134E4A]/65 mb-4">Put any single character <strong>before</strong> the alignment symbol and Python pads with it instead of spaces:</p>
+              <div class="code">x = <span class="num">5</span>
+
+<span class="fn">print</span>(<span class="str">f"{x<span class="hl">:*&lt;5</span>}"</span>)     <span class="cm"># 5****</span>
+<span class="fn">print</span>(<span class="str">f"{x<span class="hl">:*&gt;5</span>}"</span>)     <span class="cm"># ****5</span>
+<span class="fn">print</span>(<span class="str">f"{x<span class="hl">:*^5</span>}"</span>)     <span class="cm"># **5**</span>
+
+<span class="fn">print</span>(<span class="str">f"{'menu'<span class="hl">:.&lt;20</span>}12.90"</span>)   <span class="cm"># a dotted menu line</span></div>
+              <div class="console">5****
+****5
+**5**
+menu................12.90</div>
+              <div class="spec-split">
+                <span class="s-plain">{</span>
+                <span class="s-val">x<span class="spec-cap">what to print</span></span>
+                <span class="s-col">:<span class="spec-cap">the colon</span></span>
+                <span class="s-spec">*<span class="spec-cap">fill</span></span>
+                <span class="s-spec">^<span class="spec-cap">align</span></span>
+                <span class="s-spec">5<span class="spec-cap">width</span></span>
+                <span class="s-plain">}</span>
+              </div>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                💡 The order is fixed: <strong>fill, align, width</strong>. And this explains <code>:05d</code> — it is nothing but the fill character <code>0</code> in front of a width.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">10</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">:.5 on text — cut it short</h2>
+              <p class="text-[#134E4A]/65 mb-4">Same dot, different meaning. On a number <code>.5</code> is "5 digits after the point"; on <strong>text</strong> it is "at most 5 characters":</p>
+              <div class="code">text = <span class="str">"HelloWorld"</span>
+
+<span class="fn">print</span>(<span class="str">f"{text<span class="hl">:.5</span>}"</span>)      <span class="cm"># Hello</span>
+<span class="fn">print</span>(<span class="str">f"{text[:<span class="num">5</span>]}"</span>)     <span class="cm"># Hello - the same, using a slice</span></div>
+              <div class="console">Hello
+Hello</div>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                💡 Combine it with a width to get a column that can never overflow: <code>f"|{name:&lt;10.10}|"</code> — always exactly 10 wide, however long the name is.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">11</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">:8.2f — width and precision together</h2>
+              <p class="text-[#134E4A]/65 mb-4">Two instructions glued into one spec: <code>8</code> is the total width of the column, <code>.2f</code> is the number itself.</p>
+              <div class="code">pi = <span class="num">3.14159</span>
+<span class="fn">print</span>(<span class="str">f"{pi<span class="hl">:8.2f</span>}"</span>)      <span class="cm"># 8 wide, 2 decimals</span>
+
+<span class="cm"># a column of prices that lines up on the dot</span>
+<span class="fn">print</span>(<span class="str">f"{<span class="num">7.5</span>:8.2f}"</span>)
+<span class="fn">print</span>(<span class="str">f"{<span class="num">142.375</span>:8.2f}"</span>)
+<span class="fn">print</span>(<span class="str">f"{<span class="num">1999.9</span>:8.2f}"</span>)</div>
+              <div class="console">    3.14
+    7.50
+  142.38
+ 1999.90</div>
+              <div class="bg-[#FFF7ED] border border-orange-100 rounded-2xl p-4 mt-4 text-sm text-[#134E4A]/70">
+                💡 This is the spec that makes a receipt look like a receipt. Numbers default to right-aligned, so every decimal point lands in the same column for free.
+              </div>
+            </div>
+          </div>
+        </article>
       </div>
 
       <!-- CHEAT SHEET -->
@@ -320,10 +415,18 @@ price = <span class="num">59.23948762</span>
             <tr><td><code>:_</code></td><td><code>f"{1234567:_}"</code></td><td><code>1_234_567</code></td></tr>
             <tr><td><code>:05d</code></td><td><code>f"{42:05d}"</code></td><td><code>00042</code></td></tr>
             <tr><td><code>:.1%</code></td><td><code>f"{0.756:.1%}"</code></td><td><code>75.6%</code></td></tr>
+            <tr><td><code>:.2%</code></td><td><code>f"{0.375:.2%}"</code></td><td><code>37.50%</code></td></tr>
             <tr><td><code>:+</code></td><td><code>f"{42:+}"</code></td><td><code>+42</code></td></tr>
+            <tr><td><code>:5</code></td><td><code>f"|{5:5}|"</code></td><td><code>|&nbsp;&nbsp;&nbsp;&nbsp;5|</code> &nbsp;<span class="text-xs opacity-60">numbers go right</span></td></tr>
+            <tr><td><code>:10</code></td><td><code>f"|{'hi':10}|"</code></td><td><code>|hi&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|</code> &nbsp;<span class="text-xs opacity-60">text goes left</span></td></tr>
+            <tr><td><code>:*&lt;5</code></td><td><code>f"{5:*&lt;5}"</code></td><td><code>5****</code></td></tr>
+            <tr><td><code>:*&gt;5</code></td><td><code>f"{5:*&gt;5}"</code></td><td><code>****5</code></td></tr>
+            <tr><td><code>:*^5</code></td><td><code>f"{5:*^5}"</code></td><td><code>**5**</code></td></tr>
+            <tr><td><code>:.5</code></td><td><code>f"{'HelloWorld':.5}"</code></td><td><code>Hello</code> &nbsp;<span class="text-xs opacity-60">text only</span></td></tr>
+            <tr><td><code>:8.2f</code></td><td><code>f"{3.14159:8.2f}"</code></td><td><code>&nbsp;&nbsp;&nbsp;&nbsp;3.14</code></td></tr>
           </tbody>
         </table>
-        <p class="text-[#134E4A]/60 mt-6">Every spec goes <strong>after a colon</strong>, inside the braces: <code>{value:spec}</code>. All of these were typed live in <a href="../lessons/11_lesson/11-lesson.html#topic-fstring" class="text-[#0D9488] font-bold underline">Lesson 11</a>.</p>
+        <p class="text-[#134E4A]/60 mt-6">Every spec goes <strong>after a colon</strong>, inside the braces: <code>{value:spec}</code>. The full shape is <code>{value:<strong>fill</strong><strong>align</strong><strong>width</strong>,<strong>.precision</strong><strong>type</strong>}</code> — and every part is optional. Typed live in <a href="../lessons/11_lesson/11-lesson.html#topic-fstring" class="text-[#0D9488] font-bold underline">Lesson 11</a> and <a href="../lessons/12_lesson/12-lesson.html#topic-printf" class="text-[#0D9488] font-bold underline">Lesson 12</a>.</p>
       </section>
 
     </section>

@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python Regular Expressions (re)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Comic+Neue:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Comic Neue', cursive; }
+    h1, h2, h3, .heading { font-family: 'Baloo 2', cursive; }
+    .clay {
+      border: 3px solid rgba(249,115,22,0.18);
+      box-shadow: 5px 5px 0 rgba(249,115,22,0.22), inset 0 1px 0 rgba(255,255,255,0.65);
+    }
+    .clay-teal {
+      border: 3px solid rgba(13,148,136,0.18);
+      box-shadow: 5px 5px 0 rgba(13,148,136,0.22), inset 0 1px 0 rgba(255,255,255,0.65);
+    }
+    .step-card { transition: transform .2s ease, box-shadow .2s ease; }
+    .step-card:hover { transform: translateY(-4px); }
+
+    .code {
+      background: #0b2517; color: #d2ffe3;
+      border-radius: 14px; border: 1px solid #2f5a3d;
+      padding: 14px 18px; overflow-x: auto; margin: 12px 0 4px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95rem; white-space: pre; line-height: 1.7;
+    }
+    .code .cm { color: #6dbf8a; }
+    .code .fn { color: #ffa657; }
+    .code .kw { color: #79c0ff; }
+    .code .str { color: #ffd580; }
+    .code .num { color: #d2a8ff; }
+    .code .rx { color: #ff7b72; font-weight: 700; }
+    .code .hl { background: rgba(125,231,135,0.16); border-radius: 4px; }
+    .code .bad { background: rgba(248,113,113,0.16); border-radius: 4px; }
+
+    .console {
+      background: #101418; color: #e6edf3;
+      border-radius: 14px; border: 1px solid #30363d;
+      padding: 12px 18px; overflow-x: auto; margin: 12px 0 4px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92rem; white-space: pre; line-height: 1.7;
+    }
+    .console .usr { color: #7ee787; font-weight: 700; }
+    .console .dim { color: #8b949e; }
+    .console .err { color: #ff9f9f; }
+    .console .ok { color: #7ee787; }
+    .console .no { color: #ff9f9f; }
+
+    .step-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 44px; height: 44px; border-radius: 14px; flex-shrink: 0;
+      background: #FFEDD5; border: 3px solid #F97316;
+      color: #C2410C; font-weight: 800; font-size: 1.25rem;
+      font-family: 'Baloo 2', cursive;
+    }
+
+    .trace { width: 100%; border-collapse: collapse; font-size: .9rem; margin-top: 12px; }
+    .trace th {
+      background: #FFEDD5; color: #C2410C; text-align: left;
+      padding: 8px 12px; border: 2px solid #FED7AA;
+      font-size: .75rem; letter-spacing: .06em; text-transform: uppercase;
+      font-family: 'Baloo 2', cursive;
+    }
+    .trace td { padding: 8px 12px; border: 2px solid #FFEDD5; color: #134E4A; vertical-align: top; }
+    .trace tr:nth-child(even) td { background: #FFF7ED; }
+    .trace code { white-space: nowrap; }
+
+    .tip { background: #FFF7ED; border: 1px solid #FED7AA; border-radius: 16px; padding: 16px; margin-top: 16px; font-size: .93rem; color: rgba(19,78,74,.75); }
+    .tip.teal { background: #F0FDFA; border-color: #CCFBF1; }
+
+    /* pattern breakdown strip */
+    .pat {
+      display: flex; flex-wrap: wrap; gap: 7px; align-items: center;
+      background: #ffffff; border: 2px solid #FED7AA; border-radius: 16px;
+      padding: 16px; margin-top: 14px;
+      font-family: Consolas, monospace; font-weight: 800;
+    }
+    .pat span { padding: 8px 11px; border-radius: 10px; font-size: .95rem; border: 2px solid; }
+    .pat .p-anchor { background: #E0E7FF; border-color: #A5B4FC; color: #3730A3; }
+    .pat .p-class  { background: #CCFBF1; border-color: #5EEAD4; color: #0F766E; }
+    .pat .p-quant  { background: #FFEDD5; border-color: #FDBA74; color: #C2410C; }
+    .pat .p-look   { background: #FCE7F3; border-color: #F9A8D4; color: #9D174D; }
+    .pat .p-group  { background: #FEF3C7; border-color: #FCD34D; color: #92400E; }
+    .pat .p-cap { display: block; font-family: 'Comic Neue', cursive; font-weight: 400; font-size: .72rem; opacity: .7; margin-top: 2px; }
+
+    /* match / no-match test rows */
+    .tests { margin-top: 14px; border: 2px solid #FED7AA; border-radius: 16px; overflow: hidden; }
+    .tests .row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 9px 14px; border-bottom: 1px solid #FFEDD5;
+      font-family: Consolas, monospace; font-size: .9rem;
+    }
+    .tests .row:last-child { border-bottom: none; }
+    .tests .row.yes { background: #F0FDF4; }
+    .tests .row.no  { background: #FEF2F2; }
+    .tests .mark { font-size: 1.05rem; font-weight: 800; width: 22px; flex-shrink: 0; }
+    .tests .row.yes .mark { color: #15803D; }
+    .tests .row.no .mark { color: #B91C1C; }
+    .tests .why { margin-left: auto; font-family: 'Comic Neue', cursive; font-size: .82rem; opacity: .6; text-align: right; }
+
+    .legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .legend span { font-family: Consolas, monospace; font-size: .78rem; font-weight: 700; padding: 5px 10px; border-radius: 9px; border: 2px solid; }
+  </style>
+</head>
+<body class="bg-[#FFFBF5] text-[#134E4A] min-h-screen">
+
+  <nav class="fixed top-4 left-4 right-4 z-50">
+    <div class="max-w-6xl mx-auto bg-white/90 backdrop-blur-md rounded-2xl px-5 py-3 clay flex items-center gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-[#F97316] hover:text-[#134E4A] transition-colors duration-200">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        <span class="text-sm font-semibold">Python Basics</span>
+      </a>
+      <span class="text-[#134E4A]/25 text-sm">/</span>
+      <span class="heading font-bold text-[#134E4A] text-sm">Regular Expressions</span>
+    </div>
+  </nav>
+
+  <main class="px-4 pt-28 pb-16">
+    <section class="max-w-6xl mx-auto">
+
+      <!-- HERO -->
+      <div class="grid lg:grid-cols-[1fr_360px] gap-8 items-center mb-10">
+        <div>
+          <span class="text-xs font-bold tracking-widest uppercase text-[#F97316] bg-orange-50 border border-orange-200 px-4 py-1.5 rounded-full">Topic 15</span>
+          <h1 class="heading text-5xl md:text-6xl font-extrabold text-[#134E4A] mt-4 mb-4 leading-tight">Regular Expressions 🔍</h1>
+          <p class="text-lg text-[#134E4A]/65 max-w-2xl leading-relaxed">Checking whether text "looks right" — an email, a phone number, a strong password — takes a loop and five boolean variables by hand. A <strong>regular expression</strong> describes the whole rule as one pattern string, and the <code class="bg-orange-50 px-1 rounded">re</code> module checks it for you. It is a tiny language of its own: about ten symbols, and this page teaches all of them.</p>
+        </div>
+
+        <div class="bg-white rounded-[24px] p-5 clay-teal hidden lg:block">
+          <div class="flex items-center gap-1.5 mb-3">
+            <span class="w-3 h-3 rounded-full bg-red-400"></span>
+            <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
+            <span class="w-3 h-3 rounded-full bg-green-400"></span>
+            <span class="text-xs text-[#134E4A]/40 ml-2 font-mono">03_str_regex.py</span>
+          </div>
+          <div class="code" style="margin:0;"><span class="kw">import</span> re
+
+phone = <span class="str">"054-1234567"</span>
+<span class="fn">print</span>(re.<span class="fn">match</span>(<span class="str">r'<span class="rx">^05\d-?\d{7}$</span>'</span>, phone))
+<span class="cm"># &lt;re.Match object ...&gt;</span></div>
+        </div>
+      </div>
+
+      <!-- STEPS -->
+      <div class="space-y-6">
+
+        <!-- 1 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">1</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">The idea, and the r'…' string</h2>
+              <p class="text-[#134E4A]/65 mb-4">A pattern is just a string — but a string with special characters in it. It always gets written with an <code>r</code> in front:</p>
+              <div class="code"><span class="kw">import</span> re
+
+pattern = <span class="str">r'<span class="rx">\d\d\d</span>'</span>          <span class="cm"># "three digits"</span>
+<span class="fn">print</span>(re.<span class="fn">findall</span>(pattern, <span class="str">"call 054 or 987"</span>))</div>
+              <div class="console">['054', '987']</div>
+              <div class="tip">
+                💡 <strong>Why the <code>r</code>?</strong> It makes a <em>raw string</em>: Python leaves every backslash exactly as you typed it. Without it, Python would first try to read <code>\d</code> as an escape code (like <code>\n</code> is a new line) and your pattern would arrive at <code>re</code> damaged. <strong>Always write patterns as <code>r'…'</code></strong> — it costs one character and saves hours.
+              </div>
+              <div class="tip teal">
+                💡 A pattern with no special characters is simply the text itself: <code>re.search(r'World', 'Hello World')</code> finds <code>World</code>. Everything below is about the characters that mean something <em>more</em> than themselves.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 2 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">2</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">The five functions of <code>re</code></h2>
+              <p class="text-[#134E4A]/65 mb-4">Pick the one that matches the question you are actually asking:</p>
+              <table class="trace">
+                <thead><tr><th>Function</th><th>Question it answers</th><th>Gives you back</th></tr></thead>
+                <tbody>
+                  <tr><td><code>re.match(p, s)</code></td><td>does the text <strong>start</strong> with this?</td><td>a Match object, or <code>None</code></td></tr>
+                  <tr><td><code>re.search(p, s)</code></td><td>is this <strong>anywhere</strong> in the text?</td><td>a Match object, or <code>None</code></td></tr>
+                  <tr><td><code>re.findall(p, s)</code></td><td>give me <strong>all</strong> of them</td><td>a list of strings (empty if none)</td></tr>
+                  <tr><td><code>re.sub(p, new, s)</code></td><td>replace every match</td><td>a new string</td></tr>
+                  <tr><td><code>re.fullmatch(p, s)</code></td><td>does the <strong>whole</strong> text fit?</td><td>a Match object, or <code>None</code></td></tr>
+                </tbody>
+              </table>
+              <div class="code"><span class="kw">import</span> re
+text = <span class="str">"Hello World"</span>
+
+<span class="fn">print</span>(re.<span class="fn">match</span>(<span class="str">r'World'</span>, text))     <span class="cm"># None  - it is not at the START</span>
+<span class="fn">print</span>(re.<span class="fn">search</span>(<span class="str">r'World'</span>, text))    <span class="cm"># found it</span>
+
+<span class="fn">print</span>(re.<span class="fn">findall</span>(<span class="str">r'<span class="rx">\d+</span>'</span>, <span class="str">"a1b22c333"</span>))
+<span class="fn">print</span>(re.<span class="fn">sub</span>(<span class="str">r'<span class="rx">\s+</span>'</span>, <span class="str">' '</span>, <span class="str">"too    many   spaces"</span>))</div>
+              <div class="console">None
+&lt;re.Match object; span=(6, 11), match='World'&gt;
+['1', '22', '333']
+too many spaces</div>
+              <div class="tip">⚠️ <code>re.match</code> only ever looks at the <strong>beginning</strong>. This surprises everyone once. If you mean "somewhere in the text", you want <code>re.search</code>.</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 3 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">3</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">🐞 What a match really is — never <code>== True</code></h2>
+              <p class="text-[#134E4A]/65 mb-4">This is the bug we hit in class. It printed <code>Invalid</code> for <strong>every</strong> password, even correct ones:</p>
+              <div class="code"><span class="bad"><span class="kw">if</span> re.<span class="fn">match</span>(pattern, password) == <span class="kw">True</span>:</span>   <span class="cm"># always False!</span>
+    <span class="fn">print</span>(<span class="str">'Valid'</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">'Invalid'</span>)</div>
+              <p class="text-[#134E4A]/65 mt-4 mb-2">Because <code>re.match</code> does not return <code>True</code>. It returns a <strong>match object</strong> when the pattern fits, and <code>None</code> when it does not:</p>
+              <div class="console">&gt;&gt;&gt; re.match(pattern, 'MyDogEats42!x')
+&lt;re.Match object; span=(0, 13), match='MyDogEats42!x'&gt;
+
+&gt;&gt;&gt; re.match(pattern, 'MyDogEats42!x') == True
+<span class="no">False</span>                    <span class="dim">← a Match object is not the value True</span>
+
+&gt;&gt;&gt; bool(re.match(pattern, 'MyDogEats42!x'))
+<span class="ok">True</span>                     <span class="dim">← but it IS truthy</span></div>
+              <div class="code"><span class="hl"><span class="kw">if</span> re.<span class="fn">match</span>(pattern, password):</span>        <span class="cm"># ✔ the right way</span>
+    <span class="fn">print</span>(<span class="str">'Valid'</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">'Invalid'</span>)</div>
+              <div class="tip">
+                ⚠️ Put the value straight in the <code>if</code> and Python asks "<em>is there something here?</em>" instead of "<em>is this exactly the value <code>True</code>?</em>". A match object counts as yes, <code>None</code> counts as no. Same rule as boolean variables: <code>if is_adult:</code>, never <code>if is_adult == True:</code>.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 4 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">4</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">Character classes — <code>[ ]</code> means "one of these"</h2>
+              <p class="text-[#134E4A]/65 mb-4">Square brackets are a menu: match exactly <strong>one</strong> character, any of the ones listed.</p>
+              <div class="code"><span class="fn">print</span>(re.<span class="fn">findall</span>(<span class="str">r'<span class="rx">[aeiou]</span>'</span>, <span class="str">"python course"</span>))   <span class="cm"># the vowels</span>
+<span class="fn">print</span>(re.<span class="fn">findall</span>(<span class="str">r'<span class="rx">[a-z]+</span>'</span>, <span class="str">"Hello Python 3"</span>))   <span class="cm"># runs of small letters</span>
+<span class="fn">print</span>(re.<span class="fn">findall</span>(<span class="str">r'<span class="rx">[^0-9]</span>'</span>, <span class="str">"a1b2"</span>))           <span class="cm"># NOT a digit</span>
+<span class="fn">print</span>(re.<span class="fn">findall</span>(<span class="str">r'<span class="rx">c.t</span>'</span>, <span class="str">"cat cot cut ct c t"</span>))    <span class="cm"># . = any one character</span></div>
+              <div class="console">['o', 'o', 'u', 'e']
+['ello', 'ython']
+['a', 'b']
+['cat', 'cot', 'cut', 'c t']</div>
+              <table class="trace">
+                <thead><tr><th>Written</th><th>Means</th></tr></thead>
+                <tbody>
+                  <tr><td><code>[abc]</code></td><td>one character: <code>a</code>, <code>b</code> or <code>c</code></td></tr>
+                  <tr><td><code>[a-z]</code></td><td>any one lowercase letter — a <strong>range</strong></td></tr>
+                  <tr><td><code>[A-Za-z0-9]</code></td><td>any letter or digit — ranges stack up</td></tr>
+                  <tr><td><code>[^0-9]</code></td><td>anything that is <strong>not</strong> a digit. A <code>^</code> as the <em>first</em> character inside the brackets flips the whole menu</td></tr>
+                  <tr><td><code>.</code></td><td>any single character at all (except a new line)</td></tr>
+                </tbody>
+              </table>
+              <div class="tip">⚠️ <code>^</code> has two completely different jobs. <strong>Inside</strong> <code>[ ]</code> it means "not". <strong>Outside</strong> it means "start of the text" (step 6). Same symbol, opposite worlds.</div>
+              <div class="tip teal">💡 The dot is greedy about meaning too — to match a <em>literal</em> dot you must escape it: <code>r'3\.10'</code> matches only <code>3.10</code>, while <code>r'3.10'</code> also matches <code>3x10</code> and <code>3-10</code>.</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 5 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">5</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">The shortcuts — <code>\d</code> <code>\w</code> <code>\s</code></h2>
+              <p class="text-[#134E4A]/65 mb-4">Three classes are so common they got a one-letter name. Capitalise the letter to mean the <strong>opposite</strong>:</p>
+              <table class="trace">
+                <thead><tr><th>Shortcut</th><th>Same as</th><th>Meaning</th></tr></thead>
+                <tbody>
+                  <tr><td><code>\d</code></td><td><code>[0-9]</code></td><td>a digit</td></tr>
+                  <tr><td><code>\D</code></td><td><code>[^0-9]</code></td><td>not a digit</td></tr>
+                  <tr><td><code>\w</code></td><td><code>[A-Za-z0-9_]</code></td><td>a "word" character — letter, digit or underscore</td></tr>
+                  <tr><td><code>\W</code></td><td><code>[^A-Za-z0-9_]</code></td><td>not a word character (space, <code>!</code>, <code>-</code> …)</td></tr>
+                  <tr><td><code>\s</code></td><td><code>[ \t\n]</code></td><td>a whitespace — space, tab or new line</td></tr>
+                  <tr><td><code>\S</code></td><td>—</td><td>not a whitespace</td></tr>
+                </tbody>
+              </table>
+              <div class="code"><span class="fn">print</span>(re.<span class="fn">findall</span>(<span class="str">r'<span class="rx">\w+</span>'</span>, <span class="str">"hi_there you-2"</span>))
+<span class="fn">print</span>(re.<span class="fn">findall</span>(<span class="str">r'<span class="rx">\W</span>'</span>, <span class="str">"a b!c"</span>))
+<span class="fn">print</span>(re.<span class="fn">findall</span>(<span class="str">r'<span class="rx">\d+</span>'</span>, <span class="str">"My phone is 054-1234567"</span>))</div>
+              <div class="console">['hi_there', 'you', '2']
+[' ', '!']
+['054', '1234567']</div>
+              <div class="tip">💡 Notice <code>\w</code> counts the underscore as a letter but not the hyphen — which is why <code>hi_there</code> stayed whole and <code>you-2</code> split in two.</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 6 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">6</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">How many? — <code>*</code> <code>+</code> <code>?</code> <code>{n}</code></h2>
+              <p class="text-[#134E4A]/65 mb-4">A quantifier sits <strong>after</strong> the thing it counts and says how many times it may repeat:</p>
+              <table class="trace">
+                <thead><tr><th>Symbol</th><th>How many</th><th>Example</th></tr></thead>
+                <tbody>
+                  <tr><td><code>*</code></td><td>zero or more</td><td><code>ab*</code> → <code>a</code>, <code>ab</code>, <code>abbb</code></td></tr>
+                  <tr><td><code>+</code></td><td><strong>one</strong> or more</td><td><code>ab+</code> → <code>ab</code>, <code>abbb</code> (not <code>a</code>)</td></tr>
+                  <tr><td><code>?</code></td><td>zero or one — "optional"</td><td><code>colou?r</code> → <code>color</code>, <code>colour</code></td></tr>
+                  <tr><td><code>{3}</code></td><td>exactly 3</td><td><code>\d{3}</code> → <code>054</code></td></tr>
+                  <tr><td><code>{2,4}</code></td><td>between 2 and 4</td><td><code>\d{2,4}</code></td></tr>
+                  <tr><td><code>{12,}</code></td><td>12 or more</td><td><code>.{12,}</code></td></tr>
+                </tbody>
+              </table>
+              <div class="code"><span class="fn">print</span>(re.<span class="fn">findall</span>(<span class="str">r'<span class="rx">ab*</span>'</span>, <span class="str">'a ab abb abbb'</span>))
+<span class="fn">print</span>(re.<span class="fn">findall</span>(<span class="str">r'<span class="rx">ab+</span>'</span>, <span class="str">'a ab abb abbb'</span>))
+<span class="fn">print</span>(re.<span class="fn">findall</span>(<span class="str">r'<span class="rx">colou?r</span>'</span>, <span class="str">'color colour'</span>))
+<span class="fn">print</span>(re.<span class="fn">findall</span>(<span class="str">r'<span class="rx">\d{2,4}</span>'</span>, <span class="str">'1 12 123 12345'</span>))</div>
+              <div class="console">['a', 'ab', 'abb', 'abbb']
+['ab', 'abb', 'abbb']
+['color', 'colour']
+['12', '123', '1234']</div>
+              <div class="tip">💡 Read the last line carefully: <code>12345</code> gave <code>1234</code>, not <code>12345</code> — the quantifier stopped at its maximum of 4. And the lonely <code>1</code> never appeared, because the minimum is 2.</div>
+              <div class="tip teal">💡 <code>+</code> is the one you will reach for most: <code>\d+</code> = "a number", <code>\w+</code> = "a word", <code>\s+</code> = "any run of spaces".</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 7 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">7</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">Anchors — <code>^</code> start and <code>$</code> end</h2>
+              <p class="text-[#134E4A]/65 mb-4">Without anchors a pattern is happy to match a small piece hiding inside a bigger string. <code>^…$</code> demands that the <strong>whole</strong> text fits — which is exactly what you want when <em>validating</em> input.</p>
+              <div class="code"><span class="fn">print</span>(re.<span class="fn">match</span>(<span class="str">r'<span class="rx">^Hello</span>'</span>, <span class="str">'Hello world'</span>))    <span class="cm"># found</span>
+<span class="fn">print</span>(re.<span class="fn">match</span>(<span class="str">r'<span class="rx">world$</span>'</span>, <span class="str">'Hello world'</span>))    <span class="cm"># None - match looks at the start</span>
+
+<span class="cm"># the difference anchors make</span>
+<span class="fn">print</span>(<span class="fn">bool</span>(re.<span class="fn">match</span>(<span class="str">r'<span class="rx">\d{3}</span>'</span>,     <span class="str">'123abc'</span>)))   <span class="cm"># True  - only checked the front</span>
+<span class="fn">print</span>(<span class="fn">bool</span>(re.<span class="fn">match</span>(<span class="str">r'<span class="rx">^\d{3}$</span>'</span>,   <span class="str">'123abc'</span>)))   <span class="cm"># False - the whole thing must be 3 digits</span></div>
+              <div class="console">&lt;re.Match object; span=(0, 5), match='Hello'&gt;
+None
+True
+False</div>
+              <div class="tip">💡 Rule of thumb: <strong>searching</strong> for something inside text → no anchors. <strong>Validating</strong> a whole value (email, phone, password) → always wrap it in <code>^…$</code>.</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 8 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">8</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">Groups <code>( )</code> — pulling the pieces out</h2>
+              <p class="text-[#134E4A]/65 mb-4">Parentheses do two jobs: they keep a quantifier's reach under control, and they <strong>remember</strong> the piece they matched so you can read it back.</p>
+              <div class="code">m = re.<span class="fn">search</span>(<span class="str">r'<span class="rx">(\d{3})-(\d{7})</span>'</span>, <span class="str">'call 054-1234567 now'</span>)
+
+<span class="fn">print</span>(m.<span class="fn">group</span>(<span class="num">0</span>))     <span class="cm"># the whole match</span>
+<span class="fn">print</span>(m.<span class="fn">group</span>(<span class="num">1</span>))     <span class="cm"># the first ( )</span>
+<span class="fn">print</span>(m.<span class="fn">group</span>(<span class="num">2</span>))     <span class="cm"># the second ( )</span></div>
+              <div class="console">054-1234567
+054
+1234567</div>
+              <div class="tip">⚠️ <code>m.group(...)</code> only works when there <em>was</em> a match. On a failed search <code>m</code> is <code>None</code> and you get <code>AttributeError: 'NoneType' object has no attribute 'group'</code>. Always check first: <code>if m:</code> — then read the groups inside.</div>
+              <div class="tip teal">💡 Groups also change what <code>findall</code> gives you: with one or more <code>( )</code> in the pattern, it returns the <strong>groups</strong> instead of the whole matches. Surprising the first time it happens.</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 9 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">9</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">Lookahead <code>(?=…)</code> — the password pattern, decoded</h2>
+              <p class="text-[#134E4A]/65 mb-4">A lookahead asks "<em>is this somewhere ahead?</em>" without consuming any characters. That is what lets you stack four independent demands on the same text — the trick behind every password rule:</p>
+              <div class="code">pattern = <span class="str">r'<span class="rx">^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{12,}$</span>'</span>
+
+password = <span class="fn">input</span>(<span class="str">"Password: "</span>)
+<span class="kw">if</span> re.<span class="fn">match</span>(pattern, password):
+    <span class="fn">print</span>(<span class="str">'Valid'</span>)
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">'Invalid'</span>)</div>
+              <div class="pat">
+                <span class="p-anchor">^<span class="p-cap">start</span></span>
+                <span class="p-look">(?=.*[a-z])<span class="p-cap">a small letter</span></span>
+                <span class="p-look">(?=.*[A-Z])<span class="p-cap">a capital</span></span>
+                <span class="p-look">(?=.*\d)<span class="p-cap">a digit</span></span>
+                <span class="p-look">(?=.*[^A-Za-z0-9])<span class="p-cap">a special char</span></span>
+                <span class="p-quant">.{12,}<span class="p-cap">12+ characters</span></span>
+                <span class="p-anchor">$<span class="p-cap">end</span></span>
+              </div>
+              <div class="tests">
+                <div class="row yes"><span class="mark">✔</span><span>MyDogEats42!x</span><span class="why">has all four, 13 characters</span></div>
+                <div class="row no"><span class="mark">✘</span><span>mydogeats42!x</span><span class="why">no capital letter</span></div>
+                <div class="row no"><span class="mark">✘</span><span>MyDogEats42x</span><span class="why">no special character</span></div>
+                <div class="row no"><span class="mark">✘</span><span>Short1!a</span><span class="why">only 8 characters</span></div>
+              </div>
+              <div class="tip">
+                💡 Inside each lookahead, <code>.*</code> means "skip anything", so <code>(?=.*\d)</code> reads as "<em>somewhere after here, there is a digit</em>". Because a lookahead does not move the cursor, all four run from the same spot — and then <code>.{12,}</code> does the actual consuming.
+              </div>
+              <div class="tip teal">
+                💡 Compare with doing it by hand: three or four boolean variables and a <code>for</code> loop over the characters. The loop version is longer, but it can tell the user <strong>which</strong> rule failed. The regex only says yes or no — that is the real trade-off.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 10 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">10</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">Four patterns worth stealing</h2>
+
+              <p class="text-[#134E4A]/65 mt-2 mb-1 font-bold">📧 An email address</p>
+              <div class="code">email = <span class="str">r'<span class="rx">^[\w\.-]+@[\w\.-]+\.\w{2,}$</span>'</span></div>
+              <div class="tests">
+                <div class="row yes"><span class="mark">✔</span><span>danny@gmail.com</span></div>
+                <div class="row yes"><span class="mark">✔</span><span>danny.cohen@my-site.co.il</span></div>
+                <div class="row no"><span class="mark">✘</span><span>danny@@gmail.com</span><span class="why">two @</span></div>
+                <div class="row no"><span class="mark">✘</span><span>danny.gmail.com</span><span class="why">no @ at all</span></div>
+              </div>
+
+              <p class="text-[#134E4A]/65 mt-6 mb-1 font-bold">📱 An Israeli mobile number</p>
+              <div class="code">phone = <span class="str">r'<span class="rx">^05\d-?\d{7}$</span>'</span>      <span class="cm"># the -? makes the dash optional</span></div>
+              <div class="tests">
+                <div class="row yes"><span class="mark">✔</span><span>054-1234567</span></div>
+                <div class="row yes"><span class="mark">✔</span><span>0541234567</span><span class="why">dash is optional</span></div>
+                <div class="row no"><span class="mark">✘</span><span>05-41234567</span><span class="why">dash in the wrong place</span></div>
+                <div class="row no"><span class="mark">✘</span><span>054-123456</span><span class="why">only 6 digits after</span></div>
+              </div>
+
+              <p class="text-[#134E4A]/65 mt-6 mb-1 font-bold">📅 A date, dd/mm/yyyy</p>
+              <div class="code">date = <span class="str">r'<span class="rx">^\d{2}/\d{2}/\d{4}$</span>'</span></div>
+              <div class="tests">
+                <div class="row yes"><span class="mark">✔</span><span>03/08/2026</span></div>
+                <div class="row no"><span class="mark">✘</span><span>3/8/2026</span><span class="why">needs the leading zeros</span></div>
+              </div>
+
+              <p class="text-[#134E4A]/65 mt-6 mb-1 font-bold">🎨 A hex colour</p>
+              <div class="code">colour = <span class="str">r'<span class="rx">^#[0-9a-fA-F]{6}$</span>'</span></div>
+              <div class="tests">
+                <div class="row yes"><span class="mark">✔</span><span>#0D9488</span></div>
+                <div class="row no"><span class="mark">✘</span><span>#abc</span><span class="why">only 3 characters</span></div>
+                <div class="row no"><span class="mark">✘</span><span>#GGGGGG</span><span class="why">G is not a hex digit</span></div>
+              </div>
+
+              <div class="tip">
+                ⚠️ Even the email pattern above accepts things a real mail server would reject, and rejects a few exotic addresses that are actually legal. That is normal — a regex is a <em>quick sanity check</em> on the shape of a value, not a proof that it exists.
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 11 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">11</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">Two more things worth knowing</h2>
+              <p class="text-[#134E4A]/65 mb-2"><strong>Ignore the case</strong> instead of writing <code>[Pp][Yy]…</code>:</p>
+              <div class="code"><span class="fn">print</span>(<span class="fn">bool</span>(re.<span class="fn">search</span>(<span class="str">r'python'</span>, <span class="str">'I love Python'</span>, <span class="hl">re.IGNORECASE</span>)))</div>
+              <div class="console">True</div>
+              <p class="text-[#134E4A]/65 mt-4 mb-2"><strong>Search and replace</strong> — <code>re.sub</code> is <code>.replace()</code> with a pattern instead of fixed text:</p>
+              <div class="code"><span class="fn">print</span>(re.<span class="fn">sub</span>(<span class="str">r'<span class="rx">[aeiou]</span>'</span>, <span class="str">'*'</span>, <span class="str">'python course'</span>))
+<span class="fn">print</span>(re.<span class="fn">sub</span>(<span class="str">r'<span class="rx">\s+</span>'</span>, <span class="str">' '</span>, <span class="str">'too    many   spaces'</span>))</div>
+              <div class="console">pyth*n c**rs*
+too many spaces</div>
+              <div class="tip teal">
+                💡 When the thing you are looking for is <strong>fixed text</strong>, do not reach for regex at all — <code>'_' in name</code>, <code>name.startswith('05')</code> and <code>name.replace('_', '-')</code> are shorter, faster and far easier to read. Regex earns its keep only when the rule has a <em>shape</em>.
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- CHEAT SHEET -->
+      <section class="bg-white rounded-[24px] p-7 clay mt-8">
+        <h2 class="heading text-3xl font-extrabold mb-3">Quick Reference</h2>
+        <div class="legend">
+          <span style="background:#E0E7FF;border-color:#A5B4FC;color:#3730A3">anchors</span>
+          <span style="background:#CCFBF1;border-color:#5EEAD4;color:#0F766E">character classes</span>
+          <span style="background:#FFEDD5;border-color:#FDBA74;color:#C2410C">quantifiers</span>
+          <span style="background:#FEF3C7;border-color:#FCD34D;color:#92400E">groups</span>
+          <span style="background:#FCE7F3;border-color:#F9A8D4;color:#9D174D">lookahead</span>
+        </div>
+        <table class="trace">
+          <thead><tr><th>Symbol</th><th>Meaning</th><th>Example</th><th>Matches</th></tr></thead>
+          <tbody>
+            <tr><td><code>^</code></td><td>start of the text</td><td><code>^Hello</code></td><td><code>Hello world</code></td></tr>
+            <tr><td><code>$</code></td><td>end of the text</td><td><code>world$</code></td><td><code>Hello world</code></td></tr>
+            <tr><td><code>.</code></td><td>any one character</td><td><code>c.t</code></td><td><code>cat</code> <code>cot</code> <code>c t</code></td></tr>
+            <tr><td><code>[abc]</code></td><td>one of these</td><td><code>[aeiou]</code></td><td>a vowel</td></tr>
+            <tr><td><code>[a-z]</code></td><td>a range</td><td><code>[a-z]+</code></td><td><code>ello</code> in <code>Hello</code></td></tr>
+            <tr><td><code>[^…]</code></td><td>anything but these</td><td><code>[^0-9]</code></td><td>not a digit</td></tr>
+            <tr><td><code>\d</code> <code>\D</code></td><td>digit / not a digit</td><td><code>\d+</code></td><td><code>054</code></td></tr>
+            <tr><td><code>\w</code> <code>\W</code></td><td>letter, digit or <code>_</code> / not</td><td><code>\w+</code></td><td><code>hi_there</code></td></tr>
+            <tr><td><code>\s</code> <code>\S</code></td><td>whitespace / not</td><td><code>\s+</code></td><td>a run of spaces</td></tr>
+            <tr><td><code>*</code></td><td>zero or more</td><td><code>ab*</code></td><td><code>a</code> <code>ab</code> <code>abbb</code></td></tr>
+            <tr><td><code>+</code></td><td>one or more</td><td><code>ab+</code></td><td><code>ab</code> <code>abbb</code></td></tr>
+            <tr><td><code>?</code></td><td>optional</td><td><code>colou?r</code></td><td><code>color</code> <code>colour</code></td></tr>
+            <tr><td><code>{3}</code></td><td>exactly 3</td><td><code>\d{3}</code></td><td><code>054</code></td></tr>
+            <tr><td><code>{2,4}</code></td><td>2 to 4</td><td><code>\d{2,4}</code></td><td><code>12</code> <code>1234</code></td></tr>
+            <tr><td><code>{12,}</code></td><td>12 or more</td><td><code>.{12,}</code></td><td>a long password</td></tr>
+            <tr><td><code>( )</code></td><td>a group you can read back</td><td><code>(\d{3})-(\d{7})</code></td><td><code>m.group(1)</code> → <code>054</code></td></tr>
+            <tr><td><code>(?=…)</code></td><td>lookahead — "is this ahead?"</td><td><code>(?=.*\d)</code></td><td>demands a digit somewhere</td></tr>
+            <tr><td><code>\.</code></td><td>a literal dot</td><td><code>3\.10</code></td><td><code>3.10</code> only</td></tr>
+          </tbody>
+        </table>
+        <p class="text-[#134E4A]/60 mt-6">Patterns always go in a raw string: <code>r'…'</code>. Introduced in <a href="../lessons/12_lesson/12-lesson.html#topic-regex" class="text-[#0D9488] font-bold underline">Lesson 12</a>, alongside <a href="../14_strings/index.html" class="text-[#0D9488] font-bold underline">Strings &amp; Slicing</a> — which is usually the simpler tool for the job.</p>
+      </section>
+
+    </section>
+  </main>
+
+</body>
+</html>
