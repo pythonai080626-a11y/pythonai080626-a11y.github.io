@@ -374,7 +374,9 @@
     .slide.active { display: block; }
     .slide-nav {
       display: flex; align-items: center; justify-content: space-between; gap: 12px;
-      margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border);
+      margin-top: 18px; padding: 12px 14px;
+      border: 1px solid var(--border); border-radius: 12px;
+      background: linear-gradient(180deg, #f7fffb 0%, #eafcef 100%);
     }
     .sbtn {
       display: inline-flex; align-items: center; gap: 6px;
@@ -395,6 +397,32 @@
     .sdot.active { background: var(--green-2); transform: scale(1.25); }
     .slide-count { font-size: .8rem; font-weight: 700; color: var(--muted); }
     .slide .ex-title { margin-top: 0; }
+
+    /* ── "look at me" animation on next, until it is used once ── */
+    .sbtn .arw-ic { display: inline-block; }
+    .sbtn.cta {
+      background: #d3f7de;
+      animation: ctaPulse 1.9s ease-in-out infinite;
+    }
+    .sbtn.cta .arw-ic { animation: arwNudge 1.9s ease-in-out infinite; }
+    .sbtn.cta:hover { animation: none; }
+    .sbtn.cta:hover .arw-ic { animation: none; }
+    .sbtn:disabled, .sbtn:disabled .arw-ic { animation: none; }
+
+    @keyframes ctaPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(31,143,78,0.45); transform: translateY(0); }
+      45%      { box-shadow: 0 0 0 9px rgba(31,143,78,0);   transform: translateY(-3px); }
+      60%      { box-shadow: 0 0 0 0 rgba(31,143,78,0);     transform: translateY(0); }
+    }
+    @keyframes arwNudge {
+      0%, 100% { transform: translateX(0); }
+      45%      { transform: translateX(5px); }
+      60%      { transform: translateX(0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .sbtn.cta, .sbtn.cta .arw-ic { animation: none; }
+      .sbtn.cta { box-shadow: 0 0 0 3px rgba(31,143,78,0.25); }
+    }
 
     @keyframes riseIn {
       from { opacity: 0; transform: translateY(12px); }
@@ -713,7 +741,7 @@ endswith("morning") ? True</div>
           <button class="sbtn" id="slide-prev" type="button">‹ prev</button>
           <div class="slide-dots" id="slide-dots"></div>
           <span class="slide-count" id="slide-count"></span>
-          <button class="sbtn" id="slide-next" type="button">next ›</button>
+          <button class="sbtn" id="slide-next" type="button">next <span class="arw-ic">›</span></button>
         </div>
       </section>
 
@@ -1145,7 +1173,8 @@ e
         <p>Write code that:</p>
         <ol class="task-list">
           <li><strong>Removes</strong> the surrounding spaces.</li>
-          <li><strong>Splits</strong> the value into the product name and the number.</li>
+          <li>Takes the product <strong>name</strong> out of the clean text with a <strong>slice</strong> — the characters before the <code>-</code>.</li>
+          <li>Takes the <strong>number</strong> out of it with a second <strong>slice</strong> — the characters after the <code>-</code>.</li>
           <li>Checks whether the product <strong>name</strong> contains only letters.</li>
           <li>Checks whether the <strong>number</strong> contains only digits.</li>
           <li><strong>Prints</strong> the product name in uppercase, and the number padded to six digits using <code>zfill()</code>.</li>
@@ -1160,7 +1189,8 @@ Valid number: True</div>
         <div class="big-result">The tools you need</div>
         <div class="pill-row">
           <span class="pill">.strip()</span>
-          <span class="pill">.split('-')</span>
+          <span class="pill">[0:4]</span>
+          <span class="pill">[5:]</span>
           <span class="pill">.upper()</span>
           <span class="pill">.zfill(6)</span>
           <span class="pill">.isalpha()</span>
@@ -1168,19 +1198,34 @@ Valid number: True</div>
         </div>
 
         <div class="note">
-          <strong>Hint 1 — the split.</strong> <code>"book-582".split('-')</code> hands you back a list of the two pieces: <code>['book', '582']</code>. Reach into it with square brackets, exactly the way you index a string:
-          <div class="code">parts = clean_code.<span class="fn">split</span>(<span class="str">'-'</span>)
-name = parts[<span class="num">0</span>]        <span class="cm"># 'book'</span>
-number = parts[<span class="num">1</span>]      <span class="cm"># '582'</span></div>
+          <strong>Hint 1 — count the positions first.</strong> After <code>strip()</code> the text is exactly <code>'book-582'</code>. Write the characters down with their index and the two slices become obvious:
+          <div class="charmap-cap">"book-582"</div>
+          <div class="charmap">
+            <div class="ch sel"><span class="cbox">b</span><span class="cidx">0</span></div>
+            <div class="ch sel"><span class="cbox">o</span><span class="cidx">1</span></div>
+            <div class="ch sel"><span class="cbox">o</span><span class="cidx">2</span></div>
+            <div class="ch sel"><span class="cbox">k</span><span class="cidx">3</span></div>
+            <div class="ch off"><span class="cbox">-</span><span class="cidx">4</span></div>
+            <div class="ch"><span class="cbox">5</span><span class="cidx">5</span></div>
+            <div class="ch"><span class="cbox">8</span><span class="cidx">6</span></div>
+            <div class="ch"><span class="cbox">2</span><span class="cidx">7</span></div>
+          </div>
+          <div class="code">clean_code = product_code.<span class="fn">strip</span>()   <span class="cm"># 'book-582'</span>
+
+name = clean_code[<span class="num">0</span>:<span class="num">4</span>]     <span class="cm"># 'book'  - characters 0,1,2,3 (4 is NOT included)</span>
+number = clean_code[<span class="num">5</span>:]     <span class="cm"># '582'   - from 5 to the end</span></div>
         </div>
         <div class="note">
-          <strong>Hint 2 — strip first, split second.</strong> Do it the other way round and the name still carries its leading spaces, so <code>isalpha()</code> comes back <code>False</code>. You can chain both in one line: <code>product_code.strip().split('-')</code>.
+          <strong>Hint 2 — strip first, slice second.</strong> The numbers <code>0:4</code> and <code>5:</code> only point at the right characters once the spaces are gone. On <code>"  book-582  "</code> the same slice gives you <code>'  bo'</code>. So: clean the text, store it in a variable, and slice <em>that</em>.
         </div>
         <div class="note">
-          <strong>Hint 3 — the number is text, not a number.</strong> <code>'582'</code> came out of a string, so it is still a <code>str</code> — which is exactly why <code>.zfill(6)</code> and <code>.isdigit()</code> work on it. Do not call <code>int()</code> on it.
+          <strong>Hint 3 — the number is text, not a number.</strong> <code>'582'</code> is a piece cut out of a string, so it is still a <code>str</code> — which is exactly why <code>.zfill(6)</code> and <code>.isdigit()</code> work on it. Do not call <code>int()</code> on it.
         </div>
         <div class="warn">
-          <strong>Check yourself:</strong> change the value to <code>"  chair-77x  "</code> and run again. You should get <code>Valid number: False</code>, because <code>'77x'</code> has a letter in it — while the first four lines still print without crashing.
+          <strong>Check yourself:</strong> change the value to <code>"  desk-77x  "</code> and run again. The same two slices still fit, and you should get <code>Valid number: False</code>, because <code>'77x'</code> has a letter in it — while the first four lines still print without crashing.
+        </div>
+        <div class="note">
+          <strong>And yes — this is hard-coded on purpose.</strong> <code>[0:4]</code> and <code>[5:]</code> fit a code shaped like <em>four letters, a dash, then the number</em>. Give it <code>"  chair-77  "</code> and the slices land in the wrong place. Making it work for <em>any</em> code is what <code>split('-')</code> is for — but split hands you a <strong>list</strong>, and lists are the next lesson. Today we do it with the slicing you already know.
         </div>
 
         <div class="big-result">Submission</div>
@@ -1211,7 +1256,8 @@ number = parts[<span class="num">1</span>]      <span class="cm"># '582'</span><
         <p>כתבו קוד ש:</p>
         <ol class="task-list">
           <li><strong>מסיר</strong> את הרווחים מסביב.</li>
-          <li><strong>מפצל</strong> את הערך לשם המוצר ולמספר.</li>
+          <li>שולף את <strong>שם</strong> המוצר מהטקסט הנקי בעזרת <strong>חיתוך (slice)</strong> — התווים שלפני ה-<code dir="ltr">-</code>.</li>
+          <li>שולף את <strong>המספר</strong> בעזרת <strong>חיתוך</strong> שני — התווים שאחרי ה-<code dir="ltr">-</code>.</li>
           <li>בודק האם <strong>שם</strong> המוצר מכיל אותיות בלבד.</li>
           <li>בודק האם <strong>המספר</strong> מכיל ספרות בלבד.</li>
           <li><strong>מדפיס</strong> את שם המוצר באותיות גדולות, ואת המספר מרופד ל-6 ספרות בעזרת <code dir="ltr">zfill()</code>.</li>
@@ -1226,7 +1272,8 @@ Valid number: True</div>
         <div class="big-result">הכלים שתצטרכו</div>
         <div class="pill-row">
           <span class="pill">.strip()</span>
-          <span class="pill">.split('-')</span>
+          <span class="pill">[0:4]</span>
+          <span class="pill">[5:]</span>
           <span class="pill">.upper()</span>
           <span class="pill">.zfill(6)</span>
           <span class="pill">.isalpha()</span>
@@ -1234,19 +1281,34 @@ Valid number: True</div>
         </div>
 
         <div class="note">
-          <strong>רמז 1 — הפיצול.</strong> <code dir="ltr">"book-582".split('-')</code> מחזיר רשימה עם שני החלקים: <code dir="ltr">['book', '582']</code>. ניגשים אליהם בסוגריים מרובעים, בדיוק כמו אינדקס במחרוזת:
-          <div class="code" dir="ltr">parts = clean_code.<span class="fn">split</span>(<span class="str">'-'</span>)
-name = parts[<span class="num">0</span>]        <span class="cm"># 'book'</span>
-number = parts[<span class="num">1</span>]      <span class="cm"># '582'</span></div>
+          <strong>רמז 1 — קודם כל תספרו את המקומות.</strong> אחרי <code dir="ltr">strip()</code> הטקסט הוא בדיוק <code dir="ltr">'book-582'</code>. רשמו את התווים עם האינדקס שלהם ושני החיתוכים נעשים ברורים:
+          <div class="charmap-cap" dir="ltr">"book-582"</div>
+          <div class="charmap" dir="ltr">
+            <div class="ch sel"><span class="cbox">b</span><span class="cidx">0</span></div>
+            <div class="ch sel"><span class="cbox">o</span><span class="cidx">1</span></div>
+            <div class="ch sel"><span class="cbox">o</span><span class="cidx">2</span></div>
+            <div class="ch sel"><span class="cbox">k</span><span class="cidx">3</span></div>
+            <div class="ch off"><span class="cbox">-</span><span class="cidx">4</span></div>
+            <div class="ch"><span class="cbox">5</span><span class="cidx">5</span></div>
+            <div class="ch"><span class="cbox">8</span><span class="cidx">6</span></div>
+            <div class="ch"><span class="cbox">2</span><span class="cidx">7</span></div>
+          </div>
+          <div class="code" dir="ltr">clean_code = product_code.<span class="fn">strip</span>()   <span class="cm"># 'book-582'</span>
+
+name = clean_code[<span class="num">0</span>:<span class="num">4</span>]     <span class="cm"># 'book'  - התווים 0,1,2,3 (4 לא נכלל)</span>
+number = clean_code[<span class="num">5</span>:]     <span class="cm"># '582'   - מ-5 ועד הסוף</span></div>
         </div>
         <div class="note">
-          <strong>רמז 2 — קודם strip, אחר כך split.</strong> בסדר ההפוך השם עדיין נושא איתו את הרווחים שלפניו, ולכן <code dir="ltr">isalpha()</code> יחזיר <code>False</code>. אפשר לשרשר את שניהם בשורה אחת: <code dir="ltr">product_code.strip().split('-')</code>.
+          <strong>רמז 2 — קודם strip, אחר כך החיתוך.</strong> המספרים <code dir="ltr">0:4</code> ו-<code dir="ltr">5:</code> מצביעים על התווים הנכונים רק אחרי שהרווחים ירדו. על <code dir="ltr">"  book-582  "</code> אותו חיתוך יחזיר <code dir="ltr">'  bo'</code>. אז: נקו את הטקסט, שמרו אותו במשתנה, וחתכו <em>אותו</em>.
         </div>
         <div class="note">
-          <strong>רמז 3 — המספר הוא טקסט, לא מספר.</strong> <code dir="ltr">'582'</code> יצא ממחרוזת ולכן הוא עדיין <code>str</code> — ובדיוק בגלל זה <code dir="ltr">.zfill(6)</code> ו-<code dir="ltr">.isdigit()</code> עובדים עליו. אל תפעילו עליו <code dir="ltr">int()</code>.
+          <strong>רמז 3 — המספר הוא טקסט, לא מספר.</strong> <code dir="ltr">'582'</code> הוא חתיכה שנחתכה ממחרוזת ולכן הוא עדיין <code>str</code> — ובדיוק בגלל זה <code dir="ltr">.zfill(6)</code> ו-<code dir="ltr">.isdigit()</code> עובדים עליו. אל תפעילו עליו <code dir="ltr">int()</code>.
         </div>
         <div class="warn">
-          <strong>בדקו את עצמכם:</strong> שנו את הערך ל-<code dir="ltr">"  chair-77x  "</code> והריצו שוב. אמורים לקבל <code dir="ltr">Valid number: False</code>, כי ב-<code dir="ltr">'77x'</code> יש אות — וארבע השורות הראשונות עדיין מודפסות בלי לקרוס.
+          <strong>בדקו את עצמכם:</strong> שנו את הערך ל-<code dir="ltr">"  desk-77x  "</code> והריצו שוב. אותם שני חיתוכים עדיין מתאימים, ואמורים לקבל <code dir="ltr">Valid number: False</code>, כי ב-<code dir="ltr">'77x'</code> יש אות — וארבע השורות הראשונות עדיין מודפסות בלי לקרוס.
+        </div>
+        <div class="note">
+          <strong>וכן — זה "קשיח" בכוונה.</strong> <code dir="ltr">[0:4]</code> ו-<code dir="ltr">[5:]</code> מתאימים לקוד בצורה של <em>ארבע אותיות, מקף, ואז המספר</em>. תנו לו <code dir="ltr">"  chair-77  "</code> והחיתוכים ינחתו במקום הלא נכון. כדי שזה יעבוד על <em>כל</em> קוד יש את <code dir="ltr">split('-')</code> — אבל split מחזיר <strong>רשימה (list)</strong>, ורשימות הן השיעור הבא. היום עושים את זה עם החיתוך שכבר מכירים.
         </div>
 
         <div class="big-result">הגשה</div>
@@ -1293,13 +1355,14 @@ number = parts[<span class="num">1</span>]      <span class="cm"># '582'</span><
   const dotsBox = document.getElementById('slide-dots');
   const countEl = document.getElementById('slide-count');
   let current = 0;
+  let navUsed = false;   // once the student clicks anything, stop waving at them
 
   slides.forEach((_, i) => {
     const dot = document.createElement('button');
     dot.type = 'button';
     dot.className = 'sdot';
     dot.setAttribute('aria-label', 'go to slide ' + (i + 1));
-    dot.addEventListener('click', () => showSlide(i));
+    dot.addEventListener('click', () => { navUsed = true; showSlide(i); });
     dotsBox.appendChild(dot);
   });
   const dots = dotsBox.querySelectorAll('.sdot');
@@ -1311,10 +1374,11 @@ number = parts[<span class="num">1</span>]      <span class="cm"># '582'</span><
     countEl.textContent = (current + 1) + ' / ' + slides.length;
     prevBtn.disabled = current === 0;
     nextBtn.disabled = current === slides.length - 1;
+    nextBtn.classList.toggle('cta', !navUsed && !nextBtn.disabled);
   }
 
-  prevBtn.addEventListener('click', () => showSlide(current - 1));
-  nextBtn.addEventListener('click', () => showSlide(current + 1));
+  prevBtn.addEventListener('click', () => { navUsed = true; showSlide(current - 1); });
+  nextBtn.addEventListener('click', () => { navUsed = true; showSlide(current + 1); });
   showSlide(0);
 </script>
 </body>
