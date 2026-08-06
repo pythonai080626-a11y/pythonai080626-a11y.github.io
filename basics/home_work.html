@@ -545,78 +545,89 @@ grades.<span class="fn">remove</span>(<span class="num">92</span>)        <span 
 
           <div class="ex-title">
             <span class="ex-num">1</span>
-            <h3>The grades board 📋</h3>
+            <h3>The temperature log 🌡️</h3>
           </div>
-          <p>Given:</p>
-          <div class="code">grades: <span class="fn">list</span>[<span class="fn">int</span>] = [<span class="num">88</span>, <span class="num">92</span>, <span class="num">100</span>, <span class="num">67</span>, <span class="num">92</span>, <span class="num">75</span>, <span class="num">92</span>, <span class="num">55</span>]</div>
+          <p>A weather sensor wrote down one temperature per day. On the days it broke down, it wrote <code>-999</code> instead of a real reading:</p>
+          <div class="code">temps: <span class="fn">list</span>[<span class="fn">int</span>] = [<span class="num">21</span>, <span class="num">30</span>, -<span class="num">999</span>, <span class="num">26</span>, -<span class="num">999</span>, <span class="num">17</span>, <span class="num">33</span>, -<span class="num">999</span>, <span class="num">28</span>]</div>
 
           <p>Write code that, <strong>in this order</strong>:</p>
           <ol class="task-list">
-            <li><strong>Prints how many</strong> grades there are.</li>
+            <li><strong>Prints how many</strong> readings the sensor wrote.</li>
             <li>Prints the <strong>first three</strong> and the <strong>last three</strong> — with slices, not loops.</li>
-            <li>Prints the whole list <strong>reversed</strong>.</li>
-            <li><strong>Adds</strong> the grade <code>90</code> at the end, and <strong>inserts</strong> <code>100</code> at the front. Prints the list.</li>
-            <li>Removes <strong>every</strong> <code>92</code>. Prints the list.</li>
-            <li>Prints the <strong>max</strong>, the <strong>min</strong>, the <strong>sum</strong> and the <strong>average</strong> of what is left — the average with <strong>2 digits</strong> after the dot.</li>
-            <li>Prints every <strong>failing</strong> grade (under 60), using a for-each loop.</li>
+            <li>Prints <strong>every second</strong> reading.</li>
+            <li><strong>Cleans the log</strong>: removes every broken <code>-999</code>. Prints the list.</li>
+            <li><strong>Drops the first</strong> reading (it was only the warm-up) and <strong>prints the value it removed</strong>. Then <strong>adds</strong> today's reading, <code>31</code>, at the end. Prints the list.</li>
+            <li>Prints the <strong>max</strong>, the <strong>min</strong>, the <strong>sum</strong> and the <strong>average</strong> of the clean log — the average with <strong>2 digits</strong> after the dot.</li>
+            <li>Prints every reading that is <strong>above the average</strong>, using a for-each loop.</li>
           </ol>
 
           <div class="big-result">Expected output</div>
-          <div class="console">Count: 8
-First three: [88, 92, 100]
-Last three: [75, 92, 55]
-Reversed: [55, 92, 75, 92, 67, 100, 92, 88]
-After add: [100, 88, 92, 100, 67, 92, 75, 92, 55, 90]
-No more 92: [100, 88, 100, 67, 75, 55, 90]
-Max: 100  Min: 55  Sum: 575  Avg: 82.14
-Failing: 55</div>
+          <div class="console">Count: 9
+First three: [21, 30, -999]
+Last three: [33, -999, 28]
+Every second: [21, -999, -999, 33, 28]
+Cleaned: [21, 30, 26, 17, 33, 28]
+Dropped the first reading: 21
+After append: [30, 26, 17, 33, 28, 31]
+Max: 33  Min: 17  Sum: 165  Avg: 27.50
+Above average: 30
+Above average: 33
+Above average: 28
+Above average: 31</div>
 
           <div class="big-result">The tools you need</div>
           <div class="pill-row">
             <span class="pill">len()</span>
             <span class="pill">[0:3]</span>
             <span class="pill">[-3:]</span>
-            <span class="pill">[::-1]</span>
-            <span class="pill">.append()</span>
-            <span class="pill">.insert()</span>
-            <span class="pill">.remove()</span>
+            <span class="pill">[::2]</span>
             <span class="pill">in</span>
+            <span class="pill">.remove()</span>
+            <span class="pill">.pop(0)</span>
+            <span class="pill">.append()</span>
             <span class="pill">max() min() sum()</span>
             <span class="pill">f'{x:.2f}'</span>
           </div>
 
           <div class="note">
-            <strong>Hint 1 — steps 2 and 3 are slices.</strong> No loop, no counting. Write the list down with its indexes and the answers fall out:
-            <div class="cellmap-cap">grades</div>
+            <strong>Hint 1 — steps 2 and 3 are slices.</strong> No loop, no counting. Write the log down with its indexes and the answers fall out:
+            <div class="cellmap-cap">temps</div>
             <div class="cellmap">
-              <div class="cl sel"><span class="cbox">88</span><span class="cidx">0</span></div>
-              <div class="cl sel"><span class="cbox">92</span><span class="cidx">1</span></div>
-              <div class="cl sel"><span class="cbox">100</span><span class="cidx">2</span></div>
-              <div class="cl"><span class="cbox">67</span><span class="cidx">3</span></div>
-              <div class="cl"><span class="cbox">92</span><span class="cidx">4</span></div>
-              <div class="cl off"><span class="cbox">75</span><span class="cidx">5</span><span class="cneg">-3</span></div>
-              <div class="cl off"><span class="cbox">92</span><span class="cidx">6</span><span class="cneg">-2</span></div>
-              <div class="cl off"><span class="cbox">55</span><span class="cidx">7</span><span class="cneg">-1</span></div>
+              <div class="cl sel"><span class="cbox">21</span><span class="cidx">0</span></div>
+              <div class="cl sel"><span class="cbox">30</span><span class="cidx">1</span></div>
+              <div class="cl sel"><span class="cbox">-999</span><span class="cidx">2</span></div>
+              <div class="cl"><span class="cbox">26</span><span class="cidx">3</span></div>
+              <div class="cl"><span class="cbox">-999</span><span class="cidx">4</span></div>
+              <div class="cl"><span class="cbox">17</span><span class="cidx">5</span></div>
+              <div class="cl off"><span class="cbox">33</span><span class="cidx">6</span><span class="cneg">-3</span></div>
+              <div class="cl off"><span class="cbox">-999</span><span class="cidx">7</span><span class="cneg">-2</span></div>
+              <div class="cl off"><span class="cbox">28</span><span class="cidx">8</span><span class="cneg">-1</span></div>
             </div>
-            <div class="code"><span class="fn">print</span>(<span class="str">'First three:'</span>, grades[<span class="num">0</span>:<span class="num">3</span>])    <span class="cm"># 0, 1, 2 — 3 is NOT included</span>
-<span class="fn">print</span>(<span class="str">'Last three:'</span>, grades[-<span class="num">3</span>:])     <span class="cm"># the last three, whatever the length</span></div>
+            <div class="code"><span class="fn">print</span>(<span class="str">'First three:'</span>, temps[<span class="num">0</span>:<span class="num">3</span>])   <span class="cm"># 0, 1, 2 — 3 is NOT included</span>
+<span class="fn">print</span>(<span class="str">'Last three:'</span>, temps[-<span class="num">3</span>:])    <span class="cm"># the last three, whatever the length</span>
+<span class="fn">print</span>(<span class="str">'Every second:'</span>, temps[::<span class="num">2</span>])  <span class="cm"># 0, 2, 4, 6, 8</span></div>
           </div>
           <div class="note">
-            <strong>Hint 2 — one <code>remove</code> is not enough.</strong> There are three 92s and <code>grades.remove(92)</code> deletes only the leftmost. Loop it, and let <code>in</code> decide when to stop:
-            <div class="code"><span class="kw">while</span> <span class="num">92</span> <span class="kw">in</span> grades:
-    grades.<span class="fn">remove</span>(<span class="num">92</span>)</div>
-            Calling <code>remove(92)</code> a fourth time — after they are all gone — is a <code>ValueError</code>. The <code>in</code> check is what prevents it.
+            <strong>Hint 2 — clean <em>before</em> you measure.</strong> This is the whole point of the exercise. A <code>-999</code> left in the list would make <code>min()</code> report −999 and drag the average far below anything real. So step 4 has to finish before step 6 starts. There is more than one <code>-999</code>, and <code>remove</code> deletes only the leftmost — so let <code>in</code> decide when to stop:
+            <div class="code"><span class="kw">while</span> -<span class="num">999</span> <span class="kw">in</span> temps:
+    temps.<span class="fn">remove</span>(-<span class="num">999</span>)</div>
+            Calling <code>remove(-999)</code> once more after they are all gone is a <code>ValueError</code>. The <code>in</code> check is what prevents it.
           </div>
           <div class="note">
-            <strong>Hint 3 — the order of the steps is the whole exercise.</strong> Step 6 measures the list <em>after</em> the adding and the removing. Check yourself: the sum is 575 over <strong>7</strong> grades, not 8.
+            <strong>Hint 3 — <code>pop</code> hands the value back.</strong> Step 5 asks you to remove <em>and</em> print, so this is the one place <code>pop</code> beats <code>del</code>. It fits in a single line:
+            <div class="code"><span class="fn">print</span>(<span class="str">'Dropped the first reading:'</span>, <span class="hl">temps.<span class="fn">pop</span>(<span class="num">0</span>)</span>)</div>
           </div>
           <div class="note">
-            <strong>Hint 4 — two decimals.</strong> <code>575 / 7</code> is <code>82.14285714285714</code>:
-            <div class="code">avg = <span class="fn">sum</span>(grades) / <span class="fn">len</span>(grades)
-<span class="fn">print</span>(<span class="str">f'Avg: {avg<span class="hl">:.2f</span>}'</span>)   <span class="cm"># Avg: 82.14</span></div>
+            <strong>Hint 4 — store the average, then loop.</strong> Step 7 compares each reading against the average, so the average has to live in a <strong>variable</strong> first — do not recalculate it inside the loop:
+            <div class="code">avg = <span class="fn">sum</span>(temps) / <span class="fn">len</span>(temps)
+<span class="fn">print</span>(<span class="str">f'Avg: {avg<span class="hl">:.2f</span>}'</span>)      <span class="cm"># Avg: 27.50</span>
+
+<span class="kw">for</span> t <span class="kw">in</span> temps:
+    <span class="kw">if</span> t &gt; avg:
+        ...</div>
           </div>
           <div class="warn">
-            <strong>Check yourself:</strong> change the starting list to <code>[70, 70, 70]</code> and run again. Nothing should crash — <code>No more 92</code> prints an unchanged list, and no <code>Failing:</code> line appears at all.
+            <strong>Check yourself:</strong> the average is <code>27.5</code> and one of the readings is <code>28</code> — so it <em>is</em> above average. Count your last lines: there should be <strong>four</strong>. Then try a log with no <code>-999</code> in it at all; nothing should crash, <code>Cleaned</code> simply prints an unchanged list.
           </div>
 
           <div class="big-result">Submission</div>
@@ -638,78 +649,89 @@ Failing: 55</div>
 
           <div class="ex-title">
             <span class="ex-num">1</span>
-            <h3>לוח הציונים 📋</h3>
+            <h3>יומן הטמפרטורות 🌡️</h3>
           </div>
-          <p>נתון:</p>
-          <div class="code" dir="ltr">grades: <span class="fn">list</span>[<span class="fn">int</span>] = [<span class="num">88</span>, <span class="num">92</span>, <span class="num">100</span>, <span class="num">67</span>, <span class="num">92</span>, <span class="num">75</span>, <span class="num">92</span>, <span class="num">55</span>]</div>
+          <p>חיישן מזג אוויר רשם טמפרטורה אחת בכל יום. בימים שבהם הוא התקלקל הוא רשם <code dir="ltr">-999</code> במקום מדידה אמיתית:</p>
+          <div class="code" dir="ltr">temps: <span class="fn">list</span>[<span class="fn">int</span>] = [<span class="num">21</span>, <span class="num">30</span>, -<span class="num">999</span>, <span class="num">26</span>, -<span class="num">999</span>, <span class="num">17</span>, <span class="num">33</span>, -<span class="num">999</span>, <span class="num">28</span>]</div>
 
           <p>כתבו קוד ש<strong>בסדר הזה</strong>:</p>
           <ol class="task-list">
-            <li><strong>מדפיס כמה</strong> ציונים יש.</li>
-            <li>מדפיס את <strong>שלושת הראשונים</strong> ואת <strong>שלושת האחרונים</strong> — בעזרת חיתוכים (slice), בלי לולאות.</li>
-            <li>מדפיס את כל הרשימה <strong>הפוך</strong>.</li>
-            <li><strong>מוסיף</strong> את הציון <code dir="ltr">90</code> בסוף, ו<strong>משחיל</strong> את <code dir="ltr">100</code> בהתחלה. מדפיס את הרשימה.</li>
-            <li>מוחק את <strong>כל</strong> ההופעות של <code dir="ltr">92</code>. מדפיס את הרשימה.</li>
-            <li>מדפיס את <strong>המקסימום</strong>, <strong>המינימום</strong>, <strong>הסכום</strong> ו<strong>הממוצע</strong> של מה שנשאר — הממוצע עם <strong>2 ספרות</strong> אחרי הנקודה.</li>
-            <li>מדפיס כל ציון <strong>נכשל</strong> (מתחת ל-60), בעזרת לולאת for-each.</li>
+            <li><strong>מדפיס כמה</strong> מדידות החיישן רשם.</li>
+            <li>מדפיס את <strong>שלוש הראשונות</strong> ואת <strong>שלוש האחרונות</strong> — בעזרת חיתוכים (slice), בלי לולאות.</li>
+            <li>מדפיס <strong>כל מדידה שנייה</strong>.</li>
+            <li><strong>מנקה את היומן</strong>: מוחק כל <code dir="ltr">-999</code> מקולקל. מדפיס את הרשימה.</li>
+            <li><strong>מוריד את המדידה הראשונה</strong> (היא הייתה רק חימום) ו<strong>מדפיס את הערך שהוסר</strong>. אחר כך <strong>מוסיף</strong> את המדידה של היום, <code dir="ltr">31</code>, בסוף. מדפיס את הרשימה.</li>
+            <li>מדפיס את <strong>המקסימום</strong>, <strong>המינימום</strong>, <strong>הסכום</strong> ו<strong>הממוצע</strong> של היומן הנקי — הממוצע עם <strong>2 ספרות</strong> אחרי הנקודה.</li>
+            <li>מדפיס כל מדידה שהיא <strong>מעל הממוצע</strong>, בעזרת לולאת for-each.</li>
           </ol>
 
           <div class="big-result">הפלט הצפוי</div>
-          <div class="console" dir="ltr">Count: 8
-First three: [88, 92, 100]
-Last three: [75, 92, 55]
-Reversed: [55, 92, 75, 92, 67, 100, 92, 88]
-After add: [100, 88, 92, 100, 67, 92, 75, 92, 55, 90]
-No more 92: [100, 88, 100, 67, 75, 55, 90]
-Max: 100  Min: 55  Sum: 575  Avg: 82.14
-Failing: 55</div>
+          <div class="console" dir="ltr">Count: 9
+First three: [21, 30, -999]
+Last three: [33, -999, 28]
+Every second: [21, -999, -999, 33, 28]
+Cleaned: [21, 30, 26, 17, 33, 28]
+Dropped the first reading: 21
+After append: [30, 26, 17, 33, 28, 31]
+Max: 33  Min: 17  Sum: 165  Avg: 27.50
+Above average: 30
+Above average: 33
+Above average: 28
+Above average: 31</div>
 
           <div class="big-result">הכלים שתצטרכו</div>
           <div class="pill-row">
             <span class="pill">len()</span>
             <span class="pill">[0:3]</span>
             <span class="pill">[-3:]</span>
-            <span class="pill">[::-1]</span>
-            <span class="pill">.append()</span>
-            <span class="pill">.insert()</span>
-            <span class="pill">.remove()</span>
+            <span class="pill">[::2]</span>
             <span class="pill">in</span>
+            <span class="pill">.remove()</span>
+            <span class="pill">.pop(0)</span>
+            <span class="pill">.append()</span>
             <span class="pill">max() min() sum()</span>
             <span class="pill">f'{x:.2f}'</span>
           </div>
 
           <div class="note">
-            <strong>רמז 1 — סעיפים 2 ו-3 הם חיתוכים.</strong> בלי לולאה ובלי לספור. רשמו את הרשימה עם האינדקסים והתשובות מתגלות מעצמן:
-            <div class="cellmap-cap" dir="ltr">grades</div>
+            <strong>רמז 1 — סעיפים 2 ו-3 הם חיתוכים.</strong> בלי לולאה ובלי לספור. רשמו את היומן עם האינדקסים והתשובות מתגלות מעצמן:
+            <div class="cellmap-cap" dir="ltr">temps</div>
             <div class="cellmap" dir="ltr">
-              <div class="cl sel"><span class="cbox">88</span><span class="cidx">0</span></div>
-              <div class="cl sel"><span class="cbox">92</span><span class="cidx">1</span></div>
-              <div class="cl sel"><span class="cbox">100</span><span class="cidx">2</span></div>
-              <div class="cl"><span class="cbox">67</span><span class="cidx">3</span></div>
-              <div class="cl"><span class="cbox">92</span><span class="cidx">4</span></div>
-              <div class="cl off"><span class="cbox">75</span><span class="cidx">5</span><span class="cneg">-3</span></div>
-              <div class="cl off"><span class="cbox">92</span><span class="cidx">6</span><span class="cneg">-2</span></div>
-              <div class="cl off"><span class="cbox">55</span><span class="cidx">7</span><span class="cneg">-1</span></div>
+              <div class="cl sel"><span class="cbox">21</span><span class="cidx">0</span></div>
+              <div class="cl sel"><span class="cbox">30</span><span class="cidx">1</span></div>
+              <div class="cl sel"><span class="cbox">-999</span><span class="cidx">2</span></div>
+              <div class="cl"><span class="cbox">26</span><span class="cidx">3</span></div>
+              <div class="cl"><span class="cbox">-999</span><span class="cidx">4</span></div>
+              <div class="cl"><span class="cbox">17</span><span class="cidx">5</span></div>
+              <div class="cl off"><span class="cbox">33</span><span class="cidx">6</span><span class="cneg">-3</span></div>
+              <div class="cl off"><span class="cbox">-999</span><span class="cidx">7</span><span class="cneg">-2</span></div>
+              <div class="cl off"><span class="cbox">28</span><span class="cidx">8</span><span class="cneg">-1</span></div>
             </div>
-            <div class="code" dir="ltr"><span class="fn">print</span>(<span class="str">'First three:'</span>, grades[<span class="num">0</span>:<span class="num">3</span>])    <span class="cm"># 0, 1, 2 — 3 לא נכלל</span>
-<span class="fn">print</span>(<span class="str">'Last three:'</span>, grades[-<span class="num">3</span>:])     <span class="cm"># השלושה האחרונים, בלי קשר לאורך</span></div>
+            <div class="code" dir="ltr"><span class="fn">print</span>(<span class="str">'First three:'</span>, temps[<span class="num">0</span>:<span class="num">3</span>])   <span class="cm"># 0, 1, 2 — 3 לא נכלל</span>
+<span class="fn">print</span>(<span class="str">'Last three:'</span>, temps[-<span class="num">3</span>:])    <span class="cm"># השלוש האחרונות, בלי קשר לאורך</span>
+<span class="fn">print</span>(<span class="str">'Every second:'</span>, temps[::<span class="num">2</span>])  <span class="cm"># 0, 2, 4, 6, 8</span></div>
           </div>
           <div class="note">
-            <strong>רמז 2 — <code dir="ltr">remove</code> אחד לא מספיק.</strong> יש שלושה 92 ו-<code dir="ltr">grades.remove(92)</code> מוחק רק את השמאלי ביותר. עשו לזה לולאה, ותנו ל-<code dir="ltr">in</code> להחליט מתי לעצור:
-            <div class="code" dir="ltr"><span class="kw">while</span> <span class="num">92</span> <span class="kw">in</span> grades:
-    grades.<span class="fn">remove</span>(<span class="num">92</span>)</div>
-            קריאה רביעית ל-<code dir="ltr">remove(92)</code> — אחרי שכולם נמחקו — היא <code dir="ltr">ValueError</code>. הבדיקה של <code dir="ltr">in</code> מונעת את זה.
+            <strong>רמז 2 — לנקות <em>לפני</em> שמודדים.</strong> זה כל העניין של התרגיל. <code dir="ltr">-999</code> שנשאר ברשימה יגרום ל-<code dir="ltr">min()</code> להחזיר −999 ויגרור את הממוצע הרחק מתחת לכל ערך אמיתי. לכן סעיף 4 חייב להסתיים לפני שסעיף 6 מתחיל. יש יותר מ-<code dir="ltr">-999</code> אחד, ו-<code dir="ltr">remove</code> מוחק רק את השמאלי ביותר — אז תנו ל-<code dir="ltr">in</code> להחליט מתי לעצור:
+            <div class="code" dir="ltr"><span class="kw">while</span> -<span class="num">999</span> <span class="kw">in</span> temps:
+    temps.<span class="fn">remove</span>(-<span class="num">999</span>)</div>
+            קריאה נוספת ל-<code dir="ltr">remove(-999)</code> אחרי שכולם נמחקו היא <code dir="ltr">ValueError</code>. הבדיקה של <code dir="ltr">in</code> מונעת את זה.
           </div>
           <div class="note">
-            <strong>רמז 3 — סדר הסעיפים הוא כל התרגיל.</strong> סעיף 6 מודד את הרשימה <em>אחרי</em> ההוספה והמחיקה. בדקו: הסכום הוא 575 על פני <strong>7</strong> ציונים, לא 8.
+            <strong>רמז 3 — <code dir="ltr">pop</code> מחזיר את הערך.</strong> סעיף 5 מבקש גם למחוק וגם להדפיס, ולכן זה בדיוק המקום שבו <code dir="ltr">pop</code> עדיף על <code dir="ltr">del</code>. הכול נכנס בשורה אחת:
+            <div class="code" dir="ltr"><span class="fn">print</span>(<span class="str">'Dropped the first reading:'</span>, <span class="hl">temps.<span class="fn">pop</span>(<span class="num">0</span>)</span>)</div>
           </div>
           <div class="note">
-            <strong>רמז 4 — שתי ספרות.</strong> <code dir="ltr">575 / 7</code> הוא <code dir="ltr">82.14285714285714</code>:
-            <div class="code" dir="ltr">avg = <span class="fn">sum</span>(grades) / <span class="fn">len</span>(grades)
-<span class="fn">print</span>(<span class="str">f'Avg: {avg<span class="hl">:.2f</span>}'</span>)   <span class="cm"># Avg: 82.14</span></div>
+            <strong>רמז 4 — לשמור את הממוצע, ואז ללולאה.</strong> סעיף 7 משווה כל מדידה מול הממוצע, ולכן הממוצע חייב לשבת ב<strong>משתנה</strong> קודם — לא לחשב אותו מחדש בתוך הלולאה:
+            <div class="code" dir="ltr">avg = <span class="fn">sum</span>(temps) / <span class="fn">len</span>(temps)
+<span class="fn">print</span>(<span class="str">f'Avg: {avg<span class="hl">:.2f</span>}'</span>)      <span class="cm"># Avg: 27.50</span>
+
+<span class="kw">for</span> t <span class="kw">in</span> temps:
+    <span class="kw">if</span> t &gt; avg:
+        ...</div>
           </div>
           <div class="warn">
-            <strong>בדקו את עצמכם:</strong> שנו את הרשימה ההתחלתית ל-<code dir="ltr">[70, 70, 70]</code> והריצו שוב. שום דבר לא אמור לקרוס — <code dir="ltr">No more 92</code> ידפיס רשימה ללא שינוי, ולא תודפס אף שורת <code dir="ltr">Failing:</code>.
+            <strong>בדקו את עצמכם:</strong> הממוצע הוא <code dir="ltr">27.5</code> ואחת המדידות היא <code dir="ltr">28</code> — כלומר היא <em>כן</em> מעל הממוצע. ספרו את השורות האחרונות: צריכות להיות <strong>ארבע</strong>. אחר כך נסו יומן בלי אף <code dir="ltr">-999</code>; שום דבר לא אמור לקרוס, <code dir="ltr">Cleaned</code> פשוט ידפיס רשימה ללא שינוי.
           </div>
 
           <div class="big-result">הגשה</div>

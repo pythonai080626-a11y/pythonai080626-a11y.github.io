@@ -285,45 +285,6 @@ grades.<span class="fn">insert</span>(<span class="num">0</span>, <span class="n
           <div class="flex items-start gap-4">
             <span class="step-num">6</span>
             <div class="flex-1">
-              <h2 class="heading text-2xl font-extrabold mb-2">Keep it sorted, by hand</h2>
-              <p class="text-[#134E4A]/65 mb-4">Read numbers until <code>-999</code> and keep the list in order at all times — with nothing but <code>append</code>, <code>insert</code> and a comparison:</p>
-              <div class="code">numbers = []
-
-<span class="kw">while</span> <span class="kw">True</span>:
-    x = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'enter number [-999 to exit]: '</span>))
-    <span class="kw">if</span> x == -<span class="num">999</span>:
-        <span class="kw">break</span>
-
-    <span class="cm"># empty, or bigger than everything → it belongs at the end</span>
-    <span class="kw">if</span> <span class="hl"><span class="fn">len</span>(numbers) == <span class="num">0</span> <span class="kw">or</span> x &gt;= numbers[-<span class="num">1</span>]</span>:
-        numbers.<span class="fn">append</span>(x)
-        <span class="kw">continue</span>
-
-    <span class="cm"># otherwise squeeze in before the first bigger item</span>
-    <span class="kw">for</span> index <span class="kw">in</span> <span class="fn">range</span>(<span class="num">0</span>, <span class="fn">len</span>(numbers)):
-        <span class="kw">if</span> numbers[index] &gt; x:
-            numbers.<span class="fn">insert</span>(index, x)
-            <span class="kw">break</span>
-
-<span class="fn">print</span>(numbers)</div>
-              <table class="trace">
-                <thead><tr><th>Input</th><th>Before</th><th>Rule</th><th>After</th></tr></thead>
-                <tbody>
-                  <tr><td><code>12</code></td><td><code>[]</code></td><td>empty → append</td><td><code>[12]</code></td></tr>
-                  <tr><td><code>18</code></td><td><code>[12]</code></td><td><code>18 &gt;= 12</code> → append</td><td><code>[12, 18]</code></td></tr>
-                  <tr><td><code>15</code></td><td><code>[12, 18]</code></td><td>18 is bigger, at index 1 → <code>insert(1, 15)</code></td><td><code>[12, 15, 18]</code></td></tr>
-                  <tr><td><code>3</code></td><td><code>[12, 15, 18]</code></td><td>12 is bigger, at index 0 → <code>insert(0, 3)</code></td><td><code>[3, 12, 15, 18]</code></td></tr>
-                </tbody>
-              </table>
-              <div class="tip warn">⚠️ Both guards matter. <code>len(numbers) == 0</code> comes first because <code>numbers[-1]</code> on an empty list is an <code>IndexError</code> — and <code>or</code> never looks at its right side once the left is <code>True</code>. The <code>continue</code> stops an appended number being inserted a second time.</div>
-            </div>
-          </div>
-        </article>
-
-        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
-          <div class="flex items-start gap-4">
-            <span class="step-num">7</span>
-            <div class="flex-1">
               <h2 class="heading text-2xl font-extrabold mb-2">Taking things out</h2>
               <p class="text-[#134E4A]/65 mb-4">Four ways, and they are not interchangeable — two take a <strong>position</strong>, two take a <strong>value</strong>:</p>
               <div class="code">grades = [<span class="num">97</span>, <span class="num">100</span>, <span class="num">92</span>, <span class="num">99</span>, <span class="num">80</span>, <span class="num">88</span>, <span class="num">92</span>, <span class="num">92</span>]
@@ -360,9 +321,9 @@ l1 = [<span class="num">1</span>, <span class="num">92</span>, <span class="num"
           </div>
         </article>
 
-        <article class="step-card bg-white rounded-[22px] p-7 clay">
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
           <div class="flex items-start gap-4">
-            <span class="step-num">8</span>
+            <span class="step-num">7</span>
             <div class="flex-1">
               <h2 class="heading text-2xl font-extrabold mb-2">max, min, sum &amp; the average</h2>
               <p class="text-[#134E4A]/65 mb-4">Write them by hand once — that loop is the skill. Then use the built-ins forever:</p>
