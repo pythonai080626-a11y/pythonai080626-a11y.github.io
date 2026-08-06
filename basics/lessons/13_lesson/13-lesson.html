@@ -274,6 +274,8 @@
     .rtl .ex-num { margin-right: 0; margin-left: 8px; }
     .rtl .ex-table th, .rtl .ex-table td { text-align: right; }
     .rtl .pill-row { justify-content: flex-start; }
+    /* code and output stay English — always left-aligned, even on an RTL page */
+    .rtl .code, .rtl .console { direction: ltr; text-align: left; }
 
     /* ── Module toolbox ── */
     .toolbox {
@@ -970,16 +972,15 @@ Above average: 31</div>
 
         <div class="big-result">The tools you need</div>
         <div class="pill-row">
-          <span class="pill">len()</span>
+          <span class="pill">len</span>
           <span class="pill">[0:3]</span>
           <span class="pill">[-3:]</span>
           <span class="pill">[::2]</span>
           <span class="pill">in</span>
-          <span class="pill">.remove()</span>
-          <span class="pill">.pop(0)</span>
-          <span class="pill">.append()</span>
-          <span class="pill">max() min() sum()</span>
-          <span class="pill">f'{x:.2f}'</span>
+          <span class="pill">remove</span>
+          <span class="pill">pop</span>
+          <span class="pill">append</span>
+          <span class="pill">max min sum</span>
         </div>
 
         <div class="note">
@@ -1075,16 +1076,15 @@ Above average: 31</div>
 
         <div class="big-result">הכלים שתצטרכו</div>
         <div class="pill-row">
-          <span class="pill">len()</span>
+          <span class="pill">len</span>
           <span class="pill">[0:3]</span>
           <span class="pill">[-3:]</span>
           <span class="pill">[::2]</span>
           <span class="pill">in</span>
-          <span class="pill">.remove()</span>
-          <span class="pill">.pop(0)</span>
-          <span class="pill">.append()</span>
-          <span class="pill">max() min() sum()</span>
-          <span class="pill">f'{x:.2f}'</span>
+          <span class="pill">remove</span>
+          <span class="pill">pop</span>
+          <span class="pill">append</span>
+          <span class="pill">max min sum</span>
         </div>
 
         <div class="note">
