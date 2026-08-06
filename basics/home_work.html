@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lesson 2 Homework - Flowcharts</title>
+  <title>Lesson 13 Homework - Lists</title>
   <style>
     :root {
       --bg-soft: #ffffff;
@@ -120,6 +120,7 @@
 
     h1, h2, h3 { margin-top: 0; color: var(--green-1); }
     h1 { font-size: 2rem; margin-bottom: 8px; }
+    code { color: var(--green-1); font-weight: 700; }
 
     .tag {
       display: inline-block;
@@ -151,6 +152,16 @@
       border-left: 4px solid var(--green-2);
       padding: 10px 14px;
       color: var(--muted);
+      margin: 12px 0;
+      border-radius: 6px;
+      font-size: 0.94rem;
+    }
+
+    .warn {
+      background: #fff6e2;
+      border-left: 4px solid #e0a800;
+      padding: 10px 14px;
+      color: #6b4e00;
       margin: 12px 0;
       border-radius: 6px;
       font-size: 0.94rem;
@@ -199,31 +210,6 @@
 
     .nav-back:hover { background: #d8f7df; transform: translateY(-1px); }
 
-    .symbol-row {
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-      margin: 18px 0;
-      align-items: flex-end;
-    }
-
-    .symbol-cell { text-align: center; }
-
-    .symbol-label {
-      display: block;
-      margin-top: 6px;
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--green-1);
-    }
-
-    .fc-wrap {
-      display: flex;
-      justify-content: center;
-      margin: 18px 0;
-      overflow-x: auto;
-    }
-
     .code {
       background: var(--code-bg);
       color: var(--code-text);
@@ -243,6 +229,23 @@
     .code .kw { color: #79c0ff; }
     .code .num { color: #d2a8ff; }
     .code .str { color: #ffd580; }
+    .code .hl { background: rgba(125,231,135,0.16); border-radius: 4px; }
+
+    .console {
+      background: #101418;
+      color: #e6edf3;
+      border-radius: 10px;
+      border: 1px solid #30363d;
+      padding: 12px 18px;
+      overflow-x: auto;
+      margin: 10px 0 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92rem;
+      white-space: pre;
+      line-height: 1.7;
+    }
+    .console .usr { color: #7ee787; font-weight: 700; }
+    .console .dim { color: #8b949e; }
 
     .ex-table {
       width: 100%;
@@ -295,12 +298,19 @@
       text-align: right;
     }
 
+    .rtl .pill-row { justify-content: flex-start; }
+
     .task-box {
       background: var(--mint);
       border: 2px dashed var(--green-2);
       border-radius: 10px;
       padding: 14px 18px;
       margin: 14px 0;
+    }
+    .task-box a {
+      color: var(--green-1);
+      font-weight: 800;
+      word-break: break-all;
     }
 
     .ex-title {
@@ -327,6 +337,20 @@
 
     .ex-title h3 { margin: 0; font-size: 1.1rem; }
 
+    .kbd {
+      display: inline-block; padding: 2px 8px; border-radius: 6px;
+      background: #f0fff4; border: 1px solid var(--border);
+      border-bottom-width: 3px; font-family: Consolas, monospace;
+      font-size: .85rem; color: var(--green-1); font-weight: 700;
+    }
+
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 6px; }
+    .pill {
+      display: inline-block; padding: 4px 12px; border-radius: 999px;
+      background: #eafcef; border: 1px solid var(--border);
+      color: var(--green-1); font-weight: 700; font-size: .82rem;
+    }
+
     .submission {
       background: var(--mint);
       border-color: var(--green-2);
@@ -339,6 +363,27 @@
       font-size: 1.05rem;
       word-break: break-all;
     }
+
+    /* the cell map */
+    .cellmap {
+      display: flex; flex-wrap: wrap; gap: 7px; justify-content: center;
+      background: #f5fff9; border: 1px solid var(--border);
+      border-radius: 12px; padding: 16px 18px; margin: 12px 0 14px;
+    }
+    .cl { text-align: center; }
+    .cl .cbox {
+      display: flex; align-items: center; justify-content: center;
+      width: 52px; height: 48px; border-radius: 10px;
+      font-family: Consolas, monospace; font-weight: 800; font-size: 1.05rem;
+      background: linear-gradient(160deg, #d6f8e4, #a9ecc6);
+      border: 1px solid #7fd6a3; color: #08351d;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+    }
+    .cl .cidx { display: block; font-family: Consolas, monospace; font-size: .76rem; font-weight: 800; color: var(--green-2); margin-top: 4px; }
+    .cl .cneg { display: block; font-family: Consolas, monospace; font-size: .72rem; color: #b4530f; }
+    .cl.sel .cbox { background: linear-gradient(160deg, #fff0c2, #ffd980); border-color: #e0a800; }
+    .cl.off .cbox { background: repeating-linear-gradient(135deg, #f4f7f5 0 8px, #e9efeb 8px 16px); border: 1px dashed #9fb5a8; color: #6d8479; }
+    .cellmap-cap { text-align: center; font-family: Consolas, monospace; font-weight: 800; color: var(--green-1); margin-bottom: 4px; }
 
     .footer {
       text-align: center;
@@ -364,180 +409,223 @@
       h1 { font-size: 1.6rem; }
       .code { font-size: 0.86rem; }
       .ex-table { font-size: .8rem; }
+      .cl .cbox { width: 40px; height: 40px; font-size: .85rem; }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
     <section class="hero">
-      <span class="tag">Lesson 2 Homework</span>
-      <h1>Flowcharts: Start, Stop, Input, Output, Operation</h1>
-      <p>Use the sidebar to review the symbols, then complete the three exercises as flowcharts.</p>
+      <span class="tag">Lesson 13 Homework — August 6, 2026</span>
+      <h1>Lists: index, slice, append, remove 📋</h1>
+      <p>Use the sidebar to review what we did in class, then write the exercise as a <code>.py</code> program.</p>
     </section>
 
     <div class="layout">
       <aside class="side-nav" aria-label="Topic navigation">
-        <h2 class="side-title">Topics</h2>
-        <button class="topic-link active" data-target="topic-start-stop">start / stop</button>
-        <button class="topic-link" data-target="topic-input-output">input / output</button>
-        <button class="topic-link" data-target="topic-operation">operation</button>
+        <h2 class="side-title">Recap</h2>
+        <button class="topic-link active" data-target="topic-basics">a list &amp; its index</button>
+        <button class="topic-link" data-target="topic-slicing">slicing</button>
+        <button class="topic-link" data-target="topic-change">add &amp; remove</button>
+        <button class="topic-link" data-target="topic-numbers">max, min, sum, avg</button>
+        <hr class="side-divider" />
+        <div class="side-section-label">Homework</div>
         <button class="topic-link" data-target="topic-exercise">exercise</button>
         <button class="topic-link" data-target="topic-exercise-heb">exercise-heb</button>
         <hr class="side-divider" />
         <div class="side-section-label">Navigation</div>
+        <a class="nav-back" href="lessons/13_lesson/13-lesson.html">Full lesson 13</a>
         <a class="nav-back" href="index.html">Back to lessons</a>
       </aside>
 
       <main>
-        <section class="card topic-panel active" id="topic-start-stop">
-          <h2 class="step-title">Start / Stop</h2>
-          <p>A flowchart shows the steps of a program from beginning to end. Every flowchart must have a clear <strong>START</strong> and a clear <strong>STOP</strong>.</p>
+        <section class="card topic-panel active" id="topic-basics">
+          <h2 class="step-title">A List &amp; Its Index</h2>
+          <p>One variable, a whole row of values. Square brackets, commas between them, and <strong>the first cell is number 0</strong>.</p>
 
-          <div class="symbol-row">
-            <div class="symbol-cell">
-              <svg width="150" height="76" viewBox="0 0 150 76" role="img" aria-label="Start oval">
-                <ellipse cx="75" cy="38" rx="62" ry="27" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.5"/>
-                <text x="75" y="44" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="16" font-weight="700" fill="#0f5a2e">START</text>
-              </svg>
-              <span class="symbol-label">Oval: program begins</span>
-            </div>
+          <div class="code">grade: <span class="fn">int</span> = <span class="num">100</span>                       <span class="cm"># one value</span>
+grades: <span class="fn">list</span>[<span class="fn">int</span>] = [<span class="num">100</span>, <span class="num">92</span>, <span class="num">99</span>, <span class="num">80</span>]   <span class="cm"># four values, one name</span>
 
-            <div class="symbol-cell">
-              <svg width="150" height="76" viewBox="0 0 150 76" role="img" aria-label="Stop oval">
-                <ellipse cx="75" cy="38" rx="62" ry="27" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.5"/>
-                <text x="75" y="44" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="16" font-weight="700" fill="#0f5a2e">STOP</text>
-              </svg>
-              <span class="symbol-label">Oval: program ends</span>
-            </div>
+<span class="fn">print</span>(<span class="fn">len</span>(grades))    <span class="cm"># 4</span>
+<span class="fn">print</span>(grades[<span class="num">0</span>])      <span class="cm"># 100</span>
+<span class="fn">print</span>(grades[-<span class="num">1</span>])     <span class="cm"># 80  ← the last one, whatever the length</span></div>
+
+          <div class="cellmap-cap">grades</div>
+          <div class="cellmap">
+            <div class="cl"><span class="cbox">100</span><span class="cidx">0</span><span class="cneg">-4</span></div>
+            <div class="cl"><span class="cbox">92</span><span class="cidx">1</span><span class="cneg">-3</span></div>
+            <div class="cl"><span class="cbox">99</span><span class="cidx">2</span><span class="cneg">-2</span></div>
+            <div class="cl sel"><span class="cbox">80</span><span class="cidx">3</span><span class="cneg">-1</span></div>
           </div>
 
-          <div class="note">Rule: nothing comes before START and nothing comes after STOP. The arrows show the order of the program.</div>
+          <div class="note">
+            The <code>: list[int]</code> is a <strong>type hint</strong> — optional, not enforced, and there so you and PyCharm know what belongs inside. <code>list[str]</code>, <code>list[bool]</code>, <code>list[float]</code> all work the same way, and <code>[]</code> is the empty list you usually start from.
+          </div>
         </section>
 
-        <section class="card topic-panel" id="topic-input-output">
-          <h2 class="step-title">Input / Output</h2>
-          <p><strong>Input</strong> means the user gives data to the program. In Python, this is usually <code>input()</code>.</p>
-          <p><strong>Output</strong> means the program shows data to the user. In Python, this is usually <code>print()</code>.</p>
+        <section class="card topic-panel" id="topic-slicing">
+          <h2 class="step-title">Slicing — Same as Strings ✂️</h2>
+          <p>Everything you learned slicing strings in lesson 12 works here, unchanged:</p>
 
-          <div class="symbol-row">
-            <div class="symbol-cell">
-              <svg width="220" height="76" viewBox="0 0 220 76" role="img" aria-label="Input parallelogram">
-                <polygon points="24,10 210,10 188,66 2,66" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.5"/>
-                <text x="106" y="35" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">INPUT</text>
-                <text x="106" y="52" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="12" fill="#0f5a2e">enter a number</text>
-              </svg>
-              <span class="symbol-label">Parallelogram: data goes in</span>
-            </div>
+          <div class="code">nums = [<span class="num">0</span>, <span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>, <span class="num">6</span>, <span class="num">7</span>, <span class="num">8</span>, <span class="num">9</span>, <span class="num">10</span>, <span class="num">11</span>, <span class="num">12</span>, <span class="num">13</span>, <span class="num">14</span>, <span class="num">15</span>]
 
-            <div class="symbol-cell">
-              <svg width="220" height="76" viewBox="0 0 220 76" role="img" aria-label="Output parallelogram">
-                <polygon points="24,10 210,10 188,66 2,66" fill="#e8fff4" stroke="#1f8f4e" stroke-width="2.5"/>
-                <text x="106" y="35" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">OUTPUT</text>
-                <text x="106" y="52" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="12" fill="#0f5a2e">print result</text>
-              </svg>
-              <span class="symbol-label">Parallelogram: data goes out</span>
-            </div>
+<span class="fn">print</span>(nums[<span class="num">3</span>: <span class="num">9</span> + <span class="num">1</span>])   <span class="cm"># from 3 to 9</span>
+<span class="fn">print</span>(nums[:<span class="num">5</span> + <span class="num">1</span>])      <span class="cm"># start → 5</span>
+<span class="fn">print</span>(nums[<span class="num">6</span>:])         <span class="cm"># 6 → end</span>
+<span class="fn">print</span>(nums[::<span class="num">2</span>])        <span class="cm"># evens</span>
+<span class="fn">print</span>(nums[<span class="num">1</span>::<span class="num">2</span>])       <span class="cm"># odds</span>
+<span class="fn">print</span>(nums[::-<span class="num">1</span>])       <span class="cm"># reversed</span></div>
+          <div class="console">[3, 4, 5, 6, 7, 8, 9]
+[0, 1, 2, 3, 4, 5]
+[6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+[0, 2, 4, 6, 8, 10, 12, 14]
+[1, 3, 5, 7, 9, 11, 13, 15]
+[15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]</div>
+
+          <div class="warn">
+            The end of a slice is <strong>not</strong> included: <code>[3:10]</code> stops at 9. Writing it as <code>[3: 9 + 1]</code> while you learn makes that impossible to forget.
           </div>
-
-          <div class="big-result">Python examples</div>
-          <div class="code">num = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">"Enter a number: "</span>))   <span class="cm"># INPUT</span>
-<span class="fn">print</span>(num)                             <span class="cm"># OUTPUT</span></div>
         </section>
 
-        <section class="card topic-panel" id="topic-operation">
-          <h2 class="step-title">Operation</h2>
-          <p>An <strong>operation</strong> is a step where the computer does work: calculation, assignment, or changing a value. It is drawn as a rectangle.</p>
+        <section class="card topic-panel" id="topic-change">
+          <h2 class="step-title">Add &amp; Remove</h2>
+          <p>Unlike a string, a list <strong>can be changed</strong>. These methods edit the list you already have — they do not hand you a new one.</p>
 
-          <div class="fc-wrap">
-            <svg width="280" height="76" viewBox="0 0 280 76" role="img" aria-label="Operation rectangle">
-              <rect x="12" y="12" width="256" height="52" rx="4" fill="#dbf6e5" stroke="#1f8f4e" stroke-width="2.5"/>
-              <text x="140" y="34" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" font-weight="700" fill="#0f5a2e">OPERATION</text>
-              <text x="140" y="52" text-anchor="middle" font-family="Trebuchet MS,sans-serif" font-size="13" fill="#0f5a2e">result = num * num</text>
-            </svg>
+          <div class="code">grades = [<span class="num">100</span>, <span class="num">92</span>, <span class="num">99</span>, <span class="num">80</span>]
+
+grades.<span class="fn">append</span>(<span class="num">88</span>)       <span class="cm"># at the end</span>
+grades.<span class="fn">insert</span>(<span class="num">0</span>, <span class="num">88</span>)    <span class="cm"># at position 0, everyone shifts right</span>
+
+<span class="fn">print</span>(grades.<span class="fn">pop</span>(<span class="num">4</span>))    <span class="cm"># removes index 4 AND hands the value back</span>
+<span class="kw">del</span> grades[<span class="num">0</span>]            <span class="cm"># a keyword — no dot, no ()</span>
+grades.<span class="fn">remove</span>(<span class="num">92</span>)        <span class="cm"># by VALUE — only the leftmost match</span></div>
+
+          <div class="warn">
+            Never write <code>grades = grades.append(88)</code>. With strings you <em>had</em> to store the result back; here that line throws your list away and leaves you with <code>None</code>.
           </div>
 
-          <div class="big-result">Python examples</div>
+          <div class="big-result">Removing every occurrence</div>
+          <div class="code"><span class="kw">while</span> <span class="hl"><span class="num">92</span> <span class="kw">in</span> grades</span>:
+    grades.<span class="fn">remove</span>(<span class="num">92</span>)</div>
           <table class="ex-table">
-            <thead>
-              <tr><th>Flowchart operation</th><th>Python code</th></tr>
-            </thead>
+            <thead><tr><th>Written</th><th>Takes</th><th>Gives back</th><th>Missing value?</th></tr></thead>
             <tbody>
-              <tr><td>square = num * num</td><td><code>square = num * num</code></td></tr>
-              <tr><td>total = price * quantity</td><td><code>total = price * quantity</code></td></tr>
-              <tr><td>cars = children / 5</td><td><code>cars = children // 5</code></td></tr>
+              <tr><td><code>lst.pop(i)</code></td><td>an index</td><td>the removed value</td><td><code>IndexError</code></td></tr>
+              <tr><td><code>del lst[i]</code></td><td>an index</td><td>nothing</td><td><code>IndexError</code></td></tr>
+              <tr><td><code>lst.remove(x)</code></td><td>a value</td><td>nothing</td><td><code>ValueError</code></td></tr>
+              <tr><td><code>x in lst</code></td><td>a value</td><td><code>True</code> / <code>False</code></td><td>just <code>False</code> — never crashes</td></tr>
             </tbody>
           </table>
+        </section>
 
-          <div class="note">Use a rectangle when the program calculates something but does not ask the user and does not print yet.</div>
+        <section class="card topic-panel" id="topic-numbers">
+          <h2 class="step-title">max, min, sum &amp; the Average 📊</h2>
+          <div class="code">grades = [<span class="num">97</span>, <span class="num">100</span>, <span class="num">92</span>, <span class="num">99</span>, <span class="num">80</span>, <span class="num">88</span>, <span class="num">92</span>, <span class="num">96</span>]
+
+<span class="fn">print</span>(<span class="fn">max</span>(grades), <span class="fn">min</span>(grades), <span class="fn">sum</span>(grades))
+<span class="fn">print</span>(<span class="fn">sum</span>(grades) / <span class="fn">len</span>(grades))
+
+<span class="kw">import</span> statistics
+<span class="fn">print</span>(statistics.<span class="fn">mean</span>(grades))</div>
+          <div class="console">100 80 744
+93.0
+93</div>
+          <div class="note">
+            There is no <code>average()</code> built in — it is <code>sum(lst) / len(lst)</code>, and <code>/</code> always gives a float (<code>93.0</code>, not <code>93</code>). Print it properly with the f-string spec from lesson 12: <code>f'{avg:.2f}'</code>.
+          </div>
+          <div class="warn">
+            On an <strong>empty</strong> list <code>sum(lst) / len(lst)</code> is a <code>ZeroDivisionError</code> and <code>max([])</code> is a <code>ValueError</code>.
+          </div>
         </section>
 
         <section class="card topic-panel" id="topic-exercise">
           <span class="tag">Exercise</span>
-          <h2 class="step-title">Flowchart Homework</h2>
-          <p>For each question, draw the flowchart.</p>
+          <h2 class="step-title">Homework — 1 Question</h2>
+          <p><strong>Python only</strong>. Write it as a <code>.py</code> file in PyCharm and run with <span class="kbd">Shift</span> + <span class="kbd">F10</span>.</p>
 
           <div class="ex-title">
             <span class="ex-num">1</span>
-            <h3>Print two numbers</h3>
+            <h3>The grades board 📋</h3>
           </div>
-          <p>Input <strong>two numbers</strong>. Print the first number <strong>3 times</strong>, then print the second number <strong>2 times</strong>.</p>
-          <table class="ex-table">
-            <thead><tr><th>Input 1</th><th>Input 2</th><th>Expected output</th></tr></thead>
-            <tbody>
-              <tr><td>5</td><td>9</td><td>5, 5, 5, 9, 9</td></tr>
-              <tr><td>7</td><td>2</td><td>7, 7, 7, 2, 2</td></tr>
-            </tbody>
-          </table>
-          <div class="task-box">
-            Your flowchart should use: START, two INPUT boxes, five OUTPUT boxes, STOP.
+          <p>Given:</p>
+          <div class="code">grades: <span class="fn">list</span>[<span class="fn">int</span>] = [<span class="num">88</span>, <span class="num">92</span>, <span class="num">100</span>, <span class="num">67</span>, <span class="num">92</span>, <span class="num">75</span>, <span class="num">92</span>, <span class="num">55</span>]</div>
+
+          <p>Write code that, <strong>in this order</strong>:</p>
+          <ol class="task-list">
+            <li><strong>Prints how many</strong> grades there are.</li>
+            <li>Prints the <strong>first three</strong> and the <strong>last three</strong> — with slices, not loops.</li>
+            <li>Prints the whole list <strong>reversed</strong>.</li>
+            <li><strong>Adds</strong> the grade <code>90</code> at the end, and <strong>inserts</strong> <code>100</code> at the front. Prints the list.</li>
+            <li>Removes <strong>every</strong> <code>92</code>. Prints the list.</li>
+            <li>Prints the <strong>max</strong>, the <strong>min</strong>, the <strong>sum</strong> and the <strong>average</strong> of what is left — the average with <strong>2 digits</strong> after the dot.</li>
+            <li>Prints every <strong>failing</strong> grade (under 60), using a for-each loop.</li>
+          </ol>
+
+          <div class="big-result">Expected output</div>
+          <div class="console">Count: 8
+First three: [88, 92, 100]
+Last three: [75, 92, 55]
+Reversed: [55, 92, 75, 92, 67, 100, 92, 88]
+After add: [100, 88, 92, 100, 67, 92, 75, 92, 55, 90]
+No more 92: [100, 88, 100, 67, 75, 55, 90]
+Max: 100  Min: 55  Sum: 575  Avg: 82.14
+Failing: 55</div>
+
+          <div class="big-result">The tools you need</div>
+          <div class="pill-row">
+            <span class="pill">len()</span>
+            <span class="pill">[0:3]</span>
+            <span class="pill">[-3:]</span>
+            <span class="pill">[::-1]</span>
+            <span class="pill">.append()</span>
+            <span class="pill">.insert()</span>
+            <span class="pill">.remove()</span>
+            <span class="pill">in</span>
+            <span class="pill">max() min() sum()</span>
+            <span class="pill">f'{x:.2f}'</span>
           </div>
 
-          <div class="ex-title">
-            <span class="ex-num">2</span>
-            <h3>Print the square</h3>
+          <div class="note">
+            <strong>Hint 1 — steps 2 and 3 are slices.</strong> No loop, no counting. Write the list down with its indexes and the answers fall out:
+            <div class="cellmap-cap">grades</div>
+            <div class="cellmap">
+              <div class="cl sel"><span class="cbox">88</span><span class="cidx">0</span></div>
+              <div class="cl sel"><span class="cbox">92</span><span class="cidx">1</span></div>
+              <div class="cl sel"><span class="cbox">100</span><span class="cidx">2</span></div>
+              <div class="cl"><span class="cbox">67</span><span class="cidx">3</span></div>
+              <div class="cl"><span class="cbox">92</span><span class="cidx">4</span></div>
+              <div class="cl off"><span class="cbox">75</span><span class="cidx">5</span><span class="cneg">-3</span></div>
+              <div class="cl off"><span class="cbox">92</span><span class="cidx">6</span><span class="cneg">-2</span></div>
+              <div class="cl off"><span class="cbox">55</span><span class="cidx">7</span><span class="cneg">-1</span></div>
+            </div>
+            <div class="code"><span class="fn">print</span>(<span class="str">'First three:'</span>, grades[<span class="num">0</span>:<span class="num">3</span>])    <span class="cm"># 0, 1, 2 — 3 is NOT included</span>
+<span class="fn">print</span>(<span class="str">'Last three:'</span>, grades[-<span class="num">3</span>:])     <span class="cm"># the last three, whatever the length</span></div>
           </div>
-          <p>Input <strong>one number</strong>. Print its square, meaning <code>num * num</code>.</p>
-          <table class="ex-table">
-            <thead><tr><th>Input</th><th>Expected output</th><th>Why</th></tr></thead>
-            <tbody>
-              <tr><td>2</td><td>4</td><td>2 * 2 = 4</td></tr>
-              <tr><td>3</td><td>9</td><td>3 * 3 = 9</td></tr>
-              <tr><td>4</td><td>16</td><td>4 * 4 = 16</td></tr>
-              <tr><td>5</td><td>25</td><td>5 * 5 = 25</td></tr>
-              <tr><td>10</td><td>100</td><td>10 * 10 = 100</td></tr>
-            </tbody>
-          </table>
-          <div class="task-box">
-            Your flowchart should use: START, one INPUT box, one OPERATION box, one OUTPUT box, STOP.
+          <div class="note">
+            <strong>Hint 2 — one <code>remove</code> is not enough.</strong> There are three 92s and <code>grades.remove(92)</code> deletes only the leftmost. Loop it, and let <code>in</code> decide when to stop:
+            <div class="code"><span class="kw">while</span> <span class="num">92</span> <span class="kw">in</span> grades:
+    grades.<span class="fn">remove</span>(<span class="num">92</span>)</div>
+            Calling <code>remove(92)</code> a fourth time — after they are all gone — is a <code>ValueError</code>. The <code>in</code> check is what prevents it.
           </div>
-
-          <div class="ex-title">
-            <span class="ex-num">3</span>
-            <h3>Class trip cars</h3>
+          <div class="note">
+            <strong>Hint 3 — the order of the steps is the whole exercise.</strong> Step 6 measures the list <em>after</em> the adding and the removing. Check yourself: the sum is 575 over <strong>7</strong> grades, not 8.
           </div>
-          <p>There is a class trip. Each car has <strong>5 seats</strong>. Input how many children are in the class, then print how many cars need to be booked.</p>
-          <p>The number of children is guaranteed to be divisible by 5, so no rounding is needed.</p>
-          <table class="ex-table">
-            <thead><tr><th>Children</th><th>Cars needed</th><th>Why</th></tr></thead>
-            <tbody>
-              <tr><td>10</td><td>2</td><td>10 / 5 = 2</td></tr>
-              <tr><td>15</td><td>3</td><td>15 / 5 = 3</td></tr>
-              <tr><td>20</td><td>4</td><td>20 / 5 = 4</td></tr>
-              <tr><td>25</td><td>5</td><td>25 / 5 = 5</td></tr>
-              <tr><td>5</td><td>1</td><td>5 / 5 = 1</td></tr>
-            </tbody>
-          </table>
-          <div class="task-box">
-            Your flowchart should use: START, one INPUT box, one OPERATION box for cars = children / 5, one OUTPUT box, STOP.
+          <div class="note">
+            <strong>Hint 4 — two decimals.</strong> <code>575 / 7</code> is <code>82.14285714285714</code>:
+            <div class="code">avg = <span class="fn">sum</span>(grades) / <span class="fn">len</span>(grades)
+<span class="fn">print</span>(<span class="str">f'Avg: {avg<span class="hl">:.2f</span>}'</span>)   <span class="cm"># Avg: 82.14</span></div>
+          </div>
+          <div class="warn">
+            <strong>Check yourself:</strong> change the starting list to <code>[70, 70, 70]</code> and run again. Nothing should crash — <code>No more 92</code> prints an unchanged list, and no <code>Failing:</code> line appears at all.
           </div>
 
           <div class="big-result">Submission</div>
           <div class="card submission">
             <ol class="task-list">
-              <li><strong>Draw all three flowcharts</strong> in <a href="https://app.diagrams.net/" target="_blank" rel="noopener">draw.io</a>.</li>
-              <li><strong>Upload your flowcharts</strong> to GitHub.</li>
+              <li><strong>Write the .py program</strong> in PyCharm.</li>
+              <li><strong>Upload it</strong> to GitHub.</li>
               <li><strong>Send the GitHub link</strong> to:<br>
-                <a href="mailto:pythonai080626+flow1@gmail.com">pythonai080626+flow1@gmail.com</a>
+                <a href="mailto:pythonai080626+hw13@gmail.com">pythonai080626+hw13@gmail.com</a>
               </li>
             </ol>
           </div>
@@ -545,71 +633,92 @@
 
         <section class="card topic-panel rtl" id="topic-exercise-heb" lang="he" dir="rtl">
           <span class="tag">תרגול בעברית</span>
-          <h2 class="step-title">שיעורי בית בתרשימי זרימה</h2>
-          <p>בכל שאלה צריך לצייר תרשים זרימה.</p>
+          <h2 class="step-title">שיעורי בית — שאלה אחת</h2>
+          <p><strong>בפייתון בלבד</strong>. כתבו בקובץ <code>.py</code> ב-PyCharm והריצו עם <span class="kbd">Shift</span> + <span class="kbd">F10</span>.</p>
 
           <div class="ex-title">
             <span class="ex-num">1</span>
-            <h3>הדפסת שני מספרים</h3>
+            <h3>לוח הציונים 📋</h3>
           </div>
-          <p>קלטו <strong>שני מספרים</strong>. הדפיסו את המספר הראשון <strong>3 פעמים</strong>, ואז הדפיסו את המספר השני <strong>2 פעמים</strong>.</p>
-          <table class="ex-table">
-            <thead><tr><th>קלט 1</th><th>קלט 2</th><th>פלט צפוי</th></tr></thead>
-            <tbody>
-              <tr><td>5</td><td>9</td><td>5, 5, 5, 9, 9</td></tr>
-              <tr><td>7</td><td>2</td><td>7, 7, 7, 2, 2</td></tr>
-            </tbody>
-          </table>
-          <div class="task-box">
-            בתרשים הזרימה צריך להשתמש ב: START, שתי תיבות INPUT, חמש תיבות OUTPUT, ו-STOP.
+          <p>נתון:</p>
+          <div class="code" dir="ltr">grades: <span class="fn">list</span>[<span class="fn">int</span>] = [<span class="num">88</span>, <span class="num">92</span>, <span class="num">100</span>, <span class="num">67</span>, <span class="num">92</span>, <span class="num">75</span>, <span class="num">92</span>, <span class="num">55</span>]</div>
+
+          <p>כתבו קוד ש<strong>בסדר הזה</strong>:</p>
+          <ol class="task-list">
+            <li><strong>מדפיס כמה</strong> ציונים יש.</li>
+            <li>מדפיס את <strong>שלושת הראשונים</strong> ואת <strong>שלושת האחרונים</strong> — בעזרת חיתוכים (slice), בלי לולאות.</li>
+            <li>מדפיס את כל הרשימה <strong>הפוך</strong>.</li>
+            <li><strong>מוסיף</strong> את הציון <code dir="ltr">90</code> בסוף, ו<strong>משחיל</strong> את <code dir="ltr">100</code> בהתחלה. מדפיס את הרשימה.</li>
+            <li>מוחק את <strong>כל</strong> ההופעות של <code dir="ltr">92</code>. מדפיס את הרשימה.</li>
+            <li>מדפיס את <strong>המקסימום</strong>, <strong>המינימום</strong>, <strong>הסכום</strong> ו<strong>הממוצע</strong> של מה שנשאר — הממוצע עם <strong>2 ספרות</strong> אחרי הנקודה.</li>
+            <li>מדפיס כל ציון <strong>נכשל</strong> (מתחת ל-60), בעזרת לולאת for-each.</li>
+          </ol>
+
+          <div class="big-result">הפלט הצפוי</div>
+          <div class="console" dir="ltr">Count: 8
+First three: [88, 92, 100]
+Last three: [75, 92, 55]
+Reversed: [55, 92, 75, 92, 67, 100, 92, 88]
+After add: [100, 88, 92, 100, 67, 92, 75, 92, 55, 90]
+No more 92: [100, 88, 100, 67, 75, 55, 90]
+Max: 100  Min: 55  Sum: 575  Avg: 82.14
+Failing: 55</div>
+
+          <div class="big-result">הכלים שתצטרכו</div>
+          <div class="pill-row">
+            <span class="pill">len()</span>
+            <span class="pill">[0:3]</span>
+            <span class="pill">[-3:]</span>
+            <span class="pill">[::-1]</span>
+            <span class="pill">.append()</span>
+            <span class="pill">.insert()</span>
+            <span class="pill">.remove()</span>
+            <span class="pill">in</span>
+            <span class="pill">max() min() sum()</span>
+            <span class="pill">f'{x:.2f}'</span>
           </div>
 
-          <div class="ex-title">
-            <span class="ex-num">2</span>
-            <h3>הדפסת ריבוע של מספר</h3>
+          <div class="note">
+            <strong>רמז 1 — סעיפים 2 ו-3 הם חיתוכים.</strong> בלי לולאה ובלי לספור. רשמו את הרשימה עם האינדקסים והתשובות מתגלות מעצמן:
+            <div class="cellmap-cap" dir="ltr">grades</div>
+            <div class="cellmap" dir="ltr">
+              <div class="cl sel"><span class="cbox">88</span><span class="cidx">0</span></div>
+              <div class="cl sel"><span class="cbox">92</span><span class="cidx">1</span></div>
+              <div class="cl sel"><span class="cbox">100</span><span class="cidx">2</span></div>
+              <div class="cl"><span class="cbox">67</span><span class="cidx">3</span></div>
+              <div class="cl"><span class="cbox">92</span><span class="cidx">4</span></div>
+              <div class="cl off"><span class="cbox">75</span><span class="cidx">5</span><span class="cneg">-3</span></div>
+              <div class="cl off"><span class="cbox">92</span><span class="cidx">6</span><span class="cneg">-2</span></div>
+              <div class="cl off"><span class="cbox">55</span><span class="cidx">7</span><span class="cneg">-1</span></div>
+            </div>
+            <div class="code" dir="ltr"><span class="fn">print</span>(<span class="str">'First three:'</span>, grades[<span class="num">0</span>:<span class="num">3</span>])    <span class="cm"># 0, 1, 2 — 3 לא נכלל</span>
+<span class="fn">print</span>(<span class="str">'Last three:'</span>, grades[-<span class="num">3</span>:])     <span class="cm"># השלושה האחרונים, בלי קשר לאורך</span></div>
           </div>
-          <p>קלטו <strong>מספר אחד</strong>. הדפיסו את הריבוע שלו, כלומר <code>num * num</code>.</p>
-          <table class="ex-table">
-            <thead><tr><th>קלט</th><th>פלט צפוי</th><th>למה?</th></tr></thead>
-            <tbody>
-              <tr><td>2</td><td>4</td><td>2 * 2 = 4</td></tr>
-              <tr><td>3</td><td>9</td><td>3 * 3 = 9</td></tr>
-              <tr><td>4</td><td>16</td><td>4 * 4 = 16</td></tr>
-              <tr><td>5</td><td>25</td><td>5 * 5 = 25</td></tr>
-              <tr><td>10</td><td>100</td><td>10 * 10 = 100</td></tr>
-            </tbody>
-          </table>
-          <div class="task-box">
-            בתרשים הזרימה צריך להשתמש ב: START, תיבת INPUT אחת, תיבת OPERATION אחת, תיבת OUTPUT אחת, ו-STOP.
+          <div class="note">
+            <strong>רמז 2 — <code dir="ltr">remove</code> אחד לא מספיק.</strong> יש שלושה 92 ו-<code dir="ltr">grades.remove(92)</code> מוחק רק את השמאלי ביותר. עשו לזה לולאה, ותנו ל-<code dir="ltr">in</code> להחליט מתי לעצור:
+            <div class="code" dir="ltr"><span class="kw">while</span> <span class="num">92</span> <span class="kw">in</span> grades:
+    grades.<span class="fn">remove</span>(<span class="num">92</span>)</div>
+            קריאה רביעית ל-<code dir="ltr">remove(92)</code> — אחרי שכולם נמחקו — היא <code dir="ltr">ValueError</code>. הבדיקה של <code dir="ltr">in</code> מונעת את זה.
           </div>
-
-          <div class="ex-title">
-            <span class="ex-num">3</span>
-            <h3>טיול כיתתי - כמה מכוניות צריך?</h3>
+          <div class="note">
+            <strong>רמז 3 — סדר הסעיפים הוא כל התרגיל.</strong> סעיף 6 מודד את הרשימה <em>אחרי</em> ההוספה והמחיקה. בדקו: הסכום הוא 575 על פני <strong>7</strong> ציונים, לא 8.
           </div>
-          <p>יש טיול כיתתי. בכל מכונית יש <strong>5 מקומות</strong>. קלטו כמה ילדים יש בכיתה, ואז הדפיסו כמה מכוניות צריך להזמין.</p>
-          <p>מובטח שמספר הילדים מתחלק ב-5, לכן לא צריך לעגל.</p>
-          <table class="ex-table">
-            <thead><tr><th>מספר ילדים</th><th>מכוניות שצריך</th><th>למה?</th></tr></thead>
-            <tbody>
-              <tr><td>10</td><td>2</td><td>10 / 5 = 2</td></tr>
-              <tr><td>15</td><td>3</td><td>15 / 5 = 3</td></tr>
-              <tr><td>20</td><td>4</td><td>20 / 5 = 4</td></tr>
-              <tr><td>25</td><td>5</td><td>25 / 5 = 5</td></tr>
-              <tr><td>5</td><td>1</td><td>5 / 5 = 1</td></tr>
-            </tbody>
-          </table>
-          <div class="task-box">
-            בתרשים הזרימה צריך להשתמש ב: START, תיבת INPUT אחת, תיבת OPERATION אחת עבור cars = children / 5, תיבת OUTPUT אחת, ו-STOP.
+          <div class="note">
+            <strong>רמז 4 — שתי ספרות.</strong> <code dir="ltr">575 / 7</code> הוא <code dir="ltr">82.14285714285714</code>:
+            <div class="code" dir="ltr">avg = <span class="fn">sum</span>(grades) / <span class="fn">len</span>(grades)
+<span class="fn">print</span>(<span class="str">f'Avg: {avg<span class="hl">:.2f</span>}'</span>)   <span class="cm"># Avg: 82.14</span></div>
+          </div>
+          <div class="warn">
+            <strong>בדקו את עצמכם:</strong> שנו את הרשימה ההתחלתית ל-<code dir="ltr">[70, 70, 70]</code> והריצו שוב. שום דבר לא אמור לקרוס — <code dir="ltr">No more 92</code> ידפיס רשימה ללא שינוי, ולא תודפס אף שורת <code dir="ltr">Failing:</code>.
           </div>
 
           <div class="big-result">הגשה</div>
           <div class="card submission">
             <ol class="task-list">
-              <li><strong>ציירו את שלושת תרשימי הזרימה</strong> ב-<a href="https://app.diagrams.net/" target="_blank" rel="noopener">draw.io</a>.</li>
-              <li><strong>העלו את תרשימי הזרימה</strong> ל-GitHub.</li>
+              <li><strong>כתבו את התוכנית</strong> ב-PyCharm.</li>
+              <li><strong>העלו אותה</strong> ל-GitHub.</li>
               <li><strong>שלחו את הקישור מ-GitHub</strong> אל:<br>
-                <a href="mailto:pythonai080626+flow1@gmail.com">pythonai080626+flow1@gmail.com</a>
+                <a href="mailto:pythonai080626+hw13@gmail.com">pythonai080626+hw13@gmail.com</a>
               </li>
             </ol>
           </div>
@@ -618,7 +727,7 @@
     </div>
 
     <footer class="footer">
-      Python Basics - Lesson 2 Homework - Flowcharts
+      Python Basics - Lesson 13 Homework - Lists
     </footer>
   </div>
 

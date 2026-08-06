@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python Lists — One Name, Many Values</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Comic+Neue:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Comic Neue', cursive; }
+    h1, h2, h3, .heading { font-family: 'Baloo 2', cursive; }
+    .clay {
+      border: 3px solid rgba(249,115,22,0.18);
+      box-shadow: 5px 5px 0 rgba(249,115,22,0.22), inset 0 1px 0 rgba(255,255,255,0.65);
+    }
+    .clay-teal {
+      border: 3px solid rgba(13,148,136,0.18);
+      box-shadow: 5px 5px 0 rgba(13,148,136,0.22), inset 0 1px 0 rgba(255,255,255,0.65);
+    }
+    .step-card { transition: transform .2s ease, box-shadow .2s ease; }
+    .step-card:hover { transform: translateY(-4px); }
+
+    .code {
+      background: #0b2517; color: #d2ffe3;
+      border-radius: 14px; border: 1px solid #2f5a3d;
+      padding: 14px 18px; overflow-x: auto; margin: 12px 0 4px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95rem; white-space: pre; line-height: 1.7;
+    }
+    .code .cm { color: #6dbf8a; }
+    .code .fn { color: #ffa657; }
+    .code .kw { color: #79c0ff; }
+    .code .str { color: #ffd580; }
+    .code .num { color: #d2a8ff; }
+    .code .hl { background: rgba(125,231,135,0.16); border-radius: 4px; }
+    .code .bad { background: rgba(248,113,113,0.16); border-radius: 4px; }
+
+    .console {
+      background: #101418; color: #e6edf3;
+      border-radius: 14px; border: 1px solid #30363d;
+      padding: 12px 18px; overflow-x: auto; margin: 12px 0 4px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92rem; white-space: pre; line-height: 1.7;
+    }
+    .console .usr { color: #7ee787; font-weight: 700; }
+    .console .dim { color: #8b949e; }
+    .console .err { color: #ff9f9f; }
+
+    .step-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 44px; height: 44px; border-radius: 14px; flex-shrink: 0;
+      background: #CCFBF1; border: 3px solid #0D9488;
+      color: #0F766E; font-weight: 800; font-size: 1.25rem;
+      font-family: 'Baloo 2', cursive;
+    }
+
+    .trace { width: 100%; border-collapse: collapse; font-size: .9rem; margin-top: 12px; }
+    .trace th {
+      background: #CCFBF1; color: #0F766E; text-align: left;
+      padding: 8px 12px; border: 2px solid #99F6E4;
+      font-size: .75rem; letter-spacing: .06em; text-transform: uppercase;
+      font-family: 'Baloo 2', cursive;
+    }
+    .trace td { padding: 8px 12px; border: 2px solid #CCFBF1; color: #134E4A; }
+    .trace tr:nth-child(even) td { background: #F0FDFA; }
+
+    .tool-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tool {
+      font-family: Consolas, monospace; font-size: .82rem; font-weight: 700;
+      background: #ffffff; border: 2px solid #99F6E4; border-bottom-width: 4px;
+      border-radius: 11px; padding: 7px 12px; color: #0F766E;
+      transition: transform .15s ease;
+    }
+    .tool:hover { transform: translateY(-3px); }
+    .tool small { display: block; font-family: 'Comic Neue', cursive; font-weight: 400; color: #134E4A; opacity: .6; font-size: .74rem; }
+
+    .tip { background: #F0FDFA; border: 1px solid #CCFBF1; border-radius: 16px; padding: 16px; margin-top: 16px; font-size: .93rem; color: rgba(19,78,74,.75); }
+    .tip.warn { background: #FFF7ED; border-color: #FED7AA; }
+
+    /* the cell map */
+    .cellmap { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center;
+      background: #ffffff; border: 2px solid #99F6E4; border-radius: 16px; padding: 16px; margin-top: 14px; }
+    .cl { text-align: center; }
+    .cl .cbox {
+      display: flex; align-items: center; justify-content: center;
+      width: 54px; height: 48px; border-radius: 12px;
+      font-family: Consolas, monospace; font-weight: 800; font-size: 1.05rem;
+      background: linear-gradient(160deg, #CCFBF1, #5EEAD4);
+      border: 2px solid #2DD4BF; color: #0F766E;
+    }
+    .cl .cidx { display: block; font-family: Consolas, monospace; font-size: .76rem; font-weight: 800; color: #0D9488; margin-top: 4px; }
+    .cl .cneg { display: block; font-family: Consolas, monospace; font-size: .72rem; color: #C2410C; }
+    .cl.sel .cbox { background: linear-gradient(160deg, #FFEDD5, #FDBA74); border-color: #F97316; color: #9A3412; }
+    .cl.off .cbox { background: repeating-linear-gradient(135deg, #F8FAFC 0 8px, #EEF2F1 8px 16px); border: 2px dashed #CBD5E1; color: #94A3B8; }
+    .cl.gap .cbox { background: #ffffff; border: 2px dashed #F97316; color: #F97316; }
+
+    /* before → after chain */
+    .chain { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 14px; }
+    .chain .bx {
+      font-family: Consolas, monospace; font-weight: 700; font-size: .9rem;
+      background: #ffffff; border: 2px solid #99F6E4; border-bottom-width: 4px;
+      border-radius: 11px; padding: 8px 12px; color: #0F766E; white-space: pre;
+    }
+    .chain .bx.old { background: #FFF7ED; border-color: #FED7AA; color: #C2410C; }
+    .chain .arw { font-weight: 800; color: rgba(19,78,74,.45); font-size: .85rem; }
+
+    @media (max-width: 640px) {
+      .cl .cbox { width: 42px; height: 42px; font-size: .85rem; }
+    }
+  </style>
+</head>
+<body class="bg-[#FFFBF5] text-[#134E4A] min-h-screen">
+
+  <nav class="fixed top-4 left-4 right-4 z-50">
+    <div class="max-w-6xl mx-auto bg-white/90 backdrop-blur-md rounded-2xl px-5 py-3 clay-teal flex items-center gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-[#0D9488] hover:text-[#134E4A] transition-colors duration-200">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        <span class="text-sm font-semibold">Python Basics</span>
+      </a>
+      <span class="text-[#134E4A]/25 text-sm">/</span>
+      <span class="heading font-bold text-[#134E4A] text-sm">Lists</span>
+    </div>
+  </nav>
+
+  <main class="px-4 pt-28 pb-16">
+    <section class="max-w-6xl mx-auto">
+
+      <!-- HERO -->
+      <div class="grid lg:grid-cols-[1fr_360px] gap-8 items-center mb-10">
+        <div>
+          <span class="text-xs font-bold tracking-widest uppercase text-[#0D9488] bg-teal-50 border border-teal-200 px-4 py-1.5 rounded-full">Topic 16</span>
+          <h1 class="heading text-5xl md:text-6xl font-extrabold text-[#134E4A] mt-4 mb-4 leading-tight">The <span class="text-[#0D9488]">list</span> Type 📋</h1>
+          <p class="text-lg text-[#134E4A]/65 max-w-2xl leading-relaxed">One variable, a whole row of values — in order, each one reachable by its <strong>index</strong>. Slicing works exactly as it did on strings (<code class="bg-teal-50 px-1 rounded">[3:10]</code>, <code class="bg-teal-50 px-1 rounded">[::2]</code>, <code class="bg-teal-50 px-1 rounded">[::-1]</code>), but unlike a string a list <strong>can be changed</strong>: it grows with <code class="bg-teal-50 px-1 rounded">.append()</code> and <code class="bg-teal-50 px-1 rounded">.insert()</code>, and shrinks with <code class="bg-teal-50 px-1 rounded">.pop()</code>, <code class="bg-teal-50 px-1 rounded">del</code> and <code class="bg-teal-50 px-1 rounded">.remove()</code>.</p>
+        </div>
+
+        <div class="bg-white rounded-[24px] p-5 clay hidden lg:block">
+          <div class="flex items-center gap-1.5 mb-3">
+            <span class="w-3 h-3 rounded-full bg-red-400"></span>
+            <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
+            <span class="w-3 h-3 rounded-full bg-green-400"></span>
+            <span class="text-xs text-[#134E4A]/40 ml-2 font-mono">01_lists.py</span>
+          </div>
+          <div class="code" style="margin:0;">grades = [<span class="num">100</span>, <span class="num">92</span>, <span class="num">99</span>, <span class="num">80</span>]
+
+<span class="fn">print</span>(grades[<span class="hl">-<span class="num">1</span></span>])
+<span class="cm"># 80</span></div>
+        </div>
+      </div>
+
+      <!-- STEPS -->
+      <div class="space-y-6">
+
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">1</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">One name, many values</h2>
+              <p class="text-[#134E4A]/65 mb-4">Every variable so far held <strong>one</strong> thing. A list holds a row of them — square brackets, commas between the values, and the first cell is number <strong>0</strong>:</p>
+              <div class="code">grade: <span class="fn">int</span> = <span class="num">100</span>                       <span class="cm"># one value</span>
+grades: <span class="fn">list</span>[<span class="fn">int</span>] = [<span class="num">100</span>, <span class="num">92</span>, <span class="num">99</span>, <span class="num">80</span>]   <span class="cm"># four values, one name</span>
+
+<span class="fn">print</span>(<span class="fn">len</span>(grades))    <span class="cm"># 4</span>
+<span class="fn">print</span>(grades[<span class="num">0</span>])      <span class="cm"># 100</span>
+<span class="fn">print</span>(grades[<span class="num">3</span>])      <span class="cm"># 80</span></div>
+              <div class="cellmap">
+                <div class="cl"><span class="cbox">100</span><span class="cidx">0</span><span class="cneg">-4</span></div>
+                <div class="cl"><span class="cbox">92</span><span class="cidx">1</span><span class="cneg">-3</span></div>
+                <div class="cl"><span class="cbox">99</span><span class="cidx">2</span><span class="cneg">-2</span></div>
+                <div class="cl sel"><span class="cbox">80</span><span class="cidx">3</span><span class="cneg">-1</span></div>
+              </div>
+              <div class="tip">💡 <code>lst[-1]</code> is the last item, whatever the length — the single most useful index there is.</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">2</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">A list of anything</h2>
+              <p class="text-[#134E4A]/65 mb-4">The <code>list[…]</code> hint says what belongs inside. Python does not enforce it — it is there so you and PyCharm know what you are holding:</p>
+              <div class="code"><span class="kw">from</span> typing <span class="kw">import</span> Any
+
+names: <span class="fn">list</span>[<span class="fn">str</span>]   = [<span class="str">'danny'</span>, <span class="str">'moshe'</span>, <span class="str">'suzi'</span>, <span class="str">'sharon'</span>]
+working: <span class="fn">list</span>[<span class="fn">bool</span>] = [<span class="kw">True</span>, <span class="kw">False</span>, <span class="kw">True</span>, <span class="kw">True</span>]
+floats: <span class="fn">list</span>[<span class="fn">float</span>] = [<span class="num">3.4</span>, <span class="num">9.9999</span>, -<span class="num">7.1</span>]
+
+comb: <span class="fn">list</span>[Any]    = [<span class="num">3.7</span>, <span class="num">1</span>, <span class="str">'danny'</span>, <span class="kw">True</span>]   <span class="cm"># a mix is legal too</span>
+
+<span class="cm"># a cell can hold another list — that is a table</span>
+board: <span class="fn">list</span>[ <span class="fn">list</span>[<span class="fn">int</span>] ] = [ [], [<span class="num">1</span>], [<span class="num">1</span>, <span class="num">2</span>], <span class="hl">[<span class="num">5</span>] * <span class="num">10</span></span> ]</div>
+              <div class="tip">💡 <code>[]</code> is the empty list — the usual place to start before a loop fills it. And <code>[5] * 10</code> builds a list of ten fives, the same <code>*</code> trick you used on strings.</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">3</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">Slicing — you already know this</h2>
+              <p class="text-[#134E4A]/65 mb-4">Identical to string slicing. Here the value in each cell happens to equal its index, so you can read the answers straight off:</p>
+              <div class="code">list_numbers = [<span class="num">0</span>, <span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>, <span class="num">6</span>, <span class="num">7</span>, <span class="num">8</span>, <span class="num">9</span>, <span class="num">10</span>, <span class="num">11</span>, <span class="num">12</span>, <span class="num">13</span>, <span class="num">14</span>, <span class="num">15</span>]
+
+<span class="fn">print</span>(list_numbers[<span class="num">3</span>: <span class="num">9</span> + <span class="num">1</span>])   <span class="cm"># from 3 to 9</span>
+<span class="fn">print</span>(list_numbers[:<span class="num">5</span> + <span class="num">1</span>])      <span class="cm"># start → 5</span>
+<span class="fn">print</span>(list_numbers[<span class="num">6</span>:])         <span class="cm"># 6 → end</span>
+<span class="fn">print</span>(list_numbers[::<span class="num">2</span>])        <span class="cm"># evens</span>
+<span class="fn">print</span>(list_numbers[<span class="num">1</span>::<span class="num">2</span>])       <span class="cm"># odds</span>
+<span class="fn">print</span>(list_numbers[::<span class="num">5</span>])        <span class="cm"># multiples of 5</span>
+<span class="fn">print</span>(list_numbers[::-<span class="num">1</span>])       <span class="cm"># reversed</span></div>
+              <div class="console">[3, 4, 5, 6, 7, 8, 9]
+[0, 1, 2, 3, 4, 5]
+[6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+[0, 2, 4, 6, 8, 10, 12, 14]
+[1, 3, 5, 7, 9, 11, 13, 15]
+[0, 5, 10, 15]
+[15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]</div>
+              <div class="tip warn">⚠️ The end of a slice is <strong>not</strong> included — <code>[3:10]</code> stops at 9. Writing <code>[3: 9 + 1]</code> while you learn makes that impossible to forget.</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">4</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">A list <em>can</em> change</h2>
+              <p class="text-[#134E4A]/65 mb-4">This is the big difference from strings. <code>append</code> and <code>insert</code> do not hand you a new list — they edit the one you have:</p>
+              <div class="code">grades = [<span class="num">100</span>, <span class="num">92</span>, <span class="num">99</span>, <span class="num">80</span>]
+
+grades.<span class="fn">append</span>(<span class="num">88</span>)      <span class="cm"># at the end</span>
+grades.<span class="fn">insert</span>(<span class="num">0</span>, <span class="num">88</span>)   <span class="cm"># at position 0, everyone shifts right</span>
+<span class="fn">print</span>(grades)</div>
+              <div class="console">[88, 100, 92, 99, 80, 88]</div>
+              <div class="cellmap">
+                <div class="cl gap"><span class="cbox">88</span><span class="cidx">0</span></div>
+                <div class="cl"><span class="cbox">100</span><span class="cidx">1</span></div>
+                <div class="cl"><span class="cbox">92</span><span class="cidx">2</span></div>
+                <div class="cl"><span class="cbox">99</span><span class="cidx">3</span></div>
+                <div class="cl"><span class="cbox">80</span><span class="cidx">4</span></div>
+                <div class="cl sel"><span class="cbox">88</span><span class="cidx">5</span></div>
+              </div>
+              <div class="chain">
+                <span class="bx old">grades.append(88)</span>
+                <span class="arw">edits the list, returns</span>
+                <span class="bx">None</span>
+              </div>
+              <div class="tip warn">⚠️ Never write <code>grades = grades.append(88)</code>. With strings you <em>had</em> to store the result back; here that line throws your list away and leaves you with <code>None</code>.</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">5</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">Two ways to walk a list</h2>
+              <p class="text-[#134E4A]/65 mb-4">Same two shapes you learned for strings — one gives you the position, one gives you the value:</p>
+              <div class="code"><span class="kw">for</span> index <span class="kw">in</span> <span class="fn">range</span>(<span class="num">0</span>, <span class="fn">len</span>(grades)):
+    <span class="fn">print</span>(<span class="str">f'#{index}: {grades[index]}'</span>, end=<span class="str">' '</span>)
+<span class="fn">print</span>()
+
+<span class="hl"><span class="kw">for</span> grade <span class="kw">in</span> grades:</span>
+    <span class="fn">print</span>(grade, end=<span class="str">' '</span>)
+<span class="fn">print</span>()</div>
+              <div class="console">#0: 88 #1: 100 #2: 92 #3: 99 #4: 80 #5: 88
+88 100 92 99 80 88 </div>
+              <table class="trace">
+                <thead><tr><th></th><th><code>for i in range(len(lst))</code></th><th><code>for item in lst</code></th></tr></thead>
+                <tbody>
+                  <tr><td>The variable holds</td><td>a <strong>number</strong> — the position</td><td>the <strong>value</strong> itself</td></tr>
+                  <tr><td>Getting the value</td><td><code>lst[i]</code></td><td><code>item</code></td></tr>
+                  <tr><td>Use when…</td><td>you need to know <em>where</em> you are</td><td>you only care <em>what</em> is there</td></tr>
+                </tbody>
+              </table>
+              <div class="tip">💡 <code>end=' '</code> replaces <code>print</code>'s automatic newline with a space — which is why the bare <code>print()</code> afterwards is needed to break the line.</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">6</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">Keep it sorted, by hand</h2>
+              <p class="text-[#134E4A]/65 mb-4">Read numbers until <code>-999</code> and keep the list in order at all times — with nothing but <code>append</code>, <code>insert</code> and a comparison:</p>
+              <div class="code">numbers = []
+
+<span class="kw">while</span> <span class="kw">True</span>:
+    x = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'enter number [-999 to exit]: '</span>))
+    <span class="kw">if</span> x == -<span class="num">999</span>:
+        <span class="kw">break</span>
+
+    <span class="cm"># empty, or bigger than everything → it belongs at the end</span>
+    <span class="kw">if</span> <span class="hl"><span class="fn">len</span>(numbers) == <span class="num">0</span> <span class="kw">or</span> x &gt;= numbers[-<span class="num">1</span>]</span>:
+        numbers.<span class="fn">append</span>(x)
+        <span class="kw">continue</span>
+
+    <span class="cm"># otherwise squeeze in before the first bigger item</span>
+    <span class="kw">for</span> index <span class="kw">in</span> <span class="fn">range</span>(<span class="num">0</span>, <span class="fn">len</span>(numbers)):
+        <span class="kw">if</span> numbers[index] &gt; x:
+            numbers.<span class="fn">insert</span>(index, x)
+            <span class="kw">break</span>
+
+<span class="fn">print</span>(numbers)</div>
+              <table class="trace">
+                <thead><tr><th>Input</th><th>Before</th><th>Rule</th><th>After</th></tr></thead>
+                <tbody>
+                  <tr><td><code>12</code></td><td><code>[]</code></td><td>empty → append</td><td><code>[12]</code></td></tr>
+                  <tr><td><code>18</code></td><td><code>[12]</code></td><td><code>18 &gt;= 12</code> → append</td><td><code>[12, 18]</code></td></tr>
+                  <tr><td><code>15</code></td><td><code>[12, 18]</code></td><td>18 is bigger, at index 1 → <code>insert(1, 15)</code></td><td><code>[12, 15, 18]</code></td></tr>
+                  <tr><td><code>3</code></td><td><code>[12, 15, 18]</code></td><td>12 is bigger, at index 0 → <code>insert(0, 3)</code></td><td><code>[3, 12, 15, 18]</code></td></tr>
+                </tbody>
+              </table>
+              <div class="tip warn">⚠️ Both guards matter. <code>len(numbers) == 0</code> comes first because <code>numbers[-1]</code> on an empty list is an <code>IndexError</code> — and <code>or</code> never looks at its right side once the left is <code>True</code>. The <code>continue</code> stops an appended number being inserted a second time.</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">7</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">Taking things out</h2>
+              <p class="text-[#134E4A]/65 mb-4">Four ways, and they are not interchangeable — two take a <strong>position</strong>, two take a <strong>value</strong>:</p>
+              <div class="code">grades = [<span class="num">97</span>, <span class="num">100</span>, <span class="num">92</span>, <span class="num">99</span>, <span class="num">80</span>, <span class="num">88</span>, <span class="num">92</span>, <span class="num">92</span>]
+
+<span class="fn">print</span>(grades.<span class="fn">pop</span>(<span class="num">4</span>))     <span class="cm"># 80  ← removes AND hands it back</span>
+<span class="kw">del</span> grades[<span class="num">0</span>]           <span class="cm"># a keyword, no dot, no ()</span>
+grades.<span class="fn">remove</span>(<span class="num">92</span>)       <span class="cm"># by value — only the leftmost one</span>
+<span class="fn">print</span>(grades)</div>
+              <div class="console">80
+[100, 99, 88, 92, 92]</div>
+              <div class="tip warn">⚠️ <code>remove(x)</code> on a value that is not in the list raises <code>ValueError</code>. That is the whole reason for the pattern below.</div>
+
+              <p class="text-[#134E4A]/65 mt-5 mb-2"><strong>Removing every occurrence</strong> — two ways, same answer:</p>
+              <div class="code"><span class="cm"># 1 — while it is still in there, take one out</span>
+<span class="kw">while</span> <span class="hl"><span class="num">92</span> <span class="kw">in</span> grades</span>:
+    grades.<span class="fn">remove</span>(<span class="num">92</span>)
+
+<span class="cm"># 2 — count them first, then remove exactly that many times</span>
+l1 = [<span class="num">1</span>, <span class="num">92</span>, <span class="num">3</span>, <span class="num">92</span>, <span class="num">92</span>, <span class="num">92</span>]
+<span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="num">0</span>, l1.<span class="fn">count</span>(<span class="num">92</span>)):
+    l1.<span class="fn">remove</span>(<span class="num">92</span>)
+<span class="fn">print</span>(l1)                  <span class="cm"># [1, 3]</span></div>
+              <table class="trace">
+                <thead><tr><th>Written</th><th>Takes</th><th>Gives back</th><th>Missing value?</th></tr></thead>
+                <tbody>
+                  <tr><td><code>lst.pop(i)</code></td><td>an index</td><td>the removed value</td><td><code>IndexError</code></td></tr>
+                  <tr><td><code>del lst[i]</code></td><td>an index</td><td>nothing</td><td><code>IndexError</code></td></tr>
+                  <tr><td><code>lst.remove(x)</code></td><td>a value</td><td>nothing</td><td><code>ValueError</code></td></tr>
+                  <tr><td><code>x in lst</code></td><td>a value</td><td><code>True</code> / <code>False</code></td><td>just <code>False</code> — never crashes</td></tr>
+                </tbody>
+              </table>
+              <div class="tip">💡 <code>in</code> gives you a boolean, so it works anywhere a comparison works: in an <code>if</code>, in a <code>while</code>, or stored in a variable. It is the same <code>in</code> as in <code>for x in lst</code>, wearing a different hat.</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">8</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">max, min, sum &amp; the average</h2>
+              <p class="text-[#134E4A]/65 mb-4">Write them by hand once — that loop is the skill. Then use the built-ins forever:</p>
+              <div class="code">grades = [<span class="num">97</span>, <span class="num">100</span>, <span class="num">92</span>, <span class="num">99</span>, <span class="num">80</span>, <span class="num">88</span>, <span class="num">92</span>, <span class="num">96</span>]
+
+<span class="cm"># by hand</span>
+max_number = <span class="hl">grades[<span class="num">0</span>]</span>            <span class="cm"># start at a REAL value, not 0</span>
+<span class="kw">for</span> grade <span class="kw">in</span> grades:
+    <span class="kw">if</span> grade &gt; max_number:
+        max_number = grade
+
+sum_grades = <span class="num">0</span>                    <span class="cm"># here 0 is right — it adds nothing</span>
+<span class="kw">for</span> grade <span class="kw">in</span> grades:
+    sum_grades += grade
+
+<span class="cm"># what Python already had</span>
+<span class="fn">print</span>(<span class="fn">max</span>(grades), <span class="fn">min</span>(grades), <span class="fn">sum</span>(grades))
+<span class="fn">print</span>(<span class="fn">sum</span>(grades) / <span class="fn">len</span>(grades))
+
+<span class="kw">import</span> statistics
+<span class="fn">print</span>(statistics.<span class="fn">mean</span>(grades))</div>
+              <div class="console">100 80 744
+93.0
+93</div>
+              <div class="tip">💡 There is no <code>average()</code> built in — it is <code>sum(lst) / len(lst)</code>, and <code>/</code> always gives a float: <code>93.0</code>, not <code>93</code>. Print it properly with <code>f'{avg:.2f}'</code>.</div>
+              <div class="tip warn">⚠️ On an <strong>empty</strong> list <code>sum(lst) / len(lst)</code> is a <code>ZeroDivisionError</code> and <code>max([])</code> is a <code>ValueError</code>. When the list comes from user input, check <code>if len(numbers) &gt; 0:</code> first.</div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- TOOLBOX -->
+      <section class="bg-white rounded-[24px] p-7 clay-teal mt-8">
+        <h2 class="heading text-3xl font-extrabold mb-3">The Whole Toolbox</h2>
+        <div class="tool-grid">
+          <span class="tool">len(lst)<small>how many items</small></span>
+          <span class="tool">lst[i]<small>the item at i</small></span>
+          <span class="tool">lst[-1]<small>the last item</small></span>
+          <span class="tool">lst[a:b]<small>a slice</small></span>
+          <span class="tool">lst[::2]<small>every second</small></span>
+          <span class="tool">lst[::-1]<small>reversed</small></span>
+          <span class="tool">.append(x)<small>add at the end</small></span>
+          <span class="tool">.insert(i, x)<small>add at position i</small></span>
+          <span class="tool">.pop(i)<small>remove &amp; hand back</small></span>
+          <span class="tool">del lst[i]<small>remove by index</small></span>
+          <span class="tool">.remove(x)<small>remove by value</small></span>
+          <span class="tool">.count(x)<small>how many times</small></span>
+          <span class="tool">x in lst<small>True / False</small></span>
+          <span class="tool">max(lst)<small>biggest</small></span>
+          <span class="tool">min(lst)<small>smallest</small></span>
+          <span class="tool">sum(lst)<small>total</small></span>
+          <span class="tool">sum(lst)/len(lst)<small>average</small></span>
+          <span class="tool">statistics.mean(lst)<small>average, ready-made</small></span>
+          <span class="tool">[]<small>the empty list</small></span>
+          <span class="tool">[5] * 10<small>ten fives</small></span>
+        </div>
+
+        <h2 class="heading text-3xl font-extrabold mb-3 mt-8">Quick Reference</h2>
+        <p class="text-[#134E4A]/60 mb-2">Using <code>nums = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]</code>:</p>
+        <table class="trace">
+          <thead><tr><th>Expression</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr><td><code>len([100, 92, 99, 80])</code></td><td><code>4</code></td></tr>
+            <tr><td><code>nums[0]</code></td><td><code>0</code></td></tr>
+            <tr><td><code>nums[-1]</code></td><td><code>15</code></td></tr>
+            <tr><td><code>nums[-2]</code></td><td><code>14</code></td></tr>
+            <tr><td><code>nums[3:10]</code></td><td><code>[3, 4, 5, 6, 7, 8, 9]</code></td></tr>
+            <tr><td><code>nums[:6]</code></td><td><code>[0, 1, 2, 3, 4, 5]</code></td></tr>
+            <tr><td><code>nums[6:]</code></td><td><code>[6, 7, …, 15]</code></td></tr>
+            <tr><td><code>nums[::2]</code></td><td><code>[0, 2, 4, 6, 8, 10, 12, 14]</code></td></tr>
+            <tr><td><code>nums[1::2]</code></td><td><code>[1, 3, 5, 7, 9, 11, 13, 15]</code></td></tr>
+            <tr><td><code>nums[::5]</code></td><td><code>[0, 5, 10, 15]</code></td></tr>
+            <tr><td><code>nums[::-1]</code></td><td><code>[15, 14, …, 0]</code></td></tr>
+            <tr><td><code>[5] * 3</code></td><td><code>[5, 5, 5]</code></td></tr>
+            <tr><td><code>[1, 92, 3, 92].count(92)</code></td><td><code>2</code></td></tr>
+            <tr><td><code>'a' in ['a', 'b', 'c']</code></td><td><code>True</code></td></tr>
+            <tr><td><code>99 in [1, 2, 3]</code></td><td><code>False</code></td></tr>
+            <tr><td><code>max([97, 100, 80])</code></td><td><code>100</code></td></tr>
+            <tr><td><code>sum([97, 100, 80])</code></td><td><code>277</code></td></tr>
+            <tr><td><code>sum([1, 2, 3]) / len([1, 2, 3])</code></td><td><code>2.0</code></td></tr>
+          </tbody>
+        </table>
+        <p class="text-[#134E4A]/60 mt-6">All of these were typed live in <a href="../lessons/13_lesson/13-lesson.html" class="text-[#0D9488] font-bold underline">Lesson 13</a>. The slicing rules come straight from <a href="../14_strings/index.html" class="text-[#0D9488] font-bold underline">Strings &amp; Slicing</a>.</p>
+      </section>
+
+    </section>
+  </main>
+
+</body>
+</html>

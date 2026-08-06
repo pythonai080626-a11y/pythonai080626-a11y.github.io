@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lesson 13 - Lists</title>
+  <style>
+    :root {
+      --bg-soft: #ffffff;
+      --green-1: #0f5a2e;
+      --green-2: #1f8f4e;
+      --green-3: #dbf6e5;
+      --mint: #e6fff2;
+      --text: #14281d;
+      --muted: #426654;
+      --border: #aadfbd;
+      --accent-a: #ddfbe7;
+      --accent-b: #fff4d8;
+      --code-bg: #0b2517;
+      --code-text: #d2ffe3;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Lucida Sans", "Segoe UI", sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 15% 10%, #e7fff0 0%, transparent 35%),
+                  radial-gradient(circle at 85% 18%, #fff5d6 0%, transparent 36%),
+                  linear-gradient(180deg, #f4fff6 0%, #ffffff 45%, #edfff4 100%);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    body::before, body::after {
+      content: "";
+      position: fixed;
+      width: 230px;
+      height: 230px;
+      z-index: -1;
+      border-radius: 999px;
+      filter: blur(2px);
+      opacity: 0.32;
+      animation: blobMove 8s ease-in-out infinite alternate;
+    }
+    body::before { background: #bff0d0; top: -30px; left: -40px; }
+    body::after { background: #ffe9a9; bottom: -40px; right: -40px; animation-delay: 1.4s; }
+
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 24px; }
+    .layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .side-nav {
+      position: sticky;
+      top: 14px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 8px 22px rgba(18,102,55,0.1);
+      padding: 12px;
+    }
+    .side-title { margin: 0 0 8px; font-size: 0.9rem; color: var(--green-1); font-weight: 700; }
+    .topic-link {
+      display: block;
+      width: 100%;
+      text-align: left;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      padding: 8px 10px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.89rem;
+      text-transform: lowercase;
+      margin-bottom: 4px;
+      transition: all 0.2s ease;
+    }
+    .topic-link:hover { background: #f0fff4; color: var(--green-1); border-color: var(--border); }
+    .topic-link.active { background: #e8faee; color: var(--green-1); border-color: var(--green-2); font-weight: 700; }
+
+    .hero {
+      background: linear-gradient(135deg, var(--bg-soft) 0%, var(--accent-a) 55%, var(--accent-b) 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 12px 30px rgba(24,110,58,0.12);
+      margin-bottom: 22px;
+      animation: riseIn 0.75s ease both;
+    }
+
+    h1, h2, h3 { margin-top: 0; color: var(--green-1); }
+    h1 { font-size: 2rem; margin-bottom: 8px; }
+    code { color: var(--green-1); font-weight: 700; }
+
+    .tag {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      background: var(--green-3);
+      color: var(--green-1);
+      border: 1px solid var(--border);
+      margin-bottom: 10px;
+    }
+
+    .card {
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 16px;
+      box-shadow: 0 7px 22px rgba(18,102,55,0.08);
+      animation: riseIn 0.65s ease both;
+    }
+
+    .topic-panel { display: none; }
+    .topic-panel.active { display: block; }
+    .step-title { margin: 0 0 12px; font-size: 1.25rem; }
+    .side-divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+    .side-section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--green-2);
+      padding: 4px 4px 6px;
+    }
+    .nav-back {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--green-2);
+      background: #e9fbe8;
+      color: var(--green-1);
+      text-decoration: none;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      width: 100%;
+      text-align: center;
+    }
+    .nav-back:hover { background: #d8f7df; transform: translateY(-1px); }
+
+    .note {
+      background: var(--mint);
+      border-left: 4px solid var(--green-2);
+      padding: 10px 14px;
+      color: var(--muted);
+      margin: 12px 0;
+      border-radius: 6px;
+      font-size: 0.94rem;
+    }
+    .warn {
+      background: #fff6e2;
+      border-left: 4px solid #e0a800;
+      padding: 10px 14px;
+      color: #6b4e00;
+      margin: 12px 0;
+      border-radius: 6px;
+      font-size: 0.94rem;
+    }
+    .big-result { font-size: 1.1rem; margin: 18px 0 8px; color: var(--green-1); font-weight: 700; }
+
+    .code {
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 10px;
+      border: 1px solid #2f5a3d;
+      padding: 16px 18px;
+      overflow-x: auto;
+      margin: 10px 0 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95rem;
+      white-space: pre;
+      line-height: 1.7;
+    }
+    .code .cm { color: #6dbf8a; }
+    .code .fn { color: #ffa657; }
+    .code .kw { color: #79c0ff; }
+    .code .num { color: #d2a8ff; }
+    .code .str { color: #ffd580; }
+    .code .hl { background: rgba(125,231,135,0.16); border-radius: 4px; }
+    .code .bad { background: rgba(248,113,113,0.16); border-radius: 4px; }
+
+    .console {
+      background: #101418;
+      color: #e6edf3;
+      border-radius: 10px;
+      border: 1px solid #30363d;
+      padding: 12px 18px;
+      overflow-x: auto;
+      margin: 10px 0 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92rem;
+      white-space: pre;
+      line-height: 1.7;
+    }
+    .console .usr { color: #7ee787; font-weight: 700; }
+    .console .dim { color: #8b949e; }
+    .console .err { color: #ff9f9f; }
+
+    .ex-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .88rem;
+      margin: 10px 0 14px;
+    }
+    .ex-table th {
+      background: var(--green-3);
+      color: var(--green-1);
+      padding: 8px 12px;
+      text-align: left;
+      border: 1px solid var(--border);
+      font-size: .78rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+    .ex-table td { padding: 8px 12px; border: 1px solid var(--border); vertical-align: top; }
+    .ex-table tr:nth-child(even) td { background: #f4fff7; }
+    .task-box {
+      background: var(--mint);
+      border: 2px dashed var(--green-2);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin: 14px 0;
+    }
+    .task-box a {
+      color: var(--green-1);
+      font-weight: 800;
+      font-size: 1.02rem;
+      word-break: break-all;
+    }
+    .footer { text-align: center; color: var(--muted); font-size: 0.86rem; padding: 10px 0 16px; }
+
+    .task-list { padding-left: 22px; margin: 10px 0 0; }
+    .task-list li { margin-bottom: 10px; color: #1a3a2a; }
+    .task-list li strong { color: var(--green-1); }
+
+    .ex-title { display: flex; align-items: center; margin: 22px 0 8px; }
+    .ex-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--green-3); border: 2px solid var(--green-2);
+      color: var(--green-1); font-weight: 800; font-size: .88rem;
+      margin-right: 8px; flex-shrink: 0;
+    }
+    .ex-title h3 { margin: 0; font-size: 1.1rem; }
+
+    .kbd {
+      display: inline-block; padding: 2px 8px; border-radius: 6px;
+      background: #f0fff4; border: 1px solid var(--border);
+      border-bottom-width: 3px; font-family: Consolas, monospace;
+      font-size: .85rem; color: var(--green-1); font-weight: 700;
+    }
+
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 6px; }
+    .pill {
+      display: inline-block; padding: 4px 12px; border-radius: 999px;
+      background: #eafcef; border: 1px solid var(--border);
+      color: var(--green-1); font-weight: 700; font-size: .82rem;
+    }
+
+    .submission { background: var(--mint); border-color: var(--green-2); margin-top: 0; }
+    .submission a { color: var(--green-1); font-weight: 800; font-size: 1.05rem; word-break: break-all; }
+
+    .rtl { direction: rtl; text-align: right; }
+    .rtl .task-list { padding-left: 0; padding-right: 22px; }
+    .rtl .ex-title { flex-direction: row-reverse; justify-content: flex-end; }
+    .rtl .ex-num { margin-right: 0; margin-left: 8px; }
+    .rtl .ex-table th, .rtl .ex-table td { text-align: right; }
+    .rtl .pill-row { justify-content: flex-start; }
+
+    /* ── Module toolbox ── */
+    .toolbox {
+      background: #f7fffb; border: 1px solid var(--border);
+      border-radius: 14px; padding: 16px 18px; margin: 14px 0;
+    }
+    .toolbox .tb-head {
+      display: flex; align-items: center; gap: 8px;
+      font-weight: 800; color: var(--green-1); margin-bottom: 10px;
+    }
+    .toolbox .tb-head .tb-ic {
+      width: 30px; height: 30px; border-radius: 9px; flex-shrink: 0;
+      background: linear-gradient(160deg, #2dd4bf, #0d9488);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 1rem;
+    }
+    .tool-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tool {
+      font-family: Consolas, monospace; font-size: .82rem; font-weight: 700;
+      background: #ffffff; border: 1px solid var(--border);
+      border-bottom-width: 3px; border-radius: 9px;
+      padding: 6px 11px; color: var(--green-1);
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .tool:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(18,102,55,0.16); }
+    .tool small { display: block; font-family: "Trebuchet MS", sans-serif; font-weight: 400; color: var(--muted); font-size: .72rem; }
+
+    /* ── before / after boxes ── */
+    .ba { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 12px 0 14px; }
+    .ba .bx {
+      font-family: Consolas, monospace; font-weight: 700; font-size: .95rem;
+      background: #ffffff; border: 1px solid var(--border);
+      border-bottom-width: 3px; border-radius: 10px; padding: 9px 13px; color: var(--green-1);
+      white-space: pre;
+    }
+    .ba .bx.old { background: #fff6e2; border-color: #e6c46a; color: #6b4e00; }
+    .ba .arw { font-weight: 800; color: var(--muted); }
+
+    /* ── Lesson 13: the cell map for list indexing ── */
+    .cellmap {
+      display: flex; flex-wrap: wrap; gap: 7px; justify-content: center;
+      background: #f5fff9; border: 1px solid var(--border);
+      border-radius: 12px; padding: 16px 18px; margin: 12px 0 14px;
+    }
+    .cl { text-align: center; }
+    .cl .cbox {
+      display: flex; align-items: center; justify-content: center;
+      width: 52px; height: 48px; border-radius: 10px;
+      font-family: Consolas, monospace; font-weight: 800; font-size: 1.05rem;
+      background: linear-gradient(160deg, #d6f8e4, #a9ecc6);
+      border: 1px solid #7fd6a3; color: #08351d;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+    }
+    .cl .cidx { display: block; font-family: Consolas, monospace; font-size: .76rem; font-weight: 800; color: var(--green-2); margin-top: 4px; }
+    .cl .cneg { display: block; font-family: Consolas, monospace; font-size: .72rem; color: #b4530f; }
+    .cl.sel .cbox { background: linear-gradient(160deg, #fff0c2, #ffd980); border-color: #e0a800; }
+    .cl.off .cbox { background: repeating-linear-gradient(135deg, #f4f7f5 0 8px, #e9efeb 8px 16px); border: 1px dashed #9fb5a8; color: #6d8479; }
+    .cl.gap .cbox {
+      background: #ffffff; border: 2px dashed #e0a800; color: #e0a800;
+      animation: gapPulse 1.6s ease-in-out infinite;
+    }
+    .cellmap-cap { text-align: center; font-family: Consolas, monospace; font-weight: 800; color: var(--green-1); margin-bottom: 4px; }
+
+    @keyframes gapPulse {
+      0%, 100% { transform: scale(1); }
+      50%      { transform: scale(1.08); }
+    }
+
+    /* ── One-at-a-time slides with prev / next ── */
+    .slide { display: none; animation: riseIn 0.4s ease both; }
+    .slide.active { display: block; }
+    .slide-nav {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      margin-top: 18px; padding: 12px 14px;
+      border: 1px solid var(--border); border-radius: 12px;
+      background: linear-gradient(180deg, #f7fffb 0%, #eafcef 100%);
+    }
+    .sbtn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 18px; border-radius: 10px;
+      border: 1px solid var(--green-2); background: #e9fbe8;
+      color: var(--green-1); font-family: inherit; font-weight: 700; font-size: .92rem;
+      cursor: pointer; transition: all 0.2s ease;
+    }
+    .sbtn:hover:not(:disabled) { background: #d8f7df; transform: translateY(-1px); }
+    .sbtn:disabled { opacity: .35; cursor: default; }
+    .slide-dots { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+    .sdot {
+      width: 11px; height: 11px; border-radius: 50%; padding: 0;
+      border: 1px solid var(--green-2); background: #ffffff;
+      cursor: pointer; transition: all 0.2s ease;
+    }
+    .sdot:hover { background: #cdf3da; }
+    .sdot.active { background: var(--green-2); transform: scale(1.25); }
+    .slide-count { font-size: .8rem; font-weight: 700; color: var(--muted); }
+    .slide .ex-title { margin-top: 0; }
+
+    /* ── "look at me" animation on next, until it is used once ── */
+    .sbtn .arw-ic { display: inline-block; }
+    .sbtn.cta {
+      background: #d3f7de;
+      animation: ctaPulse 1.9s ease-in-out infinite;
+    }
+    .sbtn.cta .arw-ic { animation: arwNudge 1.9s ease-in-out infinite; }
+    .sbtn.cta:hover { animation: none; }
+    .sbtn.cta:hover .arw-ic { animation: none; }
+    .sbtn:disabled, .sbtn:disabled .arw-ic { animation: none; }
+
+    @keyframes ctaPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(31,143,78,0.45); transform: translateY(0); }
+      45%      { box-shadow: 0 0 0 9px rgba(31,143,78,0);   transform: translateY(-3px); }
+      60%      { box-shadow: 0 0 0 0 rgba(31,143,78,0);     transform: translateY(0); }
+    }
+    @keyframes arwNudge {
+      0%, 100% { transform: translateX(0); }
+      45%      { transform: translateX(5px); }
+      60%      { transform: translateX(0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .sbtn.cta, .sbtn.cta .arw-ic, .cl.gap .cbox { animation: none; }
+      .sbtn.cta { box-shadow: 0 0 0 3px rgba(31,143,78,0.25); }
+    }
+
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes blobMove {
+      from { transform: translate(0, 0) scale(1); }
+      to { transform: translate(24px, 18px) scale(1.06); }
+    }
+
+    @media (max-width: 760px) {
+      .wrap { padding: 14px; }
+      .layout { grid-template-columns: 1fr; }
+      .side-nav { position: static; }
+      h1 { font-size: 1.6rem; }
+      .code { font-size: 0.86rem; }
+      .ex-table { font-size: .8rem; }
+      .cl .cbox { width: 40px; height: 40px; font-size: .85rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <span class="tag">Lesson 13 - August 6, 2026</span>
+    <h1>Lists — One Name, Many Values 📋</h1>
+    <p>Until today every variable held <strong>one</strong> thing: one grade, one name, one <code>True</code>. Today we meet the <strong><code>list</code></strong> — a single variable that holds a whole row of values, in order, each one reachable by its <strong>index</strong>. Everything you learned about slicing a string comes back for free (<code>[3:10]</code>, <code>[::2]</code>, <code>[::-1]</code>), and on top of it lists can <strong>grow</strong> (<code>append</code>, <code>insert</code>) and <strong>shrink</strong> (<code>pop</code>, <code>del</code>, <code>remove</code>) — because unlike a string, a list <em>can</em> be changed. We finish with the four questions you will ask a list of numbers forever: <code>max</code>, <code>min</code>, <code>sum</code> and the average.</p>
+  </section>
+
+  <div class="layout">
+    <aside class="side-nav" aria-label="Topic navigation">
+      <div class="side-title">Lesson 13 topics</div>
+
+      <div class="side-section-label">1 · The list type</div>
+      <button class="topic-link active" data-target="topic-list">list &amp; type hints</button>
+      <button class="topic-link" data-target="topic-slice">index &amp; slicing</button>
+
+      <div class="side-section-label">2 · Growing</div>
+      <button class="topic-link" data-target="topic-add">append, insert &amp; looping</button>
+      <button class="topic-link" data-target="topic-sorted">the sorted-insert program</button>
+
+      <div class="side-section-label">3 · Shrinking</div>
+      <button class="topic-link" data-target="topic-remove">pop, del, remove — the tour</button>
+
+      <div class="side-section-label">4 · Numbers</div>
+      <button class="topic-link" data-target="topic-numbers">max, min, sum &amp; avg</button>
+
+      <hr class="side-divider">
+      <button class="topic-link" data-target="topic-github">github folder</button>
+      <button class="topic-link" data-target="topic-exercise">exercise</button>
+      <button class="topic-link" data-target="topic-exercise-heb">exercise - עברית</button>
+
+      <div class="side-section-label">Navigation</div>
+      <a class="nav-back" href="../../index.html#lessons">Back to lessons</a>
+    </aside>
+
+    <main>
+      <!-- ═══ 1 · THE LIST TYPE ═══ -->
+      <section class="card topic-panel active" id="topic-list">
+        <span class="tag">01_lists.py</span>
+        <h2 class="step-title">One Variable, Many Values</h2>
+        <p>Look at what we have been writing all course. One box, one value:</p>
+
+        <div class="code">grade: <span class="fn">int</span> = <span class="num">100</span>
+temperature: <span class="fn">float</span> = <span class="num">37.5</span>
+is_adult: <span class="fn">bool</span> = <span class="kw">True</span>
+name: <span class="fn">str</span> = <span class="str">'Danny!'</span></div>
+
+        <div class="note">
+          That <code>: int</code> after the name is a <strong>type hint</strong>. It is optional and Python does not enforce it — <code>x = 5</code> and <code>x: int = 5</code> behave identically. It exists so <em>you</em> and PyCharm know what belongs in the box. From today on we will write them, because with lists the hint tells you something genuinely useful.
+        </div>
+
+        <div class="big-result">Now hold four grades in one variable</div>
+        <div class="code">grades: <span class="fn">list</span>[<span class="fn">int</span>] = [<span class="num">100</span>, <span class="num">92</span>, <span class="num">99</span>, <span class="num">80</span>]
+grades = [<span class="num">100</span>, <span class="num">92</span>, <span class="num">99</span>, <span class="num">80</span>]                    <span class="cm"># the same thing, without the hint</span></div>
+
+        <div class="cellmap-cap">grades</div>
+        <div class="cellmap">
+          <div class="cl"><span class="cbox">100</span><span class="cidx">0</span><span class="cneg">-4</span></div>
+          <div class="cl"><span class="cbox">92</span><span class="cidx">1</span><span class="cneg">-3</span></div>
+          <div class="cl"><span class="cbox">99</span><span class="cidx">2</span><span class="cneg">-2</span></div>
+          <div class="cl"><span class="cbox">80</span><span class="cidx">3</span><span class="cneg">-1</span></div>
+        </div>
+        <p>Square brackets, commas between the values. Each value sits in a numbered cell, and — exactly like a string — <strong>the first cell is number 0</strong>.</p>
+
+        <div class="big-result">A list of anything</div>
+        <div class="code">names: <span class="fn">list</span>[<span class="fn">str</span>]   = [<span class="str">'danny'</span>, <span class="str">'moshe'</span>, <span class="str">'suzi'</span>, <span class="str">'sharon'</span>]
+working: <span class="fn">list</span>[<span class="fn">bool</span>] = [<span class="kw">True</span>, <span class="kw">False</span>, <span class="kw">True</span>, <span class="kw">True</span>]
+floats: <span class="fn">list</span>[<span class="fn">float</span>] = [<span class="num">3.4</span>, <span class="num">9.9999</span>, -<span class="num">7.1</span>]</div>
+
+        <div class="big-result">…including a mix</div>
+        <div class="code"><span class="kw">from</span> typing <span class="kw">import</span> Any
+
+comb: <span class="fn">list</span>[<span class="fn">object</span>] = [<span class="num">3.7</span>, <span class="num">1</span>, <span class="str">'danny'</span>, <span class="kw">True</span>]
+comb: <span class="fn">list</span>[Any]    = [<span class="num">3.7</span>, <span class="num">1</span>, <span class="str">'danny'</span>, <span class="kw">True</span>]
+comb = [<span class="num">3.7</span>, <span class="num">1</span>, <span class="str">'danny'</span>, <span class="kw">True</span>]                <span class="cm"># all three are legal</span></div>
+        <div class="note">
+          Python is perfectly happy with a mixed list. <code>list[object]</code> and <code>list[Any]</code> are two ways of saying "anything goes" in the hint. In real programs you almost always want one type per list — a list of grades, a list of names — because then you know what <code>max()</code> or <code>.upper()</code> will do to it.
+        </div>
+
+        <div class="big-result">A list of lists</div>
+        <div class="code">list_of_lists: <span class="fn">list</span>[ <span class="fn">list</span>[<span class="fn">int</span>] ] = [ [], [<span class="num">1</span>], [<span class="num">1</span>, <span class="num">2</span>], [<span class="num">7</span>, <span class="num">7</span>, <span class="num">7</span>, <span class="num">7</span>], <span class="hl">[<span class="num">5</span>] * <span class="num">10</span></span> ]</div>
+        <div class="note">
+          A cell can hold another list — that is a table. Note <code>[]</code>, the <strong>empty list</strong>, and the trick at the end: <code>[5] * 10</code> is a list of ten fives. Same <code>*</code> you used on strings in lesson 12 (<code>'*' * 50</code>), same idea.
+        </div>
+
+        <div class="toolbox">
+          <div class="tb-head"><span class="tb-ic">🧰</span> Everything the list toolbox gave us today</div>
+          <div class="tool-grid">
+            <span class="tool">len(lst)<small>how many items</small></span>
+            <span class="tool">lst[i]<small>the item at i</small></span>
+            <span class="tool">lst[a:b]<small>a slice</small></span>
+            <span class="tool">lst[::-1]<small>reversed</small></span>
+            <span class="tool">.append(x)<small>add at the end</small></span>
+            <span class="tool">.insert(i, x)<small>add at position i</small></span>
+            <span class="tool">.pop(i)<small>remove &amp; hand back</small></span>
+            <span class="tool">del lst[i]<small>remove by index</small></span>
+            <span class="tool">.remove(x)<small>remove by value</small></span>
+            <span class="tool">.count(x)<small>how many times</small></span>
+            <span class="tool">x in lst<small>True / False</small></span>
+            <span class="tool">max(lst)<small>biggest</small></span>
+            <span class="tool">min(lst)<small>smallest</small></span>
+            <span class="tool">sum(lst)<small>total</small></span>
+            <span class="tool">statistics.mean(lst)<small>average</small></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ 2 · INDEX & SLICING ═══ -->
+      <section class="card topic-panel" id="topic-slice">
+        <span class="tag">01_lists.py</span>
+        <h2 class="step-title">Index &amp; Slicing — You Already Know This ✂️</h2>
+        <p>Good news: slicing a list is <strong>identical</strong> to slicing a string. Same colons, same rules, same off-by-one trap. Only the pieces that come back are values instead of characters.</p>
+
+        <div class="code">list_numbers: <span class="fn">list</span>[<span class="fn">int</span>] = [<span class="num">0</span>, <span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>, <span class="num">6</span>, <span class="num">7</span>, <span class="num">8</span>, <span class="num">9</span>, <span class="num">10</span>, <span class="num">11</span>, <span class="num">12</span>, <span class="num">13</span>, <span class="num">14</span>, <span class="num">15</span>]</div>
+        <div class="note">
+          A happy accident that makes this list perfect for learning: the <em>value</em> in every cell is the same as its <em>index</em>. So whatever comes back from a slice, you can read the answer as positions.
+        </div>
+
+        <div class="big-result">The seven one-liners from class</div>
+        <div class="code"><span class="cm"># the numbers from 3 to 9</span>
+<span class="fn">print</span>(list_numbers[<span class="num">3</span>: <span class="num">9</span> + <span class="num">1</span>])
+<span class="cm"># from the start to 5</span>
+<span class="fn">print</span>(list_numbers[:<span class="num">5</span> + <span class="num">1</span>])
+<span class="cm"># from 6 to the end</span>
+<span class="fn">print</span>(list_numbers[<span class="num">6</span>:])
+<span class="cm"># every even number (zuggim)</span>
+<span class="fn">print</span>(list_numbers[::<span class="num">2</span>])
+<span class="cm"># every odd number (ei-zugim)</span>
+<span class="fn">print</span>(list_numbers[<span class="num">1</span>::<span class="num">2</span>])
+<span class="cm"># every multiple of 5 (mahpela 5)</span>
+<span class="fn">print</span>(list_numbers[::<span class="num">5</span>])
+<span class="cm"># in reverse</span>
+<span class="fn">print</span>(list_numbers[::-<span class="num">1</span>])</div>
+        <div class="console">[3, 4, 5, 6, 7, 8, 9]
+[0, 1, 2, 3, 4, 5]
+[6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+[0, 2, 4, 6, 8, 10, 12, 14]
+[1, 3, 5, 7, 9, 11, 13, 15]
+[0, 5, 10, 15]
+[15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0]</div>
+
+        <div class="note">
+          <strong>Why <code>9 + 1</code> and not just <code>10</code>?</strong> Because the end of a slice is <em>not included</em>. Writing the <code>+ 1</code> on purpose is a habit worth keeping while you learn: it says out loud "I want up to and including 9". Both forms produce exactly the same list.
+        </div>
+
+        <div class="big-result">The three numbers of a slice</div>
+        <table class="ex-table">
+          <thead><tr><th>Written</th><th>Means</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr><td><code>[3:10]</code></td><td>from 3, stop before 10</td><td><code>[3, 4, 5, 6, 7, 8, 9]</code></td></tr>
+            <tr><td><code>[:6]</code></td><td>no start = from the beginning</td><td><code>[0, 1, 2, 3, 4, 5]</code></td></tr>
+            <tr><td><code>[6:]</code></td><td>no end = all the way to the end</td><td><code>[6, 7, …, 15]</code></td></tr>
+            <tr><td><code>[::2]</code></td><td>everything, in jumps of 2</td><td><code>[0, 2, 4, …]</code></td></tr>
+            <tr><td><code>[1::2]</code></td><td>start at 1, jumps of 2</td><td><code>[1, 3, 5, …]</code></td></tr>
+            <tr><td><code>[::-1]</code></td><td>step backwards = reversed</td><td><code>[15, 14, …, 0]</code></td></tr>
+          </tbody>
+        </table>
+
+        <div class="big-result">Counting from the right</div>
+        <div class="code"><span class="fn">print</span>(list_numbers[-<span class="num">1</span>])   <span class="cm"># the last one</span>
+<span class="fn">print</span>(list_numbers[-<span class="num">2</span>])   <span class="cm"># 2nd from the end</span></div>
+        <div class="console">15
+14</div>
+        <div class="cellmap-cap">grades = [100, 92, 99, 80]</div>
+        <div class="cellmap">
+          <div class="cl"><span class="cbox">100</span><span class="cidx">0</span><span class="cneg">-4</span></div>
+          <div class="cl"><span class="cbox">92</span><span class="cidx">1</span><span class="cneg">-3</span></div>
+          <div class="cl"><span class="cbox">99</span><span class="cidx">2</span><span class="cneg">-2</span></div>
+          <div class="cl sel"><span class="cbox">80</span><span class="cidx">3</span><span class="cneg">-1</span></div>
+        </div>
+        <div class="note">
+          <code>lst[-1]</code> is the single most useful index there is: <em>the last item</em>, whatever the length. You will see it again in ten minutes, deciding whether a new number is bigger than everything already in the list.
+        </div>
+        <div class="warn">
+          Indexing is strict, slicing is forgiving. <code>lst[99]</code> on a short list raises <code>IndexError: list index out of range</code>, but <code>lst[0:99]</code> quietly gives you everything there is.
+        </div>
+      </section>
+
+      <!-- ═══ 3 · APPEND / INSERT / LOOPING ═══ -->
+      <section class="card topic-panel" id="topic-add">
+        <span class="tag">01_lists.py</span>
+        <h2 class="step-title">Growing a List — <code>append</code> and <code>insert</code></h2>
+        <p>Here is the big difference from strings. A string can never change; a <strong>list can</strong>. These methods do not hand you a new list — they edit the one you already have.</p>
+
+        <div class="code"><span class="cm">#                      0   1   2   3</span>
+grades: <span class="fn">list</span>[<span class="fn">int</span>] = [<span class="num">100</span>, <span class="num">92</span>, <span class="num">99</span>, <span class="num">80</span>]
+
+grades.<span class="fn">append</span>(<span class="num">88</span>)       <span class="cm"># at the end</span>
+grades.<span class="fn">insert</span>(<span class="num">0</span>, <span class="num">88</span>)    <span class="cm"># at position 0, everyone else shifts right</span>
+<span class="fn">print</span>(grades)</div>
+        <div class="console">[88, 100, 92, 99, 80, 88]</div>
+
+        <div class="cellmap-cap">insert(0, 88) — the new value pushes in at the front</div>
+        <div class="cellmap">
+          <div class="cl gap"><span class="cbox">88</span><span class="cidx">0</span></div>
+          <div class="cl"><span class="cbox">100</span><span class="cidx">1</span></div>
+          <div class="cl"><span class="cbox">92</span><span class="cidx">2</span></div>
+          <div class="cl"><span class="cbox">99</span><span class="cidx">3</span></div>
+          <div class="cl"><span class="cbox">80</span><span class="cidx">4</span></div>
+          <div class="cl sel"><span class="cbox">88</span><span class="cidx">5</span></div>
+        </div>
+
+        <div class="warn">
+          <strong>Do not write <code>grades = grades.append(88)</code>.</strong> With strings you <em>had</em> to store the result back; here it is the opposite. <code>append</code> changes the list and returns <code>None</code> — so that line would throw your whole list away and leave you with <code>None</code>. Just call it: <code>grades.append(88)</code>.
+        </div>
+        <div class="ba">
+          <span class="bx old">grades.append(88)</span>
+          <span class="arw">edits the list, returns</span>
+          <span class="bx">None</span>
+        </div>
+
+        <div class="big-result">Two ways to walk over a list</div>
+        <div class="code"><span class="kw">for</span> index <span class="kw">in</span> <span class="fn">range</span>(<span class="num">0</span>, <span class="fn">len</span>(grades)):
+    <span class="fn">print</span>(<span class="str">f'#{index}: {grades[index]}'</span>, end=<span class="str">' '</span>)
+<span class="fn">print</span>()
+
+<span class="kw">for</span> grade <span class="kw">in</span> grades:
+    <span class="fn">print</span>(grade, end=<span class="str">' '</span>)
+<span class="fn">print</span>()</div>
+        <div class="console">#0: 88 #1: 100 #2: 92 #3: 99 #4: 80 #5: 88
+88 100 92 99 80 88 </div>
+        <table class="ex-table">
+          <thead><tr><th></th><th><code>for i in range(len(lst))</code></th><th><code>for item in lst</code></th></tr></thead>
+          <tbody>
+            <tr><td>The variable holds</td><td>a <strong>number</strong> — the position</td><td>the <strong>value</strong> itself</td></tr>
+            <tr><td>Getting the value</td><td><code>lst[i]</code></td><td><code>item</code></td></tr>
+            <tr><td>Use when…</td><td>you need to know <em>where</em> you are, or you plan to <code>insert</code> there</td><td>you only care <em>what</em> is there</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          Same two shapes you learned for strings in lesson 12 — <code>for c in text</code> became <code>for grade in grades</code>. Notice <code>end=' '</code> on <code>print</code>: it replaces the automatic newline with a space, which is why the whole loop lands on one line, and why a bare <code>print()</code> is needed afterwards to break it.
+        </div>
+        <div class="warn">
+          The empty <code>print()</code> at the end is not decoration. Without it your next output starts glued to the end of the loop's line.
+        </div>
+      </section>
+
+      <!-- ═══ 4 · SORTED INSERT PROGRAM ═══ -->
+      <section class="card topic-panel" id="topic-sorted">
+        <span class="tag">01_lists.py</span>
+        <h2 class="step-title">The Sorted-Insert Program 🎯</h2>
+        <p>The real exercise of the lesson, and the first program you have written that keeps <strong>state</strong> between rounds. The rule: read numbers from the user until <code>-999</code>, and keep the list <strong>sorted at all times</strong> — using nothing but <code>append</code> and <code>insert</code>.</p>
+
+        <div class="code">numbers = []
+
+<span class="kw">while</span> <span class="kw">True</span>:
+    x = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'enter number [-999 to exit]: '</span>))
+
+    <span class="cm"># -999 exit</span>
+    <span class="kw">if</span> x == -<span class="num">999</span>:
+        <span class="kw">break</span>
+
+    <span class="cm"># empty list, or bigger than the current max: it belongs at the end</span>
+    <span class="kw">if</span> <span class="hl"><span class="fn">len</span>(numbers) == <span class="num">0</span> <span class="kw">or</span> x &gt;= numbers[-<span class="num">1</span>]</span>:
+        numbers.<span class="fn">append</span>(x)
+        <span class="kw">continue</span>
+
+    <span class="cm"># otherwise: find the first item that is bigger, and squeeze in before it</span>
+    <span class="kw">for</span> index <span class="kw">in</span> <span class="fn">range</span>(<span class="num">0</span>, <span class="fn">len</span>(numbers)):
+        <span class="kw">if</span> numbers[index] &gt; x:
+            numbers.<span class="fn">insert</span>(index, x)
+            <span class="kw">break</span>
+
+<span class="fn">print</span>(numbers)</div>
+
+        <div class="big-result">A run, step by step</div>
+        <div class="console"><span class="dim">enter number [-999 to exit]: </span><span class="usr">12</span>
+<span class="dim">enter number [-999 to exit]: </span><span class="usr">18</span>
+<span class="dim">enter number [-999 to exit]: </span><span class="usr">15</span>
+<span class="dim">enter number [-999 to exit]: </span><span class="usr">3</span>
+<span class="dim">enter number [-999 to exit]: </span><span class="usr">-999</span>
+[3, 12, 15, 18]</div>
+
+        <table class="ex-table">
+          <thead><tr><th>Input</th><th>List before</th><th>Which rule fired</th><th>List after</th></tr></thead>
+          <tbody>
+            <tr><td><code>12</code></td><td><code>[]</code></td><td>list is empty → <code>append</code></td><td><code>[12]</code></td></tr>
+            <tr><td><code>18</code></td><td><code>[12]</code></td><td><code>18 &gt;= numbers[-1]</code> (12) → <code>append</code></td><td><code>[12, 18]</code></td></tr>
+            <tr><td><code>15</code></td><td><code>[12, 18]</code></td><td>not the biggest → scan: 12 is not &gt; 15, <strong>18 is</strong>, at index 1 → <code>insert(1, 15)</code></td><td><code>[12, 15, 18]</code></td></tr>
+            <tr><td><code>3</code></td><td><code>[12, 15, 18]</code></td><td>not the biggest → scan: <strong>12 is &gt; 3</strong>, at index 0 → <code>insert(0, 3)</code></td><td><code>[3, 12, 15, 18]</code></td></tr>
+            <tr><td><code>-999</code></td><td><code>[3, 12, 15, 18]</code></td><td><code>break</code> — leave the while</td><td><code>[3, 12, 15, 18]</code></td></tr>
+          </tbody>
+        </table>
+
+        <div class="big-result">Why each piece is there</div>
+        <table class="ex-table">
+          <thead><tr><th>Line</th><th>What breaks without it</th></tr></thead>
+          <tbody>
+            <tr><td><code>len(numbers) == 0 or …</code></td><td>On the very first number the list is empty, so <code>numbers[-1]</code> would raise <code>IndexError</code>. The <code>or</code> saves us: Python checks the left side first and, if it is <code>True</code>, never even looks at the right side.</td></tr>
+            <tr><td><code>x &gt;= numbers[-1]</code></td><td>Without it, a number bigger than everything would fall into the <code>for</code>, find nothing bigger than itself, and be silently dropped.</td></tr>
+            <tr><td><code>continue</code></td><td>After appending we are done with this number — <code>continue</code> jumps straight back up to the next <code>input</code>. Without it we would fall into the <code>for</code> and insert the number a second time.</td></tr>
+            <tr><td><code>break</code> inside the <code>for</code></td><td>Without it the loop keeps scanning a list that just grew, and inserts again and again.</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          Two <code>break</code>s in one program, and they do different jobs: the first leaves the <code>while</code> (the program is over), the second leaves the <code>for</code> (this number found its spot). <code>break</code> always exits the <strong>nearest</strong> loop around it.
+        </div>
+        <div class="warn">
+          Notice we never used <code>sort()</code>. Python has one, and one day you will use it — but the whole point today is that <code>append</code> + <code>insert</code> + a comparison is enough to keep the list in order yourself.
+        </div>
+      </section>
+
+      <!-- ═══ 5 · REMOVE TOUR (SLIDES) ═══ -->
+      <section class="card topic-panel" id="topic-remove">
+        <span class="tag">02_lists.py</span>
+        <h2 class="step-title">Taking Things Out 🗑️</h2>
+        <p>Four different ways to remove something, and they are <em>not</em> interchangeable. Six slides, one idea each — use <strong>prev / next</strong> at the bottom.</p>
+
+        <div class="code"><span class="cm">#                     0    1   2   3   4   5   6   7</span>
+grades: <span class="fn">list</span>[<span class="fn">int</span>] = [<span class="num">97</span>, <span class="num">100</span>, <span class="num">92</span>, <span class="num">99</span>, <span class="num">80</span>, <span class="num">88</span>, <span class="num">92</span>, <span class="num">92</span>]</div>
+
+        <div class="slides" id="fmt-slides">
+
+          <!-- slide 1 -->
+          <div class="slide active">
+            <div class="ex-title"><span class="ex-num">1</span><h3><code>.pop(i)</code> — remove <em>and</em> hand it back</h3></div>
+            <div class="code"><span class="fn">print</span>(<span class="str">'pop index 4 =&gt;'</span>, grades.<span class="fn">pop</span>(<span class="num">4</span>))
+<span class="fn">print</span>(<span class="str">'after pop'</span>, grades)</div>
+            <div class="console">pop index 4 =&gt; 80
+after pop [97, 100, 92, 99, 88, 92, 92]</div>
+            <div class="cellmap">
+              <div class="cl"><span class="cbox">97</span><span class="cidx">0</span></div>
+              <div class="cl"><span class="cbox">100</span><span class="cidx">1</span></div>
+              <div class="cl"><span class="cbox">92</span><span class="cidx">2</span></div>
+              <div class="cl"><span class="cbox">99</span><span class="cidx">3</span></div>
+              <div class="cl off"><span class="cbox">80</span><span class="cidx">4</span></div>
+              <div class="cl"><span class="cbox">88</span><span class="cidx">5</span></div>
+              <div class="cl"><span class="cbox">92</span><span class="cidx">6</span></div>
+              <div class="cl"><span class="cbox">92</span><span class="cidx">7</span></div>
+            </div>
+            <div class="note">
+              <code>pop</code> is the only one that <strong>gives you the value back</strong>, which is why it fits so nicely inside a <code>print</code>. Bare <code>grades.pop()</code> with no number takes the <em>last</em> item. After the pop everything to the right slides one place left — index 5 is now 92, not 88.
+            </div>
+          </div>
+
+          <!-- slide 2 -->
+          <div class="slide">
+            <div class="ex-title"><span class="ex-num">2</span><h3><code>del</code> — remove by position</h3></div>
+            <div class="code"><span class="kw">del</span> grades[<span class="num">0</span>]
+<span class="fn">print</span>(<span class="str">'after delete'</span>, grades)</div>
+            <div class="console">after delete [100, 92, 99, 88, 92, 92]</div>
+            <div class="note">
+              <code>del</code> is not a method — there is no dot and no parentheses. It is a <strong>keyword</strong>, like <code>break</code> or <code>if</code>. Use it when you want the item gone and do not care about its value; use <code>pop</code> when you want to keep it.
+            </div>
+          </div>
+
+          <!-- slide 3 -->
+          <div class="slide">
+            <div class="ex-title"><span class="ex-num">3</span><h3><code>.remove(x)</code> — remove by <em>value</em></h3></div>
+            <div class="code">grades.<span class="fn">remove</span>(<span class="num">92</span>)      <span class="cm"># the first 92 from the left</span>
+<span class="fn">print</span>(<span class="str">'after remove 92 '</span>, grades)</div>
+            <div class="console">after remove 92  [100, 99, 88, 92, 92]</div>
+            <div class="note">
+              This is the important one. Everything before took a <strong>position</strong>; <code>remove</code> takes the <strong>value you are looking for</strong> — and deletes only the <strong>leftmost</strong> match. Two more 92s are still sitting there.
+            </div>
+            <div class="warn">
+              If the value is not in the list at all, <code>remove</code> raises <code>ValueError: list.remove(x): x not in list</code>. That single fact is why the next slide exists.
+            </div>
+          </div>
+
+          <!-- slide 4 -->
+          <div class="slide">
+            <div class="ex-title"><span class="ex-num">4</span><h3>Remove <em>every</em> 92</h3></div>
+            <div class="code"><span class="kw">while</span> <span class="hl"><span class="num">92</span> <span class="kw">in</span> grades</span>:
+    grades.<span class="fn">remove</span>(<span class="num">92</span>)
+<span class="fn">print</span>(<span class="str">'after remove ALL 92 '</span>, grades)</div>
+            <div class="console">after remove ALL 92  [100, 99, 88]</div>
+            <div class="note">
+              Read it out loud and it is obvious: "<em>while there is still a 92 in there, take one out</em>". The <code>in</code> check is also the guard that makes <code>remove</code> safe — the moment the last one is gone the condition turns <code>False</code> and the loop stops, so <code>remove</code> is never called on a value that is not there.
+            </div>
+          </div>
+
+          <!-- slide 5 -->
+          <div class="slide">
+            <div class="ex-title"><span class="ex-num">5</span><h3><code>.count(x)</code> — the other way to do it</h3></div>
+            <div class="code">l1 = [<span class="num">1</span>, <span class="num">92</span>, <span class="num">3</span>, <span class="num">92</span>, <span class="num">92</span>, <span class="num">92</span>]
+<span class="fn">print</span>(<span class="str">'how many times 92 occurs in l1'</span>, l1.<span class="fn">count</span>(<span class="num">92</span>))
+
+<span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="num">0</span>, l1.<span class="fn">count</span>(<span class="num">92</span>)):
+    l1.<span class="fn">remove</span>(<span class="num">92</span>)
+<span class="fn">print</span>(l1)</div>
+            <div class="console">how many times 92 occurs in l1 4
+[1, 3]</div>
+            <div class="note">
+              Same result, different thinking: count them first, then remove exactly that many times. The <code>_</code> from lesson 10 is back — we need the loop to run 4 times but we never use the counter, so we give it the throwaway name.
+            </div>
+            <div class="warn">
+              <code>range(0, l1.count(92))</code> is evaluated <strong>once</strong>, before the loop starts — which is exactly what makes it work. Had Python re-counted every round, the shrinking list would cut the loop short.
+            </div>
+          </div>
+
+          <!-- slide 6 -->
+          <div class="slide">
+            <div class="ex-title"><span class="ex-num">6</span><h3><code>in</code> — is it there at all?</h3></div>
+            <div class="code"><span class="fn">print</span>(<span class="str">"'a' in ['a', 'b', 'c']?"</span>, <span class="str">'a'</span> <span class="kw">in</span> [<span class="str">'a'</span>, <span class="str">'b'</span>, <span class="str">'c'</span>])
+<span class="fn">print</span>(<span class="str">"1 in [1, 2, 3]?"</span>, <span class="num">1</span> <span class="kw">in</span> [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>])</div>
+            <div class="console">'a' in ['a', 'b', 'c']? True
+1 in [1, 2, 3]? True</div>
+            <div class="note">
+              <code>in</code> answers <code>True</code> / <code>False</code> — a boolean, exactly like the comparisons from lesson 11. So it can be stored in a variable (<code>is_member = name in names</code>), used in an <code>if</code>, or driven by a <code>while</code> as you just saw. And yes: this is the same <code>in</code> as in <code>for x in lst</code>, wearing a different hat.
+            </div>
+          </div>
+
+        </div>
+
+        <div class="slide-nav">
+          <button class="sbtn" id="slide-prev" type="button">◀ prev</button>
+          <div class="slide-dots" id="slide-dots"></div>
+          <span class="slide-count" id="slide-count"></span>
+          <button class="sbtn" id="slide-next" type="button">next <span class="arw-ic">▶</span></button>
+        </div>
+
+        <div class="big-result">The four, side by side</div>
+        <table class="ex-table">
+          <thead><tr><th>Written</th><th>Takes</th><th>Gives back</th><th>Missing value?</th></tr></thead>
+          <tbody>
+            <tr><td><code>lst.pop(i)</code></td><td>an index</td><td>the removed value</td><td><code>IndexError</code></td></tr>
+            <tr><td><code>del lst[i]</code></td><td>an index</td><td>nothing</td><td><code>IndexError</code></td></tr>
+            <tr><td><code>lst.remove(x)</code></td><td>a value</td><td>nothing</td><td><code>ValueError</code></td></tr>
+            <tr><td><code>x in lst</code></td><td>a value</td><td><code>True</code> / <code>False</code></td><td>just <code>False</code> — never crashes</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- ═══ 6 · NUMBERS ═══ -->
+      <section class="card topic-panel" id="topic-numbers">
+        <span class="tag">03_lists.py</span>
+        <h2 class="step-title">max, min, sum &amp; the Average 📊</h2>
+        <p>Four questions you will ask a list of numbers for the rest of your life. We wrote each one by hand first — because that is the loop you must be able to write — and only then discovered Python already has it.</p>
+
+        <div class="code">grades: <span class="fn">list</span>[<span class="fn">int</span>] = [<span class="num">97</span>, <span class="num">100</span>, <span class="num">92</span>, <span class="num">99</span>, <span class="num">80</span>, <span class="num">88</span>, <span class="num">92</span>, <span class="num">96</span>]</div>
+
+        <div class="big-result">By hand</div>
+        <div class="code"><span class="cm"># 1 the biggest</span>
+max_number = grades[<span class="num">0</span>]
+<span class="kw">for</span> grade <span class="kw">in</span> grades:
+    <span class="kw">if</span> grade &gt; max_number:
+        max_number = grade
+
+<span class="cm"># 2 the smallest</span>
+min_number = grades[<span class="num">0</span>]
+<span class="kw">for</span> grade <span class="kw">in</span> grades:
+    <span class="kw">if</span> grade &lt; min_number:
+        min_number = grade
+
+<span class="cm"># 3 the total</span>
+sum_grades = <span class="num">0</span>
+<span class="kw">for</span> grade <span class="kw">in</span> grades:
+    sum_grades += grade
+
+<span class="cm"># 4 the average</span>
+avg_grade = sum_grades / <span class="fn">len</span>(grades)</div>
+
+        <div class="note">
+          <strong>Look at the two starting values.</strong> The sum starts at <code>0</code>, because adding 0 changes nothing. But max and min start at <code>grades[0]</code> — <em>the first real value</em>, not at 0. Start a max at 0 and a list of negative numbers gives you a "maximum" of 0 that is not even in the list. (In lesson 10 we solved the same problem with <code>None</code>; on a list you have something better — a first item you know exists.)
+        </div>
+
+        <div class="big-result">And what Python already had</div>
+        <div class="code"><span class="fn">print</span>(<span class="str">'max'</span>, <span class="fn">max</span>(grades))
+<span class="fn">print</span>(<span class="str">'min'</span>, <span class="fn">min</span>(grades))
+<span class="fn">print</span>(<span class="str">'sum'</span>, <span class="fn">sum</span>(grades))
+<span class="fn">print</span>(<span class="str">'avg'</span>, <span class="fn">sum</span>(grades) / <span class="fn">len</span>(grades))
+
+<span class="kw">import</span> statistics
+<span class="fn">print</span>(<span class="str">'mean (=avg)'</span>, statistics.<span class="fn">mean</span>(grades))</div>
+        <div class="console">manual-----------
+max 100
+min 80
+sum 744
+avg 93.0
+automatic--------
+max 100
+min 80
+sum 744
+avg 93.0
+mean (=avg) 93</div>
+
+        <div class="note">
+          There is no <code>average()</code> built in — you write <code>sum(lst) / len(lst)</code>, and it is worth noticing that this always produces a <strong>float</strong>: <code>744 / 8</code> is <code>93.0</code>, not <code>93</code>. That is <code>/</code> doing its job (lesson 3). The <code>statistics</code> module — one more <code>import</code>, like <code>random</code> in lesson 10 — prints a bare <code>93</code> here, because <code>mean</code> hands back a whole number when the division comes out exact.
+        </div>
+        <div class="warn">
+          <code>sum(lst) / len(lst)</code> crashes with <code>ZeroDivisionError</code> on an empty list, and <code>max([])</code> raises <code>ValueError</code>. Anywhere the list is built from user input, ask <code>if len(numbers) &gt; 0:</code> first.
+        </div>
+        <div class="note">
+          And remember lesson 12's f-strings: <code>print(f'avg: {sum(grades) / len(grades):.2f}')</code> prints <code>avg: 93.00</code>. You will need that in the homework.
+        </div>
+      </section>
+
+      <!-- ═══ GITHUB ═══ -->
+      <section class="card topic-panel" id="topic-github">
+        <span class="tag">GitHub</span>
+        <h2 class="step-title">Lesson 13 GitHub Folder</h2>
+        <p>All the code from today's lesson:</p>
+        <div class="task-box">
+          <strong>Lesson folder:</strong><br>
+          <a href="https://github.com/pythonai080626-a11y/06.08.2026" target="_blank" rel="noopener">
+            https://github.com/pythonai080626-a11y/06.08.2026
+          </a>
+        </div>
+        <table class="ex-table">
+          <thead><tr><th>File</th><th>What it shows</th></tr></thead>
+          <tbody>
+            <tr><td>01_lists.py</td><td>Type hints and <code>list[int]</code> / <code>list[str]</code> / <code>list[bool]</code> / <code>list[Any]</code>; a list of lists and <code>[5] * 10</code>; the seven slices; negative indexing; <code>append</code> &amp; <code>insert</code>; looping by index and for-each — plus the sorted-insert program</td></tr>
+            <tr><td>02_lists.py</td><td><code>pop</code>, <code>del</code>, <code>remove</code>, removing <strong>all</strong> occurrences with <code>while … in</code>, <code>count</code>, and the <code>in</code> operator</td></tr>
+            <tr><td>03_lists.py</td><td>max / min / sum / average written by hand with a loop, then <code>max()</code>, <code>min()</code>, <code>sum()</code> and <code>statistics.mean()</code></td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          Topic page for today: <a href="../../16_lists/index.html">Lists</a>. Also useful: <a href="../../14_strings/index.html">Strings &amp; Slicing</a> (the slicing rules are identical), <a href="../../06_for_loops/index.html">For Loops</a>, <a href="../../05_loops/index.html">Loops</a> for <code>break</code> / <code>continue</code>, and <a href="../../12_fstrings/index.html">f-string Tricks</a> for <code>:.2f</code>.
+        </div>
+      </section>
+
+      <!-- ═══ EXERCISE (English) ═══ -->
+      <section class="card topic-panel" id="topic-exercise">
+        <span class="tag">Homework</span>
+        <h2 class="step-title">Practice — 1 Question</h2>
+        <p>One question, and it uses almost everything from today.<br>
+           <strong>Python only</strong>. Write it as a <code>.py</code> file in PyCharm and run with <span class="kbd">Shift</span> + <span class="kbd">F10</span>.</p>
+
+        <div class="ex-title">
+          <span class="ex-num">1</span>
+          <h3>The grades board 📋</h3>
+        </div>
+        <p>Given:</p>
+        <div class="code">grades: <span class="fn">list</span>[<span class="fn">int</span>] = [<span class="num">88</span>, <span class="num">92</span>, <span class="num">100</span>, <span class="num">67</span>, <span class="num">92</span>, <span class="num">75</span>, <span class="num">92</span>, <span class="num">55</span>]</div>
+
+        <p>Write code that, <strong>in this order</strong>:</p>
+        <ol class="task-list">
+          <li><strong>Prints how many</strong> grades there are.</li>
+          <li>Prints the <strong>first three</strong> and the <strong>last three</strong> — with slices, not loops.</li>
+          <li>Prints the whole list <strong>reversed</strong>.</li>
+          <li><strong>Adds</strong> the grade <code>90</code> at the end, and <strong>inserts</strong> <code>100</code> at the front. Prints the list.</li>
+          <li>Removes <strong>every</strong> <code>92</code>. Prints the list.</li>
+          <li>Prints the <strong>max</strong>, the <strong>min</strong>, the <strong>sum</strong> and the <strong>average</strong> of what is left — the average with <strong>2 digits</strong> after the dot.</li>
+          <li>Prints every <strong>failing</strong> grade (under 60), using a for-each loop.</li>
+        </ol>
+
+        <div class="big-result">Expected output</div>
+        <div class="console">Count: 8
+First three: [88, 92, 100]
+Last three: [75, 92, 55]
+Reversed: [55, 92, 75, 92, 67, 100, 92, 88]
+After add: [100, 88, 92, 100, 67, 92, 75, 92, 55, 90]
+No more 92: [100, 88, 100, 67, 75, 55, 90]
+Max: 100  Min: 55  Sum: 575  Avg: 82.14
+Failing: 55</div>
+
+        <div class="big-result">The tools you need</div>
+        <div class="pill-row">
+          <span class="pill">len()</span>
+          <span class="pill">[0:3]</span>
+          <span class="pill">[-3:]</span>
+          <span class="pill">[::-1]</span>
+          <span class="pill">.append()</span>
+          <span class="pill">.insert()</span>
+          <span class="pill">.remove()</span>
+          <span class="pill">in</span>
+          <span class="pill">max() min() sum()</span>
+          <span class="pill">f'{x:.2f}'</span>
+        </div>
+
+        <div class="note">
+          <strong>Hint 1 — steps 2 and 3 are slices.</strong> No loop, no counting. Write the list down with its indexes and the three answers fall out:
+          <div class="cellmap-cap">grades</div>
+          <div class="cellmap">
+            <div class="cl sel"><span class="cbox">88</span><span class="cidx">0</span></div>
+            <div class="cl sel"><span class="cbox">92</span><span class="cidx">1</span></div>
+            <div class="cl sel"><span class="cbox">100</span><span class="cidx">2</span></div>
+            <div class="cl"><span class="cbox">67</span><span class="cidx">3</span></div>
+            <div class="cl"><span class="cbox">92</span><span class="cidx">4</span></div>
+            <div class="cl off"><span class="cbox">75</span><span class="cidx">5</span><span class="cneg">-3</span></div>
+            <div class="cl off"><span class="cbox">92</span><span class="cidx">6</span><span class="cneg">-2</span></div>
+            <div class="cl off"><span class="cbox">55</span><span class="cidx">7</span><span class="cneg">-1</span></div>
+          </div>
+          <div class="code"><span class="fn">print</span>(<span class="str">'First three:'</span>, grades[<span class="num">0</span>:<span class="num">3</span>])    <span class="cm"># 0, 1, 2 — 3 is NOT included</span>
+<span class="fn">print</span>(<span class="str">'Last three:'</span>, grades[-<span class="num">3</span>:])     <span class="cm"># the last three, whatever the length</span></div>
+        </div>
+        <div class="note">
+          <strong>Hint 2 — one <code>remove</code> is not enough.</strong> There are three 92s and <code>grades.remove(92)</code> deletes only the leftmost. Loop it, and let <code>in</code> decide when to stop:
+          <div class="code"><span class="kw">while</span> <span class="num">92</span> <span class="kw">in</span> grades:
+    grades.<span class="fn">remove</span>(<span class="num">92</span>)</div>
+          Calling <code>remove(92)</code> a fourth time — after they are all gone — is a <code>ValueError</code>. The <code>in</code> check is what prevents it.
+        </div>
+        <div class="note">
+          <strong>Hint 3 — the order of the steps is the whole exercise.</strong> Step 6 measures the list <em>after</em> the adding and the removing, so those numbers are not the ones you started with. Run your program and check: the sum is 575 over <strong>7</strong> grades, not 8.
+        </div>
+        <div class="note">
+          <strong>Hint 4 — two decimals.</strong> <code>575 / 7</code> is <code>82.14285714285714</code>. Straight from lesson 12:
+          <div class="code">avg = <span class="fn">sum</span>(grades) / <span class="fn">len</span>(grades)
+<span class="fn">print</span>(<span class="str">f'Avg: {avg<span class="hl">:.2f</span>}'</span>)   <span class="cm"># Avg: 82.14</span></div>
+        </div>
+        <div class="warn">
+          <strong>Check yourself:</strong> change the starting list to <code>[70, 70, 70]</code> and run again. Nothing should crash — you simply get <code>No more 92</code> printing an unchanged list, and no <code>Failing:</code> line at all, because nothing is under 60.
+        </div>
+
+        <div class="big-result">Submission</div>
+        <div class="card submission">
+          <ol class="task-list">
+            <li><strong>Write the .py program(s)</strong> in PyCharm.</li>
+            <li><strong>Upload to GitHub</strong> and send the link to:<br>
+              <a href="mailto:pythonai080626+hw13@gmail.com">pythonai080626+hw13@gmail.com</a>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ═══ EXERCISE (Hebrew) ═══ -->
+      <section class="card topic-panel rtl" id="topic-exercise-heb" lang="he" dir="rtl">
+        <span class="tag">שיעורי בית</span>
+        <h2 class="step-title">תרגול — שאלה אחת</h2>
+        <p>שאלה אחת, והיא משתמשת כמעט בכל מה שלמדנו היום.<br>
+           <strong>בפייתון בלבד</strong>. כתבו אותה בקובץ <code>.py</code> ב-PyCharm והריצו עם <span class="kbd">Shift</span> + <span class="kbd">F10</span>.</p>
+
+        <div class="ex-title">
+          <span class="ex-num">1</span>
+          <h3>לוח הציונים 📋</h3>
+        </div>
+        <p>נתון:</p>
+        <div class="code" dir="ltr">grades: <span class="fn">list</span>[<span class="fn">int</span>] = [<span class="num">88</span>, <span class="num">92</span>, <span class="num">100</span>, <span class="num">67</span>, <span class="num">92</span>, <span class="num">75</span>, <span class="num">92</span>, <span class="num">55</span>]</div>
+
+        <p>כתבו קוד ש<strong>בסדר הזה</strong>:</p>
+        <ol class="task-list">
+          <li><strong>מדפיס כמה</strong> ציונים יש.</li>
+          <li>מדפיס את <strong>שלושת הראשונים</strong> ואת <strong>שלושת האחרונים</strong> — בעזרת חיתוכים (slice), בלי לולאות.</li>
+          <li>מדפיס את כל הרשימה <strong>הפוך</strong>.</li>
+          <li><strong>מוסיף</strong> את הציון <code dir="ltr">90</code> בסוף, ו<strong>משחיל</strong> את <code dir="ltr">100</code> בהתחלה. מדפיס את הרשימה.</li>
+          <li>מוחק את <strong>כל</strong> ההופעות של <code dir="ltr">92</code>. מדפיס את הרשימה.</li>
+          <li>מדפיס את <strong>המקסימום</strong>, <strong>המינימום</strong>, <strong>הסכום</strong> ו<strong>הממוצע</strong> של מה שנשאר — הממוצע עם <strong>2 ספרות</strong> אחרי הנקודה.</li>
+          <li>מדפיס כל ציון <strong>נכשל</strong> (מתחת ל-60), בעזרת לולאת for-each.</li>
+        </ol>
+
+        <div class="big-result">הפלט הצפוי</div>
+        <div class="console" dir="ltr">Count: 8
+First three: [88, 92, 100]
+Last three: [75, 92, 55]
+Reversed: [55, 92, 75, 92, 67, 100, 92, 88]
+After add: [100, 88, 92, 100, 67, 92, 75, 92, 55, 90]
+No more 92: [100, 88, 100, 67, 75, 55, 90]
+Max: 100  Min: 55  Sum: 575  Avg: 82.14
+Failing: 55</div>
+
+        <div class="big-result">הכלים שתצטרכו</div>
+        <div class="pill-row">
+          <span class="pill">len()</span>
+          <span class="pill">[0:3]</span>
+          <span class="pill">[-3:]</span>
+          <span class="pill">[::-1]</span>
+          <span class="pill">.append()</span>
+          <span class="pill">.insert()</span>
+          <span class="pill">.remove()</span>
+          <span class="pill">in</span>
+          <span class="pill">max() min() sum()</span>
+          <span class="pill">f'{x:.2f}'</span>
+        </div>
+
+        <div class="note">
+          <strong>רמז 1 — סעיפים 2 ו-3 הם חיתוכים.</strong> בלי לולאה ובלי לספור. רשמו את הרשימה עם האינדקסים ושלוש התשובות מתגלות מעצמן:
+          <div class="cellmap-cap" dir="ltr">grades</div>
+          <div class="cellmap" dir="ltr">
+            <div class="cl sel"><span class="cbox">88</span><span class="cidx">0</span></div>
+            <div class="cl sel"><span class="cbox">92</span><span class="cidx">1</span></div>
+            <div class="cl sel"><span class="cbox">100</span><span class="cidx">2</span></div>
+            <div class="cl"><span class="cbox">67</span><span class="cidx">3</span></div>
+            <div class="cl"><span class="cbox">92</span><span class="cidx">4</span></div>
+            <div class="cl off"><span class="cbox">75</span><span class="cidx">5</span><span class="cneg">-3</span></div>
+            <div class="cl off"><span class="cbox">92</span><span class="cidx">6</span><span class="cneg">-2</span></div>
+            <div class="cl off"><span class="cbox">55</span><span class="cidx">7</span><span class="cneg">-1</span></div>
+          </div>
+          <div class="code" dir="ltr"><span class="fn">print</span>(<span class="str">'First three:'</span>, grades[<span class="num">0</span>:<span class="num">3</span>])    <span class="cm"># 0, 1, 2 — 3 לא נכלל</span>
+<span class="fn">print</span>(<span class="str">'Last three:'</span>, grades[-<span class="num">3</span>:])     <span class="cm"># השלושה האחרונים, בלי קשר לאורך</span></div>
+        </div>
+        <div class="note">
+          <strong>רמז 2 — <code dir="ltr">remove</code> אחד לא מספיק.</strong> יש שלושה 92 ו-<code dir="ltr">grades.remove(92)</code> מוחק רק את השמאלי ביותר. עשו לזה לולאה, ותנו ל-<code dir="ltr">in</code> להחליט מתי לעצור:
+          <div class="code" dir="ltr"><span class="kw">while</span> <span class="num">92</span> <span class="kw">in</span> grades:
+    grades.<span class="fn">remove</span>(<span class="num">92</span>)</div>
+          קריאה רביעית ל-<code dir="ltr">remove(92)</code> — אחרי שכולם נמחקו — היא <code dir="ltr">ValueError</code>. הבדיקה של <code dir="ltr">in</code> היא זו שמונעת את זה.
+        </div>
+        <div class="note">
+          <strong>רמז 3 — סדר הסעיפים הוא כל התרגיל.</strong> סעיף 6 מודד את הרשימה <em>אחרי</em> ההוספה והמחיקה, אז המספרים שם הם לא אלה שהתחלתם איתם. הריצו ובדקו: הסכום הוא 575 על פני <strong>7</strong> ציונים, לא 8.
+        </div>
+        <div class="note">
+          <strong>רמז 4 — שתי ספרות.</strong> <code dir="ltr">575 / 7</code> הוא <code dir="ltr">82.14285714285714</code>. ישר משיעור 12:
+          <div class="code" dir="ltr">avg = <span class="fn">sum</span>(grades) / <span class="fn">len</span>(grades)
+<span class="fn">print</span>(<span class="str">f'Avg: {avg<span class="hl">:.2f</span>}'</span>)   <span class="cm"># Avg: 82.14</span></div>
+        </div>
+        <div class="warn">
+          <strong>בדקו את עצמכם:</strong> שנו את הרשימה ההתחלתית ל-<code dir="ltr">[70, 70, 70]</code> והריצו שוב. שום דבר לא אמור לקרוס — פשוט <code dir="ltr">No more 92</code> ידפיס רשימה ללא שינוי, ולא תודפס אף שורת <code dir="ltr">Failing:</code>, כי אין ציון מתחת ל-60.
+        </div>
+
+        <div class="big-result">הגשה</div>
+        <div class="card submission">
+          <ol class="task-list">
+            <li><strong>כתבו את התוכנית/ות</strong> ב-PyCharm.</li>
+            <li><strong>העלו ל-GitHub</strong> ושלחו את הקישור ל:<br>
+              <a href="mailto:pythonai080626+hw13@gmail.com">pythonai080626+hw13@gmail.com</a>
+            </li>
+          </ol>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="footer">
+    Python Basics - Lesson 13 - August 6, 2026 - lists
+  </footer>
+</div>
+
+<script>
+  const links = document.querySelectorAll('.topic-link');
+  const panels = document.querySelectorAll('.topic-panel');
+
+  function showTopic(id) {
+    panels.forEach(panel => panel.classList.toggle('active', panel.id === id));
+    links.forEach(link => link.classList.toggle('active', link.dataset.target === id));
+  }
+
+  links.forEach(link => {
+    link.addEventListener('click', () => {
+      showTopic(link.dataset.target);
+      location.hash = link.dataset.target;
+    });
+  });
+
+  const hash = location.hash.replace('#', '');
+  if (hash && document.getElementById(hash)) showTopic(hash);
+
+  // ── one-at-a-time slides inside the remove-tour panel ──
+  const slides = document.querySelectorAll('#fmt-slides .slide');
+  const prevBtn = document.getElementById('slide-prev');
+  const nextBtn = document.getElementById('slide-next');
+  const dotsBox = document.getElementById('slide-dots');
+  const countEl = document.getElementById('slide-count');
+  let current = 0;
+  let navUsed = false;   // once the student clicks anything, stop waving at them
+
+  slides.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.type = 'button';
+    dot.className = 'sdot';
+    dot.setAttribute('aria-label', 'go to slide ' + (i + 1));
+    dot.addEventListener('click', () => { navUsed = true; showSlide(i); });
+    dotsBox.appendChild(dot);
+  });
+  const dots = dotsBox.querySelectorAll('.sdot');
+
+  function showSlide(n) {
+    current = Math.max(0, Math.min(n, slides.length - 1));
+    slides.forEach((s, i) => s.classList.toggle('active', i === current));
+    dots.forEach((d, i) => d.classList.toggle('active', i === current));
+    countEl.textContent = (current + 1) + ' / ' + slides.length;
+    prevBtn.disabled = current === 0;
+    nextBtn.disabled = current === slides.length - 1;
+    nextBtn.classList.toggle('cta', !navUsed && !nextBtn.disabled);
+  }
+
+  prevBtn.addEventListener('click', () => { navUsed = true; showSlide(current - 1); });
+  nextBtn.addEventListener('click', () => { navUsed = true; showSlide(current + 1); });
+  showSlide(0);
+</script>
+</body>
+</html>
