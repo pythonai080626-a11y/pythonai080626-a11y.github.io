@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lists, Advanced — Comprehensions, Sorting &amp; Copies</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Comic+Neue:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Comic Neue', cursive; }
+    h1, h2, h3, .heading { font-family: 'Baloo 2', cursive; }
+    .clay {
+      border: 3px solid rgba(249,115,22,0.18);
+      box-shadow: 5px 5px 0 rgba(249,115,22,0.22), inset 0 1px 0 rgba(255,255,255,0.65);
+    }
+    .clay-teal {
+      border: 3px solid rgba(13,148,136,0.18);
+      box-shadow: 5px 5px 0 rgba(13,148,136,0.22), inset 0 1px 0 rgba(255,255,255,0.65);
+    }
+    .step-card { transition: transform .2s ease, box-shadow .2s ease; }
+    .step-card:hover { transform: translateY(-4px); }
+
+    .code {
+      background: #0b2517; color: #d2ffe3;
+      border-radius: 14px; border: 1px solid #2f5a3d;
+      padding: 14px 18px; overflow-x: auto; margin: 12px 0 4px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95rem; white-space: pre; line-height: 1.7;
+    }
+    .code .cm { color: #6dbf8a; }
+    .code .fn { color: #ffa657; }
+    .code .kw { color: #79c0ff; }
+    .code .str { color: #ffd580; }
+    .code .num { color: #d2a8ff; }
+    .code .hl { background: rgba(125,231,135,0.16); border-radius: 4px; }
+    .code .bad { background: rgba(248,113,113,0.16); border-radius: 4px; }
+
+    .console {
+      background: #101418; color: #e6edf3;
+      border-radius: 14px; border: 1px solid #30363d;
+      padding: 12px 18px; overflow-x: auto; margin: 12px 0 4px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92rem; white-space: pre; line-height: 1.7;
+    }
+    .console .usr { color: #7ee787; font-weight: 700; }
+    .console .dim { color: #8b949e; }
+    .console .err { color: #ff9f9f; }
+
+    .step-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 44px; height: 44px; border-radius: 14px; flex-shrink: 0;
+      background: #CCFBF1; border: 3px solid #0D9488;
+      color: #0F766E; font-weight: 800; font-size: 1.25rem;
+      font-family: 'Baloo 2', cursive;
+    }
+
+    .trace { width: 100%; border-collapse: collapse; font-size: .9rem; margin-top: 12px; }
+    .trace th {
+      background: #CCFBF1; color: #0F766E; text-align: left;
+      padding: 8px 12px; border: 2px solid #99F6E4;
+      font-size: .75rem; letter-spacing: .06em; text-transform: uppercase;
+      font-family: 'Baloo 2', cursive;
+    }
+    .trace td { padding: 8px 12px; border: 2px solid #CCFBF1; color: #134E4A; }
+    .trace tr:nth-child(even) td { background: #F0FDFA; }
+
+    .tool-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tool {
+      font-family: Consolas, monospace; font-size: .82rem; font-weight: 700;
+      background: #ffffff; border: 2px solid #99F6E4; border-bottom-width: 4px;
+      border-radius: 11px; padding: 7px 12px; color: #0F766E;
+      transition: transform .15s ease;
+    }
+    .tool:hover { transform: translateY(-3px); }
+    .tool small { display: block; font-family: 'Comic Neue', cursive; font-weight: 400; color: #134E4A; opacity: .6; font-size: .74rem; }
+
+    .tip { background: #F0FDFA; border: 1px solid #CCFBF1; border-radius: 16px; padding: 16px; margin-top: 16px; font-size: .93rem; color: rgba(19,78,74,.75); }
+    .tip.warn { background: #FFF7ED; border-color: #FED7AA; }
+
+    /* the cell map */
+    .cellmap { display: flex; flex-wrap: wrap; gap: 7px; justify-content: center;
+      background: #ffffff; border: 2px solid #99F6E4; border-radius: 16px; padding: 16px; margin-top: 14px; }
+    .cl { text-align: center; }
+    .cl .cbox {
+      display: flex; align-items: center; justify-content: center;
+      min-width: 54px; padding: 0 9px; height: 48px; border-radius: 12px;
+      font-family: Consolas, monospace; font-weight: 800; font-size: 1.05rem;
+      background: linear-gradient(160deg, #CCFBF1, #5EEAD4);
+      border: 2px solid #2DD4BF; color: #0F766E;
+    }
+    .cl .cidx { display: block; font-family: Consolas, monospace; font-size: .76rem; font-weight: 800; color: #0D9488; margin-top: 4px; }
+    .cl.sel .cbox { background: linear-gradient(160deg, #FFEDD5, #FDBA74); border-color: #F97316; color: #9A3412; }
+    .cl.off .cbox { background: repeating-linear-gradient(135deg, #F8FAFC 0 8px, #EEF2F1 8px 16px); border: 2px dashed #CBD5E1; color: #94A3B8; }
+
+    /* before → after chain */
+    .chain { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 14px; }
+    .chain .bx {
+      font-family: Consolas, monospace; font-weight: 700; font-size: .9rem;
+      background: #ffffff; border: 2px solid #99F6E4; border-bottom-width: 4px;
+      border-radius: 11px; padding: 8px 12px; color: #0F766E; white-space: pre;
+    }
+    .chain .bx.old { background: #FFF7ED; border-color: #FED7AA; color: #C2410C; }
+    .chain .arw { font-weight: 800; color: rgba(19,78,74,.45); font-size: .85rem; }
+
+    /* side-by-side compare */
+    .vs { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+    .vs > div { min-width: 0; }
+    .vs .vs-head {
+      font-family: 'Baloo 2', cursive; font-weight: 800; color: #0F766E; font-size: .95rem;
+      padding: 7px 12px; border-radius: 11px; background: #CCFBF1;
+      border: 2px solid #99F6E4; text-align: center;
+    }
+    .vs .vs-head.bad { background: #FFEDD5; border-color: #FED7AA; color: #9A3412; }
+    .vs .code, .vs .console { font-size: .86rem; }
+
+    /* names → object diagram */
+    .memmap {
+      display: grid; grid-template-columns: 130px 1fr; gap: 14px; align-items: center;
+      background: #ffffff; border: 2px solid #99F6E4; border-radius: 16px;
+      padding: 16px; margin-top: 14px;
+    }
+    .memmap .names { display: flex; flex-direction: column; gap: 10px; }
+    .nametag {
+      font-family: Consolas, monospace; font-weight: 800; font-size: .95rem;
+      background: #F0FDFA; border: 2px solid #99F6E4; border-bottom-width: 4px;
+      border-radius: 11px; padding: 7px 12px; color: #0F766E; text-align: center;
+      position: relative;
+    }
+    .nametag::after {
+      content: "──▶"; position: absolute; right: -32px; top: 50%; transform: translateY(-50%);
+      color: #2DD4BF; font-weight: 800; letter-spacing: -2px;
+    }
+    .nametag.away::after { color: #F97316; }
+    .memmap .stack { display: flex; flex-direction: column; gap: 10px; margin-left: 24px; }
+    .objbox { background: #F0FDFA; border: 2px dashed #2DD4BF; border-radius: 14px; padding: 12px 14px; }
+    .objbox .objlabel {
+      font-size: .7rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase;
+      color: #0D9488; margin-bottom: 5px; font-family: 'Baloo 2', cursive;
+    }
+    .objbox .objvals { font-family: Consolas, monospace; font-weight: 800; color: #0F766E; font-size: 1.02rem; }
+    .objbox.dead { border-color: #CBD5E1; background: #F8FAFC; }
+    .objbox.dead .objlabel, .objbox.dead .objvals { color: #94A3B8; }
+
+    @media (max-width: 640px) {
+      .cl .cbox { min-width: 42px; height: 42px; font-size: .85rem; }
+      .vs { grid-template-columns: 1fr; }
+      .memmap { grid-template-columns: 1fr; }
+      .nametag::after { display: none; }
+      .memmap .stack { margin-left: 0; }
+    }
+  </style>
+</head>
+<body class="bg-[#FFFBF5] text-[#134E4A] min-h-screen">
+
+  <nav class="fixed top-4 left-4 right-4 z-50">
+    <div class="max-w-6xl mx-auto bg-white/90 backdrop-blur-md rounded-2xl px-5 py-3 clay-teal flex items-center gap-3">
+      <a href="../index.html" class="flex items-center gap-2 text-[#0D9488] hover:text-[#134E4A] transition-colors duration-200">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        <span class="text-sm font-semibold">Python Basics</span>
+      </a>
+      <span class="text-[#134E4A]/25 text-sm">/</span>
+      <span class="heading font-bold text-[#134E4A] text-sm">Lists — Advanced</span>
+    </div>
+  </nav>
+
+  <main class="px-4 pt-28 pb-16">
+    <section class="max-w-6xl mx-auto">
+
+      <!-- HERO -->
+      <div class="grid lg:grid-cols-[1fr_360px] gap-8 items-center mb-10">
+        <div>
+          <span class="text-xs font-bold tracking-widest uppercase text-[#0D9488] bg-teal-50 border border-teal-200 px-4 py-1.5 rounded-full">Topic 17</span>
+          <h1 class="heading text-5xl md:text-6xl font-extrabold text-[#134E4A] mt-4 mb-4 leading-tight">Lists — <span class="text-[#0D9488]">Advanced</span> 🚀</h1>
+          <p class="text-lg text-[#134E4A]/65 max-w-2xl leading-relaxed">Every three-line "empty list, loop, <code class="bg-teal-50 px-1 rounded">append</code>" collapses into one <strong>comprehension</strong>. <code class="bg-teal-50 px-1 rounded">all</code> and <code class="bg-teal-50 px-1 rounded">any</code> answer <em>"every one?"</em> and <em>"at least one?"</em> with no loop at all. <code class="bg-teal-50 px-1 rounded">sort</code>, <code class="bg-teal-50 px-1 rounded">sorted</code>, <code class="bg-teal-50 px-1 rounded">reverse</code> and <code class="bg-teal-50 px-1 rounded">key=</code> put things in order. And then the fact that catches everyone: <code class="bg-teal-50 px-1 rounded">b = a</code> does <strong>not</strong> copy a list — which is exactly why <code class="bg-teal-50 px-1 rounded">.copy()</code> and <code class="bg-teal-50 px-1 rounded">.clear()</code> exist.</p>
+        </div>
+
+        <div class="bg-white rounded-[24px] p-5 clay hidden lg:block">
+          <div class="flex items-center gap-1.5 mb-3">
+            <span class="w-3 h-3 rounded-full bg-red-400"></span>
+            <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
+            <span class="w-3 h-3 rounded-full bg-green-400"></span>
+            <span class="text-xs text-[#134E4A]/40 ml-2 font-mono">01_comprehension.py</span>
+          </div>
+          <div class="code" style="margin:0;">squares = []
+<span class="kw">for</span> n <span class="kw">in</span> nums:
+    squares.<span class="fn">append</span>(n * n)
+
+<span class="cm"># ↓ the same thing</span>
+<span class="hl">squares = [n * n <span class="kw">for</span> n <span class="kw">in</span> nums]</span></div>
+        </div>
+      </div>
+
+      <!-- STEPS -->
+      <div class="space-y-6">
+
+        <!-- 1 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">1</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">The comprehension</h2>
+              <p class="text-[#134E4A]/65 mb-4">Read it left to right: <strong>"n times n — for every n in nums"</strong>. The square brackets are what make the answer a list:</p>
+              <div class="code">nums = [<span class="num">3</span>, <span class="num">8</span>, <span class="num">15</span>, <span class="num">4</span>, <span class="num">23</span>, <span class="num">42</span>, <span class="num">7</span>, <span class="num">16</span>]
+
+<span class="cm"># the long way — 3 lines</span>
+squares = []
+<span class="kw">for</span> n <span class="kw">in</span> nums:
+    squares.<span class="fn">append</span>(n * n)
+
+<span class="cm"># the comprehension — 1 line, same answer</span>
+squares = <span class="hl">[n * n <span class="kw">for</span> n <span class="kw">in</span> nums]</span>
+<span class="fn">print</span>(squares)</div>
+              <div class="console">[9, 64, 225, 16, 529, 1764, 49, 256]</div>
+              <div class="chain">
+                <span class="bx old">[  n * n</span>
+                <span class="arw">what goes in each cell</span>
+                <span class="bx">for n in nums  ]</span>
+              </div>
+              <div class="tip">💡 A comprehension is for <strong>building a list</strong>. If you only want to print, or to call <code>input()</code> each round, keep the normal <code>for</code>.</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 2 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">2</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">Two <code>if</code>s, two different places</h2>
+              <p class="text-[#134E4A]/65 mb-4">This is the one thing to get right. An <code>if</code> at the <strong>end</strong> filters. An <code>if…else</code> at the <strong>front</strong> chooses:</p>
+              <div class="vs">
+                <div>
+                  <div class="vs-head">filter — at the end, no else</div>
+                  <div class="code">[n <span class="kw">for</span> n <span class="kw">in</span> nums <span class="hl"><span class="kw">if</span> n &gt; <span class="num">10</span></span>]</div>
+                  <div class="console">[15, 23, 42, 16]
+← 4 items out of 8</div>
+                </div>
+                <div>
+                  <div class="vs-head bad">ternary — at the front, needs else</div>
+                  <div class="code">[<span class="hl">n <span class="kw">if</span> n &gt; <span class="num">10</span> <span class="kw">else</span> <span class="num">0</span></span> <span class="kw">for</span> n <span class="kw">in</span> nums]</div>
+                  <div class="console">[0, 0, 15, 0, 23, 42, 0, 16]
+← all 8, changed</div>
+                </div>
+              </div>
+              <table class="trace">
+                <thead><tr><th>Piece</th><th>Where it goes</th><th>Decides</th></tr></thead>
+                <tbody>
+                  <tr><td>the expression</td><td>first, before <code>for</code></td><td><em>what</em> lands in each cell</td></tr>
+                  <tr><td>the loop</td><td>in the middle</td><td>what you walk over</td></tr>
+                  <tr><td><code>if …</code> (filter)</td><td>last, no <code>else</code></td><td><em>whether</em> the item goes in at all</td></tr>
+                  <tr><td><code>if … else …</code> (ternary)</td><td>at the front</td><td><em>which</em> of two values goes in</td></tr>
+                </tbody>
+              </table>
+              <div class="code"><span class="cm"># both at once: doubled, but only the ones above 10</span>
+<span class="fn">print</span>([n * <span class="num">2</span> <span class="kw">for</span> n <span class="kw">in</span> nums <span class="kw">if</span> n &gt; <span class="num">10</span>])</div>
+              <div class="console">[30, 46, 84, 32]</div>
+              <div class="tip warn">⚠️ Writing <code>else</code> at the end is a <code>SyntaxError</code>. If you need an <code>else</code>, the whole <code>if…else</code> belongs at the front.</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 3 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">3</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2">It works on anything you can loop</h2>
+              <p class="text-[#134E4A]/65 mb-4">Strings, <code>range</code>, the result of <code>.split()</code> — all fair game, and every string method from the strings lesson comes along:</p>
+              <div class="code">names = [<span class="str">'danny'</span>, <span class="str">'moshe'</span>, <span class="str">'suzi'</span>, <span class="str">'sharon'</span>]
+
+<span class="fn">print</span>([name.<span class="fn">upper</span>() <span class="kw">for</span> name <span class="kw">in</span> names])
+<span class="fn">print</span>([<span class="fn">len</span>(name) <span class="kw">for</span> name <span class="kw">in</span> names])
+<span class="fn">print</span>([name <span class="kw">for</span> name <span class="kw">in</span> names <span class="kw">if</span> <span class="str">'s'</span> <span class="kw">in</span> name])
+
+<span class="fn">print</span>([i * i <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">6</span>)])
+<span class="fn">print</span>([c <span class="kw">for</span> c <span class="kw">in</span> <span class="str">'python'</span>])
+<span class="hl"><span class="fn">print</span>([<span class="fn">int</span>(x) <span class="kw">for</span> x <span class="kw">in</span> <span class="str">'20 5 13 7'</span>.<span class="fn">split</span>()])</span></div>
+              <div class="console">['DANNY', 'MOSHE', 'SUZI', 'SHARON']
+[5, 5, 4, 6]
+['moshe', 'suzi', 'sharon']
+[1, 4, 9, 16, 25]
+['p', 'y', 't', 'h', 'o', 'n']
+[20, 5, 13, 7]</div>
+              <div class="tip">💡 That last line is the most useful comprehension there is. <code>.split()</code> hands you a list of <strong>strings</strong>; the comprehension turns every one into an <code>int</code>. One line to read a whole row of numbers from the user.</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 4 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">4</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2"><code>all</code> &amp; <code>any</code> — two questions, no loop</h2>
+              <p class="text-[#134E4A]/65 mb-4">"Did everybody pass?" used to be six lines with a flag and a <code>break</code>. Now it is one:</p>
+              <div class="code">grades = [<span class="num">88</span>, <span class="num">91</span>, <span class="num">76</span>, <span class="num">95</span>, <span class="num">60</span>]
+
+<span class="fn">print</span>(<span class="hl"><span class="fn">all</span>(g &gt;= <span class="num">60</span> <span class="kw">for</span> g <span class="kw">in</span> grades)</span>)   <span class="cm"># did EVERYBODY pass?</span>
+<span class="fn">print</span>(<span class="hl"><span class="fn">any</span>(g == <span class="num">100</span> <span class="kw">for</span> g <span class="kw">in</span> grades)</span>)  <span class="cm"># any perfect score?</span>
+<span class="fn">print</span>(<span class="fn">any</span>(g &gt; <span class="num">90</span> <span class="kw">for</span> g <span class="kw">in</span> grades))
+<span class="fn">print</span>(<span class="fn">all</span>(g &gt; <span class="num">90</span> <span class="kw">for</span> g <span class="kw">in</span> grades))</div>
+              <div class="console">True
+False
+True
+False</div>
+              <p class="text-[#134E4A]/65 mt-5 mb-2">Underneath, both take a <strong>list of True/False values</strong> — which is exactly what a comprehension builds:</p>
+              <div class="code">passed = [g &gt;= <span class="num">60</span> <span class="kw">for</span> g <span class="kw">in</span> grades]
+<span class="fn">print</span>(passed)      <span class="cm"># [True, True, True, True, True]</span>
+<span class="fn">print</span>(<span class="fn">all</span>(passed)) <span class="cm"># True</span></div>
+              <table class="trace">
+                <thead><tr><th>Expression</th><th>Result</th><th>Why</th></tr></thead>
+                <tbody>
+                  <tr><td><code>all([True, True, False])</code></td><td><code>False</code></td><td>one of them broke the rule</td></tr>
+                  <tr><td><code>any([True, True, False])</code></td><td><code>True</code></td><td>at least one was true</td></tr>
+                  <tr><td><code>all([5, 0, 9])</code></td><td><code>False</code></td><td><code>0</code> counts as falsy</td></tr>
+                  <tr><td><code>all([])</code></td><td><code>True</code></td><td>nothing broke the rule — there was nothing to break it</td></tr>
+                  <tr><td><code>any([])</code></td><td><code>False</code></td><td>nothing was true, because there was nothing</td></tr>
+                </tbody>
+              </table>
+              <div class="tip warn">⚠️ <code>all([])</code> being <code>True</code> surprises everyone once. If "empty" should not count as a pass, ask both: <code>if len(grades) &gt; 0 and all(g &gt;= 60 for g in grades):</code></div>
+              <div class="tip">💡 Both give a plain boolean, so give it a name and your <code>if</code> reads like English: <code>everyone_passed = all(g &gt;= 60 for g in grades)</code>.</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 5 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">5</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2"><code>sort</code> vs <code>sorted</code></h2>
+              <p class="text-[#134E4A]/65 mb-4">Same job, one crucial difference: one edits your list, the other builds a new one.</p>
+              <div class="vs">
+                <div>
+                  <div class="vs-head">.sort() — edits the list</div>
+                  <div class="code">scores = [<span class="num">45</span>, <span class="num">12</span>, <span class="num">99</span>, <span class="num">3</span>, <span class="num">67</span>]
+
+scores.<span class="fn">sort</span>()
+<span class="fn">print</span>(scores)</div>
+                  <div class="console">[3, 12, 45, 67, 99]
+← the original changed</div>
+                </div>
+                <div>
+                  <div class="vs-head">sorted() — builds a new one</div>
+                  <div class="code">scores = [<span class="num">45</span>, <span class="num">12</span>, <span class="num">99</span>, <span class="num">3</span>, <span class="num">67</span>]
+
+ordered = <span class="fn">sorted</span>(scores)
+<span class="fn">print</span>(ordered)
+<span class="fn">print</span>(scores)</div>
+                  <div class="console">[3, 12, 45, 67, 99]
+[45, 12, 99, 3, 67]
+← untouched</div>
+                </div>
+              </div>
+              <table class="trace">
+                <thead><tr><th></th><th><code>lst.sort()</code></th><th><code>sorted(lst)</code></th></tr></thead>
+                <tbody>
+                  <tr><td>How you call it</td><td>a <strong>method</strong> — with a dot</td><td>a <strong>function</strong> — list goes inside</td></tr>
+                  <tr><td>What it touches</td><td>the original</td><td>nothing</td></tr>
+                  <tr><td>Gives back</td><td><code>None</code></td><td>a brand new list</td></tr>
+                  <tr><td>Works on</td><td>lists only</td><td>lists, strings, <code>range</code> — anything loopable</td></tr>
+                  <tr><td>Use when</td><td>you do not need the old order</td><td>you want <strong>both</strong> orders</td></tr>
+                </tbody>
+              </table>
+              <div class="chain">
+                <span class="bx old">scores = scores.sort()</span>
+                <span class="arw">leaves you with</span>
+                <span class="bx">None</span>
+              </div>
+              <div class="tip warn">⚠️ The same trap as <code>append</code>. <code>.sort()</code> returns <code>None</code>, so <code>scores = scores.sort()</code> throws your whole list away. Call <code>scores.sort()</code> on its own line — or use <code>sorted()</code>.</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 6 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">6</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2"><code>reverse</code> flips — it does not sort</h2>
+              <p class="text-[#134E4A]/65 mb-4">The classic mix-up. <code>.reverse()</code> turns the list back to front <em>exactly as it stands</em>:</p>
+              <div class="code">nums = [<span class="num">45</span>, <span class="num">12</span>, <span class="num">99</span>, <span class="num">3</span>, <span class="num">67</span>]
+
+nums.<span class="fn">reverse</span>()
+<span class="fn">print</span>(nums)              <span class="cm"># flipped — and still not sorted!</span>
+
+nums.<span class="fn">sort</span>(reverse=<span class="kw">True</span>)
+<span class="fn">print</span>(nums)              <span class="cm"># THIS is biggest-first</span></div>
+              <div class="console">[67, 3, 99, 12, 45]
+[99, 67, 45, 12, 3]</div>
+              <table class="trace">
+                <thead><tr><th>Written</th><th>Does what</th><th>Touches the original?</th><th>Gives back</th></tr></thead>
+                <tbody>
+                  <tr><td><code>lst.reverse()</code></td><td>flips the current order</td><td><strong>yes</strong></td><td><code>None</code></td></tr>
+                  <tr><td><code>lst[::-1]</code></td><td>flips the current order</td><td>no</td><td>a new list</td></tr>
+                  <tr><td><code>lst.sort(reverse=True)</code></td><td><strong>sorts</strong>, biggest first</td><td><strong>yes</strong></td><td><code>None</code></td></tr>
+                  <tr><td><code>sorted(lst, reverse=True)</code></td><td><strong>sorts</strong>, biggest first</td><td>no</td><td>a new list</td></tr>
+                </tbody>
+              </table>
+              <div class="tip">💡 The pattern behind the whole page: <strong>methods with a dot edit your list and return <code>None</code>; functions build something new and leave the original alone.</strong> <code>sort</code>/<code>sorted</code> and <code>reverse</code>/<code>[::-1]</code> are the same pair, twice.</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 7 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">7</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2"><code>key=</code> — sort by <em>your</em> rule</h2>
+              <p class="text-[#134E4A]/65 mb-4">Python sorts numbers by size and words alphabetically. <code>key=</code> says <em>"no — sort by this instead"</em>:</p>
+              <div class="code">words = [<span class="str">'banana'</span>, <span class="str">'kiwi'</span>, <span class="str">'apple'</span>, <span class="str">'watermelon'</span>, <span class="str">'fig'</span>]
+
+words.<span class="fn">sort</span>()
+<span class="fn">print</span>(words)                 <span class="cm"># alphabetical — the default</span>
+
+words.<span class="fn">sort</span>(<span class="hl">key=<span class="fn">len</span></span>)
+<span class="fn">print</span>(words)                 <span class="cm"># shortest first</span>
+
+words.<span class="fn">sort</span>(key=<span class="fn">len</span>, reverse=<span class="kw">True</span>)
+<span class="fn">print</span>(words)                 <span class="cm"># longest first</span></div>
+              <div class="console">['apple', 'banana', 'fig', 'kiwi', 'watermelon']
+['fig', 'kiwi', 'apple', 'banana', 'watermelon']
+['watermelon', 'banana', 'apple', 'kiwi', 'fig']</div>
+              <div class="cellmap">
+                <div class="cl"><span class="cbox">fig</span><span class="cidx">len 3</span></div>
+                <div class="cl"><span class="cbox">kiwi</span><span class="cidx">len 4</span></div>
+                <div class="cl"><span class="cbox">apple</span><span class="cidx">len 5</span></div>
+                <div class="cl"><span class="cbox">banana</span><span class="cidx">len 6</span></div>
+                <div class="cl sel"><span class="cbox">watermelon</span><span class="cidx">len 10</span></div>
+              </div>
+              <div class="tip">💡 <code>key=len</code> — <strong>no brackets</strong> after <code>len</code>. You are not calling it; you are handing the function to <code>sort</code> and saying "run this on each item, and order by whatever comes out".</div>
+
+              <p class="text-[#134E4A]/65 mt-5 mb-2"><strong>Why it exists</strong> — capital letters ruin alphabetical order:</p>
+              <div class="code">names = [<span class="str">'danny'</span>, <span class="str">'Moshe'</span>, <span class="str">'suzi'</span>, <span class="str">'Sharon'</span>]
+
+<span class="fn">print</span>(<span class="fn">sorted</span>(names))                  <span class="cm"># capitals jump to the front</span>
+<span class="fn">print</span>(<span class="fn">sorted</span>(names, <span class="hl">key=<span class="fn">str</span>.<span class="fn">lower</span></span>))   <span class="cm"># what a human expects</span></div>
+              <div class="console">['Moshe', 'Sharon', 'danny', 'suzi']
+['danny', 'Moshe', 'Sharon', 'suzi']</div>
+              <table class="trace">
+                <thead><tr><th><code>key=</code></th><th>Sorts by</th><th>Typical use</th></tr></thead>
+                <tbody>
+                  <tr><td><code>len</code></td><td>how long each item is</td><td>words, names, lists inside a list</td></tr>
+                  <tr><td><code>str.lower</code></td><td>the lowercased text</td><td>any list of names typed by a human</td></tr>
+                  <tr><td><code>abs</code></td><td>distance from zero</td><td>temperatures, errors, differences</td></tr>
+                  <tr><td><code>int</code></td><td>the numeric value of a string</td><td><code>['10', '9', '2']</code></td></tr>
+                </tbody>
+              </table>
+              <div class="code">temps = [-<span class="num">7</span>, <span class="num">3</span>, -<span class="num">1</span>, <span class="num">12</span>, -<span class="num">20</span>]
+<span class="fn">print</span>(<span class="fn">sorted</span>(temps))                <span class="cm"># [-20, -7, -1, 3, 12]</span>
+<span class="fn">print</span>(<span class="fn">sorted</span>(temps, key=<span class="fn">abs</span>))       <span class="cm"># [-1, 3, -7, 12, -20]</span>
+
+nums_as_text = [<span class="str">'10'</span>, <span class="str">'9'</span>, <span class="str">'2'</span>, <span class="str">'33'</span>]
+<span class="fn">print</span>(<span class="fn">sorted</span>(nums_as_text))          <span class="cm"># ['10', '2', '33', '9']  ← text!</span>
+<span class="fn">print</span>(<span class="fn">sorted</span>(nums_as_text, key=<span class="fn">int</span>)) <span class="cm"># ['2', '9', '10', '33']</span></div>
+              <div class="tip warn">⚠️ <code>'10'</code> sorts before <code>'2'</code> because text compares character by character. Numbers that arrived from <code>input()</code> or <code>.split()</code> are strings — convert them, or sort with <code>key=int</code>.</div>
+              <div class="tip">💡 <strong>Coming later:</strong> when no ready-made function fits, you write the rule inline with <code>lambda</code> — <code>words.sort(key=lambda w: w[-1])</code> sorts by last letter. You do not need it yet, but you have now seen it.</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 8 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay">
+          <div class="flex items-start gap-4">
+            <span class="step-num">8</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2"><code>b = a</code> does not copy a list</h2>
+              <p class="text-[#134E4A]/65 mb-4">With a number this behaves exactly as you expect. With a list it does not — and this is not a bug:</p>
+              <div class="code">a = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>]
+b = a                <span class="cm"># looks like a copy. it is not.</span>
+
+b.<span class="fn">append</span>(<span class="num">4</span>)
+<span class="fn">print</span>(<span class="str">'a ='</span>, a)
+<span class="fn">print</span>(<span class="str">'b ='</span>, b)</div>
+              <div class="console">a = [1, 2, 3, 4]
+b = [1, 2, 3, 4]</div>
+              <p class="text-[#134E4A]/65 mt-4">We never touched <code>a</code>, and <code>a</code> changed. <code>b = a</code> did not build a second list — it hung a <strong>second name</strong> on the one list that already existed:</p>
+              <div class="memmap">
+                <div class="names">
+                  <div class="nametag">a</div>
+                  <div class="nametag">b</div>
+                </div>
+                <div class="stack">
+                  <div class="objbox">
+                    <div class="objlabel">one list, in memory</div>
+                    <div class="objvals">[1, 2, 3, 4]</div>
+                  </div>
+                </div>
+              </div>
+
+              <p class="text-[#134E4A]/65 mt-5 mb-2"><strong>Proving it</strong> — <code>is</code> asks a different question than <code>==</code>:</p>
+              <div class="code">a = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>]
+b = a
+c = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>]        <span class="cm"># a different list that looks the same</span>
+
+<span class="fn">print</span>(a == b, a <span class="kw">is</span> b)   <span class="cm"># True True</span>
+<span class="fn">print</span>(a == c, a <span class="kw">is</span> c)   <span class="cm"># True False</span></div>
+              <table class="trace">
+                <thead><tr><th>Operator</th><th>Asks</th><th>Think of it as</th></tr></thead>
+                <tbody>
+                  <tr><td><code>==</code></td><td>do they hold the <strong>same values</strong>?</td><td>"do these two houses look identical?"</td></tr>
+                  <tr><td><code>is</code></td><td>are they the <strong>same object</strong>?</td><td>"is it the same house?"</td></tr>
+                </tbody>
+              </table>
+
+              <p class="text-[#134E4A]/65 mt-5 mb-2"><strong>A real copy</strong> — three spellings, all identical:</p>
+              <div class="code">b = a.<span class="fn">copy</span>()        <span class="cm"># the clearest — say what you mean</span>
+b = a[:]            <span class="cm"># a slice of everything is a new list</span>
+b = <span class="fn">list</span>(a)         <span class="cm"># build a new list out of a</span>
+
+b.<span class="fn">append</span>(<span class="num">4</span>)
+<span class="fn">print</span>(a, b, a <span class="kw">is</span> b)</div>
+              <div class="console">[1, 2, 3] [1, 2, 3, 4] False</div>
+              <div class="tip warn">⚠️ <strong>Where this bites for real:</strong> you write <code>backup = grades</code> then <code>grades.sort()</code> — and <code>backup</code> comes out sorted too, because there was only ever one list. Fix it with <code>backup = grades.copy()</code>, or skip the copy and use <code>sorted(grades)</code>.</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- 9 -->
+        <article class="step-card bg-white rounded-[22px] p-7 clay-teal">
+          <div class="flex items-start gap-4">
+            <span class="step-num">9</span>
+            <div class="flex-1">
+              <h2 class="heading text-2xl font-extrabold mb-2"><code>.clear()</code> — and why not just <code>= []</code></h2>
+              <p class="text-[#134E4A]/65 mb-4">Two ways to empty a list. They print the same thing and they are not the same thing:</p>
+              <div class="vs">
+                <div>
+                  <div class="vs-head">a.clear() — empties the list</div>
+                  <div class="code">a = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>]
+b = a
+
+a.<span class="fn">clear</span>()
+
+<span class="fn">print</span>(a)
+<span class="fn">print</span>(b)</div>
+                  <div class="console">[]
+[]   ← b sees it too</div>
+                </div>
+                <div>
+                  <div class="vs-head bad">a = [] — moves the name</div>
+                  <div class="code">a = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>]
+b = a
+
+a = []
+
+<span class="fn">print</span>(a)
+<span class="fn">print</span>(b)</div>
+                  <div class="console">[]
+[1, 2, 3]   ← nothing emptied</div>
+                </div>
+              </div>
+
+              <p class="text-[#134E4A]/65 mt-5 mb-2"><code>.clear()</code> reaches into <strong>the list</strong> and throws out its contents — everyone pointing at it sees an empty list. <code>= []</code> never touches the old list; it builds a new empty one and re-points <em>your name</em> at it:</p>
+              <div class="memmap">
+                <div class="names">
+                  <div class="nametag">a</div>
+                  <div class="nametag">b</div>
+                </div>
+                <div class="stack">
+                  <div class="objbox">
+                    <div class="objlabel">after a.clear() — one list, now empty</div>
+                    <div class="objvals">[]</div>
+                  </div>
+                </div>
+              </div>
+              <div class="memmap">
+                <div class="names">
+                  <div class="nametag away">a</div>
+                  <div class="nametag">b</div>
+                </div>
+                <div class="stack">
+                  <div class="objbox">
+                    <div class="objlabel">after a = [] — a's new list</div>
+                    <div class="objvals">[]</div>
+                  </div>
+                  <div class="objbox dead">
+                    <div class="objlabel">the old list — still full, b still has it</div>
+                    <div class="objvals">[1, 2, 3]</div>
+                  </div>
+                </div>
+              </div>
+
+              <p class="text-[#134E4A]/65 mt-5 mb-2"><strong>The case that costs people an afternoon</strong> — a list living <em>inside</em> another list:</p>
+              <div class="vs">
+                <div>
+                  <div class="vs-head">clear works</div>
+                  <div class="code">board = [[<span class="num">1</span>, <span class="num">2</span>], [<span class="num">3</span>, <span class="num">4</span>]]
+row = board[<span class="num">0</span>]
+
+row.<span class="fn">clear</span>()
+<span class="fn">print</span>(board)</div>
+                  <div class="console">[[], [3, 4]]</div>
+                </div>
+                <div>
+                  <div class="vs-head bad">= [] does nothing</div>
+                  <div class="code">board = [[<span class="num">1</span>, <span class="num">2</span>], [<span class="num">3</span>, <span class="num">4</span>]]
+row = board[<span class="num">0</span>]
+
+row = []
+<span class="fn">print</span>(board)</div>
+                  <div class="console">[[1, 2], [3, 4]]   ← unchanged</div>
+                </div>
+              </div>
+
+              <table class="trace">
+                <thead><tr><th></th><th><code>lst.clear()</code></th><th><code>lst = []</code></th></tr></thead>
+                <tbody>
+                  <tr><td>What it changes</td><td>the <strong>list</strong></td><td>the <strong>name</strong></td></tr>
+                  <tr><td>Other names pointing at it</td><td>see it go empty</td><td>keep the full old list</td></tr>
+                  <tr><td>The old list</td><td>reused</td><td>abandoned</td></tr>
+                  <tr><td>Reach it through <code>board[0]</code>?</td><td><strong>yes</strong></td><td>no — cannot</td></tr>
+                  <tr><td>Reach for it when…</td><td>the list is shared, or lives inside something</td><td>it is a private local list and you are starting fresh</td></tr>
+                </tbody>
+              </table>
+              <div class="tip">💡 There is a quieter reason too: inside a loop, <code>lst = []</code> builds a brand new list every single round and abandons the old one. <code>lst.clear()</code> reuses the same object. Never matters on ten items; matters on ten million.</div>
+              <div class="tip warn">⚠️ Rule of thumb: <strong>if anyone else can see the list, use <code>.clear()</code>.</strong> If the list is entirely yours and nobody else knows about it, <code>= []</code> is fine — and arguably clearer to read.</div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- TOOLBOX -->
+      <section class="bg-white rounded-[24px] p-7 clay-teal mt-8">
+        <h2 class="heading text-3xl font-extrabold mb-3">The Whole Toolbox</h2>
+        <div class="tool-grid">
+          <span class="tool">[f(x) for x in lst]<small>build a new list</small></span>
+          <span class="tool">[x for x in lst if …]<small>build + filter</small></span>
+          <span class="tool">[a if … else b for x in lst]<small>build + choose</small></span>
+          <span class="tool">[int(x) for x in s.split()]<small>a row of numbers</small></span>
+          <span class="tool">all(lst)<small>every one True?</small></span>
+          <span class="tool">any(lst)<small>at least one True?</small></span>
+          <span class="tool">.sort()<small>order it, in place</small></span>
+          <span class="tool">.sort(reverse=True)<small>biggest first</small></span>
+          <span class="tool">.sort(key=len)<small>order by your rule</small></span>
+          <span class="tool">sorted(lst)<small>a NEW ordered list</small></span>
+          <span class="tool">sorted(lst, key=str.lower)<small>case-insensitive</small></span>
+          <span class="tool">.reverse()<small>flip it, in place</small></span>
+          <span class="tool">lst[::-1]<small>a NEW flipped list</small></span>
+          <span class="tool">.copy()<small>a real second list</small></span>
+          <span class="tool">lst[:]<small>a copy, the slice way</small></span>
+          <span class="tool">list(lst)<small>a copy, the third way</small></span>
+          <span class="tool">.clear()<small>empty THE list</small></span>
+          <span class="tool">a is b<small>the same object?</small></span>
+          <span class="tool">a == b<small>the same values?</small></span>
+        </div>
+
+        <h2 class="heading text-3xl font-extrabold mb-3 mt-8">Quick Reference</h2>
+        <p class="text-[#134E4A]/60 mb-2">Using <code>nums = [3, 8, 15, 4, 23, 42, 7, 16]</code> and <code>words = ['banana', 'kiwi', 'apple', 'fig']</code>:</p>
+        <table class="trace">
+          <thead><tr><th>Expression</th><th>Result</th></tr></thead>
+          <tbody>
+            <tr><td><code>[n * n for n in nums]</code></td><td><code>[9, 64, 225, 16, 529, 1764, 49, 256]</code></td></tr>
+            <tr><td><code>[n for n in nums if n % 2 == 0]</code></td><td><code>[8, 4, 42, 16]</code></td></tr>
+            <tr><td><code>[n * 2 for n in nums if n &gt; 10]</code></td><td><code>[30, 46, 84, 32]</code></td></tr>
+            <tr><td><code>['big' if n &gt; 10 else 'small' for n in nums]</code></td><td><code>['small', 'small', 'big', …]</code> — all 8</td></tr>
+            <tr><td><code>[len(w) for w in words]</code></td><td><code>[6, 4, 5, 3]</code></td></tr>
+            <tr><td><code>[i * i for i in range(1, 6)]</code></td><td><code>[1, 4, 9, 16, 25]</code></td></tr>
+            <tr><td><code>[int(x) for x in '20 5 13'.split()]</code></td><td><code>[20, 5, 13]</code></td></tr>
+            <tr><td><code>all(n &gt; 0 for n in nums)</code></td><td><code>True</code></td></tr>
+            <tr><td><code>any(n &gt; 40 for n in nums)</code></td><td><code>True</code></td></tr>
+            <tr><td><code>all([])</code></td><td><code>True</code></td></tr>
+            <tr><td><code>any([])</code></td><td><code>False</code></td></tr>
+            <tr><td><code>sorted([45, 12, 99, 3])</code></td><td><code>[3, 12, 45, 99]</code></td></tr>
+            <tr><td><code>sorted([45, 12, 99, 3], reverse=True)</code></td><td><code>[99, 45, 12, 3]</code></td></tr>
+            <tr><td><code>[45, 12, 99, 3].sort()</code></td><td><code>None</code> — it edits, it does not return</td></tr>
+            <tr><td><code>sorted(words, key=len)</code></td><td><code>['fig', 'kiwi', 'apple', 'banana']</code></td></tr>
+            <tr><td><code>sorted(['danny', 'Moshe', 'suzi'])</code></td><td><code>['Moshe', 'danny', 'suzi']</code> — capitals first</td></tr>
+            <tr><td><code>sorted(['danny', 'Moshe', 'suzi'], key=str.lower)</code></td><td><code>['danny', 'Moshe', 'suzi']</code></td></tr>
+            <tr><td><code>sorted([-7, 3, -1], key=abs)</code></td><td><code>[-1, 3, -7]</code></td></tr>
+            <tr><td><code>sorted(['10', '9', '2'])</code></td><td><code>['10', '2', '9']</code> — text order</td></tr>
+            <tr><td><code>sorted(['10', '9', '2'], key=int)</code></td><td><code>['2', '9', '10']</code></td></tr>
+            <tr><td><code>[1, 2, 3][::-1]</code></td><td><code>[3, 2, 1]</code> — a new list</td></tr>
+            <tr><td><code>a = [1, 2]; b = a; a is b</code></td><td><code>True</code> — one list, two names</td></tr>
+            <tr><td><code>a = [1, 2]; b = a.copy(); a is b</code></td><td><code>False</code> — two lists</td></tr>
+            <tr><td><code>a = [1, 2]; b = a.copy(); a == b</code></td><td><code>True</code> — same values</td></tr>
+          </tbody>
+        </table>
+        <p class="text-[#134E4A]/60 mt-6">All of these were typed live in <a href="../lessons/14_lesson/14-lesson.html" class="text-[#0D9488] font-bold underline">Lesson 14</a>. Built straight on top of <a href="../16_lists/index.html" class="text-[#0D9488] font-bold underline">Lists</a>. The <code>if…else</code> inside a comprehension is the ternary from <a href="../11_booleans/index.html" class="text-[#0D9488] font-bold underline">Booleans &amp; the Ternary</a>, and <code>[:]</code> / <code>[::-1]</code> come from <a href="../14_strings/index.html" class="text-[#0D9488] font-bold underline">Strings &amp; Slicing</a>.</p>
+      </section>
+
+    </section>
+  </main>
+
+</body>
+</html>

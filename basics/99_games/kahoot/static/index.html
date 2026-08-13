@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Python Kahoot!</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: #46178f;
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Floating particles background */
+    .particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.15;
+      animation: float linear infinite;
+    }
+    @keyframes float {
+      0%   { transform: translateY(110vh) rotate(0deg); }
+      100% { transform: translateY(-10vh) rotate(720deg); }
+    }
+
+    .screen {
+      display: none;
+      min-height: 100vh;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      z-index: 1;
+    }
+    .screen.active { display: flex; }
+
+    /* ── LOGO ── */
+    .logo {
+      font-size: 2.8rem;
+      font-weight: 900;
+      text-align: center;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.4);
+      margin-bottom: 24px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+
+    /* ── CARD ── */
+    .card {
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 20px;
+      padding: 32px;
+      width: 100%;
+      max-width: 520px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    /* ── INPUTS ── */
+    input[type="text"] {
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: 12px;
+      border: 2px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      font-size: 1.1rem;
+      font-family: inherit;
+      font-weight: 700;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input[type="text"]::placeholder { color: rgba(255,255,255,0.4); font-weight: 600; }
+    input[type="text"]:focus { border-color: rgba(255,255,255,0.6); }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border-radius: 12px;
+      border: none;
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.1s, filter 0.1s;
+      width: 100%;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn:hover  { filter: brightness(1.1); }
+    .btn-primary { background: #fff; color: #46178f; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+    .btn-green   { background: #26890c; color: #fff; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+    .btn-danger  { background: #e21b3c; color: #fff; box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; filter: none; transform: none; }
+
+    /* ── AVATAR GRID ── */
+    .avatar-label { font-weight: 800; font-size: 1rem; margin-bottom: 12px; opacity: 0.9; }
+    .avatar-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .avatar-btn {
+      font-size: 2rem;
+      background: rgba(255,255,255,0.1);
+      border: 3px solid transparent;
+      border-radius: 12px;
+      cursor: pointer;
+      padding: 6px;
+      text-align: center;
+      transition: border-color 0.15s, transform 0.15s, background 0.15s;
+      aspect-ratio: 1;
+      line-height: 1;
+    }
+    .avatar-btn:hover  { transform: scale(1.15); background: rgba(255,255,255,0.2); }
+    .avatar-btn.selected {
+      border-color: #fff;
+      background: rgba(255,255,255,0.25);
+      transform: scale(1.1);
+      box-shadow: 0 0 16px rgba(255,255,255,0.4);
+    }
+
+    /* ── ERROR ── */
+    .error-msg {
+      background: rgba(226,27,60,0.3);
+      border: 1px solid #e21b3c;
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      display: none;
+      margin-top: 12px;
+    }
+
+    /* ── LOBBY ── */
+    .lobby-title { font-size: 2rem; font-weight: 900; text-align: center; margin-bottom: 8px; }
+    .lobby-sub   { opacity: 0.7; text-align: center; margin-bottom: 24px; font-size: 1rem; font-weight: 600; }
+    .waiting-dots::after {
+      content: '';
+      animation: dots 1.5s steps(4,end) infinite;
+    }
+    @keyframes dots {
+      0%  { content: ''; }
+      25% { content: '.'; }
+      50% { content: '..'; }
+      75% { content: '...'; }
+    }
+    .player-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+    .player-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.12);
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      animation: chipIn 0.3s ease-out;
+    }
+    @keyframes chipIn {
+      from { transform: scale(0.6); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+    .chip-avatar { font-size: 1.5rem; }
+
+    /* ── QUESTION SCREEN ── */
+    .q-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      max-width: 900px;
+      margin-bottom: 16px;
+    }
+    .q-progress { font-weight: 800; font-size: 1.1rem; opacity: 0.8; }
+
+    /* Timer */
+    .timer-wrap { position: relative; width: 72px; height: 72px; flex-shrink: 0; }
+    .timer-svg { transform: rotate(-90deg); }
+    .timer-track { fill: none; stroke: rgba(255,255,255,0.15); stroke-width: 6; }
+    .timer-ring  { fill: none; stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 1s linear, stroke 0.5s; }
+    .timer-num {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      font-weight: 900;
+    }
+
+    /* Python code hint */
+    .table-wrap {
+      width: 100%;
+      max-width: 900px;
+      margin-bottom: 14px;
+    }
+    .table-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      opacity: 0.6;
+      margin-bottom: 6px;
+      font-family: monospace;
+      letter-spacing: 0.05em;
+    }
+    .code-block {
+      background: rgba(0,0,0,0.45);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-left: 4px solid #ffd700;
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin: 0;
+      overflow-x: auto;
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 1rem;
+      line-height: 1.55;
+      white-space: pre;
+      tab-size: 4;
+    }
+    /* syntax colors */
+    .code-block .kw  { color: #ff79c6; font-weight: 700; }
+    .code-block .bi  { color: #8be9fd; }
+    .code-block .num { color: #bd93f9; }
+    .code-block .str { color: #f1fa8c; }
+    .code-block .com { color: #6f7d92; font-style: italic; }
+
+    /* Question text */
+    .q-text {
+      width: 100%;
+      max-width: 900px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 16px;
+      padding: 20px 24px;
+      font-size: 1.25rem;
+      font-weight: 800;
+      text-align: center;
+      line-height: 1.5;
+      margin-bottom: 20px;
+      white-space: pre-wrap;
+    }
+
+    /* Answer buttons grid */
+    .answers-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      width: 100%;
+      max-width: 900px;
+    }
+    .answer-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px;
+      border-radius: 14px;
+      border: none;
+      font-family: inherit;
+      font-weight: 800;
+      font-size: 0.95rem;
+      cursor: pointer;
+      color: #fff;
+      text-align: left;
+      transition: transform 0.1s, filter 0.15s, opacity 0.3s;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+      min-height: 70px;
+      word-break: break-word;
+    }
+    .answer-btn:hover:not(:disabled) { transform: scale(1.03); filter: brightness(1.12); }
+    .answer-btn:active:not(:disabled) { transform: scale(0.97); }
+    .answer-btn:disabled { cursor: default; }
+    .answer-btn.dimmed { opacity: 0.45; }
+    .answer-btn.selected { outline: 4px solid #fff; outline-offset: 2px; }
+
+    .answer-btn[data-idx="0"] { background: #e21b3c; }
+    .answer-btn[data-idx="1"] { background: #1368ce; }
+    .answer-btn[data-idx="2"] { background: #d89e00; }
+    .answer-btn[data-idx="3"] { background: #26890c; }
+
+    .answer-icon { font-size: 1.4rem; flex-shrink: 0; }
+    .answer-text {
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 0.95rem;
+      line-height: 1.4;
+      white-space: pre-wrap;
+    }
+    .answer-text.plain {
+      font-family: inherit;
+      font-size: 1rem;
+      white-space: normal;
+    }
+
+    /* ── WAITING SCREEN ── */
+    .waiting-big { font-size: 4rem; animation: bounce 0.6s ease-in-out infinite alternate; }
+    @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-16px); } }
+    .waiting-label { font-size: 1.4rem; font-weight: 800; margin-top: 16px; }
+    .waiting-sub   { opacity: 0.7; font-size: 1rem; font-weight: 600; margin-top: 8px; }
+
+    /* ── REVEAL SCREEN ── */
+    .reveal-result {
+      font-size: 4rem;
+      margin-bottom: 8px;
+      animation: popIn 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes popIn {
+      from { transform: scale(0.3); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+    .reveal-label  { font-size: 1.6rem; font-weight: 900; margin-bottom: 4px; }
+    .reveal-points { font-size: 1.1rem; font-weight: 700; opacity: 0.85; margin-bottom: 6px; }
+    .reveal-score  { font-size: 0.95rem; opacity: 0.65; font-weight: 600; }
+
+    .distribution-wrap {
+      width: 100%;
+      max-width: 600px;
+      margin-top: 24px;
+    }
+    .dist-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .dist-icon  { font-size: 1.3rem; flex-shrink: 0; width: 32px; text-align: center; }
+    .dist-bar-bg {
+      flex: 1;
+      height: 32px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+    .dist-bar-fill {
+      height: 100%;
+      border-radius: 8px;
+      transition: width 0.8s cubic-bezier(0.22,1,0.36,1);
+      width: 0%;
+      display: flex;
+      align-items: center;
+      padding-left: 10px;
+      font-weight: 800;
+      font-size: 0.85rem;
+    }
+    .dist-bar-fill.correct { background: #26890c; }
+    .dist-bar-fill.wrong   { background: rgba(255,255,255,0.2); }
+    .dist-count { min-width: 28px; font-weight: 800; font-size: 0.9rem; opacity: 0.8; }
+
+    /* correct answer label */
+    .correct-label {
+      background: #26890c;
+      border-radius: 8px;
+      padding: 10px 16px;
+      font-weight: 800;
+      font-size: 0.95rem;
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    /* ── LEADERBOARD ── */
+    .lb-title { font-size: 2.2rem; font-weight: 900; text-align: center; margin-bottom: 24px; }
+    .podium {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 32px;
+      width: 100%;
+      max-width: 520px;
+    }
+    .podium-slot {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .podium-slot.first  { order: 2; }
+    .podium-slot.second { order: 1; }
+    .podium-slot.third  { order: 3; }
+
+    .podium-avatar { font-size: 2.4rem; animation: popIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
+    .podium-slot.first  .podium-avatar { font-size: 3rem; }
+
+    .podium-name  { font-weight: 800; font-size: 0.85rem; text-align: center; word-break: break-all; }
+    .podium-score { font-weight: 700; font-size: 0.8rem; opacity: 0.75; }
+    .podium-block {
+      border-radius: 10px 10px 0 0;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      font-weight: 900;
+    }
+    .podium-slot.first  .podium-block { background: #ffd700; height: 90px; }
+    .podium-slot.second .podium-block { background: #c0c0c0; height: 68px; }
+    .podium-slot.third  .podium-block { background: #cd7f32; height: 50px; }
+
+    .others-list { width: 100%; max-width: 520px; }
+    .others-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 12px;
+      margin-bottom: 8px;
+      animation: slideIn 0.3s ease-out both;
+    }
+    @keyframes slideIn {
+      from { transform: translateX(-20px); opacity: 0; }
+      to   { transform: translateX(0);     opacity: 1; }
+    }
+    .others-rank   { font-weight: 900; font-size: 1.1rem; min-width: 28px; }
+    .others-avatar { font-size: 1.5rem; }
+    .others-name   { flex: 1; font-weight: 700; }
+    .others-score  { font-weight: 800; font-size: 1rem; }
+
+    /* highlight my own row */
+    .others-row.me { background: rgba(255,255,255,0.2); outline: 2px solid rgba(255,255,255,0.5); }
+
+    /* ── GAME OVER ── */
+    .gameover-title {
+      font-size: 2.8rem;
+      font-weight: 900;
+      text-align: center;
+      margin-bottom: 8px;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    .gameover-sub { opacity: 0.7; text-align: center; margin-bottom: 32px; font-size: 1.1rem; font-weight: 600; }
+
+    /* Confetti */
+    .confetti-piece {
+      position: fixed;
+      width: 10px;
+      height: 14px;
+      border-radius: 2px;
+      animation: confettiFall linear forwards;
+      z-index: 999;
+      pointer-events: none;
+    }
+    @keyframes confettiFall {
+      0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+    }
+
+    /* ── SCROLLABLE AREA ── */
+    .scroll-area { width: 100%; max-width: 520px; max-height: 300px; overflow-y: auto; padding-right: 4px; }
+    .scroll-area::-webkit-scrollbar { width: 4px; }
+    .scroll-area::-webkit-scrollbar-track { background: transparent; }
+    .scroll-area::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+
+    label { font-weight: 800; font-size: 1rem; display: block; margin-bottom: 8px; opacity: 0.9; }
+    .spacer-sm { height: 12px; }
+    .spacer    { height: 20px; }
+
+    @media (max-width: 600px) {
+      .answers-grid { grid-template-columns: 1fr; }
+      .q-text { font-size: 1.05rem; }
+      .logo { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="particles" id="particles"></div>
+
+<!-- ── LOGIN ── -->
+<div id="screen-login" class="screen active">
+  <div class="logo">🐍 Python Kahoot!</div>
+  <div class="card">
+    <label for="nickname-input">Your nickname</label>
+    <input type="text" id="nickname-input" placeholder="Enter your name..." maxlength="20" autocomplete="off" />
+    <div class="spacer-sm"></div>
+    <div class="avatar-label">Pick your avatar</div>
+    <div class="avatar-grid" id="avatar-grid"></div>
+    <button class="btn btn-primary" id="join-btn" disabled>Join Game!</button>
+    <div class="error-msg" id="error-msg"></div>
+  </div>
+</div>
+
+<!-- ── LOBBY ── -->
+<div id="screen-lobby" class="screen">
+  <div class="lobby-title">You're in! 🎉</div>
+  <div class="lobby-sub">Waiting for the host to start<span class="waiting-dots"></span></div>
+  <div class="card" style="max-width:600px">
+    <div class="avatar-label" id="lobby-you-label"></div>
+    <div class="spacer-sm"></div>
+    <div class="avatar-label">Players in lobby:</div>
+    <div class="player-chips" id="player-chips"></div>
+  </div>
+</div>
+
+<!-- ── QUESTION ── -->
+<div id="screen-question" class="screen">
+  <div class="q-header">
+    <div class="q-progress" id="q-progress">Question 1 of 5</div>
+    <div class="timer-wrap">
+      <svg class="timer-svg" width="72" height="72" viewBox="0 0 72 72">
+        <circle class="timer-track" cx="36" cy="36" r="30"/>
+        <circle class="timer-ring" id="timer-ring" cx="36" cy="36" r="30"/>
+      </svg>
+      <div class="timer-num" id="timer-num">30</div>
+    </div>
+  </div>
+  <div class="table-wrap" id="table-wrap" style="display:none">
+    <div class="table-label" id="table-label"></div>
+    <pre class="code-block" id="code-block"></pre>
+  </div>
+  <div class="q-text" id="q-text"></div>
+  <div class="answers-grid" id="answers-grid"></div>
+</div>
+
+<!-- ── WAITING (answered) ── -->
+<div id="screen-waiting" class="screen">
+  <div class="waiting-big" id="waiting-emoji">✅</div>
+  <div class="waiting-label">Answer locked in!</div>
+  <div class="waiting-sub">Waiting for others<span class="waiting-dots"></span></div>
+</div>
+
+<!-- ── REVEAL ── -->
+<div id="screen-reveal" class="screen">
+  <div class="reveal-result" id="reveal-emoji">🎉</div>
+  <div class="reveal-label"  id="reveal-label">Correct!</div>
+  <div class="reveal-points" id="reveal-points">+850 points</div>
+  <div class="reveal-score"  id="reveal-score">Total: 850</div>
+
+  <div class="distribution-wrap" id="dist-wrap"></div>
+  <div class="correct-label" id="correct-label"></div>
+</div>
+
+<!-- ── LEADERBOARD ── -->
+<div id="screen-leaderboard" class="screen">
+  <div class="lb-title" id="lb-title">🏆 Scoreboard</div>
+  <div class="podium" id="podium"></div>
+  <div class="scroll-area">
+    <div class="others-list" id="others-list"></div>
+  </div>
+</div>
+
+<!-- ── GAME OVER ── -->
+<div id="screen-gameover" class="screen">
+  <div class="gameover-title">🏆 Final Results!</div>
+  <div class="gameover-sub">The game is over — here's how everyone did!</div>
+  <div class="podium" id="final-podium"></div>
+  <div class="scroll-area">
+    <div class="others-list" id="final-others"></div>
+  </div>
+</div>
+
+<script>
+// ── Particles ──
+(function() {
+  const wrap = document.getElementById('particles');
+  const colors = ['#a855f7','#818cf8','#38bdf8','#f472b6','#fb923c'];
+  for (let i = 0; i < 18; i++) {
+    const el = document.createElement('div');
+    el.className = 'particle';
+    const size = 12 + Math.random() * 30;
+    el.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${Math.random()*100}%;
+      bottom:-60px;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      animation-duration:${8+Math.random()*14}s;
+      animation-delay:${Math.random()*12}s;
+    `;
+    wrap.appendChild(el);
+  }
+})();
+
+// ── Avatars ──
+const AVATARS = ['🤖','🐍','🦀','🐳','☕','💻','⚡','🚀','💡','⚙️','🔥','🎯'];
+const ICONS   = ['▲','◆','●','■'];
+
+let selectedAvatar = null;
+let myNickname = null;
+let ws = null;
+
+const avatarGrid = document.getElementById('avatar-grid');
+AVATARS.forEach(a => {
+  const btn = document.createElement('button');
+  btn.className = 'avatar-btn';
+  btn.textContent = a;
+  btn.onclick = () => {
+    document.querySelectorAll('.avatar-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedAvatar = a;
+    updateJoinBtn();
+  };
+  avatarGrid.appendChild(btn);
+});
+
+const nicknameInput = document.getElementById('nickname-input');
+const joinBtn       = document.getElementById('join-btn');
+const errorMsg      = document.getElementById('error-msg');
+
+nicknameInput.addEventListener('input', updateJoinBtn);
+function updateJoinBtn() {
+  joinBtn.disabled = !nicknameInput.value.trim() || !selectedAvatar;
+}
+
+joinBtn.addEventListener('click', () => {
+  const nick = nicknameInput.value.trim();
+  if (!nick || !selectedAvatar) return;
+  connectWS(nick, selectedAvatar);
+});
+nicknameInput.addEventListener('keydown', e => { if (e.key === 'Enter') joinBtn.click(); });
+
+// ── Auto-reconnect from localStorage ──
+(function tryReconnect() {
+  const saved = localStorage.getItem('kahoot_session');
+  if (!saved) return;
+  let session;
+  try { session = JSON.parse(saved); } catch { return; }
+  if (!session.nickname || !session.avatar) return;
+
+  // Show a "reconnecting" banner on the login screen
+  const banner = document.createElement('div');
+  banner.style.cssText = 'position:fixed;top:0;left:0;right:0;padding:12px;background:#1368ce;text-align:center;font-weight:800;font-size:1rem;z-index:999';
+  banner.textContent = `↩️ Reconnecting as ${session.avatar} ${session.nickname}…`;
+  document.body.appendChild(banner);
+
+  connectWS(session.nickname, session.avatar, () => {
+    // If reconnect fails (error message), remove banner and stay on login
+    banner.remove();
+  });
+
+  // Remove banner once we move away from login screen
+  const obs = new MutationObserver(() => {
+    if (!document.getElementById('screen-login').classList.contains('active')) {
+      banner.remove();
+      obs.disconnect();
+    }
+  });
+  obs.observe(document.getElementById('screen-login'), { attributes: true });
+})();
+
+// ── WebSocket ──
+function connectWS(nickname, avatar, onErrorCb) {
+  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+  ws = new WebSocket(`${proto}://${location.host}/ws/player`);
+
+  ws.onopen = () => {
+    ws.send(JSON.stringify({ type: 'join', nickname, avatar }));
+  };
+
+  ws.onmessage = e => handleMsg(JSON.parse(e.data), onErrorCb);
+
+  ws.onclose = () => {
+    // Only show error if we're past login (already joined)
+    if (myNickname) showError('Disconnected — refresh to reconnect.');
+  };
+}
+
+function handleMsg(msg, onErrorCb) {
+  switch (msg.type) {
+    case 'error':      showError(msg.message); if (onErrorCb) onErrorCb(); break;
+    case 'joined':     onJoined(msg);                     break;
+    case 'lobby_update': onLobbyUpdate(msg);              break;
+    case 'question':   onQuestion(msg);                   break;
+    case 'timer':      onTimer(msg);                      break;
+    case 'answer_received': onAnswerReceived(msg);        break;
+    case 'answer_reveal':   onAnswerReveal(msg);          break;
+    case 'leaderboard':     onLeaderboard(msg);           break;
+    case 'game_over':       onGameOver(msg);              break;
+  }
+}
+
+function showError(msg) {
+  errorMsg.textContent = msg;
+  errorMsg.style.display = 'block';
+}
+
+// ── Screens ──
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+
+// ── Joined ──
+function onJoined(msg) {
+  myNickname = msg.nickname;
+  // Persist session so refresh auto-reconnects
+  localStorage.setItem('kahoot_session', JSON.stringify({
+    nickname: msg.nickname,
+    avatar: msg.avatar
+  }));
+  document.getElementById('lobby-you-label').textContent =
+    `You joined as ${msg.avatar} ${msg.nickname}`;
+  showScreen('lobby');
+}
+
+// ── Lobby ──
+function onLobbyUpdate(msg) {
+  // If we're not on the lobby screen yet it means the host restarted — go back to lobby
+  const currentScreen = document.querySelector('.screen.active');
+  if (currentScreen && currentScreen.id !== 'screen-lobby' && myNickname) {
+    // Host restarted mid-game; clear session so next refresh starts fresh
+    localStorage.removeItem('kahoot_session');
+    showScreen('lobby');
+  }
+
+  const chips = document.getElementById('player-chips');
+  chips.innerHTML = '';
+  msg.players.forEach(p => {
+    const chip = document.createElement('div');
+    chip.className = 'player-chip';
+    chip.innerHTML = `<span class="chip-avatar">${p.avatar}</span><span>${p.nickname}</span>`;
+    chips.appendChild(chip);
+  });
+}
+
+// ── Python syntax highlighting ──
+function escHtml(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+const PY_KEYWORDS = /^(?:False|None|True|and|as|assert|break|class|continue|def|del|elif|else|except|finally|for|from|global|if|import|in|is|lambda|not|or|pass|raise|return|try|while|with|yield)$/;
+const PY_BUILTINS = /^(?:print|range|len|int|str|float|input|random|randint|randrange|choice|shuffle|list|sum|abs|type|round|bool|enumerate|min|max)$/;
+
+function highlightPython(code) {
+  const token = /(#[^\n]*)|('(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*")|(\b\d+\.?\d*\b)|([A-Za-z_]\w*)/g;
+  let out = '', last = 0, m;
+  while ((m = token.exec(code)) !== null) {
+    out += escHtml(code.slice(last, m.index));
+    const t = escHtml(m[0]);
+    if      (m[1]) out += `<span class="com">${t}</span>`;
+    else if (m[2]) out += `<span class="str">${t}</span>`;
+    else if (m[3]) out += `<span class="num">${t}</span>`;
+    else if (PY_KEYWORDS.test(m[4])) out += `<span class="kw">${t}</span>`;
+    else if (PY_BUILTINS.test(m[4])) out += `<span class="bi">${t}</span>`;
+    else out += t;
+    last = m.index + m[0].length;
+  }
+  return out + escHtml(code.slice(last));
+}
+
+// An option is "code-ish" if it looks like program output rather than a sentence
+function isCodeOption(opt) {
+  return /^[\s\d.,\-]+$/.test(opt) || /\n/.test(opt) ||
+         /[(){}\[\]=<>%*+]|print|range|random/.test(opt);
+}
+
+// ── Question ──
+let timeLimit = 30;
+let timerInterval = null;
+
+function onQuestion(msg) {
+  timeLimit = msg.time_limit;
+
+  // Progress
+  document.getElementById('q-progress').textContent =
+    `Question ${msg.index + 1} of ${msg.total}`;
+
+  // Code hint
+  const tableWrap  = document.getElementById('table-wrap');
+  const tableLabel = document.getElementById('table-label');
+  const codeBlock  = document.getElementById('code-block');
+  if (msg.code_hint) {
+    tableLabel.textContent = 'PYTHON';
+    codeBlock.innerHTML = highlightPython(msg.code_hint);
+    tableWrap.style.display = 'block';
+  } else {
+    tableWrap.style.display = 'none';
+  }
+
+  // Question text
+  document.getElementById('q-text').textContent = msg.question;
+
+  // Answers
+  const grid = document.getElementById('answers-grid');
+  grid.innerHTML = '';
+  msg.options.forEach((opt, i) => {
+    const isCode = isCodeOption(opt);
+    const btn = document.createElement('button');
+    btn.className = 'answer-btn';
+    btn.dataset.idx = i;
+    btn.innerHTML = `
+      <span class="answer-icon">${ICONS[i]}</span>
+      <span class="answer-text ${isCode ? '' : 'plain'}">${escHtml(opt)}</span>
+    `;
+    btn.onclick = () => submitAnswer(i, btn);
+    grid.appendChild(btn);
+  });
+
+  // Timer ring
+  initTimer(msg.time_limit);
+
+  showScreen('question');
+}
+
+function initTimer(limit) {
+  const ring    = document.getElementById('timer-ring');
+  const numEl   = document.getElementById('timer-num');
+  const circumf = 2 * Math.PI * 30; // r=30
+  ring.style.strokeDasharray  = circumf;
+  ring.style.strokeDashoffset = 0;
+  ring.style.stroke = '#26890c';
+  numEl.textContent = limit;
+}
+
+function onTimer(msg) {
+  const remaining = msg.remaining;
+  const ring      = document.getElementById('timer-ring');
+  const numEl     = document.getElementById('timer-num');
+  const circumf   = 2 * Math.PI * 30;
+  const fraction  = remaining / timeLimit;
+  ring.style.strokeDashoffset = circumf * (1 - fraction);
+
+  if (remaining > 20)      ring.style.stroke = '#26890c';
+  else if (remaining > 10) ring.style.stroke = '#d89e00';
+  else                     ring.style.stroke = '#e21b3c';
+
+  numEl.textContent  = remaining;
+  numEl.style.color  = remaining <= 5 ? '#e21b3c' : '#fff';
+  numEl.style.transform = remaining <= 5 ? 'scale(1.3)' : 'scale(1)';
+}
+
+function submitAnswer(idx, btn) {
+  if (!ws) return;
+  ws.send(JSON.stringify({ type: 'answer', answer_index: idx }));
+  // Dim other buttons, highlight selected
+  document.querySelectorAll('.answer-btn').forEach((b, i) => {
+    b.disabled = true;
+    if (i !== idx) b.classList.add('dimmed');
+  });
+  btn.classList.add('selected');
+}
+
+// ── Answer received (waiting) ──
+function onAnswerReceived(msg) {
+  showScreen('waiting');
+}
+
+// ── Answer reveal ──
+const ANSWER_COLORS = ['#e21b3c','#1368ce','#d89e00','#26890c'];
+
+function onAnswerReveal(msg) {
+  // Feedback
+  const emojiEl  = document.getElementById('reveal-emoji');
+  const labelEl  = document.getElementById('reveal-label');
+  const pointsEl = document.getElementById('reveal-points');
+  const scoreEl  = document.getElementById('reveal-score');
+
+  if (msg.your_answer === null) {
+    emojiEl.textContent  = '⏰';
+    labelEl.textContent  = "Time's up!";
+    pointsEl.textContent = '+0 points';
+  } else if (msg.is_correct) {
+    emojiEl.textContent  = '🎉';
+    labelEl.textContent  = 'Correct!';
+    pointsEl.textContent = `+${msg.points_earned.toLocaleString()} points`;
+  } else {
+    emojiEl.textContent  = '😢';
+    labelEl.textContent  = 'Wrong!';
+    pointsEl.textContent = '+0 points';
+  }
+  scoreEl.textContent = `Total score: ${msg.total_score.toLocaleString()}`;
+
+  // Distribution bars
+  const total = msg.distribution.reduce((a,b)=>a+b, 0) || 1;
+  const wrap  = document.getElementById('dist-wrap');
+  wrap.innerHTML = '';
+  msg.options.forEach((opt, i) => {
+    const count  = msg.distribution[i];
+    const pct    = Math.round(count / total * 100);
+    const isCorr = i === msg.correct_index;
+    const row    = document.createElement('div');
+    row.className = 'dist-row';
+    row.innerHTML = `
+      <div class="dist-icon">${ICONS[i]}</div>
+      <div class="dist-bar-bg">
+        <div class="dist-bar-fill ${isCorr ? 'correct' : 'wrong'}"
+             id="bar-${i}"
+             style="width:0%; background:${isCorr ? '#26890c' : 'rgba(255,255,255,0.22)'}">
+          ${pct > 12 ? pct+'%' : ''}
+        </div>
+      </div>
+      <div class="dist-count">${count}</div>
+    `;
+    wrap.appendChild(row);
+    // animate bar in
+    setTimeout(() => {
+      document.getElementById(`bar-${i}`).style.width = pct + '%';
+    }, 50 + i * 120);
+  });
+
+  // Correct answer label
+  const correctLabel = document.getElementById('correct-label');
+  correctLabel.innerHTML = `✅ Correct answer: <strong style="margin-left:6px">${escHtml(msg.options[msg.correct_index]).replace(/\n/g, ' ⏎ ')}</strong>`;
+
+  showScreen('reveal');
+}
+
+// ── Leaderboard ──
+function onLeaderboard(msg) {
+  renderLeaderboard(
+    msg.scores,
+    'lb-title',
+    'podium',
+    'others-list',
+    msg.question_num ? `After question ${msg.question_num}` : 'Scoreboard'
+  );
+  showScreen('leaderboard');
+}
+
+function onGameOver(msg) {
+  localStorage.removeItem('kahoot_session');
+  renderLeaderboard(msg.scores, null, 'final-podium', 'final-others', null);
+  launchConfetti();
+  showScreen('gameover');
+}
+
+function renderLeaderboard(scores, titleId, podiumId, othersId, subtitle) {
+  if (titleId) {
+    document.getElementById(titleId).textContent = subtitle ? `🏆 ${subtitle}` : '🏆 Scoreboard';
+  }
+
+  const top3   = scores.slice(0, 3);
+  const others = scores.slice(3);
+
+  // Podium (slots: 2nd, 1st, 3rd)
+  const podium = document.getElementById(podiumId);
+  podium.innerHTML = '';
+  const slotOrder  = [1, 0, 2]; // display order: 2nd, 1st, 3rd
+  const slotClass  = ['second','first','third'];
+  const slotEmoji  = ['🥈','🥇','🥉'];
+
+  slotOrder.forEach((rankIdx, displayPos) => {
+    const p    = top3[rankIdx];
+    const slot = document.createElement('div');
+    slot.className = `podium-slot ${slotClass[displayPos]}`;
+    if (p) {
+      const isMe = p.nickname === myNickname;
+      slot.innerHTML = `
+        <div class="podium-avatar" style="animation-delay:${displayPos*0.15}s">${p.avatar}</div>
+        <div class="podium-name">${isMe ? '⭐ ' : ''}${p.nickname}</div>
+        <div class="podium-score">${p.score.toLocaleString()} pts</div>
+        <div class="podium-block">${slotEmoji[displayPos]}</div>
+      `;
+    } else {
+      slot.innerHTML = `<div class="podium-block" style="opacity:0.3">${slotEmoji[displayPos]}</div>`;
+    }
+    podium.appendChild(slot);
+  });
+
+  // Others
+  const othersList = document.getElementById(othersId);
+  othersList.innerHTML = '';
+  others.forEach((p, i) => {
+    const isMe = p.nickname === myNickname;
+    const row  = document.createElement('div');
+    row.className = `others-row${isMe ? ' me' : ''}`;
+    row.style.animationDelay = `${i * 0.06}s`;
+    row.innerHTML = `
+      <div class="others-rank">#${p.rank}</div>
+      <div class="others-avatar">${p.avatar}</div>
+      <div class="others-name">${isMe ? '⭐ ' : ''}${p.nickname}</div>
+      <div class="others-score">${p.score.toLocaleString()}</div>
+    `;
+    othersList.appendChild(row);
+  });
+}
+
+// ── Confetti ──
+function launchConfetti() {
+  const colors = ['#e21b3c','#1368ce','#d89e00','#26890c','#a855f7','#f472b6'];
+  for (let i = 0; i < 80; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.cssText = `
+      left:${Math.random()*100}vw;
+      top:-20px;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      width:${6+Math.random()*10}px;
+      height:${10+Math.random()*14}px;
+      animation-duration:${2+Math.random()*3}s;
+      animation-delay:${Math.random()*1.5}s;
+      transform:rotate(${Math.random()*360}deg);
+    `;
+    document.body.appendChild(el);
+    el.addEventListener('animationend', () => el.remove());
+  }
+}
+</script>
+</body>
+</html>

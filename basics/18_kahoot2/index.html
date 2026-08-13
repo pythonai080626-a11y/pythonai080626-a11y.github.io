@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Python Quiz 1 - Basics, Operations &amp; Loops - 20 Questions</title>
+<title>Python Quiz 2 - Lists - 20 Questions</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
     font-family: 'Nunito', sans-serif;
-    background: #46178f;
+    background: #0f4c3a;
     color: #fff;
     min-height: 100vh;
     overflow-x: hidden;
@@ -43,25 +43,6 @@
     letter-spacing: .04em; opacity: .8; margin-bottom: 20px;
   }
 
-  /* ── what this quiz covers ── */
-  .topic-box {
-    background: rgba(0,0,0,.28); border: 1px solid rgba(255,255,255,.14);
-    border-radius: 14px; padding: 16px 18px; margin: 20px 0 4px; text-align: left;
-  }
-  .topic-box .tb-title {
-    font-size: .74rem; font-weight: 800; letter-spacing: .12em;
-    text-transform: uppercase; opacity: .6; margin-bottom: 10px;
-  }
-  .topic-chips { display: flex; flex-wrap: wrap; gap: 7px; }
-  .chip {
-    font-family: Consolas, monospace; font-size: .82rem; font-weight: 700;
-    background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.18);
-    border-radius: 8px; padding: 5px 10px;
-  }
-  .topic-note { font-size: .86rem; font-weight: 700; opacity: .72; margin-top: 11px; line-height: 1.5; }
-  .topic-note a { color: #ffd700; text-decoration: none; border-bottom: 1px solid rgba(255,215,0,.4); }
-  .topic-note a:hover { border-bottom-color: #ffd700; }
-
   .card {
     background: rgba(255,255,255,.08);
     backdrop-filter: blur(16px);
@@ -81,10 +62,29 @@
   }
   .btn:hover  { filter: brightness(1.1); }
   .btn:active { transform: scale(.97); }
-  .btn-primary { background: #fff; color: #46178f; box-shadow: 0 4px 16px rgba(0,0,0,.2); }
+  .btn-primary { background: #fff; color: #0f4c3a; box-shadow: 0 4px 16px rgba(0,0,0,.2); }
   .btn-ghost   { background: rgba(255,255,255,.15); color: #fff; margin-top: 12px; }
 
-  .rules { text-align: left; margin: 22px 0 26px; }
+  /* ── what this quiz covers ── */
+  .topic-box {
+    background: rgba(0,0,0,.28); border: 1px solid rgba(255,255,255,.14);
+    border-radius: 14px; padding: 16px 18px; margin: 20px 0 4px; text-align: left;
+  }
+  .topic-box .tb-title {
+    font-size: .74rem; font-weight: 800; letter-spacing: .12em;
+    text-transform: uppercase; opacity: .6; margin-bottom: 10px;
+  }
+  .topic-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+  .chip {
+    font-family: Consolas, monospace; font-size: .82rem; font-weight: 700;
+    background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.18);
+    border-radius: 8px; padding: 5px 10px;
+  }
+  .topic-note { font-size: .86rem; font-weight: 700; opacity: .72; margin-top: 11px; line-height: 1.5; }
+  .topic-note a { color: #ffd700; text-decoration: none; border-bottom: 1px solid rgba(255,215,0,.4); }
+  .topic-note a:hover { border-bottom-color: #ffd700; }
+
+  .rules { text-align: left; margin: 18px 0 26px; }
   .rule {
     display: flex; align-items: center; gap: 12px;
     background: rgba(0,0,0,.22); border-radius: 12px;
@@ -176,7 +176,7 @@
   }
   .feedback.good { background: #26890c; }
   .feedback.bad  { background: #e21b3c; }
-  .feedback.out  { background: #6b21a8; border: 2px solid rgba(255,255,255,.35); }
+  .feedback.out  { background: #115e59; border: 2px solid rgba(255,255,255,.35); }
   .fb-emoji { font-size: 2.4rem; line-height: 1; }
   .fb-title { font-size: 1.5rem; font-weight: 900; margin: 6px 0 4px; }
   .fb-detail { font-size: 1rem; font-weight: 700; opacity: .92; }
@@ -244,37 +244,42 @@
 <!-- ══════════ START ══════════ -->
 <div class="screen active" id="screen-start">
   <a class="back-link" href="../index.html">← Python Basics</a>
-  <div class="logo">🐍 Python Quiz 1</div>
-  <div class="logo-sub">BASIC OPERATIONS &amp; LOOPS</div>
+  <div class="logo">📋 Python Quiz 2</div>
+  <div class="logo-sub">LISTS</div>
   <div class="card">
     <p style="font-size:1.05rem;font-weight:700;opacity:.9">
-      20 questions on <strong>the core building blocks</strong> — the maths operators,
-      making decisions, and every kind of loop.
+      20 questions on <strong>the <code>list</code> type</strong> — reading a list,
+      slicing it, growing it, shrinking it and measuring it.
     </p>
 
     <div class="topic-box">
       <div class="tb-title">What this quiz covers</div>
       <div class="topic-chips">
-        <span class="chip">%  (modulus)</span>
-        <span class="chip">//  vs  /</span>
-        <span class="chip">if / elif / else</span>
-        <span class="chip">for</span>
-        <span class="chip">range(a, b, step)</span>
-        <span class="chip">while</span>
-        <span class="chip">while True</span>
-        <span class="chip">break</span>
-        <span class="chip">continue</span>
-        <span class="chip">nested loops</span>
-        <span class="chip">counters</span>
-        <span class="chip">the _ variable</span>
-        <span class="chip">end=" "</span>
-        <span class="chip">import random</span>
-        <span class="chip">randint</span>
-        <span class="chip">choice</span>
+        <span class="chip">len</span>
+        <span class="chip">lst[i]</span>
+        <span class="chip">lst[-1]</span>
+        <span class="chip">slicing [a:b]</span>
+        <span class="chip">[::2]</span>
+        <span class="chip">[::-1]</span>
+        <span class="chip">IndexError</span>
+        <span class="chip">.append()</span>
+        <span class="chip">.insert()</span>
+        <span class="chip">.pop()</span>
+        <span class="chip">del</span>
+        <span class="chip">.remove()</span>
+        <span class="chip">ValueError</span>
+        <span class="chip">.count()</span>
+        <span class="chip">x in lst</span>
+        <span class="chip">[7] * 3</span>
+        <span class="chip">max min sum</span>
+        <span class="chip">the average</span>
+        <span class="chip">looping a list</span>
       </div>
       <div class="topic-note">
-        📚 From lessons 3&ndash;10. No lists in this one &mdash; those are
-        <a href="../18_kahoot2/index.html">Quiz 2</a>.
+        📚 From <a href="../lessons/13_lesson/13-lesson.html">Lesson 13</a> and the
+        <a href="../16_lists/index.html">Lists</a> topic page.<br>
+        Comprehensions, <code>all</code>/<code>any</code>, <code>sort</code> and <code>copy</code>
+        are <strong>not</strong> in this quiz — those are lesson 14.
       </div>
     </div>
 
@@ -333,7 +338,7 @@
 
     <div class="result-msg" id="result-msg"></div>
     <button class="btn btn-primary" id="btn-again">Play again 🔁</button>
-    <a class="btn btn-ghost" href="../18_kahoot2/index.html">Next: Quiz 2 — Lists 📋</a>
+    <a class="btn btn-ghost" href="../16_lists/index.html">Review the Lists topic 📋</a>
     <a class="btn btn-ghost" href="../index.html">Back to Python Basics</a>
 
     <div class="review">
@@ -344,225 +349,225 @@
 </div>
 
 <script>
-/* ══════════ QUESTIONS ══════════ */
+/* ══════════ QUESTIONS — lists (lesson 13 / topic 16) ══════════ */
 const QUESTIONS = [
   {
     "q": "What does this code print?",
-    "code": "for i in range(3):\n    print(i)",
+    "code": "nums = [8, 3, 14, 5, 20]\nprint(len(nums), nums[0], nums[2])",
     "options": [
-      "0\n1\n2",
-      "1\n2\n3",
-      "0\n1\n2\n3",
-      "3"
+      "5 8 14",
+      "5 8 5",
+      "4 8 14",
+      "5 3 5"
     ],
     "correct": 0
   },
   {
     "q": "What is printed?",
-    "code": "print(17 % 5)",
+    "code": "colors = ['red', 'blue', 'green', 'pink']\nprint(colors[-1], colors[-3])",
     "options": [
-      "3",
-      "3.4",
-      "2",
-      "12"
+      "red blue",
+      "pink green",
+      "pink blue",
+      "Error — an index cannot be negative"
     ],
     "correct": 2
   },
   {
-    "q": "What are the two printed values?",
-    "code": "print(17 // 5)\nprint(17 / 5)",
+    "q": "What is printed?",
+    "code": "n = [10, 11, 12, 13, 14, 15, 16, 17]\nprint(n[2:5])",
     "options": [
-      "3.4  then  3",
-      "3  then  3.4",
-      "3  then  3",
-      "2  then  3.4"
+      "[12, 13, 14, 15]",
+      "[12, 13, 14]",
+      "[11, 12, 13, 14]",
+      "[10, 11]"
+    ],
+    "correct": 1
+  },
+  {
+    "q": "What are the two printed lists?",
+    "code": "n = [10, 11, 12, 13, 14, 15, 16, 17]\nprint(n[:4])\nprint(n[5:])",
+    "options": [
+      "[10, 11, 12, 13, 14]  then  [16, 17]",
+      "[10, 11, 12, 13]  then  [15, 16, 17]",
+      "[10, 11, 12, 13]  then  [16, 17]",
+      "[11, 12, 13, 14]  then  [15, 16, 17]"
     ],
     "correct": 1
   },
   {
     "q": "What is printed?",
-    "code": "n = 0\nwhile True:\n    n += 1\n    if n == 3:\n        break\nprint(n)",
+    "code": "n = [10, 11, 12, 13, 14, 15, 16, 17]\nprint(n[1::2])",
     "options": [
-      "0",
-      "2",
-      "3",
+      "[10, 12, 14, 16]",
+      "[11, 13, 15, 17]",
+      "[11, 12, 13]",
+      "[10, 11, 12, 13]"
+    ],
+    "correct": 1
+  },
+  {
+    "q": "What is printed?",
+    "code": "sizes = [2, 7, 4, 9]\nprint(sizes[::-1])",
+    "options": [
+      "[2, 7, 4, 9]",
+      "[2, 4, 7, 9]",
+      "[9, 4, 7, 2]",
+      "[9, 7, 4, 2]"
+    ],
+    "correct": 2
+  },
+  {
+    "q": "What happens when this runs?",
+    "code": "lst = [6, 1, 9]\nprint(lst[0:99])\nprint(lst[99])",
+    "options": [
+      "Both lines crash with IndexError",
+      "[6, 1, 9]  then  9",
+      "Both work: [6, 1, 9]  then  []",
+      "[6, 1, 9]  then  IndexError"
+    ],
+    "correct": 3
+  },
+  {
+    "q": "What is printed?",
+    "code": "scores = [12, 5]\nscores = scores.append(30)\nprint(scores)",
+    "options": [
+      "[12, 5, 30]",
+      "None",
+      "[12, 5]",
+      "Error — append takes no arguments"
+    ],
+    "correct": 1
+  },
+  {
+    "q": "What is printed?",
+    "code": "pets = ['cat', 'dog', 'fish']\npets.insert(1, 'bird')\nprint(pets)",
+    "options": [
+      "['bird', 'cat', 'dog', 'fish']",
+      "['cat', 'dog', 'bird', 'fish']",
+      "['cat', 'bird', 'dog', 'fish']",
+      "['cat', 'bird', 'fish']"
+    ],
+    "correct": 2
+  },
+  {
+    "q": "What are the two printed values?",
+    "code": "temps = [19, 25, 31, 12]\nprint(temps.pop(1))\ndel temps[0]\nprint(temps)",
+    "options": [
+      "19  then  [25, 31, 12]",
+      "25  then  [19, 31, 12]",
+      "None  then  [31, 12]",
+      "25  then  [31, 12]"
+    ],
+    "correct": 3
+  },
+  {
+    "q": "What is the output of these two loops?",
+    "code": "letters = ['a', 'b', 'c']\nfor i in range(0, len(letters)):\n    print(i, end=\" \")\nprint()\nfor letter in letters:\n    print(letter, end=\" \")",
+    "options": [
+      "a b c\na b c",
+      "0 1 2\n0 1 2",
+      "1 2 3\na b c",
+      "0 1 2\na b c"
+    ],
+    "correct": 3
+  },
+  {
+    "q": "What is printed?",
+    "code": "nums = [4, 7, 4, 9, 4]\nnums.remove(4)\nprint(nums)",
+    "options": [
+      "[7, 9]",
+      "[7, 4, 9, 4]",
+      "[4, 7, 9, 4]",
+      "[7, 4, 9]"
+    ],
+    "correct": 1
+  },
+  {
+    "q": "What happens here?",
+    "code": "nums = [4, 7, 9]\nnums.remove(5)",
+    "options": [
+      "Nothing — 5 is simply ignored",
+      "The list becomes [4, 7]",
+      "ValueError — 5 is not in the list",
+      "IndexError — there is no index 5"
+    ],
+    "correct": 2
+  },
+  {
+    "q": "What is printed?",
+    "code": "nums = [4, 7, 4, 9, 4]\nwhile 4 in nums:\n    nums.remove(4)\nprint(nums)",
+    "options": [
+      "[7, 4, 9, 4]",
+      "[7, 9]",
+      "[]",
       "Nothing — infinite loop"
     ],
-    "correct": 2
+    "correct": 1
   },
   {
-    "q": "What is the output?",
-    "code": "for i in range(5):\n    if i == 2:\n        continue\n    print(i, end=\" \")",
+    "q": "What is printed?",
+    "code": "print([3, 6, 3, 3, 1].count(3))",
     "options": [
-      "0 1 2 3 4",
-      "0 1 3 4",
-      "0 1",
-      "2"
+      "3",
+      "2",
+      "5",
+      "0"
+    ],
+    "correct": 0
+  },
+  {
+    "q": "What are the two printed values?",
+    "code": "print(5 in [1, 2, 3])\nprint(2 in [1, 2, 3])",
+    "options": [
+      "True  then  True",
+      "False  then  True",
+      "Error — 'in' only works inside a for loop",
+      "0  then  1"
     ],
     "correct": 1
   },
   {
     "q": "What is printed?",
-    "code": "x = 7\nif x > 10:\n    print(\"big\")\nelif x > 5:\n    print(\"medium\")\nelif x > 3:\n    print(\"small\")\nelse:\n    print(\"tiny\")",
+    "code": "row = [7] * 3\nrow.append(0)\nprint(row, len(row))",
     "options": [
-      "big",
-      "medium",
-      "medium\nsmall",
-      "tiny"
+      "[21, 0] 2",
+      "[7, 3, 0] 3",
+      "[7, 7, 7] 3",
+      "[7, 7, 7, 0] 4"
     ],
-    "correct": 1
+    "correct": 3
   },
   {
-    "q": "What is the output?",
-    "code": "for i in range(1, 10, 2):\n    print(i, end=\" \")",
+    "q": "What is printed?",
+    "code": "vals = [15, 4, 23, 8]\nprint(max(vals), min(vals), sum(vals))",
     "options": [
-      "1 3 5 7 9",
-      "1 3 5 7 9 11",
-      "2 4 6 8",
-      "1 2 3 ... 10"
+      "23 4 46",
+      "15 4 50",
+      "23 4 50",
+      "4 23 50"
     ],
-    "correct": 0
+    "correct": 2
   },
   {
-    "q": "What is the output?",
-    "code": "for i in range(1, 6):\n    if i % 2 == 0:\n        print(\"even\", end=\" \")\n    elif i % 3 == 0:\n        print(\"three\", end=\" \")\n    else:\n        print(i, end=\" \")",
+    "q": "What is printed?",
+    "code": "grades = [10, 5, 6]\nprint(sum(grades) / len(grades))",
     "options": [
-      "1 even three even 5",
-      "1 even 3 even 5",
-      "1 2 three 4 5",
-      "even three even"
-    ],
-    "correct": 0
-  },
-  {
-    "q": "Why is \"_\" used here instead of a name like i?",
-    "code": "for _ in range(3):\n    print(\"hi\")",
-    "options": [
-      "\"_\" is a special Python keyword for loops",
-      "Because we never use the loop value — \"_\" means 'ignore it'",
-      "It makes the loop run 3 times faster",
-      "It is a syntax error — Python needs a real name"
-    ],
-    "correct": 1
-  },
-  {
-    "q": "What are the two printed values?",
-    "code": "def add(a, b):\n    print(a + b)\n\nx = add(2, 3)\nprint(x)",
-    "options": [
-      "5  then  None",
-      "5  then  5",
-      "None  then  5",
-      "Error — add() returns nothing"
-    ],
-    "correct": 0
-  },
-  {
-    "q": "What is the value of count at the end?",
-    "code": "count = 0\nfor i in range(1, 11):\n    if i % 2 == 0:\n        count += 1\nprint(count)",
-    "options": [
-      "4",
-      "5",
-      "6",
-      "10"
+      "7",
+      "7.0",
+      "21",
+      "There is no average — Python needs statistics.mean"
     ],
     "correct": 1
   },
   {
     "q": "What is printed?",
-    "code": "i = 0\nwhile i < 5:\n    i += 2\nprint(i)",
+    "code": "squares = []\nfor i in range(1, 5):\n    squares.append(i * i)\nprint(squares)",
     "options": [
-      "4",
-      "5",
-      "6",
-      "The loop never ends"
-    ],
-    "correct": 2
-  },
-  {
-    "q": "What is the output?",
-    "code": "for i in range(10):\n    if i * i > 10:\n        break\n    print(i, end=\" \")",
-    "options": [
-      "0 1 2 3",
-      "0 1 2 3 4",
-      "0 1 2",
-      "0 1 2 3 4 5 6 7 8 9"
-    ],
-    "correct": 0
-  },
-  {
-    "q": "What is the difference between break and continue?",
-    "code": null,
-    "options": [
-      "break skips one iteration; continue stops the loop",
-      "break stops the whole loop; continue skips to the next iteration",
-      "They do exactly the same thing",
-      "Both of them stop the program"
-    ],
-    "correct": 1
-  },
-  {
-    "q": "Nested loops!\nWhat is the output?",
-    "code": "for i in range(3):\n    for j in range(3):\n        if j == 1:\n            break\n        print(i, j, end=\"  \")",
-    "options": [
-      "0 0",
-      "0 0  1 0  2 0",
-      "0 0  0 1  0 2",
-      "0 0  1 1  2 2"
-    ],
-    "correct": 1
-  },
-  {
-    "q": "Which values can x get?",
-    "code": "import random\nx = random.randint(1, 6)",
-    "options": [
-      "1, 2, 3, 4, 5 or 6",
-      "1, 2, 3, 4 or 5",
-      "Any float between 1 and 6",
-      "0, 1, 2, 3, 4, 5 or 6"
-    ],
-    "correct": 0
-  },
-  {
-    "q": "Which values can x get?",
-    "code": "import random\nx = random.choice([10, 20, 30])",
-    "options": [
-      "0, 1 or 2 (an index)",
-      "Always 10",
-      "10, 20 or 30",
-      "Any number between 10 and 30"
-    ],
-    "correct": 2
-  },
-  {
-    "q": "What are the two printed values?",
-    "code": "n = 253\nprint(n % 10)\nprint(n // 10)",
-    "options": [
-      "25  then  3",
-      "3  then  25",
-      "3  then  25.3",
-      "2  then  53"
-    ],
-    "correct": 1
-  },
-  {
-    "q": "What is the output?",
-    "code": "i = 0\nwhile i < 10:\n    i += 1\n    if i % 2 == 0:\n        continue\n    if i > 5:\n        break\n    print(i, end=\" \")",
-    "options": [
-      "1 2 3 4 5",
-      "1 3 5 7",
-      "1 3 5",
-      "2 4 6"
-    ],
-    "correct": 2
-  },
-  {
-    "q": "This is a number guessing game.\nWhat does the last line print?",
-    "code": "import random\nsecret = random.randint(1, 100)\ntries = 0\nwhile True:\n    guess = int(input())\n    tries += 1\n    if guess == secret:\n        break\nprint(tries)",
-    "options": [
-      "The secret number",
-      "Always 1",
-      "How many guesses it took to find the secret",
-      "Nothing — the loop never ends"
+      "[1, 4, 9, 16, 25]",
+      "[0, 1, 4, 9]",
+      "[1, 4, 9, 16]",
+      "[2, 4, 6, 8]"
     ],
     "correct": 2
   }
@@ -577,7 +582,7 @@ function escHtml(s) {
 }
 
 const PY_KEYWORDS = /^(?:False|None|True|and|as|assert|break|class|continue|def|del|elif|else|except|finally|for|from|global|if|import|in|is|lambda|not|or|pass|raise|return|try|while|with|yield)$/;
-const PY_BUILTINS = /^(?:print|range|len|int|str|float|input|random|randint|randrange|choice|shuffle|list|sum|abs|type|round|bool|enumerate|min|max|time|sleep)$/;
+const PY_BUILTINS = /^(?:print|range|len|int|str|float|input|random|randint|randrange|choice|shuffle|list|sum|abs|type|round|bool|enumerate|min|max|time|sleep|append|insert|pop|remove|count|sort|sorted|reverse|copy|clear|any|all|statistics|mean)$/;
 
 function highlightPython(code) {
   const token = /(#[^\n]*)|('(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*")|(\b\d+\.?\d*\b)|([A-Za-z_]\w*)/g;
@@ -745,11 +750,11 @@ function showResult() {
   document.getElementById('score-pct').textContent = pct + '%';
 
   let emoji, title, msg;
-  if (pct === 100)     { emoji = '🏆'; title = 'Perfect score!';  msg = 'Every single one correct. You know your Python basics.'; }
-  else if (pct >= 80)  { emoji = '🎉'; title = 'Excellent!';      msg = 'Strong result — just a couple to review.'; }
+  if (pct === 100)     { emoji = '🏆'; title = 'Perfect score!';  msg = 'Every single one correct. Lists hold no secrets from you.'; }
+  else if (pct >= 80)  { emoji = '🎉'; title = 'Excellent!';      msg = 'Strong result — just a couple of list tricks to review.'; }
   else if (pct >= 60)  { emoji = '👍'; title = 'Good job!';       msg = 'Solid. Look back at the ones you missed and try again.'; }
-  else if (pct >= 40)  { emoji = '📚'; title = 'Keep practising'; msg = 'You are getting there. Re-read the lessons and go again.'; }
-  else                 { emoji = '💪'; title = 'Try again';       msg = 'Do not worry — go through the lessons and come back.'; }
+  else if (pct >= 40)  { emoji = '📚'; title = 'Keep practising'; msg = 'You are getting there. Re-read the Lists topic and go again.'; }
+  else                 { emoji = '💪'; title = 'Try again';       msg = 'Do not worry — go through lesson 13 and come back.'; }
 
   document.getElementById('result-emoji').textContent = emoji;
   document.getElementById('result-title').textContent = title;
