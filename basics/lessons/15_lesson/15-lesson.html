@@ -1,0 +1,1493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lesson 15 - Sets</title>
+  <style>
+    :root {
+      --bg-soft: #ffffff;
+      --green-1: #0f5a2e;
+      --green-2: #1f8f4e;
+      --green-3: #dbf6e5;
+      --mint: #e6fff2;
+      --text: #14281d;
+      --muted: #426654;
+      --border: #aadfbd;
+      --accent-a: #ddfbe7;
+      --accent-b: #fff4d8;
+      --code-bg: #0b2517;
+      --code-text: #d2ffe3;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Lucida Sans", "Segoe UI", sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 15% 10%, #e7fff0 0%, transparent 35%),
+                  radial-gradient(circle at 85% 18%, #fff5d6 0%, transparent 36%),
+                  linear-gradient(180deg, #f4fff6 0%, #ffffff 45%, #edfff4 100%);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    body::before, body::after {
+      content: "";
+      position: fixed;
+      width: 230px;
+      height: 230px;
+      z-index: -1;
+      border-radius: 999px;
+      filter: blur(2px);
+      opacity: 0.32;
+      animation: blobMove 8s ease-in-out infinite alternate;
+    }
+    body::before { background: #bff0d0; top: -30px; left: -40px; }
+    body::after { background: #ffe9a9; bottom: -40px; right: -40px; animation-delay: 1.4s; }
+
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 24px; }
+    .layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .side-nav {
+      position: sticky;
+      top: 14px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 8px 22px rgba(18,102,55,0.1);
+      padding: 12px;
+    }
+    .side-title { margin: 0 0 8px; font-size: 0.9rem; color: var(--green-1); font-weight: 700; }
+    .topic-link {
+      display: block;
+      width: 100%;
+      text-align: left;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      padding: 8px 10px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.89rem;
+      text-transform: lowercase;
+      margin-bottom: 4px;
+      transition: all 0.2s ease;
+    }
+    .topic-link:hover { background: #f0fff4; color: var(--green-1); border-color: var(--border); }
+    .topic-link.active { background: #e8faee; color: var(--green-1); border-color: var(--green-2); font-weight: 700; }
+
+    .hero {
+      background: linear-gradient(135deg, var(--bg-soft) 0%, var(--accent-a) 55%, var(--accent-b) 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 12px 30px rgba(24,110,58,0.12);
+      margin-bottom: 22px;
+      animation: riseIn 0.75s ease both;
+    }
+
+    h1, h2, h3 { margin-top: 0; color: var(--green-1); }
+    h1 { font-size: 2rem; margin-bottom: 8px; }
+    code { color: var(--green-1); font-weight: 700; }
+
+    .tag {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      background: var(--green-3);
+      color: var(--green-1);
+      border: 1px solid var(--border);
+      margin-bottom: 10px;
+    }
+
+    .card {
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 16px;
+      box-shadow: 0 7px 22px rgba(18,102,55,0.08);
+      animation: riseIn 0.65s ease both;
+    }
+
+    .topic-panel { display: none; }
+    .topic-panel.active { display: block; }
+    .step-title { margin: 0 0 12px; font-size: 1.25rem; }
+    .side-divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+    .side-section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--green-2);
+      padding: 4px 4px 6px;
+    }
+    .nav-back {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--green-2);
+      background: #e9fbe8;
+      color: var(--green-1);
+      text-decoration: none;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      width: 100%;
+      text-align: center;
+    }
+    .nav-back:hover { background: #d8f7df; transform: translateY(-1px); }
+
+    .note {
+      background: var(--mint);
+      border-left: 4px solid var(--green-2);
+      padding: 10px 14px;
+      color: var(--muted);
+      margin: 12px 0;
+      border-radius: 6px;
+      font-size: 0.94rem;
+    }
+    .warn {
+      background: #fff6e2;
+      border-left: 4px solid #e0a800;
+      padding: 10px 14px;
+      color: #6b4e00;
+      margin: 12px 0;
+      border-radius: 6px;
+      font-size: 0.94rem;
+    }
+    .big-result { font-size: 1.1rem; margin: 18px 0 8px; color: var(--green-1); font-weight: 700; }
+
+    .code {
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 10px;
+      border: 1px solid #2f5a3d;
+      padding: 16px 18px;
+      overflow-x: auto;
+      margin: 10px 0 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95rem;
+      white-space: pre;
+      line-height: 1.7;
+    }
+    .code .cm { color: #6dbf8a; }
+    .code .fn { color: #ffa657; }
+    .code .kw { color: #79c0ff; }
+    .code .num { color: #d2a8ff; }
+    .code .str { color: #ffd580; }
+    .code .hl { background: rgba(125,231,135,0.16); border-radius: 4px; }
+    .code .bad { background: rgba(248,113,113,0.16); border-radius: 4px; }
+
+    .console {
+      background: #101418;
+      color: #e6edf3;
+      border-radius: 10px;
+      border: 1px solid #30363d;
+      padding: 12px 18px;
+      overflow-x: auto;
+      margin: 10px 0 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92rem;
+      white-space: pre;
+      line-height: 1.7;
+    }
+    .console .usr { color: #7ee787; font-weight: 700; }
+    .console .dim { color: #8b949e; }
+    .console .err { color: #ff9f9f; }
+
+    .ex-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .88rem;
+      margin: 10px 0 14px;
+    }
+    .ex-table th {
+      background: var(--green-3);
+      color: var(--green-1);
+      padding: 8px 12px;
+      text-align: left;
+      border: 1px solid var(--border);
+      font-size: .78rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+    .ex-table td { padding: 8px 12px; border: 1px solid var(--border); vertical-align: top; }
+    .ex-table tr:nth-child(even) td { background: #f4fff7; }
+    .task-box {
+      background: var(--mint);
+      border: 2px dashed var(--green-2);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin: 14px 0;
+    }
+    .task-box a {
+      color: var(--green-1);
+      font-weight: 800;
+      font-size: 1.02rem;
+      word-break: break-all;
+    }
+    .footer { text-align: center; color: var(--muted); font-size: 0.86rem; padding: 10px 0 16px; }
+
+    .task-list { padding-left: 22px; margin: 10px 0 0; }
+    .task-list li { margin-bottom: 10px; color: #1a3a2a; }
+    .task-list li strong { color: var(--green-1); }
+
+    .ex-title { display: flex; align-items: center; margin: 22px 0 8px; }
+    .ex-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--green-3); border: 2px solid var(--green-2);
+      color: var(--green-1); font-weight: 800; font-size: .88rem;
+      margin-right: 8px; flex-shrink: 0;
+    }
+    .ex-title h3 { margin: 0; font-size: 1.1rem; }
+
+    .kbd {
+      display: inline-block; padding: 2px 8px; border-radius: 6px;
+      background: #f0fff4; border: 1px solid var(--border);
+      border-bottom-width: 3px; font-family: Consolas, monospace;
+      font-size: .85rem; color: var(--green-1); font-weight: 700;
+    }
+
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 6px; }
+    .pill {
+      display: inline-block; padding: 4px 12px; border-radius: 999px;
+      background: #eafcef; border: 1px solid var(--border);
+      color: var(--green-1); font-weight: 700; font-size: .82rem;
+    }
+
+    .submission { background: var(--mint); border-color: var(--green-2); margin-top: 0; }
+    .submission a { color: var(--green-1); font-weight: 800; font-size: 1.05rem; word-break: break-all; }
+
+    /* ── Lesson 15 homework: the case file ── */
+    .casefile {
+      background: #f5fff9; border: 1px solid var(--border);
+      border-left: 5px solid var(--green-2);
+      border-radius: 12px; padding: 14px 18px; margin: 12px 0 14px;
+    }
+    .casefile .cf-head {
+      display: flex; align-items: center; gap: 8px;
+      font-weight: 800; color: var(--green-1); margin-bottom: 8px; font-size: .95rem;
+    }
+    .clue-list { list-style: none; padding-left: 0; margin: 0; }
+    .clue-list li {
+      display: flex; align-items: flex-start; gap: 9px;
+      margin-bottom: 7px; color: #1a3a2a; font-size: .95rem;
+    }
+    .clue-list .cn {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 22px; height: 22px; border-radius: 6px; flex-shrink: 0; margin-top: 2px;
+      background: var(--green-3); border: 1px solid var(--green-2);
+      color: var(--green-1); font-family: Consolas, monospace; font-weight: 800; font-size: .76rem;
+    }
+    .clue-list li.no .cn { background: #fff0c2; border-color: #e0a800; color: #6b4e00; }
+    .rtl .clue-list { padding-right: 0; }
+
+    .rtl { direction: rtl; text-align: right; }
+    .rtl .task-list { padding-left: 0; padding-right: 22px; }
+    .rtl .ex-title { flex-direction: row-reverse; justify-content: flex-end; }
+    .rtl .ex-num { margin-right: 0; margin-left: 8px; }
+    .rtl .ex-table th, .rtl .ex-table td { text-align: right; }
+    /* code and output stay English — always left-aligned, even on an RTL page */
+    .rtl .code, .rtl .console { direction: ltr; text-align: left; }
+
+    /* ── Module toolbox ── */
+    .toolbox {
+      background: #f7fffb; border: 1px solid var(--border);
+      border-radius: 14px; padding: 16px 18px; margin: 14px 0;
+    }
+    .toolbox .tb-head {
+      display: flex; align-items: center; gap: 8px;
+      font-weight: 800; color: var(--green-1); margin-bottom: 10px;
+    }
+    .toolbox .tb-head .tb-ic {
+      width: 30px; height: 30px; border-radius: 9px; flex-shrink: 0;
+      background: linear-gradient(160deg, #2dd4bf, #0d9488);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 1rem;
+    }
+    .tool-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tool {
+      font-family: Consolas, monospace; font-size: .82rem; font-weight: 700;
+      background: #ffffff; border: 1px solid var(--border);
+      border-bottom-width: 3px; border-radius: 9px;
+      padding: 6px 11px; color: var(--green-1);
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .tool:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(18,102,55,0.16); }
+    .tool small { display: block; font-family: "Trebuchet MS", sans-serif; font-weight: 400; color: var(--muted); font-size: .72rem; }
+
+    /* ── before / after boxes ── */
+    .ba { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 12px 0 14px; }
+    .ba .bx {
+      font-family: Consolas, monospace; font-weight: 700; font-size: .95rem;
+      background: #ffffff; border: 1px solid var(--border);
+      border-bottom-width: 3px; border-radius: 10px; padding: 9px 13px; color: var(--green-1);
+      white-space: pre;
+    }
+    .ba .bx.old { background: #fff6e2; border-color: #e6c46a; color: #6b4e00; }
+    .ba .arw { font-weight: 800; color: var(--muted); }
+
+    /* ── side-by-side compare columns ── */
+    .vs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0 14px; }
+    .vs > div { min-width: 0; }
+    .vs .vs-head {
+      font-weight: 800; color: var(--green-1); font-size: .92rem;
+      padding: 6px 10px; border-radius: 8px; background: var(--green-3);
+      border: 1px solid var(--border); margin-bottom: 6px; text-align: center;
+    }
+    .vs .vs-head.bad { background: #fff6e2; border-color: #e6c46a; color: #6b4e00; }
+    .vs .code, .vs .console { margin: 0 0 8px; font-size: .88rem; }
+
+    /* ── Lesson 15: the hash-bucket board ── */
+    .buckets {
+      display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+      background: #f5fff9; border: 1px solid var(--border);
+      border-radius: 12px; padding: 16px 18px; margin: 12px 0 14px;
+    }
+    .bk { text-align: center; }
+    .bk .bbox {
+      display: flex; align-items: center; justify-content: center;
+      min-width: 58px; padding: 0 9px; height: 48px; border-radius: 10px;
+      font-family: Consolas, monospace; font-weight: 800; font-size: 1rem;
+      background: linear-gradient(160deg, #d6f8e4, #a9ecc6);
+      border: 1px solid #7fd6a3; color: #08351d;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+    }
+    .bk .blabel { display: block; font-family: Consolas, monospace; font-size: .72rem; font-weight: 800; color: var(--green-2); margin-top: 4px; }
+    .bk.empty .bbox {
+      background: repeating-linear-gradient(135deg, #f4f7f5 0 8px, #e9efeb 8px 16px);
+      border: 1px dashed #9fb5a8; color: #6d8479;
+    }
+    .bk.hit .bbox { background: linear-gradient(160deg, #fff0c2, #ffd980); border-color: #e0a800; }
+    .buckets-cap { text-align: center; font-family: Consolas, monospace; font-weight: 800; color: var(--green-1); margin-bottom: 4px; width: 100%; }
+
+    /* ── Venn cards ── */
+    .venns { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 12px 0 14px; }
+    .venn {
+      background: #f5fff9; border: 1px solid var(--border);
+      border-radius: 12px; padding: 12px; text-align: center;
+    }
+    .venn svg { width: 100%; height: auto; max-width: 260px; }
+    .venn .vname { font-weight: 800; color: var(--green-1); font-size: .95rem; margin-bottom: 2px; }
+    .venn .vcode { font-family: Consolas, monospace; font-weight: 700; color: var(--muted); font-size: .82rem; }
+    .venn .vout { font-family: Consolas, monospace; font-weight: 800; color: var(--green-2); font-size: .88rem; margin-top: 4px; }
+
+    /* ── speed comparison bars ── */
+    .speed { background: #f5fff9; border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; margin: 12px 0 14px; }
+    .speed .srow { display: grid; grid-template-columns: 92px 1fr 66px; gap: 10px; align-items: center; margin-bottom: 8px; }
+    .speed .sname { font-family: Consolas, monospace; font-weight: 800; color: var(--green-1); font-size: .86rem; }
+    .speed .sbar { height: 16px; border-radius: 8px; background: linear-gradient(90deg, #a9ecc6, #4fc47f); border: 1px solid #7fd6a3; }
+    .speed .sbar.slow { background: linear-gradient(90deg, #ffe1a8, #f0b429); border-color: #e0a800; }
+    .speed .stime { font-family: Consolas, monospace; font-weight: 800; color: var(--muted); font-size: .8rem; }
+
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes blobMove {
+      from { transform: translate(0, 0) scale(1); }
+      to { transform: translate(24px, 18px) scale(1.06); }
+    }
+
+    @media (max-width: 760px) {
+      .wrap { padding: 14px; }
+      .layout { grid-template-columns: 1fr; }
+      .side-nav { position: static; }
+      h1 { font-size: 1.6rem; }
+      .code { font-size: 0.86rem; }
+      .ex-table { font-size: .8rem; }
+      .bk .bbox { min-width: 46px; height: 42px; font-size: .85rem; }
+      .vs { grid-template-columns: 1fr; }
+      .venns { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <span class="tag">Lesson 15 - August 17, 2026</span>
+    <h1>Sets — No Duplicates, Instant Answers 🎯</h1>
+    <p>A list keeps <em>everything</em>, in the order you put it in, and to answer <code>x in lst</code> it walks the whole thing. Today's type gives all of that up on purpose and gets something better in return: a <strong>set</strong> never stores the same value twice, does not remember any order, and answers "is it in there?" <strong>instantly</strong> — because it does not search, it <strong>calculates</strong> where the value would be. On top of that, sets do the maths you drew in school with two circles: <strong>union</strong>, <strong>intersection</strong>, <strong>difference</strong>. Questions that would cost you a nested loop become one character.</p>
+  </section>
+
+  <div class="layout">
+    <aside class="side-nav" aria-label="Topic navigation">
+      <div class="side-title">Lesson 15 topics</div>
+
+      <div class="side-section-label">1 · The type</div>
+      <button class="topic-link active" data-target="topic-what">what is a set</button>
+      <button class="topic-link" data-target="topic-create">creating a set</button>
+      <button class="topic-link" data-target="topic-hash">hashable — what can go in</button>
+
+      <div class="side-section-label">2 · Using it</div>
+      <button class="topic-link" data-target="topic-loop">loop &amp; comprehension</button>
+      <button class="topic-link" data-target="topic-change">add, remove, discard, update</button>
+
+      <div class="side-section-label">3 · Set maths</div>
+      <button class="topic-link" data-target="topic-ops">union, intersection, difference</button>
+      <button class="topic-link" data-target="topic-compare">subset, superset, disjoint</button>
+      <button class="topic-link" data-target="topic-final">in, len, copy, frozenset</button>
+
+      <hr class="side-divider">
+      <button class="topic-link" data-target="topic-class1">in-class exercise 1</button>
+      <button class="topic-link" data-target="topic-class2">in-class · movies</button>
+      <button class="topic-link" data-target="topic-class3">in-class · languages</button>
+      <button class="topic-link" data-target="topic-github">github folder</button>
+      <button class="topic-link" data-target="topic-exercise">homework - catch the thief</button>
+      <button class="topic-link" data-target="topic-exercise-heb">שיעורי בית - עברית</button>
+
+      <div class="side-section-label">Navigation</div>
+      <a class="nav-back" href="../../index.html#lessons">Back to lessons</a>
+    </aside>
+
+    <main>
+      <!-- ═══ 1 · WHAT IS A SET ═══ -->
+      <section class="card topic-panel active" id="topic-what">
+        <span class="tag">01_set.py</span>
+        <h2 class="step-title">A New Type in the Box 📦</h2>
+        <p>Here is everything you can hold a value in so far:</p>
+        <div class="pill-row">
+          <span class="pill">bool</span>
+          <span class="pill">str</span>
+          <span class="pill">float</span>
+          <span class="pill">int</span>
+          <span class="pill">None</span>
+          <span class="pill">list</span>
+          <span class="pill" style="background:#fff0c2;border-color:#e0a800;">set &nbsp;← today</span>
+        </div>
+
+        <p>Start from something you already write without thinking:</p>
+        <div class="code"><span class="fn">print</span>(<span class="num">1</span> <span class="kw">in</span> [<span class="num">5</span>, <span class="num">9</span>, <span class="num">10</span>, <span class="num">1</span>])</div>
+        <div class="console">True</div>
+        <p>It works — but <em>how</em> did Python answer? It looked at <code>5</code>. Not it. <code>9</code>. Not it. <code>10</code>. Not it. <code>1</code>. Found. Four values, four comparisons. With a million values in the list, that is up to a million comparisons, <strong>every single time you ask</strong>.</p>
+
+        <div class="big-result">A set does not search — it calculates</div>
+        <p>When you put a value into a set, Python runs a <strong>hash function</strong> on it: a bit of maths that turns the value into a number. That number decides <em>which drawer</em> the value is stored in. To check <code>'banana' in fruits</code>, Python does the same maths again, goes straight to that one drawer, and looks only there.</p>
+
+        <div class="buckets">
+          <div class="buckets-cap">hash('banana') → drawer 3 → look only here</div>
+          <div class="bk empty"><div class="bbox">·</div><span class="blabel">0</span></div>
+          <div class="bk"><div class="bbox">apple</div><span class="blabel">1</span></div>
+          <div class="bk empty"><div class="bbox">·</div><span class="blabel">2</span></div>
+          <div class="bk hit"><div class="bbox">banana</div><span class="blabel">3</span></div>
+          <div class="bk empty"><div class="bbox">·</div><span class="blabel">4</span></div>
+          <div class="bk"><div class="bbox">cherry</div><span class="blabel">5</span></div>
+          <div class="bk empty"><div class="bbox">·</div><span class="blabel">6</span></div>
+        </div>
+
+        <div class="note">
+          This is the whole idea: the value itself tells Python where it lives. It costs the same to find one item in a set of 5 as in a set of 5,000,000 — one calculation, one look. We call that <strong>O(1)</strong>, "constant time".
+        </div>
+
+        <div class="speed">
+          <div class="srow"><span class="sname">x in list</span><span class="sbar slow" style="width:100%"></span><span class="stime">n steps</span></div>
+          <div class="srow"><span class="sname">x in set</span><span class="sbar" style="width:6%"></span><span class="stime">1 step</span></div>
+        </div>
+
+        <div class="big-result">What a set gives you — and what it takes away</div>
+        <table class="ex-table">
+          <thead><tr><th></th><th>list</th><th>set</th></tr></thead>
+          <tbody>
+            <tr><td>duplicates</td><td>keeps them all</td><td><strong>never</strong> — one copy of each value</td></tr>
+            <tr><td>find <code>x in …</code></td><td>walks the whole list</td><td><strong>instant</strong> (hash)</td></tr>
+            <tr><td>insert</td><td>fast at the end</td><td><strong>instant</strong></td></tr>
+            <tr><td>remove</td><td>has to search first</td><td><strong>instant</strong></td></tr>
+            <tr><td>order</td><td>the order you inserted</td><td><strong>none</strong> — you get no promises</td></tr>
+            <tr><td>index <code>[0]</code></td><td>yes</td><td><strong>no</strong> — there are no positions</td></tr>
+            <tr><td>what can go in</td><td>anything</td><td>only <strong>hashable</strong> values</td></tr>
+          </tbody>
+        </table>
+
+        <div class="toolbox">
+          <div class="tb-head"><span class="tb-ic">🧰</span> The whole set toolbox from today</div>
+          <div class="tool-grid">
+            <span class="tool">set()<small>an empty set</small></span>
+            <span class="tool">{1, 2, 3}<small>a set literal</small></span>
+            <span class="tool">set(lst)<small>list → set (kills duplicates)</small></span>
+            <span class="tool">{x for x in …}<small>set comprehension</small></span>
+            <span class="tool">.add(v)<small>put one in</small></span>
+            <span class="tool">.update(lst)<small>put many in</small></span>
+            <span class="tool">.remove(v)<small>take out — errors if missing</small></span>
+            <span class="tool">.discard(v)<small>take out — never errors</small></span>
+            <span class="tool">.pop()<small>take out a random one</small></span>
+            <span class="tool">a | b<small>union</small></span>
+            <span class="tool">a &amp; b<small>intersection</small></span>
+            <span class="tool">a - b<small>difference</small></span>
+            <span class="tool">a ^ b<small>symmetric difference</small></span>
+            <span class="tool">a &lt;= b<small>subset?</small></span>
+            <span class="tool">a &gt;= b<small>superset?</small></span>
+            <span class="tool">.isdisjoint(b)<small>nothing shared?</small></span>
+            <span class="tool">v in s<small>O(1) membership</small></span>
+            <span class="tool">len(s)<small>how many</small></span>
+            <span class="tool">.copy()<small>a real second set</small></span>
+            <span class="tool">sorted(s)<small>→ a sorted LIST</small></span>
+            <span class="tool">frozenset(lst)<small>a set you cannot change</small></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ 2 · CREATING ═══ -->
+      <section class="card topic-panel" id="topic-create">
+        <span class="tag">01_set.py</span>
+        <h2 class="step-title">Making One — Two Ways ✍️</h2>
+
+        <div class="big-result">The empty set</div>
+        <div class="code">empty = <span class="hl"><span class="fn">set</span>()</span>
+<span class="fn">print</span>(empty)</div>
+        <div class="console">set()</div>
+        <div class="warn">
+          There is <strong>no</strong> empty <code>{}</code> literal for a set — those curly braces were taken by another type first (the dictionary, next lesson). An empty set is always <code>set()</code>. Notice Python even <em>prints</em> it as <code>set()</code>, not as <code>{}</code>.
+        </div>
+
+        <div class="big-result">From a list — the duplicate killer</div>
+        <div class="code">set_1_2_3 = <span class="fn">set</span>([<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>])
+<span class="fn">print</span>(set_1_2_3)
+
+set_hello = <span class="fn">set</span>([<span class="str">'hello'</span>, <span class="str">'world'</span>])
+<span class="fn">print</span>(set_hello)
+
+set_mix = <span class="fn">set</span>([<span class="str">'hello'</span>, <span class="num">1</span>, <span class="str">'world'</span>, <span class="kw">True</span>])
+<span class="fn">print</span>(set_mix)
+
+set_floats = <span class="fn">set</span>([<span class="num">1.1</span>, <span class="num">2.2</span>, <span class="num">3.3</span>])
+<span class="fn">print</span>(set_floats)</div>
+        <div class="console">{1, 2, 3}
+{'world', 'hello'}
+{1, 'world', 'hello'}
+{1.1, 2.2, 3.3}</div>
+        <div class="warn">
+          Look hard at the third line. We put in <strong>four</strong> values and got back <strong>three</strong>. Why? Because in Python <code>True == 1</code> — they are the same value wearing different clothes, so the set keeps only the first one it met. A set removes duplicates by <em>equality</em>, not by type.
+        </div>
+
+        <div class="big-result">The literal — curly braces</div>
+        <div class="code">set_fruits = <span class="hl">{<span class="str">'apple'</span>, <span class="str">'cherry'</span>, <span class="str">'banana'</span>}</span>
+<span class="fn">print</span>(set_fruits)</div>
+        <div class="console">{'cherry', 'banana', 'apple'}</div>
+        <div class="note">
+          You wrote apple, cherry, banana. Python printed cherry, banana, apple. <strong>Nothing is broken.</strong> A set has no order — the print order comes from where the hashes landed in the drawers, and it is not yours to control. Never write code that depends on it.
+        </div>
+
+        <div class="big-result">And a string is just a bag of characters</div>
+        <div class="code">set_hello = <span class="fn">set</span>(<span class="str">'hello'</span>)
+set_hello.<span class="fn">add</span>(<span class="str">'!'</span>)
+<span class="fn">print</span>(set_hello)
+<span class="fn">print</span>(<span class="fn">len</span>(set_hello))
+<span class="fn">print</span>(<span class="fn">sorted</span>(set_hello))   <span class="cm"># → returns a LIST</span></div>
+        <div class="console">{'h', 'o', '!', 'e', 'l'}
+5
+['!', 'e', 'h', 'l', 'o']</div>
+        <div class="note">
+          <code>'hello'</code> has five letters but only <strong>four different</strong> ones — the second <code>l</code> is dropped on the way in. And when you really do need an order, <code>sorted()</code> gives you one — as a <strong>list</strong>, because that is the type that can hold an order.
+        </div>
+
+        <table class="ex-table">
+          <thead><tr><th>You write</th><th>You get</th><th>Note</th></tr></thead>
+          <tbody>
+            <tr><td><code>set()</code></td><td>empty set</td><td>the only way</td></tr>
+            <tr><td><code>{}</code></td><td><strong>empty dict</strong></td><td>not a set!</td></tr>
+            <tr><td><code>{1, 2, 3}</code></td><td>set of 3</td><td>the literal</td></tr>
+            <tr><td><code>set([1, 2, 2])</code></td><td><code>{1, 2}</code></td><td>duplicates dropped</td></tr>
+            <tr><td><code>set('hello')</code></td><td><code>{'h','e','l','o'}</code></td><td>character by character</td></tr>
+            <tr><td><code>sorted(s)</code></td><td>a <strong>list</strong></td><td>sorting needs order</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- ═══ 3 · HASHABLE ═══ -->
+      <section class="card topic-panel" id="topic-hash">
+        <span class="tag">01_set.py</span>
+        <h2 class="step-title">Hashable — Not Everything Is Allowed In 🔑</h2>
+        <p>The whole speed trick rests on one thing: Python must be able to turn your value into a number. That function has a name, and you can call it yourself:</p>
+        <div class="code"><span class="fn">print</span>(<span class="fn">hash</span>(<span class="str">'cherry'</span>))
+<span class="fn">print</span>(<span class="fn">hash</span>(<span class="str">'banana'</span>))
+<span class="fn">print</span>(<span class="fn">hash</span>(<span class="str">'apple'</span>))</div>
+        <div class="console">-4227276712465088912
+ 8792395871231044571
+-1058771299102393776
+<span class="dim"># your numbers will be different — and different again next run</span></div>
+        <div class="note">
+          Do not try to memorise the numbers. Python deliberately randomises string hashing per run for security. What matters is that <strong>within one run</strong> the same value always gives the same number — which is exactly what makes the drawer trick work.
+        </div>
+
+        <div class="big-result">The rule: only things that cannot change</div>
+        <p>A hash is computed <strong>once</strong>, when the value goes in. If the value could change afterwards, its hash would no longer match its drawer, and it would be lost inside its own set. So Python simply forbids it:</p>
+        <div class="code"><span class="cm"># set_lists = set([[1, 2, 3], [4, 5, 6], [7, 8, 9]])</span>  <span class="bad"><span class="cm"># error - cannot hash a list</span></span>
+<span class="cm"># set_set = set( [set([1, 2, 3])] )</span>                    <span class="bad"><span class="cm"># error - cannot hash a set</span></span></div>
+        <div class="console"><span class="err">TypeError: unhashable type: 'list'</span>
+<span class="err">TypeError: unhashable type: 'set'</span></div>
+
+        <div class="vs">
+          <div>
+            <div class="vs-head">allowed in — immutable</div>
+            <div class="code"><span class="fn">int</span>  <span class="num">42</span>
+<span class="fn">float</span> <span class="num">3.14</span>
+<span class="fn">str</span>  <span class="str">'apple'</span>
+<span class="fn">bool</span> <span class="kw">True</span>
+<span class="kw">None</span>
+<span class="fn">frozenset</span></div>
+          </div>
+          <div>
+            <div class="vs-head bad">refused — mutable</div>
+            <div class="code"><span class="fn">list</span>  [<span class="num">1</span>, <span class="num">2</span>]
+<span class="fn">set</span>   {<span class="num">1</span>, <span class="num">2</span>}
+<span class="fn">dict</span>  <span class="cm"># next lesson</span></div>
+          </div>
+        </div>
+        <div class="note">
+          Simple test in your head: <em>"can I change this value in place?"</em> If yes — it cannot go in a set. That is why a set of sets is impossible, but a set of <code>frozenset</code>s is fine (see the last topic).
+        </div>
+
+        <div class="big-result">No duplicates, and no index either</div>
+        <div class="code">set_nums = {<span class="num">1</span>, <span class="num">2</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">3</span>, <span class="num">3</span>}   <span class="cm"># --&gt; 1, 2, 3 -- NO DUPLICATIONS</span>
+<span class="fn">print</span>(set_nums)
+<span class="cm"># print(set_nums[2])</span>  <span class="bad"><span class="cm"># Error -- not subscriptable, cannot use index</span></span></div>
+        <div class="console">{1, 2, 3}
+<span class="err">TypeError: 'set' object is not subscriptable</span></div>
+        <div class="warn">
+          <strong>No <code>[0]</code>, no <code>[-1]</code>, no slicing.</strong> Those all mean "the item at position N", and a set has no positions — only drawers. If you need positions, you need a list: <code>sorted(s)</code> or <code>list(s)</code>.
+        </div>
+      </section>
+
+      <!-- ═══ 4 · LOOP & COMPREHENSION ═══ -->
+      <section class="card topic-panel" id="topic-loop">
+        <span class="tag">01_set.py</span>
+        <h2 class="step-title">Walking Through One 🚶</h2>
+        <p>You cannot index a set, but you <em>can</em> loop over it — <code>for</code> does not need positions, it just asks for the next one.</p>
+        <div class="code"><span class="kw">for</span> x <span class="kw">in</span> set_nums:
+    <span class="fn">print</span>(x, end=<span class="str">' '</span>)
+<span class="fn">print</span>()
+
+<span class="kw">for</span> fruit <span class="kw">in</span> set_fruits:
+    <span class="fn">print</span>(fruit, end=<span class="str">' '</span>)
+<span class="fn">print</span>()</div>
+        <div class="console">1 2 3
+cherry banana apple </div>
+        <div class="note">
+          Same loop you have written since lesson 6 — the only difference is that you are not promised the order. Want a stable order? <code>for fruit in sorted(set_fruits):</code>.
+        </div>
+
+        <div class="big-result">Set comprehension — same brackets rule as always</div>
+        <p>Last lesson <code>[ … ]</code> built a list. Swap the brackets for <code>{ … }</code> and the exact same line builds a set instead:</p>
+        <div class="ba">
+          <span class="bx old">[n ** 2 for n in range(1, 6)]</span>
+          <span class="arw">→ list</span>
+          <span class="bx">{n ** 2 for n in range(1, 6)}</span>
+          <span class="arw">→ set</span>
+        </div>
+        <div class="code">squares = <span class="hl">{n ** <span class="num">2</span>  <span class="kw">for</span> n <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">6</span>)}</span>
+<span class="fn">print</span>(squares)
+
+words = [<span class="str">'cat'</span>, <span class="str">'car'</span>, <span class="str">'dog'</span>, <span class="str">'deer'</span>]
+first_letter = {word[<span class="num">0</span>] <span class="kw">for</span> word <span class="kw">in</span> words}
+<span class="fn">print</span>(first_letter)</div>
+        <div class="console">{1, 4, 9, 16, 25}
+{'c', 'd'}</div>
+        <div class="note">
+          The second one is the reason to reach for a set comprehension: four words, four first letters — <code>c, c, d, d</code> — but the set gives back only the <strong>two different</strong> ones. A list comprehension would have handed you <code>['c', 'c', 'd', 'd']</code>. The filter <code>if …</code> and the ternary from lesson 14 work inside <code>{ }</code> exactly the same way.
+        </div>
+      </section>
+
+      <!-- ═══ 5 · CHANGING ═══ -->
+      <section class="card topic-panel" id="topic-change">
+        <span class="tag">01_set.py</span>
+        <h2 class="step-title">Putting In &amp; Taking Out ➕➖</h2>
+
+        <div class="big-result">add — one value</div>
+        <div class="code">s = {<span class="str">'🍎'</span>, <span class="str">'🍌'</span>, <span class="str">'🍇'</span>}
+s.<span class="fn">add</span>(<span class="str">'🍓'</span>)
+<span class="fn">print</span>(s)</div>
+        <div class="console">{'🍇', '🍓', '🍎', '🍌'}</div>
+        <div class="note">
+          <code>.add()</code> of something already inside is not an error and not a duplicate — it simply does nothing. A set is happy to be told the same thing twice.
+        </div>
+
+        <div class="big-result">remove — and why it can hurt you</div>
+        <div class="code">s = {<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, <span class="num">40</span>}
+s.<span class="fn">remove</span>(<span class="num">30</span>)   <span class="cm">#  {10, 20, 40}</span>
+<span class="fn">print</span>(s)
+
+<span class="cm"># s.remove(30)</span>  <span class="bad"><span class="cm"># Error - 30 already removed</span></span></div>
+        <div class="console">{40, 10, 20}
+<span class="err">KeyError: 30</span></div>
+
+        <div class="big-result">discard — remove, but safe</div>
+        <div class="code">s.<span class="fn">discard</span>(<span class="num">30</span>)   <span class="cm"># try to remove non-exist --&gt; no error</span></div>
+        <div class="vs">
+          <div>
+            <div class="vs-head bad">.remove(v)</div>
+            <div class="console">value there  → removed
+value gone   → <span class="err">KeyError</span></div>
+            <div style="font-size:.88rem;color:var(--muted)">use when it <strong>must</strong> be there</div>
+          </div>
+          <div>
+            <div class="vs-head">.discard(v)</div>
+            <div class="console">value there  → removed
+value gone   → nothing happens</div>
+            <div style="font-size:.88rem;color:var(--muted)">use when you are <strong>not sure</strong></div>
+          </div>
+        </div>
+
+        <div class="big-result">pop — technically works, practically useless</div>
+        <div class="code"><span class="cm"># print(s.pop())</span>  <span class="cm"># useless - cause it is a random value</span></div>
+        <div class="warn">
+          On a list, <code>.pop()</code> means "the last one" — a real decision. On a set there is no last one, so <code>.pop()</code> hands you <em>whichever</em> value it feels like. If you did not choose which item you are getting, you almost certainly did not want this function.
+        </div>
+
+        <div class="big-result">update — add many at once</div>
+        <div class="code">s = {<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>}
+s.<span class="fn">update</span>([<span class="num">4</span>, <span class="num">5</span>, <span class="num">2</span>, <span class="num">1</span>])
+<span class="cm"># duplicates are ignored</span>
+<span class="fn">print</span>(s)</div>
+        <div class="console">{1, 2, 3, 4, 5}</div>
+        <div class="note">
+          <code>.add()</code> takes <strong>one value</strong>; <code>.update()</code> takes a whole <strong>collection</strong> — a list, a string, another set — and pours all of it in. The two values that were already there are simply ignored. Keep the pair straight: it is the same relationship as <code>append</code> and <code>extend</code> on a list.
+        </div>
+
+        <table class="ex-table">
+          <thead><tr><th>Method</th><th>Takes</th><th>If already there / missing</th></tr></thead>
+          <tbody>
+            <tr><td><code>.add(v)</code></td><td>one value</td><td>already there → nothing happens</td></tr>
+            <tr><td><code>.update(coll)</code></td><td>a list / set / string</td><td>duplicates ignored</td></tr>
+            <tr><td><code>.remove(v)</code></td><td>one value</td><td>missing → <code>KeyError</code></td></tr>
+            <tr><td><code>.discard(v)</code></td><td>one value</td><td>missing → no error</td></tr>
+            <tr><td><code>.pop()</code></td><td>nothing</td><td>returns a random value</td></tr>
+            <tr><td><code>.clear()</code></td><td>nothing</td><td>empties the set</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- ═══ 6 · SET OPERATIONS ═══ -->
+      <section class="card topic-panel" id="topic-ops">
+        <span class="tag">02_set.py</span>
+        <h2 class="step-title">The Two Circles You Drew In School ⭕⭕</h2>
+        <p>This is what sets are really for. Every one of these has <strong>two spellings</strong> — a method with a long name, and a single symbol. They do exactly the same thing; use whichever reads better.</p>
+
+        <div class="big-result">union — everything from both</div>
+        <div class="code">a = {<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>}
+b = {<span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>}
+
+<span class="cm"># Both of these are the same</span>
+result = a.<span class="fn">union</span>(b)
+result = <span class="hl">a | b</span>
+
+<span class="fn">print</span>(<span class="str">'union'</span>, result)</div>
+        <div class="console">union {1, 2, 3, 4, 5}</div>
+        <div class="note">
+          The shared <code>3</code> appears <strong>once</strong>, of course — it is still a set. And there are three ways to say "add b into a, permanently": <code>a.update(b)</code>, <code>a = a | b</code>, or the short <code>a |= b</code>.
+        </div>
+
+        <div class="big-result">intersection — only what they share</div>
+        <div class="code">a = {<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>}
+b = {<span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>, <span class="num">6</span>}
+
+result = a.<span class="fn">intersection</span>(b)
+result = <span class="hl">a &amp; b</span>
+
+<span class="fn">print</span>(<span class="str">'intersect'</span>, result)</div>
+        <div class="console">intersect {3, 4}</div>
+
+        <div class="big-result">difference — mine, minus yours</div>
+        <div class="code"><span class="cm"># Elements in a but not in b</span>
+result = a.<span class="fn">difference</span>(b)
+result = <span class="hl">a - b</span>
+<span class="fn">print</span>(<span class="str">'difference a - b='</span>, result)
+
+result = b - a
+<span class="fn">print</span>(<span class="str">'difference b - a='</span>, result)</div>
+        <div class="console">difference a - b= {1, 2}
+difference b - a= {5, 6}</div>
+        <div class="warn">
+          <code>a - b</code> and <code>b - a</code> give <strong>different answers</strong>. Unlike <code>|</code> and <code>&amp;</code>, the order matters here — exactly like <code>7 - 3</code> is not <code>3 - 7</code>.
+        </div>
+
+        <div class="big-result">symmetric difference — everything except what they share</div>
+        <div class="code">a = {<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>}
+b = {<span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>}
+
+<span class="cm"># Everything except what they share</span>
+result = a.<span class="fn">symmetric_difference</span>(b)
+result = <span class="hl">a ^ b</span>
+
+<span class="fn">print</span>(<span class="str">'symmetric_difference'</span>, result)</div>
+        <div class="console">symmetric_difference {1, 2, 4, 5}</div>
+
+        <div class="venns">
+          <div class="venn">
+            <div class="vname">union</div>
+            <svg viewBox="0 0 240 130" role="img" aria-label="Venn diagram: both circles filled">
+              <circle cx="95" cy="62" r="48" fill="#8fe3b4" opacity=".9"/>
+              <circle cx="145" cy="62" r="48" fill="#8fe3b4" opacity=".9"/>
+              <circle cx="95" cy="62" r="48" fill="none" stroke="#1f8f4e" stroke-width="2"/>
+              <circle cx="145" cy="62" r="48" fill="none" stroke="#1f8f4e" stroke-width="2"/>
+              <text x="62" y="68" font-family="Consolas, monospace" font-weight="800" font-size="15" fill="#08351d">a</text>
+              <text x="174" y="68" font-family="Consolas, monospace" font-weight="800" font-size="15" fill="#08351d">b</text>
+            </svg>
+            <div class="vcode">a | b</div>
+            <div class="vout">{1, 2, 3, 4, 5}</div>
+          </div>
+
+          <div class="venn">
+            <div class="vname">intersection</div>
+            <svg viewBox="0 0 240 130" role="img" aria-label="Venn diagram: only the overlap filled">
+              <defs><clipPath id="clipInt"><circle cx="95" cy="62" r="48"/></clipPath></defs>
+              <circle cx="145" cy="62" r="48" fill="#8fe3b4" opacity=".9" clip-path="url(#clipInt)"/>
+              <circle cx="95" cy="62" r="48" fill="none" stroke="#1f8f4e" stroke-width="2"/>
+              <circle cx="145" cy="62" r="48" fill="none" stroke="#1f8f4e" stroke-width="2"/>
+              <text x="62" y="68" font-family="Consolas, monospace" font-weight="800" font-size="15" fill="#08351d">a</text>
+              <text x="174" y="68" font-family="Consolas, monospace" font-weight="800" font-size="15" fill="#08351d">b</text>
+            </svg>
+            <div class="vcode">a &amp; b</div>
+            <div class="vout">{3, 4}</div>
+          </div>
+
+          <div class="venn">
+            <div class="vname">difference</div>
+            <svg viewBox="0 0 240 130" role="img" aria-label="Venn diagram: only the left circle minus the overlap">
+              <defs><mask id="maskDiff"><circle cx="95" cy="62" r="48" fill="#fff"/><circle cx="145" cy="62" r="48" fill="#000"/></mask></defs>
+              <circle cx="95" cy="62" r="48" fill="#8fe3b4" opacity=".9" mask="url(#maskDiff)"/>
+              <circle cx="95" cy="62" r="48" fill="none" stroke="#1f8f4e" stroke-width="2"/>
+              <circle cx="145" cy="62" r="48" fill="none" stroke="#1f8f4e" stroke-width="2"/>
+              <text x="62" y="68" font-family="Consolas, monospace" font-weight="800" font-size="15" fill="#08351d">a</text>
+              <text x="174" y="68" font-family="Consolas, monospace" font-weight="800" font-size="15" fill="#08351d">b</text>
+            </svg>
+            <div class="vcode">a - b</div>
+            <div class="vout">{1, 2}</div>
+          </div>
+
+          <div class="venn">
+            <div class="vname">symmetric difference</div>
+            <svg viewBox="0 0 240 130" role="img" aria-label="Venn diagram: both circles filled except the overlap">
+              <defs>
+                <mask id="maskLeft"><circle cx="95" cy="62" r="48" fill="#fff"/><circle cx="145" cy="62" r="48" fill="#000"/></mask>
+                <mask id="maskRight"><circle cx="145" cy="62" r="48" fill="#fff"/><circle cx="95" cy="62" r="48" fill="#000"/></mask>
+              </defs>
+              <circle cx="95" cy="62" r="48" fill="#8fe3b4" opacity=".9" mask="url(#maskLeft)"/>
+              <circle cx="145" cy="62" r="48" fill="#8fe3b4" opacity=".9" mask="url(#maskRight)"/>
+              <circle cx="95" cy="62" r="48" fill="none" stroke="#1f8f4e" stroke-width="2"/>
+              <circle cx="145" cy="62" r="48" fill="none" stroke="#1f8f4e" stroke-width="2"/>
+              <text x="62" y="68" font-family="Consolas, monospace" font-weight="800" font-size="15" fill="#08351d">a</text>
+              <text x="174" y="68" font-family="Consolas, monospace" font-weight="800" font-size="15" fill="#08351d">b</text>
+            </svg>
+            <div class="vcode">a ^ b</div>
+            <div class="vout">{1, 2, 4, 5}</div>
+          </div>
+        </div>
+
+        <div class="big-result">In class: build <code>^</code> yourself, from the others</div>
+        <p>Look at the last picture again. There are two honest ways to describe it, and both are one line of Python:</p>
+        <div class="code"><span class="cm"># use |,- and calculate symm-diff</span>
+<span class="fn">print</span>(<span class="str">'symmetric_difference manual'</span>, <span class="hl">a-b | b-a</span>)
+<span class="fn">print</span>(<span class="str">'symmetric_difference manual'</span>, <span class="hl">(a|b) - (a&amp;b)</span>)</div>
+        <div class="console">symmetric_difference manual {1, 2, 4, 5}
+symmetric_difference manual {1, 2, 4, 5}</div>
+        <div class="note">
+          Read them as sentences. First: <em>"what only a has, plus what only b has"</em>. Second: <em>"everything, minus the shared part"</em>. Same picture, same answer. (In the first line the <code>-</code> runs before the <code>|</code>, just like <code>*</code> runs before <code>+</code> — but brackets never hurt.)
+        </div>
+
+        <table class="ex-table">
+          <thead><tr><th>Symbol</th><th>Method</th><th>Means</th><th>Order matters?</th></tr></thead>
+          <tbody>
+            <tr><td><code>a | b</code></td><td><code>.union()</code></td><td>everything from both</td><td>no</td></tr>
+            <tr><td><code>a &amp; b</code></td><td><code>.intersection()</code></td><td>only the shared</td><td>no</td></tr>
+            <tr><td><code>a - b</code></td><td><code>.difference()</code></td><td>in a, not in b</td><td><strong>yes</strong></td></tr>
+            <tr><td><code>a ^ b</code></td><td><code>.symmetric_difference()</code></td><td>in exactly one of them</td><td>no</td></tr>
+            <tr><td><code>a |= b</code></td><td><code>.update()</code></td><td>pour b into a</td><td><strong>yes</strong> — a changes</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- ═══ 7 · COMPARING ═══ -->
+      <section class="card topic-panel" id="topic-compare">
+        <span class="tag">02_set.py</span>
+        <h2 class="step-title">Comparing Whole Sets 🔎</h2>
+        <p>Now the questions that answer <strong>True / False</strong> about two sets as a whole.</p>
+
+        <div class="big-result">subset &amp; superset — "is all of me inside you?"</div>
+        <div class="code">small = {<span class="num">1</span>, <span class="num">2</span>}
+big = {<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>}
+
+<span class="fn">print</span>(small.<span class="fn">issubset</span>(big), end=<span class="str">" "</span>)
+<span class="fn">print</span>(small &lt; big, end=<span class="str">" "</span>)
+<span class="fn">print</span>(small &lt;= big)
+<span class="cm"># → True</span>
+
+<span class="fn">print</span>(big.<span class="fn">issuperset</span>(small), end=<span class="str">" "</span>)
+<span class="fn">print</span>(big &gt; small, end=<span class="str">" "</span>)
+<span class="fn">print</span>(big &gt;= small)
+<span class="cm"># → True</span></div>
+        <div class="console">True True True
+True True True</div>
+        <div class="note">
+          The arrows point at the bigger set, exactly like with numbers. <code>small &lt;= big</code> is <strong>subset</strong>: every value of <code>small</code> is inside <code>big</code>. <code>big &gt;= small</code> is <strong>superset</strong> — the same sentence read backwards.
+        </div>
+        <div class="warn">
+          <strong>The <code>&lt;</code> against <code>&lt;=</code> catch.</strong> <code>&lt;=</code> allows the two sets to be <em>equal</em>; plain <code>&lt;</code> means <strong>proper</strong> subset — inside <em>and</em> genuinely smaller. So for <code>x = {1, 2}</code>: <code>x &lt;= x</code> is <code>True</code>, but <code>x &lt; x</code> is <code>False</code>. There is no method spelling for the proper version — <code>.issubset()</code> is the <code>&lt;=</code> one.
+        </div>
+
+        <div class="big-result">isdisjoint — "do we share anything at all?"</div>
+        <div class="code">a = {<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>}
+b = {<span class="num">4</span>, <span class="num">5</span>, <span class="num">6</span>}
+c = {<span class="num">3</span>, <span class="num">7</span>, <span class="num">8</span>}
+
+<span class="fn">print</span>(<span class="str">'disjoint a b'</span>, a.<span class="fn">isdisjoint</span>(b))
+<span class="cm"># → True (no overlap)</span>
+
+<span class="fn">print</span>(<span class="str">'disjoint a c'</span>, a.<span class="fn">isdisjoint</span>(c))
+<span class="cm"># → False (both have 3)</span></div>
+        <div class="console">disjoint a b True
+disjoint a c False</div>
+
+        <div class="big-result">In class: write it without <code>isdisjoint</code></div>
+        <p>"Nothing shared" is just "the intersection is empty" — and there are two ways to say <em>empty</em>:</p>
+        <div class="code"><span class="cm"># do not use disjoint - write code that return true if completely diff otherwise false</span>
+<span class="fn">print</span>(<span class="str">'manual disjoint a b'</span>, <span class="hl">a&amp;b == <span class="fn">set</span>()</span>)
+<span class="fn">print</span>(<span class="str">'manual disjoint a c'</span>, <span class="hl"><span class="fn">len</span>(a&amp;c) == <span class="num">0</span></span>)</div>
+        <div class="console">manual disjoint a b True
+manual disjoint a c False</div>
+        <div class="note">
+          Two habits worth copying from these lines: comparing a set to <code>set()</code> is how you ask "is it empty?" (remember, <strong>not</strong> <code>{}</code>), and <code>len(...) == 0</code> says the same thing about anything that has a length — set, list or string.
+        </div>
+
+        <table class="ex-table">
+          <thead><tr><th>Question</th><th>Method</th><th>Symbol</th></tr></thead>
+          <tbody>
+            <tr><td>all of a inside b?</td><td><code>a.issubset(b)</code></td><td><code>a &lt;= b</code></td></tr>
+            <tr><td>… and strictly smaller?</td><td>—</td><td><code>a &lt; b</code></td></tr>
+            <tr><td>b contains all of a?</td><td><code>b.issuperset(a)</code></td><td><code>b &gt;= a</code></td></tr>
+            <tr><td>… and strictly bigger?</td><td>—</td><td><code>b &gt; a</code></td></tr>
+            <tr><td>share nothing?</td><td><code>a.isdisjoint(b)</code></td><td><code>len(a &amp; b) == 0</code></td></tr>
+            <tr><td>exactly the same set?</td><td>—</td><td><code>a == b</code></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- ═══ 8 · FINALS ═══ -->
+      <section class="card topic-panel" id="topic-final">
+        <span class="tag">02_set.py</span>
+        <h2 class="step-title">The Last Four 🎁</h2>
+        <div class="code">s = {<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>, <span class="num">40</span>}
+
+<span class="cm"># Membership test — O(1) speed</span>
+<span class="fn">print</span>(<span class="num">20</span> <span class="kw">in</span> s)
+<span class="cm"># → True</span>
+
+<span class="cm"># Number of elements</span>
+<span class="fn">print</span>(<span class="fn">len</span>(s))
+<span class="cm"># → 4</span>
+
+<span class="cm"># Shallow copy</span>
+clone = s.<span class="fn">copy</span>()</div>
+        <div class="console">True
+4</div>
+        <div class="note">
+          <code>in</code> and <code>len</code> read identically to the list versions you already know — but <code>in</code> is the one that got dramatically faster, and it is the single best reason to convert a list to a set before checking membership in a loop. And <code>.copy()</code> exists here for exactly the reason it exists for lists: <code>b = a</code> gives a second <strong>name</strong>, not a second set.
+        </div>
+
+        <div class="big-result">frozenset — a set that cannot change</div>
+        <div class="code"><span class="cm"># frozenset is like a set but immutable</span>
+fs = <span class="fn">frozenset</span>([<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">2</span>, <span class="num">1</span>])
+<span class="cm"># → frozenset({1, 2, 3})</span>
+
+<span class="cm"># fs.add(4)</span> <span class="bad"><span class="cm"># ERROR!! AttributeError</span></span></div>
+        <div class="console">frozenset({1, 2, 3})
+<span class="err">AttributeError: 'frozenset' object has no attribute 'add'</span></div>
+        <div class="note">
+          It still kills duplicates, still does <code>|</code>, <code>&amp;</code>, <code>-</code>, <code>in</code> — it just has no <code>.add()</code>, <code>.remove()</code> or <code>.update()</code>. And because it can never change, it <strong>can</strong> be hashed. Remember the error from earlier?
+        </div>
+        <div class="vs">
+          <div>
+            <div class="vs-head bad">a set inside a set</div>
+            <div class="code">{ <span class="fn">set</span>([<span class="num">1</span>, <span class="num">2</span>]) }</div>
+            <div class="console"><span class="err">TypeError: unhashable type: 'set'</span></div>
+          </div>
+          <div>
+            <div class="vs-head">a frozenset inside a set</div>
+            <div class="code">{ <span class="fn">frozenset</span>([<span class="num">1</span>, <span class="num">2</span>]) }</div>
+            <div class="console">{frozenset({1, 2})}</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ IN-CLASS EXERCISE 1 ═══ -->
+      <section class="card topic-panel" id="topic-class1">
+        <span class="tag">01_set.py · in class</span>
+        <h2 class="step-title">Four Questions We Solved Together ✅</h2>
+        <p>These sit at the bottom of <code>01_set.py</code> — read the question first, then the solution.</p>
+
+        <div class="ex-title"><span class="ex-num">1</span><h3>A set of your details</h3></div>
+        <p>Create a set from your details: name, age, phone (apple/samsung), <code>str(birthday)</code>, veg — True/False.</p>
+        <div class="code">set_details = {<span class="str">'itay'</span>, <span class="num">39</span>, <span class="str">'Apple'</span>, <span class="str">'07-12-1989'</span>, <span class="kw">False</span>}</div>
+        <div class="note">
+          The point of this one: a set holds <strong>mixed types</strong> without complaining — <code>str</code>, <code>int</code> and <code>bool</code> side by side. Every one of them is hashable, so every one of them is welcome. (The birthday is a <em>string</em> on purpose.)
+        </div>
+
+        <div class="ex-title"><span class="ex-num">2</span><h3>How many different words?</h3></div>
+        <div class="code">names = [<span class="str">'Alice'</span>, <span class="str">'Bob'</span>, <span class="str">'Alice'</span>, <span class="str">'Charlie'</span>, <span class="str">'Bob'</span>, <span class="str">'David'</span>, <span class="str">'Alice'</span>]
+set_names = <span class="fn">set</span>(names)
+<span class="fn">print</span>(<span class="str">'total names(no-dup)'</span>, <span class="fn">len</span>(set_names))</div>
+        <div class="console">total names(no-dup) 4</div>
+        <div class="note">
+          Seven names in, four out. <code>len(set(...))</code> is <em>the</em> idiom for "how many different ones" — no loop, no counting, no <code>if x not in ...</code>.
+        </div>
+
+        <div class="ex-title"><span class="ex-num">3</span><h3>Are there duplicates in this list?</h3></div>
+        <p>Return <code>True</code> if there are and <code>False</code> if not.</p>
+        <div class="code">list_numbers = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>, <span class="num">4</span>, <span class="num">6</span>, <span class="num">9</span>, <span class="num">10</span>]
+set_numbers = <span class="fn">set</span>(list_numbers)
+<span class="fn">print</span>(<span class="str">'duplications?'</span>, <span class="hl"><span class="fn">len</span>(set_numbers) &lt; <span class="fn">len</span>(list_numbers)</span>)</div>
+        <div class="console">duplications? True</div>
+        <div class="note">
+          Beautiful little trick, worth remembering forever: <strong>if the set is shorter than the list, something was thrown away — and the only thing a set throws away is a duplicate.</strong> 9 values in the list, 8 in the set. Note we compare the two <code>len</code>s directly and print the boolean — no <code>if</code> needed, the comparison <em>is</em> the answer.
+        </div>
+
+        <div class="ex-title"><span class="ex-num">4</span><h3>One set of both movie lists</h3></div>
+        <div class="code">sci_fi_movies = {<span class="str">"The Matrix"</span>, <span class="str">"Inception"</span>, <span class="str">"Interstellar"</span>, <span class="str">"Blade Runner 2049"</span>}
+thriller_movies = {<span class="str">"Inception"</span>, <span class="str">"Shutter Island"</span>, <span class="str">"The Matrix"</span>, <span class="str">"Memento"</span>}
+sci_fi_movies.<span class="fn">update</span>(thriller_movies)
+<span class="fn">print</span>(sci_fi_movies)</div>
+        <div class="console">{'Memento', 'Interstellar', 'Inception', 'Shutter Island', 'The Matrix', 'Blade Runner 2049'}</div>
+        <div class="note">
+          4 + 4 = 8 titles, but only <strong>6</strong> come out — <em>Inception</em> and <em>The Matrix</em> were in both. Careful though: <code>.update()</code> <strong>changed</strong> <code>sci_fi_movies</code> itself, so the original sci-fi list is gone. Want to keep both and get a third set? <code>both = sci_fi_movies | thriller_movies</code>.
+        </div>
+      </section>
+
+      <!-- ═══ IN-CLASS: MOVIES ═══ -->
+      <section class="card topic-panel" id="topic-class2">
+        <span class="tag">set_ex1.py · in class</span>
+        <h2 class="step-title">Oscar Winners — Seven Questions 🏆</h2>
+        <p>Two sets of films: the ones that won <strong>Best Actor</strong>, and the ones that won <strong>Best Original Screenplay</strong> (2010s–2020s). A few titles are in both.</p>
+        <div class="code">movies_best_actor = {
+    <span class="str">"The King's Speech"</span>, <span class="str">"The Artist"</span>, <span class="str">"Lincoln"</span>, <span class="str">"Dallas Buyers Club"</span>,
+    <span class="str">"The Theory of Everything"</span>, <span class="str">"The Revenant"</span>, <span class="str">"Manchester by the Sea"</span>,
+    <span class="str">"Darkest Hour"</span>, <span class="str">"Bohemian Rhapsody"</span>, <span class="str">"Joker"</span>, <span class="str">"The Father"</span>
+}
+
+movies_best_screenplay = {
+    <span class="str">"The King's Speech"</span>, <span class="str">"Midnight in Paris"</span>, <span class="str">"Django Unchained"</span>, <span class="str">"Her"</span>,
+    <span class="str">"Birdman"</span>, <span class="str">"Spotlight"</span>, <span class="str">"Manchester by the Sea"</span>, <span class="str">"Get Out"</span>,
+    <span class="str">"Green Book"</span>, <span class="str">"Parasite"</span>, <span class="str">"Promising Young Woman"</span>
+}</div>
+        <p>The file prints seven questions and leaves the answers to you. Every single one is a <strong>one-liner</strong>:</p>
+        <table class="ex-table">
+          <thead><tr><th>#</th><th>The question</th><th>The tool</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Which movies won BOTH Best Actor AND Best Screenplay?</td><td><code>actor &amp; screenplay</code></td></tr>
+            <tr><td>2</td><td>ALL movies that won either award?</td><td><code>actor | screenplay</code></td></tr>
+            <tr><td>3</td><td>Best Actor but NOT Best Screenplay?</td><td><code>actor - screenplay</code></td></tr>
+            <tr><td>4</td><td>Won exactly ONE of the two (not both)?</td><td><code>actor ^ screenplay</code></td></tr>
+            <tr><td>5</td><td>Are Best Actor winners a subset of the screenplay set?</td><td><code>actor &lt;= screenplay</code></td></tr>
+            <tr><td>6</td><td>A superset of it?</td><td><code>actor &gt;= screenplay</code></td></tr>
+            <tr><td>7</td><td>Are the two completely different?</td><td><code>actor.isdisjoint(screenplay)</code></td></tr>
+          </tbody>
+        </table>
+        <div class="big-result">The answers</div>
+        <div class="console">1  {"The King's Speech", 'Manchester by the Sea'}
+2  20 movies   <span class="dim"># 11 + 11 = 22, minus the 2 shared</span>
+3  9 movies    <span class="dim"># the 11 actor winners, minus the 2 shared</span>
+4  18 movies   <span class="dim"># everything except those same 2</span>
+5  False       <span class="dim"># 9 of them are NOT in the screenplay set</span>
+6  False       <span class="dim"># and it does not contain the screenplay set either</span>
+7  False       <span class="dim"># they DO share 2 titles</span></div>
+        <div class="note">
+          Questions 5, 6 and 7 are the useful lesson here: two sets can overlap and still be neither a subset nor a superset nor disjoint. Those three questions are not "how much do they overlap" — they are yes/no questions about <em>all</em> or <em>nothing</em>.
+        </div>
+        <div class="warn">
+          Note what you did <strong>not</strong> write: no <code>for</code>, no nested loop over both lists, no <code>if title in other_list</code>. Doing question 1 with two lists is five lines and slow; with sets it is one character.
+        </div>
+      </section>
+
+      <!-- ═══ IN-CLASS: LANGUAGES ═══ -->
+      <section class="card topic-panel" id="topic-class3">
+        <span class="tag">set_ex2.py · in class</span>
+        <h2 class="step-title">Programming Languages — Four Sets At Once 💻</h2>
+        <p>Same idea, but now with <strong>four</strong> sets — and that is where chaining the operators starts to pay off.</p>
+        <div class="code">languages_web = {<span class="str">"JavaScript"</span>, <span class="str">"TypeScript"</span>, <span class="str">"Python"</span>, <span class="str">"PHP"</span>, <span class="str">"Ruby"</span>, <span class="str">"Go"</span>, <span class="str">"Java"</span>, <span class="str">"C#"</span>}
+languages_data_science = {<span class="str">"Python"</span>, <span class="str">"R"</span>, <span class="str">"Julia"</span>, <span class="str">"Scala"</span>, <span class="str">"MATLAB"</span>, <span class="str">"Java"</span>, <span class="str">"SQL"</span>}
+languages_systems = {<span class="str">"C"</span>, <span class="str">"C++"</span>, <span class="str">"Rust"</span>, <span class="str">"Go"</span>, <span class="str">"Zig"</span>, <span class="str">"Assembly"</span>}
+languages_mobile = {<span class="str">"Swift"</span>, <span class="str">"Kotlin"</span>, <span class="str">"Java"</span>, <span class="str">"Dart"</span>, <span class="str">"JavaScript"</span>, <span class="str">"C#"</span>}</div>
+        <p>The file also has a small <code>print_all_sets()</code> that prints each one with <code>sorted(...)</code> — so the output comes out alphabetical instead of random.</p>
+
+        <table class="ex-table">
+          <thead><tr><th>The question</th><th>The tool</th><th>Answer</th></tr></thead>
+          <tbody>
+            <tr><td>Good for BOTH web AND data science?</td><td><code>web &amp; data</code></td><td><code>{'Python', 'Java'}</code></td></tr>
+            <tr><td>Can do web, mobile OR data science?</td><td><code>web | mobile | data</code></td><td>16 languages</td></tr>
+            <tr><td>ONLY for systems (not web/mobile/data)?</td><td><code>systems - web - mobile - data</code></td><td><code>{'C', 'C++', 'Rust', 'Zig', 'Assembly'}</code></td></tr>
+            <tr><td>Web but NOT mobile?</td><td><code>web - mobile</code></td><td><code>{'TypeScript', 'Python', 'PHP', 'Ruby', 'Go'}</code></td></tr>
+            <tr><td>Is 'Python' in the web set?</td><td><code>'Python' in web</code></td><td><code>True</code></td></tr>
+            <tr><td>In ALL four categories?</td><td><code>web &amp; data &amp; systems &amp; mobile</code></td><td><code>set()</code> — nobody!</td></tr>
+            <tr><td>Is <code>modern_web</code> a PROPER subset of web?</td><td><code>modern_web &lt; web</code></td><td><code>True</code></td></tr>
+          </tbody>
+        </table>
+
+        <div class="note">
+          <strong>Chaining works.</strong> <code>a | b | c</code> and <code>a - b - c - d</code> are read left to right, each step handing a set to the next step — so "only systems" is genuinely just "systems, take away web, take away mobile, take away data". <code>Go</code> falls out at the first subtraction, so five of the six survive.
+        </div>
+        <div class="warn">
+          The polyglot question is the fun one: <code>web &amp; data &amp; systems &amp; mobile</code> comes back <code>set()</code> — <strong>empty</strong>. No language is in all four. An empty answer is a perfectly good answer, and printing it looks like <code>set()</code>, not <code>{}</code>.
+        </div>
+        <div class="big-result">And the proper-subset question</div>
+        <div class="code">modern_web = {<span class="str">"JavaScript"</span>, <span class="str">"TypeScript"</span>, <span class="str">"Python"</span>}
+<span class="fn">print</span>(modern_web &lt; languages_web)    <span class="cm"># True — inside AND smaller</span>
+<span class="fn">print</span>(languages_web &lt; languages_web) <span class="cm"># False — inside, but not smaller</span></div>
+        <div class="console">True
+False</div>
+      </section>
+
+      <!-- ═══ GITHUB ═══ -->
+      <section class="card topic-panel" id="topic-github">
+        <span class="tag">GitHub</span>
+        <h2 class="step-title">Lesson 15 GitHub Folder</h2>
+        <p>All the code from today's lesson:</p>
+        <div class="task-box">
+          <strong>Lesson folder:</strong><br>
+          <a href="https://github.com/pythonai080626-a11y/17.08.2026" target="_blank" rel="noopener">
+            https://github.com/pythonai080626-a11y/17.08.2026
+          </a>
+        </div>
+        <table class="ex-table">
+          <thead><tr><th>File</th><th>What it shows</th></tr></thead>
+          <tbody>
+            <tr><td>01_set.py</td><td>Why a set: no duplicates, fast find / insert / remove via hashing. Creating one with <code>set()</code>, <code>set([...])</code> and <code>{ }</code>; what may <em>not</em> go in (list, set — unhashable); <code>hash()</code> on strings; no index; looping; set comprehension; <code>add</code>, <code>remove</code>, <code>discard</code>, <code>pop</code>, <code>update</code>, <code>len</code>, <code>sorted</code> — plus the four in-class questions</td></tr>
+            <tr><td>02_set.py</td><td><code>union</code>/<code>|</code>, <code>intersection</code>/<code>&amp;</code>, <code>difference</code>/<code>-</code>, <code>symmetric_difference</code>/<code>^</code> (and building <code>^</code> by hand); <code>issubset</code>/<code>issuperset</code> with <code>&lt;</code> <code>&lt;=</code> <code>&gt;</code> <code>&gt;=</code>; <code>isdisjoint</code> and writing it yourself; <code>in</code>, <code>len</code>, <code>copy</code>, <code>frozenset</code></td></tr>
+            <tr><td>set_ex1.py</td><td>Oscar Best Actor vs Best Screenplay — seven questions to answer with set operators</td></tr>
+            <tr><td>set_ex2.py</td><td>Four sets of programming languages — chaining <code>|</code>, <code>&amp;</code> and <code>-</code> across more than two sets, plus proper subset</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          Topic page for today: <a href="../../19_set/index.html">Sets</a> — every method on one page, with a live demo you can run for each one. Built on <a href="../../16_lists/index.html">Lists</a> and <a href="../../17_lists_advanced/index.html">Lists — Advanced</a> from the last two lessons: the comprehension is the same shape with <code>{ }</code> instead of <code>[ ]</code>, and <code>.copy()</code> matters here for the same reason it mattered there. Also useful: <a href="../../11_booleans/index.html">Booleans &amp; the Ternary</a> for the True/False answers, and <a href="../../06_for_loops/index.html">For Loops</a>.
+        </div>
+      </section>
+
+      <!-- ═══ HOMEWORK (English) ═══ -->
+      <section class="card topic-panel" id="topic-exercise">
+        <span class="tag">Homework</span>
+        <h2 class="step-title">Catch the Thief 🕵️</h2>
+        <p>Three police cases. In each one the station has a few <strong>evidence sets</strong> — lists of people who smoke, who ride a bike, who were on the night shift — and a few <strong>clues</strong> about the culprit. Your job: turn every clue into a set operator and print who is left.</p>
+        <p><strong>One expression per case.</strong> No <code>for</code>, no <code>if</code>, no counting — the whole point of today is that a clue is an operator:</p>
+        <div class="ba">
+          <span class="bx">"and also"&nbsp; → &nbsp;&amp;</span>
+          <span class="bx">"or"&nbsp; → &nbsp;|</span>
+          <span class="bx old">"but NOT"&nbsp; → &nbsp;-</span>
+        </div>
+        <p><strong>Python only</strong>. Write it as a <code>.py</code> file in PyCharm and run with <span class="kbd">Shift</span> + <span class="kbd">F10</span>.</p>
+
+        <!-- ── Case 1 ── -->
+        <div class="ex-title">
+          <span class="ex-num">1</span>
+          <h3>The smoking skydiver 🚬</h3>
+        </div>
+        <div class="code">smokers = {<span class="str">"John Smith"</span>, <span class="str">"Maya Levi"</span>, <span class="str">"Noam Cohen"</span>, <span class="str">"Liam Patel"</span>}
+ride_bikes = {<span class="str">"Maya Levi"</span>, <span class="str">"Omer Halevi"</span>, <span class="str">"Liam Patel"</span>}
+ride_motorcycles = {<span class="str">"John Smith"</span>, <span class="str">"Noam Cohen"</span>, <span class="str">"Rina Gold"</span>}
+likes_skyjump = {<span class="str">"John Smith"</span>, <span class="str">"Rina Gold"</span>, <span class="str">"Dina Bar"</span>}</div>
+        <div class="casefile">
+          <div class="cf-head">🔍 The clues</div>
+          <ul class="clue-list">
+            <li><span class="cn">1</span><span>The suspect <strong>SMOKES</strong></span></li>
+            <li><span class="cn">2</span><span>The suspect likes <strong>SKYDIVING</strong></span></li>
+            <li><span class="cn">3</span><span>The suspect rides a <strong>BIKE</strong> <em>or</em> a <strong>MOTORCYCLE</strong></span></li>
+          </ul>
+        </div>
+        <ol class="task-list">
+          <li>Print the seven <strong>suspects</strong> — every name that appears anywhere in the four sets. (You can type the set out by hand, or build it with <code>|</code>.)</li>
+          <li>Print the three clues, so the output reads like a real case file.</li>
+          <li>Print the <strong>guilty set</strong> — one expression, built from the three clues.</li>
+        </ol>
+        <div class="big-result">Expected output</div>
+        <div class="console">Suspects: {'Liam Patel', 'Rina Gold', 'Dina Bar', 'Maya Levi', 'John Smith', 'Omer Halevi', 'Noam Cohen'}
+
+Clues:
+1) The suspect SMOKES
+2) The suspect likes SKYDIVING
+3) The suspect rides a BIKE or a MOTORCYCLE
+{'John Smith'}</div>
+        <div class="note">
+          <strong>Hint.</strong> Clue 3 is the only one with the word <em>or</em> in it, so it is the only <code>|</code> — and it needs its own brackets, because <code>&amp;</code> runs before <code>|</code>. The shape is <code>… &amp; … &amp; ( … | … )</code>. Your suspect line will print in a different order than mine — a set has no order, remember, and that is fine.
+        </div>
+
+        <!-- ── Case 2 ── -->
+        <div class="ex-title">
+          <span class="ex-num">2</span>
+          <h3>The one who does not ride both 🏍️</h3>
+        </div>
+        <div class="code">smokers = {<span class="str">"Avi Ron"</span>, <span class="str">"Sara Kim"</span>, <span class="str">"Ben Azulay"</span>, <span class="str">"Nina Fox"</span>}
+ride_bikes = {<span class="str">"Sara Kim"</span>, <span class="str">"Tom Green"</span>, <span class="str">"Nina Fox"</span>}
+ride_motorcycles = {<span class="str">"Avi Ron"</span>, <span class="str">"Ben Azulay"</span>, <span class="str">"Nina Fox"</span>, <span class="str">"Eli Stone"</span>}
+likes_skyjump = {<span class="str">"Avi Ron"</span>, <span class="str">"Nina Fox"</span>, <span class="str">"Dana Wolf"</span>}</div>
+        <div class="casefile">
+          <div class="cf-head">🔍 The clues</div>
+          <ul class="clue-list">
+            <li><span class="cn">1</span><span>The suspect rides a <strong>BIKE</strong> <em>or</em> a <strong>MOTORCYCLE</strong></span></li>
+            <li><span class="cn">2</span><span>The suspect <strong>SMOKES</strong></span></li>
+            <li><span class="cn">3</span><span>The suspect likes <strong>SKYDIVING</strong></span></li>
+            <li class="no"><span class="cn">4</span><span>The suspect is <strong>NOT</strong> someone who rides <strong>BOTH</strong> bike <em>and</em> motorcycle</span></li>
+          </ul>
+        </div>
+        <ol class="task-list">
+          <li>Print the seven suspects and the four clues, same as case 1.</li>
+          <li>Print the guilty set — again, <strong>one expression</strong>.</li>
+        </ol>
+        <div class="big-result">Expected output</div>
+        <div class="console">Suspects: {'Ben Azulay', 'Dana Wolf', 'Nina Fox', 'Eli Stone', 'Tom Green', 'Avi Ron', 'Sara Kim'}
+
+Clues:
+1) The suspect rides a BIKE or a MOTORCYCLE
+2) The suspect SMOKES
+3) The suspect likes SKYDIVING
+4) The suspect is NOT someone who rides BOTH bike AND motorcycle
+{'Avi Ron'}</div>
+        <div class="note">
+          <strong>Hint — clue 4 is two operators in one sentence.</strong> "rides BOTH" is an intersection: <code>ride_bikes &amp; ride_motorcycles</code>. "is NOT one of those" is a subtraction of that whole thing. So clue 4 becomes <code>- (ride_bikes &amp; ride_motorcycles)</code> — brackets included.
+        </div>
+        <div class="warn">
+          <strong>Clue 4 is the one that cracks this case.</strong> Use only the first three clues and <em>two</em> names survive — <code>Avi Ron</code> and <code>Nina Fox</code>. Nina Fox rides a bike <em>and</em> a motorcycle, so clue 4 is exactly what rules her out. If your program prints two names, you forgot the last clue; if it prints <code>Nina Fox</code>, you wrote <code>&amp;</code> where the <code>-</code> belongs.
+        </div>
+
+        <!-- ── Case 3 ── -->
+        <div class="ex-title">
+          <span class="ex-num">3</span>
+          <h3>The server room 🖥️</h3>
+        </div>
+        <p>Hardware went missing from a company server room overnight.</p>
+        <div class="code"><span class="cm"># The suspects</span>
+night_shift = {<span class="str">"Alex"</span>, <span class="str">"Jordan"</span>, <span class="str">"Taylor"</span>, <span class="str">"Casey"</span>}
+access_server_room = {<span class="str">"Jordan"</span>, <span class="str">"Casey"</span>, <span class="str">"Morgan"</span>, <span class="str">"Riley"</span>}
+hardware_expert = {<span class="str">"Taylor"</span>, <span class="str">"Riley"</span>, <span class="str">"Casey"</span>, <span class="str">"Alex"</span>}
+management_role = {<span class="str">"Jordan"</span>, <span class="str">"Morgan"</span>}</div>
+        <div class="casefile">
+          <div class="cf-head">🔍 The clues</div>
+          <ul class="clue-list">
+            <li><span class="cn">1</span><span>The suspect was on the <strong>NIGHT SHIFT</strong>.</span></li>
+            <li><span class="cn">2</span><span>The suspect has access to the <strong>SERVER ROOM</strong>.</span></li>
+            <li><span class="cn">3</span><span>The suspect is a <strong>HARDWARE EXPERT</strong>.</span></li>
+            <li class="no"><span class="cn">4</span><span>The suspect is <strong>NOT</strong> in a <strong>MANAGEMENT ROLE</strong>.</span></li>
+          </ul>
+        </div>
+        <ol class="task-list">
+          <li>Print the four clues, then the guilty set — one expression.</li>
+          <li><strong>Then prove it.</strong> Print <code>len(...)</code> of your answer, and check with <code>&lt;=</code> that your guilty set really is a subset of <code>night_shift</code>. Both lines should agree with your name.</li>
+        </ol>
+        <div class="big-result">Expected output</div>
+        <div class="console">Clues:
+1) The suspect was on the NIGHT SHIFT.
+2) The suspect has access to the SERVER ROOM.
+3) The suspect is a HARDWARE EXPERT.
+4) The suspect is NOT in a MANAGEMENT ROLE.
+{'Casey'}
+1
+True</div>
+        <div class="warn">
+          <strong>The trap in all three cases: <code>-</code> runs before <code>&amp;</code>, and <code>&amp;</code> runs before <code>|</code>.</strong> So <code>a &amp; b - c</code> secretly means <code>a &amp; (b - c)</code> — <em>not</em> what you read left to right. If your answer comes out wrong, or comes out right by luck, the fix is the same: <strong>put brackets around every clue</strong> and stop guessing.
+        </div>
+        <div class="note">
+          <strong>Sanity check your work.</strong> Take the name your program printed and read the clues about that person one by one — is he/she really in <code>smokers</code>? really <em>not</em> in <code>management_role</code>? If one clue does not fit, you have an operator in the wrong place. And an empty <code>set()</code> means your clues contradicted each other — usually a <code>&amp;</code> where a <code>|</code> belongs.
+        </div>
+
+        <div class="big-result">The tools you need</div>
+        <div class="pill-row">
+          <span class="pill">a &amp; b</span>
+          <span class="pill">a | b</span>
+          <span class="pill">a - b</span>
+          <span class="pill">( )</span>
+          <span class="pill">len(s)</span>
+          <span class="pill">a &lt;= b</span>
+          <span class="pill">print</span>
+        </div>
+
+        <div class="big-result">Submission</div>
+        <div class="card submission">
+          <ol class="task-list">
+            <li><strong>Write the .py program(s)</strong> in PyCharm.</li>
+            <li><strong>Upload to GitHub</strong> and send the link to:<br>
+              <a href="mailto:pythonai080626+hw15@gmail.com">pythonai080626+hw15@gmail.com</a>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ═══ HOMEWORK (Hebrew) ═══ -->
+      <section class="card topic-panel rtl" id="topic-exercise-heb" lang="he" dir="rtl">
+        <span class="tag">שיעורי בית</span>
+        <h2 class="step-title">לתפוס את הגנב 🕵️</h2>
+        <p>שלושה תיקי משטרה. בכל אחד יש בתחנה כמה <strong>קבוצות ראיות</strong> — מי מעשן, מי רוכב על אופניים, מי היה במשמרת לילה — וכמה <strong>רמזים</strong> על האשם. המשימה שלכם: להפוך כל רמז לאופרטור של קבוצות, ולהדפיס מי נשאר.</p>
+        <p><strong>ביטוי אחד לכל תיק.</strong> בלי <code dir="ltr">for</code>, בלי <code dir="ltr">if</code>, בלי לספור — כל הרעיון של היום הוא שרמז הוא אופרטור:</p>
+        <div class="ba" dir="ltr">
+          <span class="bx">"and also"&nbsp; → &nbsp;&amp;</span>
+          <span class="bx">"or"&nbsp; → &nbsp;|</span>
+          <span class="bx old">"but NOT"&nbsp; → &nbsp;-</span>
+        </div>
+        <p><strong>בפייתון בלבד</strong>. כתבו בקובץ <code dir="ltr">.py</code> ב-PyCharm והריצו עם <span class="kbd">Shift</span> + <span class="kbd">F10</span>.</p>
+
+        <!-- ── תיק 1 ── -->
+        <div class="ex-title">
+          <span class="ex-num">1</span>
+          <h3>הצנחן המעשן 🚬</h3>
+        </div>
+        <div class="code" dir="ltr">smokers = {<span class="str">"John Smith"</span>, <span class="str">"Maya Levi"</span>, <span class="str">"Noam Cohen"</span>, <span class="str">"Liam Patel"</span>}
+ride_bikes = {<span class="str">"Maya Levi"</span>, <span class="str">"Omer Halevi"</span>, <span class="str">"Liam Patel"</span>}
+ride_motorcycles = {<span class="str">"John Smith"</span>, <span class="str">"Noam Cohen"</span>, <span class="str">"Rina Gold"</span>}
+likes_skyjump = {<span class="str">"John Smith"</span>, <span class="str">"Rina Gold"</span>, <span class="str">"Dina Bar"</span>}</div>
+        <div class="casefile">
+          <div class="cf-head">🔍 הרמזים</div>
+          <ul class="clue-list">
+            <li><span class="cn">1</span><span>החשוד <strong>מעשן</strong></span></li>
+            <li><span class="cn">2</span><span>החשוד אוהב <strong>צניחה חופשית</strong></span></li>
+            <li><span class="cn">3</span><span>החשוד רוכב על <strong>אופניים</strong> <em>או</em> על <strong>אופנוע</strong></span></li>
+          </ul>
+        </div>
+        <ol class="task-list">
+          <li>הדפיסו את שבעת ה<strong>חשודים</strong> — כל שם שמופיע באחת מארבע הקבוצות. (מותר לכתוב את הקבוצה ביד, או לבנות אותה עם <code dir="ltr">|</code>.)</li>
+          <li>הדפיסו את שלושת הרמזים, כך שהפלט ייראה כמו תיק חקירה אמיתי.</li>
+          <li>הדפיסו את <strong>קבוצת האשמים</strong> — ביטוי אחד, שבנוי משלושת הרמזים.</li>
+        </ol>
+        <div class="big-result">הפלט הצפוי</div>
+        <div class="console" dir="ltr">Suspects: {'Liam Patel', 'Rina Gold', 'Dina Bar', 'Maya Levi', 'John Smith', 'Omer Halevi', 'Noam Cohen'}
+
+Clues:
+1) The suspect SMOKES
+2) The suspect likes SKYDIVING
+3) The suspect rides a BIKE or a MOTORCYCLE
+{'John Smith'}</div>
+        <div class="note">
+          <strong>רמז.</strong> רמז 3 הוא היחיד שיש בו את המילה <em>או</em>, ולכן הוא ה-<code dir="ltr">|</code> היחיד — והוא חייב סוגריים משלו, כי <code dir="ltr">&amp;</code> מתבצע לפני <code dir="ltr">|</code>. הצורה היא <code dir="ltr">… &amp; … &amp; ( … | … )</code>. שורת החשודים שלכם תודפס בסדר אחר משלי — לקבוצה אין סדר, זוכרים? וזה בסדר גמור.
+        </div>
+
+        <!-- ── תיק 2 ── -->
+        <div class="ex-title">
+          <span class="ex-num">2</span>
+          <h3>זה שלא רוכב על שניהם 🏍️</h3>
+        </div>
+        <div class="code" dir="ltr">smokers = {<span class="str">"Avi Ron"</span>, <span class="str">"Sara Kim"</span>, <span class="str">"Ben Azulay"</span>, <span class="str">"Nina Fox"</span>}
+ride_bikes = {<span class="str">"Sara Kim"</span>, <span class="str">"Tom Green"</span>, <span class="str">"Nina Fox"</span>}
+ride_motorcycles = {<span class="str">"Avi Ron"</span>, <span class="str">"Ben Azulay"</span>, <span class="str">"Nina Fox"</span>, <span class="str">"Eli Stone"</span>}
+likes_skyjump = {<span class="str">"Avi Ron"</span>, <span class="str">"Nina Fox"</span>, <span class="str">"Dana Wolf"</span>}</div>
+        <div class="casefile">
+          <div class="cf-head">🔍 הרמזים</div>
+          <ul class="clue-list">
+            <li><span class="cn">1</span><span>החשוד רוכב על <strong>אופניים</strong> <em>או</em> על <strong>אופנוע</strong></span></li>
+            <li><span class="cn">2</span><span>החשוד <strong>מעשן</strong></span></li>
+            <li><span class="cn">3</span><span>החשוד אוהב <strong>צניחה חופשית</strong></span></li>
+            <li class="no"><span class="cn">4</span><span>החשוד <strong>אינו</strong> מי שרוכב גם על אופניים <strong>וגם</strong> על אופנוע</span></li>
+          </ul>
+        </div>
+        <ol class="task-list">
+          <li>הדפיסו את שבעת החשודים ואת ארבעת הרמזים, כמו בתיק 1.</li>
+          <li>הדפיסו את קבוצת האשמים — שוב, <strong>ביטוי אחד</strong>.</li>
+        </ol>
+        <div class="big-result">הפלט הצפוי</div>
+        <div class="console" dir="ltr">Suspects: {'Ben Azulay', 'Dana Wolf', 'Nina Fox', 'Eli Stone', 'Tom Green', 'Avi Ron', 'Sara Kim'}
+
+Clues:
+1) The suspect rides a BIKE or a MOTORCYCLE
+2) The suspect SMOKES
+3) The suspect likes SKYDIVING
+4) The suspect is NOT someone who rides BOTH bike AND motorcycle
+{'Avi Ron'}</div>
+        <div class="note">
+          <strong>רמז — רמז 4 הוא שני אופרטורים במשפט אחד.</strong> "רוכב על שניהם" זה חיתוך: <code dir="ltr">ride_bikes &amp; ride_motorcycles</code>. "אינו אחד מאלה" זה חיסור של כל הדבר הזה. כלומר רמז 4 הופך ל-<code dir="ltr">- (ride_bikes &amp; ride_motorcycles)</code> — כולל הסוגריים.
+        </div>
+        <div class="warn">
+          <strong>רמז 4 הוא זה שפותר את התיק.</strong> אם משתמשים רק בשלושת הרמזים הראשונים נשארים <em>שני</em> שמות — <code dir="ltr">Avi Ron</code> ו-<code dir="ltr">Nina Fox</code>. נינה פוקס רוכבת גם על אופניים <em>וגם</em> על אופנוע, ובדיוק בגלל זה רמז 4 מוציא אותה. אם התוכנית שלכם הדפיסה שני שמות — שכחתם את הרמז האחרון; ואם הדפיסה <code dir="ltr">Nina Fox</code> — כתבתם <code dir="ltr">&amp;</code> במקום שבו צריך <code dir="ltr">-</code>.
+        </div>
+
+        <!-- ── תיק 3 ── -->
+        <div class="ex-title">
+          <span class="ex-num">3</span>
+          <h3>חדר השרתים 🖥️</h3>
+        </div>
+        <p>חומרה נעלמה מחדר שרתים של חברה במהלך הלילה.</p>
+        <div class="code" dir="ltr"><span class="cm"># The suspects</span>
+night_shift = {<span class="str">"Alex"</span>, <span class="str">"Jordan"</span>, <span class="str">"Taylor"</span>, <span class="str">"Casey"</span>}
+access_server_room = {<span class="str">"Jordan"</span>, <span class="str">"Casey"</span>, <span class="str">"Morgan"</span>, <span class="str">"Riley"</span>}
+hardware_expert = {<span class="str">"Taylor"</span>, <span class="str">"Riley"</span>, <span class="str">"Casey"</span>, <span class="str">"Alex"</span>}
+management_role = {<span class="str">"Jordan"</span>, <span class="str">"Morgan"</span>}</div>
+        <div class="casefile">
+          <div class="cf-head">🔍 הרמזים</div>
+          <ul class="clue-list">
+            <li><span class="cn">1</span><span>החשוד היה ב<strong>משמרת לילה</strong>.</span></li>
+            <li><span class="cn">2</span><span>לחשוד יש <strong>גישה לחדר השרתים</strong>.</span></li>
+            <li><span class="cn">3</span><span>החשוד הוא <strong>מומחה חומרה</strong>.</span></li>
+            <li class="no"><span class="cn">4</span><span>החשוד <strong>אינו</strong> בתפקיד <strong>ניהולי</strong>.</span></li>
+          </ul>
+        </div>
+        <ol class="task-list">
+          <li>הדפיסו את ארבעת הרמזים, ואז את קבוצת האשמים — ביטוי אחד.</li>
+          <li><strong>ואז תוכיחו.</strong> הדפיסו <code dir="ltr">len(...)</code> של התשובה שלכם, ובדקו עם <code dir="ltr">&lt;=</code> שקבוצת האשמים באמת מוכלת ב-<code dir="ltr">night_shift</code>. שתי השורות צריכות להסכים עם השם שקיבלתם.</li>
+        </ol>
+        <div class="big-result">הפלט הצפוי</div>
+        <div class="console" dir="ltr">Clues:
+1) The suspect was on the NIGHT SHIFT.
+2) The suspect has access to the SERVER ROOM.
+3) The suspect is a HARDWARE EXPERT.
+4) The suspect is NOT in a MANAGEMENT ROLE.
+{'Casey'}
+1
+True</div>
+        <div class="warn">
+          <strong>המלכודת בכל שלושת התיקים: <code dir="ltr">-</code> מתבצע לפני <code dir="ltr">&amp;</code>, ו-<code dir="ltr">&amp;</code> מתבצע לפני <code dir="ltr">|</code>.</strong> כלומר <code dir="ltr">a &amp; b - c</code> אומר בסתר <code dir="ltr">a &amp; (b - c)</code> — ולא מה שקראתם משמאל לימין. אם התשובה יוצאת שגויה, או יוצאת נכונה במזל, הפתרון זהה: <strong>שימו סוגריים סביב כל רמז</strong> ותפסיקו לנחש.
+        </div>
+        <div class="note">
+          <strong>בדקו את עצמכם.</strong> קחו את השם שהתוכנית הדפיסה, ועברו על הרמזים עליו אחד-אחד — הוא/היא באמת ב-<code dir="ltr">smokers</code>? באמת <em>לא</em> ב-<code dir="ltr">management_role</code>? אם רמז אחד לא מתאים — יש לכם אופרטור במקום הלא נכון. ואם יצא <code dir="ltr">set()</code> ריק, הרמזים שלכם סותרים זה את זה — בדרך כלל <code dir="ltr">&amp;</code> במקום שבו צריך <code dir="ltr">|</code>.
+        </div>
+
+        <div class="big-result">הכלים שתצטרכו</div>
+        <div class="pill-row" dir="ltr">
+          <span class="pill">a &amp; b</span>
+          <span class="pill">a | b</span>
+          <span class="pill">a - b</span>
+          <span class="pill">( )</span>
+          <span class="pill">len(s)</span>
+          <span class="pill">a &lt;= b</span>
+          <span class="pill">print</span>
+        </div>
+
+        <div class="big-result">הגשה</div>
+        <div class="card submission">
+          <ol class="task-list">
+            <li><strong>כתבו את התוכנית/ות ב-<code dir="ltr">.py</code></strong> ב-PyCharm.</li>
+            <li><strong>העלו ל-GitHub</strong> ושלחו את הקישור אל:<br>
+              <a href="mailto:pythonai080626+hw15@gmail.com" dir="ltr">pythonai080626+hw15@gmail.com</a>
+            </li>
+          </ol>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <footer class="footer">
+    Python Basics - Lesson 15 - August 17, 2026 - sets
+  </footer>
+</div>
+
+<script>
+  const links = document.querySelectorAll('.topic-link');
+  const panels = document.querySelectorAll('.topic-panel');
+
+  function showTopic(id) {
+    panels.forEach(panel => panel.classList.toggle('active', panel.id === id));
+    links.forEach(link => link.classList.toggle('active', link.dataset.target === id));
+  }
+
+  links.forEach(link => {
+    link.addEventListener('click', () => {
+      showTopic(link.dataset.target);
+      location.hash = link.dataset.target;
+    });
+  });
+
+  const hash = location.hash.replace('#', '');
+  if (hash && document.getElementById(hash)) showTopic(hash);
+</script>
+</body>
+</html>

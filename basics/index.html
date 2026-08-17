@@ -176,11 +176,11 @@
       <!-- Stat pills -->
       <div class="flex justify-center gap-4 flex-wrap">
         <div class="bg-white/90 rounded-2xl px-7 py-4 clay inline-flex items-center gap-3">
-          <span class="heading text-3xl font-extrabold text-[#0D9488]">16</span>
+          <span class="heading text-3xl font-extrabold text-[#0D9488]">17</span>
           <span class="text-sm text-[#134E4A]/60 font-semibold leading-tight">Topics<br>Covered</span>
         </div>
         <div class="bg-white/90 rounded-2xl px-7 py-4 clay-orange inline-flex items-center gap-3">
-          <span class="heading text-3xl font-extrabold text-[#F97316]">14</span>
+          <span class="heading text-3xl font-extrabold text-[#F97316]">15</span>
           <span class="text-sm text-[#134E4A]/60 font-semibold leading-tight">Lessons<br>Scheduled</span>
         </div>
         <div class="bg-white/90 rounded-2xl px-7 py-4 clay inline-flex items-center gap-3">
@@ -908,6 +908,56 @@
           </article>
         </a>
 
+        <!-- ── Sets Card ── -->
+        <a href="19_set/index.html" class="block group cursor-pointer" aria-label="Sets: no duplicates, union, intersection and difference topic">
+          <article class="bg-white rounded-[24px] overflow-hidden clay-card h-full flex flex-col">
+            <!-- Illustration -->
+            <div class="h-52 relative overflow-hidden flex-shrink-0 bg-gradient-to-br from-[#3B0764] via-[#7E22CE] to-[#C084FC]">
+              <svg class="w-full h-full group-hover:scale-105 transition-transform duration-300" viewBox="0 0 320 208" fill="none" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
+                <defs>
+                  <clipPath id="setsCardClip"><circle cx="130" cy="118" r="46"/></clipPath>
+                </defs>
+                <circle cx="44" cy="38" r="46" fill="#ffffff" opacity="0.07"/>
+                <circle cx="280" cy="178" r="52" fill="#ffffff" opacity="0.07"/>
+                <!-- duplicates dropped on the way in -->
+                <text x="160" y="34" text-anchor="middle" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#F3E8FF">{1, 2, 2, 3, 3, 3}  &#8594;  {1, 2, 3}</text>
+                <!-- the two circles -->
+                <circle cx="190" cy="118" r="46" fill="#C084FC" opacity="0.28"/>
+                <circle cx="130" cy="118" r="46" fill="#C084FC" opacity="0.28"/>
+                <circle cx="190" cy="118" r="46" fill="#FAF5FF" opacity="0.92" clip-path="url(#setsCardClip)"/>
+                <circle cx="130" cy="118" r="46" fill="none" stroke="#F3E8FF" stroke-width="2.5"/>
+                <circle cx="190" cy="118" r="46" fill="none" stroke="#F3E8FF" stroke-width="2.5"/>
+                <text x="102" y="124" text-anchor="middle" font-family="Consolas, monospace" font-size="17" font-weight="800" fill="#FAF5FF">a</text>
+                <text x="218" y="124" text-anchor="middle" font-family="Consolas, monospace" font-size="17" font-weight="800" fill="#FAF5FF">b</text>
+                <text x="160" y="124" text-anchor="middle" font-family="Consolas, monospace" font-size="15" font-weight="800" fill="#6B21A8">a&amp;b</text>
+                <!-- the operators -->
+                <text x="160" y="192" text-anchor="middle" font-family="Consolas, monospace" font-size="16" font-weight="800" fill="#F3E8FF">|&nbsp; &amp;&nbsp; -&nbsp; ^</text>
+              </svg>
+              <div class="absolute inset-0 bg-gradient-to-t from-[#2e1065]/70 via-transparent to-transparent pointer-events-none"></div>
+              <span class="absolute bottom-4 left-4 bg-white/90 text-[#7E22CE] text-xs font-bold px-3 py-1 rounded-full">set</span>
+              <div class="absolute top-4 right-4 w-10 h-10 bg-[#7E22CE] rounded-xl flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <circle cx="9" cy="12" r="6"/>
+                  <circle cx="15" cy="12" r="6"/>
+                </svg>
+              </div>
+            </div>
+            <!-- Body -->
+            <div class="p-7 flex flex-col flex-1">
+              <h3 class="heading text-2xl font-bold text-[#134E4A] mb-2">Sets</h3>
+              <p class="text-[#134E4A]/65 leading-relaxed mb-6 flex-1">
+                A bag that <strong>never</strong> holds the same value twice and finds anything instantly, because it hashes instead of searching. No order, no <code class="bg-purple-50 px-1 rounded">[0]</code> &mdash; but you get the two circles from school: <code class="bg-purple-50 px-1 rounded">|</code>, <code class="bg-purple-50 px-1 rounded">&amp;</code>, <code class="bg-purple-50 px-1 rounded">-</code>, <code class="bg-purple-50 px-1 rounded">^</code>, plus <code class="bg-purple-50 px-1 rounded">.add()</code>, <code class="bg-purple-50 px-1 rounded">.discard()</code> and <code class="bg-purple-50 px-1 rounded">frozenset</code>.
+              </p>
+              <div class="flex items-center gap-2 text-[#7E22CE] font-bold text-sm group-hover:gap-3 transition-all duration-200">
+                <span>Explore topic</span>
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                </svg>
+              </div>
+            </div>
+          </article>
+        </a>
+
         <!-- ── Python Quiz Game Card ── -->
         <a href="13_kahoot1/index.html" class="block group cursor-pointer" aria-label="Python quiz game, 20 questions">
           <article class="bg-white rounded-[24px] overflow-hidden clay-card h-full flex flex-col">
@@ -1392,6 +1442,32 @@
               </div>
               <!-- Arrow -->
               <svg class="w-5 h-5 text-[#F97316] flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+              </svg>
+            </div>
+          </a>
+
+          <!-- Lesson 15 -->
+          <a href="lessons/15_lesson/15-lesson.html" class="block group cursor-pointer" aria-label="Lesson 15, August 17 2026">
+            <div class="lesson-row bg-white rounded-[20px] p-5 flex items-center gap-5">
+              <!-- Badge -->
+              <div class="w-[70px] h-[70px] flex-shrink-0">
+                <div class="w-full h-full bg-[#F0FDFA] rounded-2xl clay flex flex-col items-center justify-center">
+                  <span class="heading text-xs font-bold text-[#0D9488] leading-none">AUG</span>
+                  <span class="heading text-2xl font-extrabold text-[#0D9488] leading-tight">17</span>
+                  <span class="heading text-xs font-bold text-[#0D9488]/60 leading-none">2026</span>
+                </div>
+              </div>
+              <!-- Info -->
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-0.5">
+                  <span class="heading text-lg font-bold text-[#134E4A]">Lesson 15</span>
+                  <span class="text-xs font-semibold text-white bg-[#0D9488] px-2 py-0.5 rounded-full">Done</span>
+                </div>
+                <p class="text-sm text-[#134E4A]/55">Monday &middot; August 17, 2026 &middot; Sets &mdash; no duplicates, union, intersection &amp; difference</p>
+              </div>
+              <!-- Arrow -->
+              <svg class="w-5 h-5 text-[#0D9488] flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
               </svg>
             </div>
