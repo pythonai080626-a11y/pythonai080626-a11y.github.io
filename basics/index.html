@@ -958,6 +958,64 @@
           </article>
         </a>
 
+        <!-- ── Dictionaries Card ── -->
+        <a href="20_dict/index.html" class="block group cursor-pointer" aria-label="Dictionaries: key value pairs and dict methods topic">
+          <article class="bg-white rounded-[24px] overflow-hidden clay-card h-full flex flex-col">
+            <!-- Illustration -->
+            <div class="h-52 relative overflow-hidden flex-shrink-0 bg-gradient-to-br from-[#082F49] via-[#0369A1] to-[#38BDF8]">
+              <svg class="w-full h-full group-hover:scale-105 transition-transform duration-300" viewBox="0 0 320 208" fill="none" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
+                <circle cx="40" cy="34" r="46" fill="#ffffff" opacity="0.07"/>
+                <circle cx="286" cy="180" r="52" fill="#ffffff" opacity="0.07"/>
+                <!-- the literal -->
+                <text x="160" y="34" text-anchor="middle" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#E0F2FE">{ key : value }</text>
+                <!-- three key → value rows -->
+                <g font-family="Consolas, monospace" font-size="13" font-weight="700">
+                  <rect x="52" y="52" width="86" height="30" rx="9" fill="#E0F2FE" opacity="0.92"/>
+                  <text x="95" y="72" text-anchor="middle" fill="#0C4A6E">'name'</text>
+                  <text x="152" y="72" text-anchor="middle" fill="#E0F2FE">&#8594;</text>
+                  <rect x="166" y="52" width="100" height="30" rx="9" fill="#38BDF8" opacity="0.42"/>
+                  <text x="216" y="72" text-anchor="middle" fill="#F0F9FF">'Dana'</text>
+
+                  <rect x="52" y="92" width="86" height="30" rx="9" fill="#E0F2FE" opacity="0.92"/>
+                  <text x="95" y="112" text-anchor="middle" fill="#0C4A6E">'age'</text>
+                  <text x="152" y="112" text-anchor="middle" fill="#E0F2FE">&#8594;</text>
+                  <rect x="166" y="92" width="100" height="30" rx="9" fill="#38BDF8" opacity="0.42"/>
+                  <text x="216" y="112" text-anchor="middle" fill="#F0F9FF">17</text>
+
+                  <rect x="52" y="132" width="86" height="30" rx="9" fill="#E0F2FE" opacity="0.92"/>
+                  <text x="95" y="152" text-anchor="middle" fill="#0C4A6E">'city'</text>
+                  <text x="152" y="152" text-anchor="middle" fill="#E0F2FE">&#8594;</text>
+                  <rect x="166" y="132" width="100" height="30" rx="9" fill="#38BDF8" opacity="0.42"/>
+                  <text x="216" y="152" text-anchor="middle" fill="#F0F9FF">'Haifa'</text>
+                </g>
+                <!-- the methods -->
+                <text x="160" y="190" text-anchor="middle" font-family="Consolas, monospace" font-size="13" font-weight="800" fill="#E0F2FE">.get()  .items()  .pop()  .update()</text>
+              </svg>
+              <div class="absolute inset-0 bg-gradient-to-t from-[#082F49]/70 via-transparent to-transparent pointer-events-none"></div>
+              <span class="absolute bottom-4 left-4 bg-white/90 text-[#0369A1] text-xs font-bold px-3 py-1 rounded-full">dict</span>
+              <div class="absolute top-4 right-4 w-10 h-10 bg-[#0369A1] rounded-xl flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 7h6M4 12h6M4 17h6"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M14 7h6M14 12h6M14 17h6"/>
+                </svg>
+              </div>
+            </div>
+            <!-- Body -->
+            <div class="p-7 flex flex-col flex-1">
+              <h3 class="heading text-2xl font-bold text-[#134E4A] mb-2">Dictionaries</h3>
+              <p class="text-[#134E4A]/65 leading-relaxed mb-6 flex-1">
+                Stop counting indexes &mdash; look things up <strong>by name</strong>. Every key points at a value, found instantly. <code class="bg-sky-50 px-1 rounded">.get()</code> saves you from <code class="bg-sky-50 px-1 rounded">KeyError</code>, <code class="bg-sky-50 px-1 rounded">.items()</code> loops both halves at once, and <code class="bg-sky-50 px-1 rounded">.setdefault()</code> fills in what is missing.
+              </p>
+              <div class="flex items-center gap-2 text-[#0369A1] font-bold text-sm group-hover:gap-3 transition-all duration-200">
+                <span>Explore topic</span>
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                </svg>
+              </div>
+            </div>
+          </article>
+        </a>
+
         <!-- ── Python Quiz Game Card ── -->
         <a href="13_kahoot1/index.html" class="block group cursor-pointer" aria-label="Python quiz game, 20 questions">
           <article class="bg-white rounded-[24px] overflow-hidden clay-card h-full flex flex-col">
@@ -1465,6 +1523,32 @@
                   <span class="text-xs font-semibold text-white bg-[#0D9488] px-2 py-0.5 rounded-full">Done</span>
                 </div>
                 <p class="text-sm text-[#134E4A]/55">Monday &middot; August 17, 2026 &middot; Sets &mdash; no duplicates, union, intersection &amp; difference</p>
+              </div>
+              <!-- Arrow -->
+              <svg class="w-5 h-5 text-[#0D9488] flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+              </svg>
+            </div>
+          </a>
+
+          <!-- Lesson 16 -->
+          <a href="lessons/16_lesson/16-lesson.html" class="block group cursor-pointer" aria-label="Lesson 16, August 20 2026">
+            <div class="lesson-row bg-white rounded-[20px] p-5 flex items-center gap-5">
+              <!-- Badge -->
+              <div class="w-[70px] h-[70px] flex-shrink-0">
+                <div class="w-full h-full bg-[#F0FDFA] rounded-2xl clay flex flex-col items-center justify-center">
+                  <span class="heading text-xs font-bold text-[#0D9488] leading-none">AUG</span>
+                  <span class="heading text-2xl font-extrabold text-[#0D9488] leading-tight">20</span>
+                  <span class="heading text-xs font-bold text-[#0D9488]/60 leading-none">2026</span>
+                </div>
+              </div>
+              <!-- Info -->
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-0.5">
+                  <span class="heading text-lg font-bold text-[#134E4A]">Lesson 16</span>
+                  <span class="text-xs font-semibold text-white bg-[#0D9488] px-2 py-0.5 rounded-full">Done</span>
+                </div>
+                <p class="text-sm text-[#134E4A]/55">Thursday &middot; August 20, 2026 &middot; Dictionaries &mdash; key &amp; value, get, items, upsert</p>
               </div>
               <!-- Arrow -->
               <svg class="w-5 h-5 text-[#0D9488] flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">

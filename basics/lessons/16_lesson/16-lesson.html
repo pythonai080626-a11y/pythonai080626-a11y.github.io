@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lesson 16 - Dictionaries</title>
+  <style>
+    :root {
+      --bg-soft: #ffffff;
+      --green-1: #0f5a2e;
+      --green-2: #1f8f4e;
+      --green-3: #dbf6e5;
+      --mint: #e6fff2;
+      --text: #14281d;
+      --muted: #426654;
+      --border: #aadfbd;
+      --accent-a: #ddfbe7;
+      --accent-b: #fff4d8;
+      --code-bg: #0b2517;
+      --code-text: #d2ffe3;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Lucida Sans", "Segoe UI", sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 15% 10%, #e7fff0 0%, transparent 35%),
+                  radial-gradient(circle at 85% 18%, #fff5d6 0%, transparent 36%),
+                  linear-gradient(180deg, #f4fff6 0%, #ffffff 45%, #edfff4 100%);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    body::before, body::after {
+      content: "";
+      position: fixed;
+      width: 230px;
+      height: 230px;
+      z-index: -1;
+      border-radius: 999px;
+      filter: blur(2px);
+      opacity: 0.32;
+      animation: blobMove 8s ease-in-out infinite alternate;
+    }
+    body::before { background: #bff0d0; top: -30px; left: -40px; }
+    body::after { background: #ffe9a9; bottom: -40px; right: -40px; animation-delay: 1.4s; }
+
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 24px; }
+    .layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    /* a grid item defaults to min-width:auto and refuses to shrink below its
+       widest line — without this, one long console line stretches the panel */
+    .layout > main { min-width: 0; }
+    .card > * { max-width: 100%; }
+
+    .side-nav {
+      position: sticky;
+      top: 14px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 8px 22px rgba(18,102,55,0.1);
+      padding: 12px;
+    }
+    .side-title { margin: 0 0 8px; font-size: 0.9rem; color: var(--green-1); font-weight: 700; }
+    .topic-link {
+      display: block;
+      width: 100%;
+      text-align: left;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      padding: 8px 10px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.89rem;
+      text-transform: lowercase;
+      margin-bottom: 4px;
+      transition: all 0.2s ease;
+    }
+    .topic-link:hover { background: #f0fff4; color: var(--green-1); border-color: var(--border); }
+    .topic-link.active { background: #e8faee; color: var(--green-1); border-color: var(--green-2); font-weight: 700; }
+
+    .hero {
+      background: linear-gradient(135deg, var(--bg-soft) 0%, var(--accent-a) 55%, var(--accent-b) 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 12px 30px rgba(24,110,58,0.12);
+      margin-bottom: 22px;
+      animation: riseIn 0.75s ease both;
+    }
+
+    h1, h2, h3 { margin-top: 0; color: var(--green-1); }
+    h1 { font-size: 2rem; margin-bottom: 8px; }
+    code { color: var(--green-1); font-weight: 700; }
+
+    .tag {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      background: var(--green-3);
+      color: var(--green-1);
+      border: 1px solid var(--border);
+      margin-bottom: 10px;
+    }
+
+    .card {
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 16px;
+      box-shadow: 0 7px 22px rgba(18,102,55,0.08);
+      animation: riseIn 0.65s ease both;
+    }
+
+    .topic-panel { display: none; }
+    .topic-panel.active { display: block; }
+    .step-title { margin: 0 0 12px; font-size: 1.25rem; }
+    .side-divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+    .side-section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--green-2);
+      padding: 4px 4px 6px;
+    }
+    .nav-back {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--green-2);
+      background: #e9fbe8;
+      color: var(--green-1);
+      text-decoration: none;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      width: 100%;
+      text-align: center;
+    }
+    .nav-back:hover { background: #d8f7df; transform: translateY(-1px); }
+
+    .note {
+      background: var(--mint);
+      border-left: 4px solid var(--green-2);
+      padding: 10px 14px;
+      color: var(--muted);
+      margin: 12px 0;
+      border-radius: 6px;
+      font-size: 0.94rem;
+    }
+    .warn {
+      background: #fff6e2;
+      border-left: 4px solid #e0a800;
+      padding: 10px 14px;
+      color: #6b4e00;
+      margin: 12px 0;
+      border-radius: 6px;
+      font-size: 0.94rem;
+    }
+    .big-result { font-size: 1.1rem; margin: 18px 0 8px; color: var(--green-1); font-weight: 700; }
+
+    .code {
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 10px;
+      border: 1px solid #2f5a3d;
+      padding: 16px 18px;
+      overflow-x: auto;
+      margin: 10px 0 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95rem;
+      white-space: pre;
+      line-height: 1.7;
+    }
+    .code .cm { color: #6dbf8a; }
+    .code .fn { color: #ffa657; }
+    .code .kw { color: #79c0ff; }
+    .code .num { color: #d2a8ff; }
+    .code .str { color: #ffd580; }
+    .code .hl { background: rgba(125,231,135,0.16); border-radius: 4px; }
+    .code .bad { background: rgba(248,113,113,0.16); border-radius: 4px; }
+
+    .console {
+      background: #101418;
+      color: #e6edf3;
+      border-radius: 10px;
+      border: 1px solid #30363d;
+      padding: 12px 18px;
+      overflow-x: auto;
+      margin: 10px 0 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92rem;
+      white-space: pre;
+      line-height: 1.7;
+    }
+    .console .usr { color: #7ee787; font-weight: 700; }
+    .console .dim { color: #8b949e; }
+    .console .err { color: #ff9f9f; }
+
+    .ex-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .88rem;
+      margin: 10px 0 14px;
+    }
+    .ex-table th {
+      background: var(--green-3);
+      color: var(--green-1);
+      padding: 8px 12px;
+      text-align: left;
+      border: 1px solid var(--border);
+      font-size: .78rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+    .ex-table td { padding: 8px 12px; border: 1px solid var(--border); vertical-align: top; }
+    .ex-table tr:nth-child(even) td { background: #f4fff7; }
+    .task-box {
+      background: var(--mint);
+      border: 2px dashed var(--green-2);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin: 14px 0;
+    }
+    .task-box a {
+      color: var(--green-1);
+      font-weight: 800;
+      font-size: 1.02rem;
+      word-break: break-all;
+    }
+    .footer { text-align: center; color: var(--muted); font-size: 0.86rem; padding: 10px 0 16px; }
+
+    .task-list { padding-left: 22px; margin: 10px 0 0; }
+    .task-list li { margin-bottom: 10px; color: #1a3a2a; }
+    .task-list li strong { color: var(--green-1); }
+
+    .ex-title { display: flex; align-items: center; margin: 22px 0 8px; }
+    .ex-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--green-3); border: 2px solid var(--green-2);
+      color: var(--green-1); font-weight: 800; font-size: .88rem;
+      margin-right: 8px; flex-shrink: 0;
+    }
+    .ex-title h3 { margin: 0; font-size: 1.1rem; }
+
+    .kbd {
+      display: inline-block; padding: 2px 8px; border-radius: 6px;
+      background: #f0fff4; border: 1px solid var(--border);
+      border-bottom-width: 3px; font-family: Consolas, monospace;
+      font-size: .85rem; color: var(--green-1); font-weight: 700;
+    }
+
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 6px; }
+    .pill {
+      display: inline-block; padding: 4px 12px; border-radius: 999px;
+      background: #eafcef; border: 1px solid var(--border);
+      color: var(--green-1); font-weight: 700; font-size: .82rem;
+    }
+    .pill.now { background: #fff0c2; border-color: #e0a800; color: #6b4e00; }
+
+    .submission { background: var(--mint); border-color: var(--green-2); margin-top: 0; }
+    .submission a { color: var(--green-1); font-weight: 800; font-size: 1.05rem; word-break: break-all; }
+
+    /* ── Module toolbox ── */
+    .toolbox {
+      background: #f7fffb; border: 1px solid var(--border);
+      border-radius: 14px; padding: 16px 18px; margin: 14px 0;
+    }
+    .toolbox .tb-head {
+      display: flex; align-items: center; gap: 8px;
+      font-weight: 800; color: var(--green-1); margin-bottom: 10px;
+    }
+    .toolbox .tb-head .tb-ic {
+      width: 30px; height: 30px; border-radius: 9px; flex-shrink: 0;
+      background: linear-gradient(160deg, #2dd4bf, #0d9488);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 1rem;
+    }
+    .tool-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tool {
+      font-family: Consolas, monospace; font-size: .82rem; font-weight: 700;
+      background: #ffffff; border: 1px solid var(--border);
+      border-bottom-width: 3px; border-radius: 9px;
+      padding: 6px 11px; color: var(--green-1);
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .tool:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(18,102,55,0.16); }
+    .tool small { display: block; font-family: "Trebuchet MS", sans-serif; font-weight: 400; color: var(--muted); font-size: .72rem; }
+
+    /* ── before / after boxes ── */
+    .ba { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 12px 0 14px; }
+    .ba .bx {
+      font-family: Consolas, monospace; font-weight: 700; font-size: .95rem;
+      background: #ffffff; border: 1px solid var(--border);
+      border-bottom-width: 3px; border-radius: 10px; padding: 9px 13px; color: var(--green-1);
+      white-space: pre;
+    }
+    .ba .bx.old { background: #fff6e2; border-color: #e6c46a; color: #6b4e00; }
+    .ba .arw { font-weight: 800; color: var(--muted); }
+
+    /* ── side-by-side compare columns ── */
+    .vs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0 14px; }
+    .vs > div { min-width: 0; }
+    .vs .vs-head {
+      font-weight: 800; color: var(--green-1); font-size: .92rem;
+      padding: 6px 10px; border-radius: 8px; background: var(--green-3);
+      border: 1px solid var(--border); margin-bottom: 6px; text-align: center;
+    }
+    .vs .vs-head.bad { background: #fff6e2; border-color: #e6c46a; color: #6b4e00; }
+    .vs .code, .vs .console { margin: 0 0 8px; font-size: .88rem; }
+
+    /* ── Lesson 16: key → value rows ── */
+    .kvbox {
+      background: #f5fff9; border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px 18px; margin: 12px 0 14px;
+    }
+    .kvrow { display: flex; align-items: stretch; margin-bottom: 6px; flex-wrap: wrap; }
+    .kvrow .kk, .kvrow .vv {
+      font-family: Consolas, monospace; font-weight: 800; font-size: .88rem;
+      padding: 6px 12px; border: 1px solid var(--border);
+    }
+    .kvrow .kk {
+      background: linear-gradient(160deg, #d6f8e4, #a9ecc6);
+      border-color: #7fd6a3; color: #08351d;
+      border-radius: 9px 0 0 9px; min-width: 130px;
+    }
+    .kvrow .ar {
+      display: flex; align-items: center; padding: 0 10px;
+      color: var(--muted); font-weight: 800; background: #ffffff;
+      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    }
+    .kvrow .vv { background: #ffffff; color: var(--green-1); border-radius: 0 9px 9px 0; border-left: none; }
+    .kvrow .vv.list { background: #fffaf0; color: #6b4e00; border-color: #e6c46a; }
+    .kvrow .vv.dict { background: #eef8ff; color: #1c4e80; border-color: #a9cdec; }
+    .kvrow .vv.set { background: #f7f0ff; color: #5b2a86; border-color: #cbb0e8; }
+    .kvbox-cap { font-family: Consolas, monospace; font-weight: 800; color: var(--green-1); margin-bottom: 8px; font-size: .88rem; }
+
+    /* ── figure blocks (the drawings) ── */
+    .fig {
+      background: #f5fff9; border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px; margin: 14px 0;
+      text-align: center;
+    }
+    .fig svg { width: 100%; height: auto; max-width: 620px; }
+    .fig .figcap {
+      font-size: .84rem; color: var(--muted); margin-top: 8px;
+      font-style: italic;
+    }
+
+    /* ── D&D item rack ── */
+    .rack { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 12px 0 6px; }
+    .slot {
+      width: 96px; padding: 10px 6px; border-radius: 12px; text-align: center;
+      background: linear-gradient(160deg, #ffffff, #eafcef);
+      border: 1px solid var(--border); border-bottom-width: 3px;
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .slot:hover { transform: translateY(-3px); box-shadow: 0 8px 16px rgba(18,102,55,0.18); }
+    .slot .ic { font-size: 1.9rem; line-height: 1.2; }
+    .slot .nm { font-family: Consolas, monospace; font-weight: 800; font-size: .78rem; color: var(--green-1); }
+    .slot.picked { background: linear-gradient(160deg, #fff6d9, #ffe9a9); border-color: #e0a800; }
+
+    /* ── attribute bars ── */
+    .stats { background: #f5fff9; border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; margin: 12px 0 14px; }
+    .stat { display: grid; grid-template-columns: 116px 1fr 34px; gap: 10px; align-items: center; margin-bottom: 7px; }
+    .stat .snm { font-family: Consolas, monospace; font-weight: 800; color: var(--green-1); font-size: .82rem; }
+    .stat .strack { height: 15px; border-radius: 8px; background: #e3efe8; border: 1px solid var(--border); overflow: hidden; }
+    .stat .sfill { height: 100%; background: linear-gradient(90deg, #a9ecc6, #4fc47f); }
+    .stat .sfill.hi { background: linear-gradient(90deg, #ffe1a8, #f0b429); }
+    .stat .sval { font-family: Consolas, monospace; font-weight: 800; color: var(--muted); font-size: .82rem; text-align: right; }
+
+    /* ── Hebrew / right-to-left panel ── */
+    .rtl { direction: rtl; text-align: right; }
+    .rtl .task-list { padding-left: 0; padding-right: 22px; }
+    .rtl .ex-table th, .rtl .ex-table td { text-align: right; }
+    .rtl .note, .rtl .warn { border-left: none; border-right: 4px solid var(--green-2); }
+    .rtl .warn { border-right-color: #e0a800; }
+    /* code and output stay English — always left-aligned, even on an RTL page */
+    .rtl .code, .rtl .console { direction: ltr; text-align: left; }
+
+    /* ── numbered build steps ── */
+    .steps { counter-reset: st; padding: 0; margin: 12px 0 0; list-style: none; }
+    .steps > li { position: relative; padding-left: 40px; margin-bottom: 18px; }
+    .steps > li::before {
+      counter-increment: st; content: counter(st);
+      position: absolute; left: 0; top: 0;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--green-3); border: 2px solid var(--green-2);
+      color: var(--green-1); font-weight: 800; font-size: .86rem;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .steps > li > .sh { font-weight: 800; color: var(--green-1); display: block; margin-bottom: 2px; }
+
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes blobMove {
+      from { transform: translate(0, 0) scale(1); }
+      to { transform: translate(24px, 18px) scale(1.06); }
+    }
+
+    @media (max-width: 760px) {
+      .wrap { padding: 14px; }
+      .layout { grid-template-columns: 1fr; }
+      .side-nav { position: static; }
+      h1 { font-size: 1.6rem; }
+      .code { font-size: 0.86rem; }
+      .ex-table { font-size: .8rem; }
+      .vs { grid-template-columns: 1fr; }
+      .kvrow .kk { min-width: 0; }
+      .stat { grid-template-columns: 92px 1fr 30px; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <span class="tag">Lesson 16 - August 20, 2026</span>
+    <h1>Dictionaries — Look It Up By Name 📖</h1>
+    <p>A list finds things by <strong>position</strong>: <code>person[0]</code>, <code>person[1]</code>, <code>person[2]</code> — and you have to remember what lives at each number. Today's type finds things by <strong>name</strong>: <code>person['age']</code>. Every entry is a pair, a <strong>key</strong> and a <strong>value</strong>, and the key is whatever makes sense to you. It keeps the instant lookup you met last lesson (a dict is a set that carries a value along with each item), it keeps insertion order, and the value can be <em>anything</em> — a number, a list, another dict. This is the type real programs are actually made of.</p>
+  </section>
+
+  <div class="layout">
+    <aside class="side-nav" aria-label="Topic navigation">
+      <div class="side-title">Lesson 16 topics</div>
+
+      <div class="side-section-label">1 · The type</div>
+      <button class="topic-link active" data-target="topic-what">what is a dict</button>
+      <button class="topic-link" data-target="topic-person">the person dict</button>
+      <button class="topic-link" data-target="topic-keys">the key rules</button>
+
+      <div class="side-section-label">2 · Creating</div>
+      <button class="topic-link" data-target="topic-create">dict() · zip · fromkeys</button>
+
+      <div class="side-section-label">3 · Using it</div>
+      <button class="topic-link" data-target="topic-access">d[key] vs .get()</button>
+      <button class="topic-link" data-target="topic-views">keys · values · items</button>
+      <button class="topic-link" data-target="topic-upsert">upsert &amp; update</button>
+
+      <hr class="side-divider">
+      <button class="topic-link" data-target="topic-github">github folder</button>
+      <button class="topic-link" data-target="topic-dnd">exercise - D&amp;D character 🎲</button>
+      <button class="topic-link" data-target="topic-solution">the solution ✅</button>
+      <button class="topic-link" data-target="topic-homework">homework - report card 📊</button>
+      <button class="topic-link" data-target="topic-homework-heb">שיעורי בית - עברית</button>
+
+      <div class="side-section-label">Navigation</div>
+      <a class="nav-back" href="../../index.html#lessons">Back to lessons</a>
+    </aside>
+
+    <main>
+
+      <!-- ═══ 1 · WHAT IS A DICT ═══ -->
+      <section class="card topic-panel active" id="topic-what">
+        <span class="tag">01_dict.py</span>
+        <h2 class="step-title">The Last Type in the Box 📦</h2>
+        <p>Every type you know so far, and the new one at the end:</p>
+        <div class="pill-row">
+          <span class="pill">int</span>
+          <span class="pill">float</span>
+          <span class="pill">str</span>
+          <span class="pill">bool</span>
+          <span class="pill">list</span>
+          <span class="pill">None</span>
+          <span class="pill">set</span>
+          <span class="pill now">dict</span>
+        </div>
+
+        <p>The lesson file opens with these four comment lines. They are the whole idea:</p>
+        <div class="code"><span class="cm"># dict(ionary)</span>
+<span class="cm"># ['hello','bye'...]  -- key</span>
+<span class="cm"># [5,      20 ...]    -- value</span></div>
+
+        <p>Imagine you keep two lists side by side and promise yourself that position <code>0</code> in one belongs with position <code>0</code> in the other. That promise is fragile — sort one list and everything is wrong. A dictionary is that promise, made properly:</p>
+
+        <div class="fig">
+          <svg viewBox="0 0 600 210" role="img" aria-label="Two parallel lists zipped into one dictionary of key to value pairs">
+            <!-- keys list -->
+            <text x="80" y="20" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#1f8f4e">keys</text>
+            <g font-family="Consolas, monospace" font-size="13" font-weight="700">
+              <rect x="20" y="30" width="120" height="30" rx="8" fill="#d6f8e4" stroke="#7fd6a3"/>
+              <text x="80" y="50" text-anchor="middle" fill="#08351d">'hello'</text>
+              <rect x="20" y="70" width="120" height="30" rx="8" fill="#d6f8e4" stroke="#7fd6a3"/>
+              <text x="80" y="90" text-anchor="middle" fill="#08351d">'bye'</text>
+              <rect x="20" y="110" width="120" height="30" rx="8" fill="#d6f8e4" stroke="#7fd6a3"/>
+              <text x="80" y="130" text-anchor="middle" fill="#08351d">'ciao'</text>
+            </g>
+            <!-- values list -->
+            <text x="230" y="20" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#1f8f4e">values</text>
+            <g font-family="Consolas, monospace" font-size="13" font-weight="700">
+              <rect x="180" y="30" width="100" height="30" rx="8" fill="#ffffff" stroke="#aadfbd"/>
+              <text x="230" y="50" text-anchor="middle" fill="#0f5a2e">5</text>
+              <rect x="180" y="70" width="100" height="30" rx="8" fill="#ffffff" stroke="#aadfbd"/>
+              <text x="230" y="90" text-anchor="middle" fill="#0f5a2e">20</text>
+              <rect x="180" y="110" width="100" height="30" rx="8" fill="#ffffff" stroke="#aadfbd"/>
+              <text x="230" y="130" text-anchor="middle" fill="#0f5a2e">7</text>
+            </g>
+            <!-- arrow -->
+            <path d="M295 85 L335 85" stroke="#426654" stroke-width="3" marker-end="url(#ar16)"/>
+            <defs>
+              <marker id="ar16" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+                <path d="M0 0 L9 4.5 L0 9 z" fill="#426654"/>
+              </marker>
+            </defs>
+            <text x="315" y="75" text-anchor="middle" font-family="Consolas, monospace" font-size="11" font-weight="700" fill="#426654">dict</text>
+            <!-- the dict -->
+            <rect x="350" y="22" width="235" height="126" rx="12" fill="#ffffff" stroke="#1f8f4e" stroke-width="2"/>
+            <g font-family="Consolas, monospace" font-size="13" font-weight="700">
+              <rect x="364" y="34" width="94" height="28" rx="7" fill="#d6f8e4" stroke="#7fd6a3"/>
+              <text x="411" y="53" text-anchor="middle" fill="#08351d">'hello'</text>
+              <text x="475" y="53" text-anchor="middle" fill="#426654">&#8594;</text>
+              <rect x="492" y="34" width="80" height="28" rx="7" fill="#f4fff7" stroke="#aadfbd"/>
+              <text x="532" y="53" text-anchor="middle" fill="#0f5a2e">5</text>
+
+              <rect x="364" y="71" width="94" height="28" rx="7" fill="#d6f8e4" stroke="#7fd6a3"/>
+              <text x="411" y="90" text-anchor="middle" fill="#08351d">'bye'</text>
+              <text x="475" y="90" text-anchor="middle" fill="#426654">&#8594;</text>
+              <rect x="492" y="71" width="80" height="28" rx="7" fill="#f4fff7" stroke="#aadfbd"/>
+              <text x="532" y="90" text-anchor="middle" fill="#0f5a2e">20</text>
+
+              <rect x="364" y="108" width="94" height="28" rx="7" fill="#d6f8e4" stroke="#7fd6a3"/>
+              <text x="411" y="127" text-anchor="middle" fill="#08351d">'ciao'</text>
+              <text x="475" y="127" text-anchor="middle" fill="#426654">&#8594;</text>
+              <rect x="492" y="108" width="80" height="28" rx="7" fill="#f4fff7" stroke="#aadfbd"/>
+              <text x="532" y="127" text-anchor="middle" fill="#0f5a2e">7</text>
+            </g>
+            <text x="300" y="180" text-anchor="middle" font-family="Consolas, monospace" font-size="13" font-weight="700" fill="#0f5a2e">{'hello': 5, 'bye': 20, 'ciao': 7}</text>
+            <text x="300" y="200" text-anchor="middle" font-family="Trebuchet MS, sans-serif" font-size="12" fill="#426654">the pairing is now part of the data — nothing can drift apart</text>
+          </svg>
+          <div class="figcap">Two lists that had to stay in step become one dictionary of pairs.</div>
+        </div>
+
+        <div class="big-result">The shape: <code>key: value</code>, separated by commas</div>
+        <div class="code"><span class="cm">#  key: value</span>
+person = {<span class="str">'first name'</span>: <span class="str">'danny'</span>, <span class="str">'last name'</span>: <span class="str">'cohen'</span>, <span class="str">'age'</span>: <span class="num">20</span>}
+<span class="fn">print</span>(person[<span class="str">'first name'</span>])</div>
+        <div class="console">danny</div>
+        <div class="note">
+          Square brackets again — but inside them a <strong>name</strong>, not a number. <code>person['age']</code> reads like English. Compare it to a list where you would have had to remember that age lives at index <code>2</code>, and then remember it again next week.
+        </div>
+
+        <table class="ex-table">
+          <thead><tr><th></th><th>list</th><th>set</th><th>dict</th></tr></thead>
+          <tbody>
+            <tr><td>find by</td><td>position <code>[0]</code></td><td>you can't</td><td>key <code>['age']</code></td></tr>
+            <tr><td>duplicates</td><td>allowed</td><td>never</td><td>keys never, values sure</td></tr>
+            <tr><td>keeps order</td><td>yes</td><td>no</td><td>yes (insertion order)</td></tr>
+            <tr><td>speed of <code>in</code></td><td>slow, walks it</td><td>instant</td><td>instant (on keys)</td></tr>
+            <tr><td>written with</td><td><code>[ ]</code></td><td><code>{ }</code></td><td><code>{ key: value }</code></td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- ═══ 2 · THE PERSON DICT ═══ -->
+      <section class="card topic-panel" id="topic-person">
+        <span class="tag">01_dict.py</span>
+        <h2 class="step-title">One Dict, Every Type Inside 🧬</h2>
+        <p>This is the big example from the lesson file. Read the <em>values</em> column: a string, a number, another dict, a list, a set, a bool. A dictionary value has no rules at all — it can be any type, including a whole dictionary.</p>
+
+        <div class="code">person = {<span class="str">'first name'</span>: <span class="str">'danny'</span>, <span class="str">'last name'</span>: <span class="str">'cohen'</span>, <span class="str">'age'</span>: <span class="num">20</span>,   <span class="cm"># str, int, float ...</span>
+          <span class="str">'address'</span>: {<span class="str">'city'</span>: <span class="str">'Haifa'</span>, <span class="str">'street'</span>: <span class="str">'Eliezer'</span>, <span class="str">'house_number'</span>: <span class="num">7</span>},   <span class="cm"># dict</span>
+          <span class="str">'kids age'</span>: [<span class="num">1</span>, <span class="num">3</span>, <span class="num">7</span>],   <span class="cm"># list</span>
+          <span class="str">'Hobbies'</span>: [<span class="str">'Guitar'</span>, <span class="str">'Gym'</span>, <span class="str">'Dancing'</span>],
+          <span class="str">'cars'</span>: {<span class="str">'Honda'</span>, <span class="str">'Ferrari'</span>},   <span class="cm"># set</span>
+          <span class="fn">frozenset</span>(<span class="str">'Gender'</span>): <span class="str">'F'</span>, <span class="str">'Vegan'</span>: <span class="kw">True</span>   <span class="cm"># bool</span>
+          }</div>
+
+        <div class="kvbox">
+          <div class="kvbox-cap">person</div>
+          <div class="kvrow"><span class="kk">'first name'</span><span class="ar">&#8594;</span><span class="vv">'danny' &nbsp;<small>str</small></span></div>
+          <div class="kvrow"><span class="kk">'age'</span><span class="ar">&#8594;</span><span class="vv">20 &nbsp;<small>int</small></span></div>
+          <div class="kvrow"><span class="kk">'address'</span><span class="ar">&#8594;</span><span class="vv dict">{'city': 'Haifa', 'street': 'Eliezer', 'house_number': 7} &nbsp;<small>dict</small></span></div>
+          <div class="kvrow"><span class="kk">'kids age'</span><span class="ar">&#8594;</span><span class="vv list">[1, 3, 7] &nbsp;<small>list</small></span></div>
+          <div class="kvrow"><span class="kk">'Hobbies'</span><span class="ar">&#8594;</span><span class="vv list">['Guitar', 'Gym', 'Dancing'] &nbsp;<small>list</small></span></div>
+          <div class="kvrow"><span class="kk">'cars'</span><span class="ar">&#8594;</span><span class="vv set">{'Honda', 'Ferrari'} &nbsp;<small>set</small></span></div>
+          <div class="kvrow"><span class="kk">'Vegan'</span><span class="ar">&#8594;</span><span class="vv">True &nbsp;<small>bool</small></span></div>
+        </div>
+
+        <div class="big-result">Reaching in — one bracket per step down</div>
+        <div class="code"><span class="fn">print</span>(<span class="str">'number of kids='</span>, <span class="fn">len</span>(person[<span class="str">'kids age'</span>]))
+<span class="fn">print</span>(<span class="str">'first name='</span>, person[<span class="str">'first name'</span>])
+<span class="fn">print</span>(<span class="str">'house number'</span>, person[<span class="str">'address'</span>][<span class="str">'house_number'</span>])
+<span class="fn">print</span>(<span class="str">'city'</span>, person[<span class="str">'address'</span>][<span class="str">'city'</span>])
+<span class="fn">print</span>(<span class="str">'Hobbies'</span>, person[<span class="str">'Hobbies'</span>][<span class="num">-1</span>])</div>
+        <div class="console">number of kids= 3
+first name= danny
+house number 7
+city Haifa
+Hobbies Dancing</div>
+
+        <div class="note">
+          Read <code>person['address']['house_number']</code> left to right, one bracket at a time. <code>person['address']</code> hands you back a dict — so the next <code>['house_number']</code> is asked of <em>that</em> dict. Same story with <code>person['Hobbies'][-1]</code>: the first bracket gives a <strong>list</strong>, so the second bracket is a list index, and <code>-1</code> means the last one. <strong>The brackets change meaning depending on what came back.</strong>
+        </div>
+
+        <div class="big-result">The strange key: <code>frozenset('Gender')</code></div>
+        <div class="code"><span class="fn">print</span>(<span class="str">'Gender'</span>, person[<span class="fn">frozenset</span>(<span class="str">'Gender'</span>)])</div>
+        <div class="console">Gender F</div>
+        <div class="warn">
+          Nobody writes keys like this in real code — it is in the file to prove a point. Remember from lesson 15 that <code>frozenset('Gender')</code> breaks the string into <em>characters</em> and drops the duplicate <code>e</code>, giving <code>frozenset({'G','e','n','d','r'})</code>. A frozenset is immutable, so Python accepts it as a key. To read the value back you must build the exact same frozenset again — which is why the plain string <code>person['Gender']</code> would raise <code>KeyError</code>.
+        </div>
+
+        <div class="big-result">Printing the whole thing — <code>pprint</code></div>
+        <div class="code"><span class="kw">from</span> pprint <span class="kw">import</span> pprint
+
+<span class="fn">print</span>(person)    <span class="cm"># one very long line</span>
+pprint(person)   <span class="cm"># "pretty print" — one pair per line</span></div>
+        <div class="note">
+          <code>pprint</code> is a standard module. Same content, laid out so a human can read it. Handy the moment a dict stops fitting on one line.
+        </div>
+      </section>
+
+      <!-- ═══ 3 · THE KEY RULES ═══ -->
+      <section class="card topic-panel" id="topic-keys">
+        <span class="tag">01_dict.py</span>
+        <h2 class="step-title">The Rules Live on the Key Side 🔑</h2>
+
+        <div class="big-result">Rule 1 — an empty <code>{}</code> is a dict, not a set</div>
+        <div class="code"><span class="cm"># An empty dict — {} IS a dict (not a set!)</span>
+empty = {}
+<span class="fn">print</span>(<span class="fn">type</span>(empty))</div>
+        <div class="console">&lt;class 'dict'&gt;</div>
+        <div class="note">
+          Last lesson this was the annoying detail: the empty set has to be <code>set()</code> because <code>{}</code> was already taken. Now you can see who took it. The dict got the braces first.
+        </div>
+
+        <div class="big-result">Rule 2 — a key appears once, the last one wins</div>
+        <div class="code">d = {<span class="str">'a'</span>: <span class="num">1</span>, <span class="str">'a'</span>: <span class="num">2</span>}
+<span class="fn">print</span>(d)
+
+d[<span class="str">'a'</span>] = <span class="num">3</span>
+<span class="fn">print</span>(d)</div>
+        <div class="console">{'a': 2}
+{'a': 3}</div>
+        <div class="warn">
+          No error, no warning — <code>1</code> is quietly thrown away. It is the same rule as a set: keys are unique. Writing to a key that already exists does not add a second entry, it <strong>replaces</strong> the value.
+        </div>
+
+        <div class="big-result">Rule 3 — the key must be hashable</div>
+        <div class="ba">
+          <span class="bx">str &nbsp;&#10003;</span>
+          <span class="bx">int &nbsp;&#10003;</span>
+          <span class="bx">tuple &nbsp;&#10003;</span>
+          <span class="bx">frozenset &nbsp;&#10003;</span>
+          <span class="bx old">list &nbsp;&#10007;</span>
+          <span class="bx old">set &nbsp;&#10007;</span>
+          <span class="bx old">dict &nbsp;&#10007;</span>
+        </div>
+        <div class="code">d = {[<span class="num">1</span>, <span class="num">2</span>]: <span class="str">'oops'</span>}   <span class="cm"># ← a list as a key</span></div>
+        <div class="console"><span class="err">TypeError: unhashable type: 'list'</span></div>
+        <div class="note">
+          Exactly the rule you met with sets, and for exactly the same reason: Python locates a key by <strong>calculating</strong> a number from it. If the value could change afterwards the number would go stale and the entry would be lost. So anything that can change is refused. <strong>Values have no such rule</strong> — a list is a perfectly good value, just not a key.
+        </div>
+      </section>
+
+      <!-- ═══ 4 · CREATING ═══ -->
+      <section class="card topic-panel" id="topic-create">
+        <span class="tag">01_dict.py</span>
+        <h2 class="step-title">Four More Ways to Build One 🏗️</h2>
+
+        <div class="big-result">1 · <code>dict()</code> with keyword arguments</div>
+        <div class="code">a = <span class="fn">dict</span>(name=<span class="str">'Dana'</span>, age=<span class="num">17</span>)   <span class="cm"># → {'name': 'Dana', 'age': 17}</span></div>
+        <div class="note">
+          Notice there are no quotes around <code>name</code> and <code>age</code> here — they are written like variable names, and Python turns them into strings for you. Convenient, but it only works for keys that are legal names: <code>dict(first name='danny')</code> is a syntax error, while <code>{'first name': 'danny'}</code> is fine.
+        </div>
+
+        <div class="big-result">2 · <code>dict()</code> from a list of pairs</div>
+        <div class="code">b = <span class="fn">dict</span>([ (<span class="str">'x'</span>, <span class="num">1</span>), (<span class="str">'y'</span>, <span class="num">2</span>) ])   <span class="cm"># → {'x': 1, 'y': 2}</span></div>
+        <div class="note">Each little tuple is one row: first item becomes the key, second becomes the value.</div>
+
+        <div class="big-result">3 · <code>zip()</code> — back to the two parallel lists</div>
+        <div class="code">a = [<span class="str">'red'</span>, <span class="str">'green'</span>, <span class="str">'blue'</span>, <span class="str">'white'</span>]
+b = [<span class="str">'#f00'</span>, <span class="str">'#0f0'</span>, <span class="str">'#00f'</span>]
+colors = <span class="fn">dict</span>(<span class="fn">zip</span>(a, b))
+<span class="fn">print</span>(colors)</div>
+        <div class="console">{'red': '#f00', 'green': '#0f0', 'blue': '#00f'}</div>
+        <div class="warn">
+          Count them: <strong>four</strong> colour names went in, only <strong>three</strong> came out. <code>zip</code> pairs up items one by one and stops the moment the <em>shorter</em> list runs out — <code>'white'</code> has no partner, so it is silently dropped. No error. If your dict ever comes out shorter than you expected, this is the first thing to check.
+        </div>
+        <div class="fig">
+          <svg viewBox="0 0 560 150" role="img" aria-label="zip pairing four names with three values, the fourth name left unpaired">
+            <g font-family="Consolas, monospace" font-size="12" font-weight="700">
+              <rect x="20" y="20" width="96" height="26" rx="7" fill="#d6f8e4" stroke="#7fd6a3"/><text x="68" y="38" text-anchor="middle" fill="#08351d">'red'</text>
+              <rect x="20" y="52" width="96" height="26" rx="7" fill="#d6f8e4" stroke="#7fd6a3"/><text x="68" y="70" text-anchor="middle" fill="#08351d">'green'</text>
+              <rect x="20" y="84" width="96" height="26" rx="7" fill="#d6f8e4" stroke="#7fd6a3"/><text x="68" y="102" text-anchor="middle" fill="#08351d">'blue'</text>
+              <rect x="20" y="116" width="96" height="26" rx="7" fill="#fff0c2" stroke="#e0a800" stroke-dasharray="4 3"/><text x="68" y="134" text-anchor="middle" fill="#6b4e00">'white'</text>
+
+              <rect x="190" y="20" width="86" height="26" rx="7" fill="#ffffff" stroke="#aadfbd"/><text x="233" y="38" text-anchor="middle" fill="#0f5a2e">'#f00'</text>
+              <rect x="190" y="52" width="86" height="26" rx="7" fill="#ffffff" stroke="#aadfbd"/><text x="233" y="70" text-anchor="middle" fill="#0f5a2e">'#0f0'</text>
+              <rect x="190" y="84" width="86" height="26" rx="7" fill="#ffffff" stroke="#aadfbd"/><text x="233" y="102" text-anchor="middle" fill="#0f5a2e">'#00f'</text>
+              <rect x="190" y="116" width="86" height="26" rx="7" fill="#f4f7f5" stroke="#9fb5a8" stroke-dasharray="4 3"/><text x="233" y="134" text-anchor="middle" fill="#8b949e">(nothing)</text>
+            </g>
+            <path d="M120 33 L186 33" stroke="#1f8f4e" stroke-width="2"/>
+            <path d="M120 65 L186 65" stroke="#1f8f4e" stroke-width="2"/>
+            <path d="M120 97 L186 97" stroke="#1f8f4e" stroke-width="2"/>
+            <path d="M120 129 L186 129" stroke="#e0a800" stroke-width="2" stroke-dasharray="5 4"/>
+            <text x="420" y="60" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#0f5a2e">3 pairs made</text>
+            <text x="420" y="86" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#6b4e00">'white' dropped</text>
+            <text x="420" y="112" text-anchor="middle" font-family="Trebuchet MS, sans-serif" font-size="11" fill="#426654">zip stops at the shorter list</text>
+          </svg>
+          <div class="figcap">zip pairs until one side runs out — the leftovers vanish without a word.</div>
+        </div>
+
+        <div class="big-result">4 · A dict comprehension</div>
+        <div class="code">animals = [<span class="str">'cat'</span>, <span class="str">'horse'</span>, <span class="str">'ox'</span>]
+dict_animals = {animal: <span class="fn">len</span>(animal) <span class="kw">for</span> animal <span class="kw">in</span> animals}
+<span class="fn">print</span>(dict_animals)</div>
+        <div class="console">{'cat': 3, 'horse': 5, 'ox': 2}</div>
+        <div class="note">
+          The same shape you already used for lists and sets — the only new part is the <code>:</code> between the key and the value. <code>{animal for ...}</code> would build a set; <code>{animal: len(animal) for ...}</code> builds a dict. One colon, different type.
+        </div>
+
+        <div class="big-result">5 · <code>dict.fromkeys()</code> — same starting value for everyone</div>
+        <div class="code"><span class="cm"># Same starting value for every key</span>
+scores = <span class="fn">dict</span>.<span class="fn">fromkeys</span>([<span class="str">'a'</span>, <span class="str">'b'</span>, <span class="str">'c'</span>], <span class="num">0</span>)   <span class="cm"># → {'a': 0, 'b': 0, 'c': 0}</span>
+
+blank_person = <span class="fn">dict</span>.<span class="fn">fromkeys</span>(person.<span class="fn">keys</span>(), <span class="kw">None</span>)
+<span class="fn">print</span>(blank_person)</div>
+        <div class="console">{'first name': None, 'last name': None, 'age': None, 'address': None, 'kids age': None, 'Hobbies': None, 'cars': None, frozenset({'G', 'r', 'n', 'd', 'e'}): None, 'Vegan': None}</div>
+        <div class="note">
+          A nice trick in that second line: take the keys of an existing dict and build an <strong>empty form</strong> with the same fields, every value <code>None</code> waiting to be filled. That is exactly the shape of the <code>attributes</code> dict in today's exercise.
+        </div>
+      </section>
+
+      <!-- ═══ 5 · ACCESS ═══ -->
+      <section class="card topic-panel" id="topic-access">
+        <span class="tag">02_dict.py</span>
+        <h2 class="step-title">Two Ways to Ask — One of Them Crashes 💥</h2>
+
+        <div class="code">d = {<span class="str">'name'</span>: <span class="str">'Dana'</span>, <span class="str">'age'</span>: <span class="num">17</span>}
+<span class="fn">print</span>(d[<span class="str">'name'</span>])   <span class="cm"># → 'Dana'</span></div>
+        <div class="console">Dana</div>
+
+        <div class="vs">
+          <div>
+            <div class="vs-head bad">the key is missing</div>
+            <div class="code">d[<span class="str">'city'</span>]</div>
+            <div class="console"><span class="err">KeyError: 'city'</span></div>
+          </div>
+          <div>
+            <div class="vs-head">.get() never crashes</div>
+            <div class="code">d.<span class="fn">get</span>(<span class="str">'city'</span>, <span class="str">'unknown'</span>)</div>
+            <div class="console">unknown</div>
+          </div>
+        </div>
+
+        <div class="code"><span class="cm"># .get() never crashes</span>
+<span class="fn">print</span>(d.<span class="fn">get</span>(<span class="str">'city'</span>))            <span class="cm"># no default given</span>
+<span class="fn">print</span>(d.<span class="fn">get</span>(<span class="str">'city'</span>, <span class="str">'unknown'</span>))   <span class="cm"># your own default</span></div>
+        <div class="console">None
+unknown</div>
+
+        <div class="note">
+          <code>.get()</code> takes an optional second argument: <em>what to hand back if the key is not there</em>. With no second argument you get <code>None</code>. Use <code>[ ]</code> when a missing key means your program is broken and should stop; use <code>.get()</code> when a missing key is a normal thing that might happen — a field the user did not fill in, a setting nobody changed.
+        </div>
+      </section>
+
+      <!-- ═══ 6 · VIEWS ═══ -->
+      <section class="card topic-panel" id="topic-views">
+        <span class="tag">02_dict.py</span>
+        <h2 class="step-title">Keys, Values, and Both Together 📋</h2>
+
+        <div class="code">stock = {<span class="str">'apple'</span>: <span class="num">5</span>, <span class="str">'banana'</span>: <span class="num">2</span>, <span class="str">'cherry'</span>: <span class="num">9</span>}
+
+<span class="fn">print</span>(stock.<span class="fn">keys</span>())
+<span class="fn">print</span>(<span class="fn">list</span>(stock.<span class="fn">keys</span>()))
+<span class="fn">print</span>(stock.<span class="fn">values</span>())</div>
+        <div class="console">dict_keys(['apple', 'banana', 'cherry'])
+['apple', 'banana', 'cherry']
+dict_values([5, 2, 9])</div>
+
+        <div class="note">
+          <code>dict_keys([...])</code> looks odd but it is not a list — it is a <strong>view</strong>, a live window onto the dict. You can loop it and use <code>in</code> on it. Wrap it in <code>list(...)</code> when you actually need a list you can index or sort. And because it is live, adding a key to <code>stock</code> makes it appear in a view you took earlier.
+        </div>
+
+        <div class="big-result">Looping — and <code>.items()</code>, the useful one</div>
+        <div class="code"><span class="kw">for</span> fruit <span class="kw">in</span> stock:                <span class="cm"># looping a dict gives KEYS</span>
+    <span class="fn">print</span>(fruit, stock[fruit])
+
+<span class="kw">for</span> fruit, qty <span class="kw">in</span> stock.<span class="fn">items</span>():   <span class="cm"># both halves at once</span>
+    <span class="fn">print</span>(fruit, <span class="str">'&#8594;'</span>, qty)</div>
+        <div class="console">apple 5
+banana 2
+cherry 9
+apple &#8594; 5
+banana &#8594; 2
+cherry &#8594; 9</div>
+        <div class="warn">
+          <code>for x in stock</code> walks the <strong>keys</strong>, not the values, and not the pairs. If you want both, <code>.items()</code> hands you two variables per turn. And <code>'apple' in stock</code> asks about keys too — <code>5 in stock</code> is <code>False</code> even though 5 is sitting right there as a value. For values you must say <code>5 in stock.values()</code>.
+        </div>
+      </section>
+
+      <!-- ═══ 7 · UPSERT ═══ -->
+      <section class="card topic-panel" id="topic-upsert">
+        <span class="tag">02_dict.py</span>
+        <h2 class="step-title">Upsert — One Line That Does Two Jobs ✍️</h2>
+
+        <div class="code">d = {<span class="str">'name'</span>: <span class="str">'Dana'</span>, <span class="str">'age'</span>: <span class="num">17</span>}
+
+<span class="cm"># upsert -- insert + update</span>
+d[<span class="str">'city'</span>] = <span class="str">'Haifa'</span>   <span class="cm"># if 'city' not exist - create, else: overwrite</span>
+d[<span class="str">'name'</span>] = <span class="str">'moshe'</span>   <span class="cm"># if 'name' not exist - create, else: overwrite</span>
+<span class="fn">print</span>(d)</div>
+        <div class="console">{'name': 'moshe', 'age': 17, 'city': 'Haifa'}</div>
+
+        <div class="note">
+          <strong>upsert</strong> = <em>up</em>date + in<em>sert</em>. Python does not make you choose. The very same line adds <code>'city'</code> (it was not there) and replaces <code>'name'</code> (it was). Compare with a list, where adding uses <code>.append()</code> and replacing uses <code>lst[i] = ...</code> — and where <code>lst[99] = 'x'</code> on a short list is an <code>IndexError</code>. A dict has no such problem: there is no "out of range" for a name.
+        </div>
+        <div class="note">
+          Look at the print order too: <code>'city'</code> came last because it was <strong>added</strong> last, while <code>'name'</code> stayed in first position — overwriting a value does not move the key. A dict remembers the order you inserted keys in.
+        </div>
+
+        <div class="big-result">Many at once — <code>.update()</code></div>
+        <div class="code">d.<span class="fn">update</span>({<span class="str">'age'</span>: <span class="num">19</span>, <span class="str">'grade'</span>: <span class="num">12</span>})
+<span class="fn">print</span>(d)</div>
+        <div class="console">{'name': 'moshe', 'age': 19, 'city': 'Haifa', 'grade': 12}</div>
+        <div class="note">
+          <code>.update()</code> is just upsert applied to every pair you hand it: <code>'age'</code> existed so it was overwritten (17 → 19), <code>'grade'</code> did not so it was added at the end.
+        </div>
+
+        <div class="toolbox">
+          <div class="tb-head"><span class="tb-ic">🧰</span> Everything from today, on one shelf</div>
+          <div class="tool-grid">
+            <span class="tool">d[key]<small>read · crashes if missing</small></span>
+            <span class="tool">d.get(key, default)<small>read · safe</small></span>
+            <span class="tool">d[key] = value<small>upsert</small></span>
+            <span class="tool">d.update({...})<small>upsert many</small></span>
+            <span class="tool">d.keys()<small>the names</small></span>
+            <span class="tool">d.values()<small>the values</small></span>
+            <span class="tool">d.items()<small>pairs, for looping</small></span>
+            <span class="tool">len(d)<small>how many pairs</small></span>
+            <span class="tool">key in d<small>keys only!</small></span>
+            <span class="tool">dict(zip(a, b))<small>two lists → dict</small></span>
+            <span class="tool">dict.fromkeys(k, v)<small>blank form</small></span>
+            <span class="tool">{k: v for ...}<small>comprehension</small></span>
+          </div>
+        </div>
+        <div class="note">
+          The full reference with a runnable demo for every one of these: <a href="../../20_dict/index.html">Dictionaries</a>.
+        </div>
+      </section>
+
+      <!-- ═══ GITHUB ═══ -->
+      <section class="card topic-panel" id="topic-github">
+        <span class="tag">GitHub</span>
+        <h2 class="step-title">Lesson 16 GitHub Folder</h2>
+        <p>All the code from today's lesson:</p>
+        <div class="task-box">
+          <strong>Lesson folder:</strong><br>
+          <a href="https://github.com/pythonai080626-a11y/20.08.2026" target="_blank" rel="noopener">
+            https://github.com/pythonai080626-a11y/20.08.2026
+          </a>
+        </div>
+        <table class="ex-table">
+          <thead><tr><th>File</th><th>What it shows</th></tr></thead>
+          <tbody>
+            <tr><td>01_dict.py</td><td>Where a dict comes from (two parallel lists); the big <code>person</code> dict with a value of every type — nested dict, list, set, bool — and a <code>frozenset</code> key; reaching in with chained brackets; <code>{}</code> is a dict not a set; duplicate keys, last wins; <code>dict()</code> with keywords and with pairs; <code>zip</code>; a dict comprehension; <code>dict.fromkeys</code>; <code>pprint</code></td></tr>
+            <tr><td>02_dict.py</td><td><code>d[key]</code> vs <code>.get(key, default)</code>; <code>.keys()</code>, <code>.values()</code> and turning a view into a list; upsert with <code>d[key] = value</code>; <code>.update()</code> — then the D&amp;D character exercise at the bottom of the file</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          Topic page for today: <a href="../../20_dict/index.html">Dictionaries</a> — every method on one page with a live demo you can run. Built on <a href="../../19_set/index.html">Sets</a> from last lesson (same hashing, same "keys must be immutable" rule) and on <a href="../../16_lists/index.html">Lists</a>. Also useful today: <a href="../../08_random/index.html">Random</a> for the exercise, and <a href="../../06_for_loops/index.html">For Loops</a>.
+        </div>
+      </section>
+
+      <!-- ═══ THE EXERCISE ═══ -->
+      <section class="card topic-panel" id="topic-dnd">
+        <span class="tag">02_dict.py · exercise</span>
+        <h2 class="step-title">Build a D&amp;D Character 🎲</h2>
+        <p>In Dungeons &amp; Dragons every character is a sheet of paper: a name, six numbers that say what they are good at, and a bag of things they carry. That sheet <em>is</em> a dictionary. Here is the one we are going to fill in — it comes ready-made at the bottom of <code>02_dict.py</code>:</p>
+
+        <div class="code">items_options = {<span class="str">'sword'</span>, <span class="str">'shield'</span>, <span class="str">'staff'</span>, <span class="str">'mace'</span>, <span class="str">'ring'</span>, <span class="str">'boots'</span>}
+item_icons_set = {<span class="str">'⚔️'</span>, <span class="str">'🛡️'</span>, <span class="str">'🪄'</span>, <span class="str">'🔨'</span>, <span class="str">'💍'</span>, <span class="str">'🥾'</span>}
+attributes = {
+    <span class="str">'name'</span>: <span class="kw">None</span>,
+    <span class="str">'strength'</span>: <span class="num">15</span>, <span class="str">'dexterity'</span>: <span class="num">12</span>, <span class="str">'constitution'</span>: <span class="num">14</span>, <span class="str">'intelligence'</span>: <span class="num">10</span>, <span class="str">'wisdom'</span>: <span class="num">13</span>, <span class="str">'charisma'</span>: <span class="num">8</span>,
+    <span class="str">'inventory'</span>: []
+}</div>
+
+        <div class="fig">
+          <svg viewBox="0 0 600 300" role="img" aria-label="A character sheet drawn as a dictionary with a name field, six attribute rows and two inventory slots">
+            <!-- parchment -->
+            <rect x="14" y="10" width="572" height="280" rx="16" fill="#fffdf5" stroke="#e0c98a" stroke-width="2"/>
+            <rect x="14" y="10" width="572" height="46" rx="16" fill="#f6ecd2" stroke="#e0c98a" stroke-width="2"/>
+            <text x="300" y="40" text-anchor="middle" font-family="Trebuchet MS, sans-serif" font-size="19" font-weight="700" fill="#6b4e00">⚔️ CHARACTER SHEET ⚔️</text>
+
+            <!-- name -->
+            <text x="40" y="82" font-family="Consolas, monospace" font-size="13" font-weight="700" fill="#6b4e00">'name'</text>
+            <text x="112" y="82" font-family="Consolas, monospace" font-size="13" font-weight="700" fill="#8b949e">&#8594;</text>
+            <rect x="134" y="66" width="180" height="24" rx="6" fill="#ffffff" stroke="#e0c98a" stroke-dasharray="5 4"/>
+            <text x="224" y="83" text-anchor="middle" font-family="Consolas, monospace" font-size="12" fill="#a08a55">input( ) from the user</text>
+
+            <!-- attributes header -->
+            <text x="40" y="116" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#8b949e">six attributes &#183; random 3–18</text>
+
+            <!-- six stat rows -->
+            <g font-family="Consolas, monospace" font-size="12" font-weight="700">
+              <text x="40" y="140" fill="#6b4e00">'strength'</text>
+              <rect x="150" y="129" width="240" height="14" rx="7" fill="#f0e6cc"/><rect x="150" y="129" width="176" height="14" rx="7" fill="#c98b2e"/>
+              <text x="404" y="140" fill="#6b4e00">?</text>
+
+              <text x="40" y="164" fill="#6b4e00">'dexterity'</text>
+              <rect x="150" y="153" width="240" height="14" rx="7" fill="#f0e6cc"/><rect x="150" y="153" width="132" height="14" rx="7" fill="#c98b2e"/>
+              <text x="404" y="164" fill="#6b4e00">?</text>
+
+              <text x="40" y="188" fill="#6b4e00">'constitution'</text>
+              <rect x="150" y="177" width="240" height="14" rx="7" fill="#f0e6cc"/><rect x="150" y="177" width="160" height="14" rx="7" fill="#c98b2e"/>
+              <text x="404" y="188" fill="#6b4e00">?</text>
+
+              <text x="40" y="212" fill="#6b4e00">'intelligence'</text>
+              <rect x="150" y="201" width="240" height="14" rx="7" fill="#f0e6cc"/><rect x="150" y="201" width="104" height="14" rx="7" fill="#c98b2e"/>
+              <text x="404" y="212" fill="#6b4e00">?</text>
+
+              <text x="40" y="236" fill="#6b4e00">'wisdom'</text>
+              <rect x="150" y="225" width="240" height="14" rx="7" fill="#f0e6cc"/><rect x="150" y="225" width="148" height="14" rx="7" fill="#c98b2e"/>
+              <text x="404" y="236" fill="#6b4e00">?</text>
+
+              <text x="40" y="260" fill="#6b4e00">'charisma'</text>
+              <rect x="150" y="249" width="240" height="14" rx="7" fill="#f0e6cc"/><rect x="150" y="249" width="72" height="14" rx="7" fill="#c98b2e"/>
+              <text x="404" y="260" fill="#6b4e00">?</text>
+            </g>
+
+            <!-- inventory -->
+            <text x="446" y="116" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#8b949e">'inventory'</text>
+            <rect x="440" y="126" width="60" height="60" rx="10" fill="#ffffff" stroke="#e0c98a" stroke-dasharray="5 4"/>
+            <text x="470" y="164" text-anchor="middle" font-size="26" fill="#a08a55">?</text>
+            <rect x="512" y="126" width="60" height="60" rx="10" fill="#ffffff" stroke="#e0c98a" stroke-dasharray="5 4"/>
+            <text x="542" y="164" text-anchor="middle" font-size="26" fill="#a08a55">?</text>
+            <text x="506" y="206" text-anchor="middle" font-family="Trebuchet MS, sans-serif" font-size="11" fill="#a08a55">2 random items</text>
+
+            <!-- dice -->
+            <g transform="translate(440,222)">
+              <rect x="0" y="0" width="52" height="52" rx="10" fill="#ffffff" stroke="#c98b2e" stroke-width="2" transform="rotate(-8 26 26)"/>
+              <circle cx="14" cy="16" r="3.4" fill="#6b4e00"/><circle cx="26" cy="26" r="3.4" fill="#6b4e00"/><circle cx="38" cy="36" r="3.4" fill="#6b4e00"/>
+              <rect x="46" y="10" width="52" height="52" rx="10" fill="#ffffff" stroke="#c98b2e" stroke-width="2" transform="rotate(9 72 36)"/>
+              <circle cx="60" cy="24" r="3.4" fill="#6b4e00"/><circle cx="84" cy="24" r="3.4" fill="#6b4e00"/>
+              <circle cx="60" cy="48" r="3.4" fill="#6b4e00"/><circle cx="84" cy="48" r="3.4" fill="#6b4e00"/>
+            </g>
+          </svg>
+          <div class="figcap">The sheet you are filling in. Every dashed box is a <code>?</code> your code has to replace.</div>
+        </div>
+
+        <div class="big-result">The six items you can be carrying</div>
+        <div class="rack">
+          <div class="slot"><div class="ic">⚔️</div><div class="nm">sword</div></div>
+          <div class="slot"><div class="ic">🛡️</div><div class="nm">shield</div></div>
+          <div class="slot"><div class="ic">🪄</div><div class="nm">staff</div></div>
+          <div class="slot"><div class="ic">🔨</div><div class="nm">mace</div></div>
+          <div class="slot"><div class="ic">💍</div><div class="nm">ring</div></div>
+          <div class="slot"><div class="ic">🥾</div><div class="nm">boots</div></div>
+        </div>
+
+        <div class="task-box">
+          <strong>Your mission — create a character:</strong>
+          <ol class="task-list">
+            <li><strong>Get the character name</strong> — <code>input()</code> from the user.</li>
+            <li><strong>Put the name into the <code>'name'</code> value</strong> (key = <code>name</code>, value = user input).</li>
+            <li><strong>Each stat is between 3 and 18</strong> — random values for all six attributes.</li>
+            <li><strong>Put 2 random items in the inventory.</strong></li>
+            <li><em>Bonus:</em> ask the user to <strong>accept</strong> or <strong>roll again</strong> — the name stays the same.</li>
+          </ol>
+        </div>
+
+        <div class="big-result">Why 3 to 18? 🎲🎲🎲</div>
+        <div class="fig">
+          <svg viewBox="0 0 560 130" role="img" aria-label="Three six sided dice, lowest total three, highest total eighteen">
+            <g>
+              <rect x="30" y="30" width="46" height="46" rx="9" fill="#ffffff" stroke="#1f8f4e" stroke-width="2"/><circle cx="53" cy="53" r="4" fill="#0f5a2e"/>
+              <rect x="88" y="30" width="46" height="46" rx="9" fill="#ffffff" stroke="#1f8f4e" stroke-width="2"/><circle cx="111" cy="53" r="4" fill="#0f5a2e"/>
+              <rect x="146" y="30" width="46" height="46" rx="9" fill="#ffffff" stroke="#1f8f4e" stroke-width="2"/><circle cx="169" cy="53" r="4" fill="#0f5a2e"/>
+              <text x="111" y="100" text-anchor="middle" font-family="Consolas, monospace" font-size="13" font-weight="700" fill="#0f5a2e">1+1+1 = 3 &nbsp;(the worst)</text>
+            </g>
+            <text x="280" y="60" text-anchor="middle" font-family="Consolas, monospace" font-size="20" font-weight="700" fill="#426654">…</text>
+            <g>
+              <rect x="368" y="30" width="46" height="46" rx="9" fill="#fff6d9" stroke="#e0a800" stroke-width="2"/>
+              <circle cx="379" cy="41" r="3.4" fill="#6b4e00"/><circle cx="403" cy="41" r="3.4" fill="#6b4e00"/><circle cx="379" cy="53" r="3.4" fill="#6b4e00"/><circle cx="403" cy="53" r="3.4" fill="#6b4e00"/><circle cx="379" cy="65" r="3.4" fill="#6b4e00"/><circle cx="403" cy="65" r="3.4" fill="#6b4e00"/>
+              <rect x="426" y="30" width="46" height="46" rx="9" fill="#fff6d9" stroke="#e0a800" stroke-width="2"/>
+              <circle cx="437" cy="41" r="3.4" fill="#6b4e00"/><circle cx="461" cy="41" r="3.4" fill="#6b4e00"/><circle cx="437" cy="53" r="3.4" fill="#6b4e00"/><circle cx="461" cy="53" r="3.4" fill="#6b4e00"/><circle cx="437" cy="65" r="3.4" fill="#6b4e00"/><circle cx="461" cy="65" r="3.4" fill="#6b4e00"/>
+              <rect x="484" y="30" width="46" height="46" rx="9" fill="#fff6d9" stroke="#e0a800" stroke-width="2"/>
+              <circle cx="495" cy="41" r="3.4" fill="#6b4e00"/><circle cx="519" cy="41" r="3.4" fill="#6b4e00"/><circle cx="495" cy="53" r="3.4" fill="#6b4e00"/><circle cx="519" cy="53" r="3.4" fill="#6b4e00"/><circle cx="495" cy="65" r="3.4" fill="#6b4e00"/><circle cx="519" cy="65" r="3.4" fill="#6b4e00"/>
+              <text x="449" y="100" text-anchor="middle" font-family="Consolas, monospace" font-size="13" font-weight="700" fill="#6b4e00">6+6+6 = 18 &nbsp;(a hero)</text>
+            </g>
+          </svg>
+          <div class="figcap">In the real game you roll three six-sided dice, so a stat can never be below 3 or above 18. We get the same range in one line: <code>random.randint(3, 18)</code>.</div>
+        </div>
+
+        <div class="big-result">The one thing to think about before you start</div>
+        <div class="warn">
+          Look again at the two collections you were given. <code>items_options</code> and <code>item_icons_set</code> are both <strong>sets</strong> — and a set has <strong>no order</strong>. So there is no way to say "the third icon belongs to the third item". If you want <code>'sword'</code> to reliably show <code>⚔️</code>, you need a structure that keeps pairs together… which is exactly the type you learned today. Turn the icons into a <strong>dict</strong>.
+        </div>
+        <div class="note">
+          Everything you need is on the shelf: <code>input()</code>, <code>random.randint(a, b)</code>, <code>random.sample(seq, k)</code>, <code>d[key] = value</code>, and a <code>for</code> loop over the stat names. Try it yourself before opening the next panel.
+        </div>
+      </section>
+
+      <!-- ═══ THE SOLUTION ═══ -->
+      <section class="card topic-panel" id="topic-solution">
+        <span class="tag">Solution</span>
+        <h2 class="step-title">Solving It, Step by Step ✅</h2>
+
+        <ol class="steps">
+          <li>
+            <span class="sh">Fix the icons — a set cannot pair anything</span>
+            <p>Replace the icon <em>set</em> with a <em>dict</em>. Now every item name carries its own picture, and the order stops mattering:</p>
+            <div class="code">item_icons = {<span class="str">'sword'</span>: <span class="str">'⚔️'</span>, <span class="str">'shield'</span>: <span class="str">'🛡️'</span>, <span class="str">'staff'</span>: <span class="str">'🪄'</span>,
+              <span class="str">'mace'</span>: <span class="str">'🔨'</span>, <span class="str">'ring'</span>: <span class="str">'💍'</span>, <span class="str">'boots'</span>: <span class="str">'🥾'</span>}
+
+<span class="fn">print</span>(item_icons[<span class="str">'sword'</span>])   <span class="cm"># ⚔️  — always the right one</span></div>
+          </li>
+
+          <li>
+            <span class="sh">Ask for the name and upsert it</span>
+            <div class="code">name = <span class="fn">input</span>(<span class="str">'What is your character name? '</span>)
+attributes[<span class="str">'name'</span>] = name   <span class="cm"># the key exists (None) → overwritten</span></div>
+          </li>
+
+          <li>
+            <span class="sh">Roll the six stats</span>
+            <p>We do not want to write six almost-identical lines. Keep the six names in a list and loop — each turn the loop variable becomes the key:</p>
+            <div class="code"><span class="kw">import</span> random
+
+stat_names = [<span class="str">'strength'</span>, <span class="str">'dexterity'</span>, <span class="str">'constitution'</span>,
+              <span class="str">'intelligence'</span>, <span class="str">'wisdom'</span>, <span class="str">'charisma'</span>]
+
+<span class="kw">for</span> stat <span class="kw">in</span> stat_names:
+    attributes[stat] = random.<span class="fn">randint</span>(<span class="num">3</span>, <span class="num">18</span>)   <span class="cm"># 3 and 18 both included</span></div>
+            <div class="note">
+              <code>attributes[stat]</code> — the key is a <strong>variable</strong>, not a fixed string. First time round the loop it means <code>attributes['strength']</code>, next time <code>attributes['dexterity']</code>, and so on. This is the move that makes dicts powerful.
+            </div>
+          </li>
+
+          <li>
+            <span class="sh">Pick 2 random items — without picking the same one twice</span>
+            <div class="code">attributes[<span class="str">'inventory'</span>] = random.<span class="fn">sample</span>(<span class="fn">list</span>(items_options), <span class="num">2</span>)</div>
+            <div class="warn">
+              Two traps in that one line. <strong>(a)</strong> <code>random.choice</code> twice could hand you the sword <em>twice</em> — <code>random.sample</code> picks two <em>different</em> ones. <strong>(b)</strong> <code>random.sample</code> wants a <strong>sequence</strong>, something with an order it can index into — and a set has none. On Python 3.11 and newer, handing it a set is an outright error:<br>
+              <code>TypeError: Population must be a sequence</code><br>
+              On 3.9 / 3.10 it still limps along but prints <code>DeprecationWarning: Sampling from a set deprecated</code>. Either way, wrap it: <code>list(items_options)</code>.
+            </div>
+          </li>
+
+          <li>
+            <span class="sh">Print the sheet</span>
+            <div class="code"><span class="fn">print</span>(<span class="str">'name:'</span>, attributes[<span class="str">'name'</span>])
+
+<span class="kw">for</span> stat <span class="kw">in</span> stat_names:
+    <span class="fn">print</span>(stat, <span class="str">'='</span>, attributes[stat])
+
+<span class="kw">for</span> item <span class="kw">in</span> attributes[<span class="str">'inventory'</span>]:
+    <span class="fn">print</span>(item, item_icons[item])   <span class="cm"># name + its icon</span></div>
+          </li>
+        </ol>
+
+        <div class="big-result">The whole thing together</div>
+        <div class="code"><span class="kw">import</span> random
+
+items_options = {<span class="str">'sword'</span>, <span class="str">'shield'</span>, <span class="str">'staff'</span>, <span class="str">'mace'</span>, <span class="str">'ring'</span>, <span class="str">'boots'</span>}
+item_icons = {<span class="str">'sword'</span>: <span class="str">'⚔️'</span>, <span class="str">'shield'</span>: <span class="str">'🛡️'</span>, <span class="str">'staff'</span>: <span class="str">'🪄'</span>,
+              <span class="str">'mace'</span>: <span class="str">'🔨'</span>, <span class="str">'ring'</span>: <span class="str">'💍'</span>, <span class="str">'boots'</span>: <span class="str">'🥾'</span>}
+
+attributes = {
+    <span class="str">'name'</span>: <span class="kw">None</span>,
+    <span class="str">'strength'</span>: <span class="num">15</span>, <span class="str">'dexterity'</span>: <span class="num">12</span>, <span class="str">'constitution'</span>: <span class="num">14</span>,
+    <span class="str">'intelligence'</span>: <span class="num">10</span>, <span class="str">'wisdom'</span>: <span class="num">13</span>, <span class="str">'charisma'</span>: <span class="num">8</span>,
+    <span class="str">'inventory'</span>: []
+}
+
+stat_names = [<span class="str">'strength'</span>, <span class="str">'dexterity'</span>, <span class="str">'constitution'</span>,
+              <span class="str">'intelligence'</span>, <span class="str">'wisdom'</span>, <span class="str">'charisma'</span>]
+
+<span class="cm"># 1 + 2 — the name is asked once</span>
+attributes[<span class="str">'name'</span>] = <span class="fn">input</span>(<span class="str">'What is your character name? '</span>)
+
+<span class="cm"># 3 — six random stats</span>
+<span class="kw">for</span> stat <span class="kw">in</span> stat_names:
+    attributes[stat] = random.<span class="fn">randint</span>(<span class="num">3</span>, <span class="num">18</span>)
+
+<span class="cm"># 4 — two different random items</span>
+attributes[<span class="str">'inventory'</span>] = random.<span class="fn">sample</span>(<span class="fn">list</span>(items_options), <span class="num">2</span>)
+
+<span class="cm"># print the sheet</span>
+<span class="fn">print</span>()
+<span class="fn">print</span>(<span class="str">'=== '</span> + attributes[<span class="str">'name'</span>] + <span class="str">' ==='</span>)
+<span class="kw">for</span> stat <span class="kw">in</span> stat_names:
+    <span class="fn">print</span>(stat, <span class="str">'='</span>, attributes[stat])
+<span class="kw">for</span> item <span class="kw">in</span> attributes[<span class="str">'inventory'</span>]:
+    <span class="fn">print</span>(<span class="str">'carrying:'</span>, item, item_icons[item])</div>
+
+        <div class="console"><span class="dim">What is your character name? </span><span class="usr">Thorin</span>
+
+=== Thorin ===
+strength = 16
+dexterity = 7
+constitution = 12
+intelligence = 9
+wisdom = 14
+charisma = 5
+carrying: boots 🥾
+carrying: staff 🪄</div>
+
+        <div class="stats">
+          <div class="stat"><span class="snm">strength</span><span class="strack"><span class="sfill hi" style="width:89%"></span></span><span class="sval">16</span></div>
+          <div class="stat"><span class="snm">dexterity</span><span class="strack"><span class="sfill" style="width:39%"></span></span><span class="sval">7</span></div>
+          <div class="stat"><span class="snm">constitution</span><span class="strack"><span class="sfill" style="width:67%"></span></span><span class="sval">12</span></div>
+          <div class="stat"><span class="snm">intelligence</span><span class="strack"><span class="sfill" style="width:50%"></span></span><span class="sval">9</span></div>
+          <div class="stat"><span class="snm">wisdom</span><span class="strack"><span class="sfill hi" style="width:78%"></span></span><span class="sval">14</span></div>
+          <div class="stat"><span class="snm">charisma</span><span class="strack"><span class="sfill" style="width:28%"></span></span><span class="sval">5</span></div>
+        </div>
+        <div class="rack">
+          <div class="slot"><div class="ic">⚔️</div><div class="nm">sword</div></div>
+          <div class="slot"><div class="ic">🛡️</div><div class="nm">shield</div></div>
+          <div class="slot picked"><div class="ic">🪄</div><div class="nm">staff</div></div>
+          <div class="slot"><div class="ic">🔨</div><div class="nm">mace</div></div>
+          <div class="slot"><div class="ic">💍</div><div class="nm">ring</div></div>
+          <div class="slot picked"><div class="ic">🥾</div><div class="nm">boots</div></div>
+        </div>
+        <div class="figcap" style="text-align:center">Thorin rolled well on strength, badly on charisma — and walked off with the staff and the boots.</div>
+
+        <div class="big-result">Bonus — accept, or roll again 🔁</div>
+        <div class="note">
+          The name is asked <strong>once</strong>, so it stays outside the loop. Everything that should change on a re-roll goes <strong>inside</strong> it. <code>while True</code> repeats forever until a <code>break</code> stops it.
+        </div>
+        <div class="code"><span class="cm"># the name is asked once — outside the loop</span>
+attributes[<span class="str">'name'</span>] = <span class="fn">input</span>(<span class="str">'What is your character name? '</span>)
+
+<span class="kw">while</span> <span class="kw">True</span>:
+    <span class="cm"># everything in here happens again on every re-roll</span>
+    <span class="kw">for</span> stat <span class="kw">in</span> stat_names:
+        attributes[stat] = random.<span class="fn">randint</span>(<span class="num">3</span>, <span class="num">18</span>)
+    attributes[<span class="str">'inventory'</span>] = random.<span class="fn">sample</span>(<span class="fn">list</span>(items_options), <span class="num">2</span>)
+
+    <span class="fn">print</span>()
+    <span class="fn">print</span>(<span class="str">'=== '</span> + attributes[<span class="str">'name'</span>] + <span class="str">' ==='</span>)
+    <span class="kw">for</span> stat <span class="kw">in</span> stat_names:
+        <span class="fn">print</span>(stat, <span class="str">'='</span>, attributes[stat])
+    <span class="kw">for</span> item <span class="kw">in</span> attributes[<span class="str">'inventory'</span>]:
+        <span class="fn">print</span>(<span class="str">'carrying:'</span>, item, item_icons[item])
+
+    answer = <span class="fn">input</span>(<span class="str">'Accept this character? (y/n) '</span>)
+    <span class="kw">if</span> answer == <span class="str">'y'</span>:
+        <span class="kw">break</span>   <span class="cm"># happy → leave the loop</span>
+
+<span class="fn">print</span>()
+<span class="fn">print</span>(<span class="str">'Your character is ready!'</span>)
+<span class="fn">print</span>(attributes)</div>
+
+        <div class="console"><span class="dim">What is your character name? </span><span class="usr">Thorin</span>
+
+=== Thorin ===
+strength = 4
+dexterity = 6
+constitution = 5
+intelligence = 8
+wisdom = 3
+charisma = 7
+carrying: ring 💍
+carrying: mace 🔨
+<span class="dim">Accept this character? (y/n) </span><span class="usr">n</span>
+
+=== Thorin ===
+strength = 16
+dexterity = 7
+constitution = 12
+intelligence = 9
+wisdom = 14
+charisma = 5
+carrying: boots 🥾
+carrying: staff 🪄
+<span class="dim">Accept this character? (y/n) </span><span class="usr">y</span>
+
+Your character is ready!
+{'name': 'Thorin', 'strength': 16, 'dexterity': 7, 'constitution': 12, 'intelligence': 9, 'wisdom': 14, 'charisma': 5, 'inventory': ['boots', 'staff']}</div>
+
+        <div class="note">
+          Look at the last line. Every one of the five tasks lives in that single <code>attributes</code> dict: a string under <code>'name'</code>, six ints under the stat keys, a list under <code>'inventory'</code>. One variable holds the entire character — that is why we spent a whole lesson on this type.
+        </div>
+
+        <table class="ex-table">
+          <thead><tr><th>Task</th><th>The line that does it</th></tr></thead>
+          <tbody>
+            <tr><td>1 · get the name</td><td><code>input('What is your character name? ')</code></td></tr>
+            <tr><td>2 · store the name</td><td><code>attributes['name'] = name</code></td></tr>
+            <tr><td>3 · six stats, 3–18</td><td><code>for stat in stat_names: attributes[stat] = random.randint(3, 18)</code></td></tr>
+            <tr><td>4 · two items</td><td><code>random.sample(list(items_options), 2)</code></td></tr>
+            <tr><td>5 · bonus re-roll</td><td><code>while True: ... if answer == 'y': break</code></td></tr>
+            <tr><td>icons that match</td><td><code>item_icons[item]</code> — a dict, not a set</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- ═══ HOMEWORK (English) ═══ -->
+      <section class="card topic-panel" id="topic-homework">
+        <span class="tag">Homework</span>
+        <h2 class="step-title">Your Report Card 📊</h2>
+        <p>One dictionary holds your whole report card: the <strong>key</strong> is the subject, the <strong>value</strong> is the grade.</p>
+
+        <div class="kvbox">
+          <div class="kvbox-cap">grades</div>
+          <div class="kvrow"><span class="kk">'math'</span><span class="ar">&#8594;</span><span class="vv">90</span></div>
+          <div class="kvrow"><span class="kk">'english'</span><span class="ar">&#8594;</span><span class="vv">78</span></div>
+          <div class="kvrow"><span class="kk">'literature'</span><span class="ar">&#8594;</span><span class="vv">65</span></div>
+          <div class="kvrow"><span class="kk">'python'</span><span class="ar">&#8594;</span><span class="vv">100</span></div>
+        </div>
+
+        <div class="ex-title"><span class="ex-num">1</span><h3>Ask the user for four grades</h3></div>
+        <p>Start with an <strong>empty</strong> dict and fill it. Ask for a grade in <code>math</code>, <code>english</code>, <code>literature</code> and <code>python</code>, and store each one under its subject name:</p>
+        <div class="code">grades = {}
+grades[<span class="str">'math'</span>] = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'math grade: '</span>))
+<span class="cm"># ... and the same for the other three</span>
+
+<span class="fn">print</span>(grades)</div>
+        <div class="warn">
+          <strong>Do not forget the <code>int()</code>.</strong> <code>input()</code> always hands you a <strong>string</strong>, even when the user typed digits. Without it, <code>'90'</code> is text — and adding text together gives you <code>'9078'</code> instead of <code>168</code>, if it does not raise <code>TypeError</code> first.
+        </div>
+
+        <div class="ex-title"><span class="ex-num">2</span><h3>Add the average</h3></div>
+        <p>Add a new key <code>'avg'</code> whose value is the average of the four grades. <strong>You have to calculate it</strong> — nobody types it in.</p>
+        <div class="note">
+          💡 <strong>Hint:</strong> <code>sum(...)</code> adds up a collection of numbers and <code>len(...)</code> counts it. You already know how to get all the grades out of the dict in one go — it is one of the three views from the <strong>keys · values · items</strong> topic. Average = total ÷ how many.
+        </div>
+
+        <div class="ex-title"><span class="ex-num">3</span><h3>Add the highest and the lowest</h3></div>
+        <p>Add a key <code>'max'</code> holding the best grade, and a key <code>'min'</code> holding the worst.</p>
+        <div class="note">
+          💡 <strong>Hint:</strong> <code>max(...)</code> and <code>min(...)</code> take the same thing you just handed to <code>sum(...)</code>.
+        </div>
+        <div class="warn">
+          <strong>The trap.</strong> Work out all three numbers <em>before</em> you put any of them into the dict. The moment <code>'avg'</code> is inside, it becomes just another value — and <code>max</code> would then be picking the biggest out of the grades <strong>plus the average</strong>. Calculate first, insert after.
+        </div>
+
+        <div class="big-result">What your run should look like</div>
+        <div class="console"><span class="dim">math grade: </span><span class="usr">90</span>
+<span class="dim">english grade: </span><span class="usr">78</span>
+<span class="dim">literature grade: </span><span class="usr">65</span>
+<span class="dim">python grade: </span><span class="usr">100</span>
+
+{'math': 90, 'english': 78, 'literature': 65, 'python': 100}
+
+{'math': 90, 'english': 78, 'literature': 65, 'python': 100,
+ 'avg': 83.25, 'max': 100, 'min': 65}</div>
+
+        <div class="ex-title"><span class="ex-num">4</span><h3>The literature exam was cancelled 🗑️</h3></div>
+        <p>The school drops literature this term. <strong>Remove</strong> that pair from the dict — key and grade, gone — then print the dict again.</p>
+        <p>We did not cover removing in class, so here is how it works — on a <strong>different</strong> dict. Read it, then do the same to your own:</p>
+        <div class="code">d = {<span class="str">'a'</span>: <span class="num">1</span>, <span class="str">'b'</span>: <span class="num">2</span>, <span class="str">'c'</span>: <span class="num">3</span>}
+
+<span class="cm"># way 1 — the del keyword, written in front of the pair</span>
+<span class="kw">del</span> d[<span class="str">'b'</span>]
+<span class="fn">print</span>(d)         <span class="cm"># → {'a': 1, 'c': 3}</span>
+
+<span class="cm"># way 2 — the .pop() method, hands back the value it removed</span>
+removed = d.<span class="fn">pop</span>(<span class="str">'c'</span>)
+<span class="fn">print</span>(removed)   <span class="cm"># → 3</span>
+<span class="fn">print</span>(d)         <span class="cm"># → {'a': 1}</span></div>
+        <div class="note">
+          Both delete the pair. The difference: <code>del</code> just throws it away, while <code>.pop()</code> <strong>returns</strong> the value so you can still use it. Use whichever you like — now apply it to your own dict.
+        </div>
+        <div class="console">{'math': 90, 'english': 78, 'python': 100,
+ 'avg': 83.25, 'max': 100, 'min': 65}</div>
+        <div class="note">
+          Look closely at that last line: <code>'avg'</code>, <code>'max'</code> and <code>'min'</code> are still the <strong>old</strong> numbers — they were worked out while literature was still there. A dict does not recalculate anything by itself.
+        </div>
+
+        <p><strong>Python only</strong>. Write it as a <code>.py</code> file in PyCharm and run with <span class="kbd">Shift</span> + <span class="kbd">F10</span>.</p>
+
+        <div class="card submission">
+          <ol class="task-list">
+            <li><strong>Write the .py program</strong> in PyCharm.</li>
+            <li><strong>Upload to GitHub</strong> and send the link to:<br>
+              <a href="mailto:pythonai080626+hw16@gmail.com">pythonai080626+hw16@gmail.com</a>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ═══ HOMEWORK (Hebrew) ═══ -->
+      <section class="card topic-panel rtl" id="topic-homework-heb" lang="he" dir="rtl">
+        <span class="tag">שיעורי בית</span>
+        <h2 class="step-title">תעודת הציונים שלכם 📊</h2>
+        <p>מילון אחד מחזיק את כל תעודת הציונים: ה<strong>מפתח</strong> הוא שם המקצוע, וה<strong>ערך</strong> הוא הציון.</p>
+
+        <div class="kvbox">
+          <div class="kvbox-cap" dir="ltr" style="text-align:left">grades</div>
+          <div class="kvrow" dir="ltr"><span class="kk">'math'</span><span class="ar">&#8594;</span><span class="vv">90</span></div>
+          <div class="kvrow" dir="ltr"><span class="kk">'english'</span><span class="ar">&#8594;</span><span class="vv">78</span></div>
+          <div class="kvrow" dir="ltr"><span class="kk">'literature'</span><span class="ar">&#8594;</span><span class="vv">65</span></div>
+          <div class="kvrow" dir="ltr"><span class="kk">'python'</span><span class="ar">&#8594;</span><span class="vv">100</span></div>
+        </div>
+
+        <div class="big-result">1 · קלטו מהמשתמש ארבעה ציונים</div>
+        <p>התחילו ממילון <strong>ריק</strong> ומלאו אותו. בקשו מהמשתמש ציון ב-<code>math</code>, ב-<code>english</code>, ב-<code>literature</code> וב-<code>python</code>, ושמרו כל ציון תחת שם המקצוע שלו:</p>
+        <div class="code">grades = {}
+grades[<span class="str">'math'</span>] = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'math grade: '</span>))
+<span class="cm"># ... וכך גם עבור שלושת המקצועות הנותרים</span>
+
+<span class="fn">print</span>(grades)</div>
+        <div class="warn">
+          <strong>אל תשכחו את ה-<code dir="ltr">int()</code>.</strong> הפונקציה <code dir="ltr">input()</code> תמיד מחזירה <strong>מחרוזת</strong> (str), גם כשהמשתמש הקליד ספרות. בלעדיה <code dir="ltr">'90'</code> הוא טקסט — וחיבור של טקסט ייתן <code dir="ltr">'9078'</code> במקום <code dir="ltr">168</code>, אם בכלל לא תיזרק שגיאת <code dir="ltr">TypeError</code>.
+        </div>
+
+        <div class="big-result">2 · הוסיפו את הממוצע</div>
+        <p>הוסיפו מפתח חדש <code dir="ltr">'avg'</code> שהערך שלו הוא הממוצע של ארבעת הציונים. <strong>אתם צריכים לחשב אותו</strong> — אף אחד לא מקליד אותו.</p>
+        <div class="note">
+          💡 <strong>רמז:</strong> <code dir="ltr">sum(...)</code> מחברת אוסף של מספרים ו-<code dir="ltr">len(...)</code> סופרת אותו. אתם כבר יודעים איך לשלוף את כל הציונים מהמילון בבת אחת — זו אחת משלוש התצוגות מהנושא <strong>keys · values · items</strong>. ממוצע = סכום חלקי כמות.
+        </div>
+
+        <div class="big-result">3 · הוסיפו את הגבוה ביותר ואת הנמוך ביותר</div>
+        <p>הוסיפו מפתח <code dir="ltr">'max'</code> עם הציון הטוב ביותר, ומפתח <code dir="ltr">'min'</code> עם הנמוך ביותר.</p>
+        <div class="note">
+          💡 <strong>רמז:</strong> <code dir="ltr">max(...)</code> ו-<code dir="ltr">min(...)</code> מקבלות בדיוק את אותו הדבר שהעברתם ל-<code dir="ltr">sum(...)</code>.
+        </div>
+        <div class="warn">
+          <strong>המלכודת.</strong> חשבו את שלושת המספרים <em>לפני</em> שאתם מכניסים אפילו אחד מהם למילון. ברגע ש-<code dir="ltr">'avg'</code> נמצא בפנים הוא הופך לעוד ערך רגיל — ואז <code dir="ltr">max</code> יבחר את הגדול מבין הציונים <strong>ועוד הממוצע</strong>. קודם מחשבים, אחר כך מכניסים.
+        </div>
+
+        <div class="big-result">איך אמורה להיראות ההרצה</div>
+        <div class="console"><span class="dim">math grade: </span><span class="usr">90</span>
+<span class="dim">english grade: </span><span class="usr">78</span>
+<span class="dim">literature grade: </span><span class="usr">65</span>
+<span class="dim">python grade: </span><span class="usr">100</span>
+
+{'math': 90, 'english': 78, 'literature': 65, 'python': 100}
+
+{'math': 90, 'english': 78, 'literature': 65, 'python': 100,
+ 'avg': 83.25, 'max': 100, 'min': 65}</div>
+
+        <div class="big-result">4 · מבחן הספרות בוטל 🗑️</div>
+        <p>בית הספר מוריד את הספרות מהמחצית. <strong>מחקו</strong> את הזוג הזה מהמילון — גם המפתח וגם הציון — ואז הדפיסו את המילון שוב.</p>
+        <p>מחיקה לא למדנו בשיעור, אז הנה איך היא עובדת — על מילון <strong>אחר</strong>. קראו, ואז עשו את אותו הדבר על המילון שלכם:</p>
+        <div class="code">d = {<span class="str">'a'</span>: <span class="num">1</span>, <span class="str">'b'</span>: <span class="num">2</span>, <span class="str">'c'</span>: <span class="num">3</span>}
+
+<span class="cm"># way 1 — the del keyword, written in front of the pair</span>
+<span class="kw">del</span> d[<span class="str">'b'</span>]
+<span class="fn">print</span>(d)         <span class="cm"># → {'a': 1, 'c': 3}</span>
+
+<span class="cm"># way 2 — the .pop() method, hands back the value it removed</span>
+removed = d.<span class="fn">pop</span>(<span class="str">'c'</span>)
+<span class="fn">print</span>(removed)   <span class="cm"># → 3</span>
+<span class="fn">print</span>(d)         <span class="cm"># → {'a': 1}</span></div>
+        <div class="note">
+          שתיהן מוחקות את הזוג. ההבדל: <code dir="ltr">del</code> פשוט זורקת אותו, ואילו <code dir="ltr">.pop()</code> <strong>מחזירה</strong> את הערך כך שעדיין אפשר להשתמש בו. בחרו את מה שנוח לכם — ועכשיו יישמו את זה על המילון שלכם.
+        </div>
+        <div class="console">{'math': 90, 'english': 78, 'python': 100,
+ 'avg': 83.25, 'max': 100, 'min': 65}</div>
+        <div class="note">
+          הסתכלו טוב על השורה האחרונה: <code dir="ltr">'avg'</code>, <code dir="ltr">'max'</code> ו-<code dir="ltr">'min'</code> הם עדיין המספרים <strong>הישנים</strong> — הם חושבו כשהספרות עוד הייתה שם. מילון לא מחשב שום דבר מחדש בעצמו.
+        </div>
+
+        <p><strong>פייתון בלבד</strong>. כתבו קובץ <code dir="ltr">.py</code> ב-PyCharm והריצו עם <span class="kbd">Shift</span> + <span class="kbd">F10</span>.</p>
+
+        <div class="card submission">
+          <ol class="task-list">
+            <li><strong>כתבו את התוכנית ב-<code dir="ltr">.py</code></strong> ב-PyCharm.</li>
+            <li><strong>העלו ל-GitHub</strong> ושלחו את הקישור אל:<br>
+              <a href="mailto:pythonai080626+hw16@gmail.com" dir="ltr">pythonai080626+hw16@gmail.com</a>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <div class="footer">Lesson 16 · Dictionaries · August 20, 2026</div>
+</div>
+
+<script>
+  const links = document.querySelectorAll('.topic-link');
+  const panels = document.querySelectorAll('.topic-panel');
+
+  function showTopic(id) {
+    panels.forEach(panel => panel.classList.toggle('active', panel.id === id));
+    links.forEach(link => link.classList.toggle('active', link.dataset.target === id));
+  }
+
+  links.forEach(link => {
+    link.addEventListener('click', () => {
+      showTopic(link.dataset.target);
+      location.hash = link.dataset.target;
+    });
+  });
+
+  const hash = location.hash.replace('#', '');
+  if (hash && document.getElementById(hash)) showTopic(hash);
+</script>
+</body>
+</html>

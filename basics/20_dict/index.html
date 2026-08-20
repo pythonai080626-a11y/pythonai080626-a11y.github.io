@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Dictionaries — Visual Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14;
+    --card: #1c2030;
+    --border: #2a2f42;
+    --accent: #38bdf8;
+    --accent2: #fbbf24;
+    --accent3: #34d399;
+    --accent4: #f472b6;
+    --text: #e8eaf0;
+    --muted: #7b82a0;
+    --code-bg: #0a0c10;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; overflow-x: hidden; }
+
+  /* ── back to Python Basics ── */
+  .site-nav {
+    position: sticky; top: 0; z-index: 60;
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 22px;
+    background: rgba(13,15,20,0.85);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.86rem;
+  }
+  .site-nav a {
+    display: inline-flex; align-items: center; gap: 7px;
+    color: var(--accent); text-decoration: none; font-weight: 700;
+    transition: color .2s ease;
+  }
+  .site-nav a:hover { color: var(--text); }
+  .site-nav-sep { color: var(--muted); }
+  .site-nav-here { color: var(--text); font-weight: 800; }
+  .site-nav-lesson {
+    margin-left: auto;
+    border: 1px solid var(--border); border-radius: 999px;
+    padding: 5px 14px; background: var(--card);
+    font-family: 'JetBrains Mono', monospace; font-size: .78rem;
+  }
+  @media (max-width: 620px) {
+    .site-nav { padding: 10px 14px; font-size: .8rem; }
+    .site-nav-lesson { padding: 4px 10px; }
+  }
+
+  header { padding: 60px 40px 40px; text-align: center; position: relative; overflow: hidden; }
+  header::before { content: ''; position: absolute; top: -80px; left: 50%; transform: translateX(-50%); width: 600px; height: 300px; background: radial-gradient(ellipse, rgba(56,189,248,0.12) 0%, transparent 70%); pointer-events: none; }
+  .header-badge { display: inline-block; background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.3); color: var(--accent); font-family: 'JetBrains Mono', monospace; font-size: 12px; padding: 4px 14px; border-radius: 20px; letter-spacing: 2px; margin-bottom: 20px; animation: fadeSlideDown 0.6s ease both; }
+  h1 { font-size: clamp(42px, 7vw, 80px); font-weight: 800; line-height: 1; animation: fadeSlideDown 0.7s 0.1s ease both; }
+  h1 span { color: var(--accent); }
+  .subtitle { color: var(--muted); font-size: 16px; margin-top: 14px; font-family: 'JetBrains Mono', monospace; animation: fadeSlideDown 0.7s 0.2s ease both; }
+
+  section { max-width: 720px; margin: 0 auto; padding: 0 30px 80px; }
+  .section-label { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 3px; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; }
+  .section-title { font-size: 32px; font-weight: 800; margin-bottom: 36px; }
+
+  .card-stack { display: flex; flex-direction: column; gap: 20px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; opacity: 0; transform: translateY(20px); transition: border-color 0.3s; }
+  .card:hover { border-color: var(--accent); }
+  .card.visible { animation: cardIn 0.5s ease forwards; }
+
+  .card-header { display: flex; align-items: center; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.02); }
+  .card-icon { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+  .card-name { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 700; color: var(--accent2); }
+  .card-desc { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .card-num-badge { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); background: rgba(255,255,255,0.04); padding: 2px 8px; border-radius: 4px; }
+  .card-body { padding: 18px 20px; }
+
+  .code-block { background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; font-family: 'JetBrains Mono', monospace; font-size: 13px; position: relative; overflow-x: auto; }
+  .code-block::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: var(--accent); opacity: 0.4; }
+
+  /* Every code line is a block element — guaranteed one per row */
+  .line { display: block; line-height: 2; white-space: pre; }
+  .line.blank { display: block; height: 0.6em; }
+
+  .kw  { color: #ff79c6; }
+  .fn  { color: #50fa7b; }
+  .str { color: #f1fa8c; }
+  .num { color: #bd93f9; }
+  .cm  { color: var(--muted); font-style: italic; }
+  .va  { color: var(--accent); }
+  .op  { color: var(--accent4); }
+
+  .demo-area { margin-top: 14px; background: var(--code-bg); border-radius: 10px; border: 1px solid var(--border); overflow: hidden; }
+  .demo-bar { display: flex; align-items: center; justify-content: space-between; padding: 8px 14px; border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.02); }
+  .demo-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); letter-spacing: 1px; }
+  .run-btn { background: var(--accent); color: var(--bg); border: none; border-radius: 6px; padding: 4px 14px; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; cursor: pointer; transition: opacity 0.2s, transform 0.15s; letter-spacing: 1px; }
+  .run-btn:hover { opacity: 0.85; transform: scale(0.97); }
+  .demo-code { padding: 14px 16px; font-family: 'JetBrains Mono', monospace; font-size: 13px; overflow-x: auto; }
+  .demo-output { padding: 10px 14px; border-top: 1px dashed var(--border); font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent3); min-height: 36px; white-space: pre-wrap; word-break: break-word; }
+  .out-prefix { color: var(--muted); margin-right: 8px; }
+
+  /* ── key → value pairs: the shape of a dict ── */
+  .kv-list { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; min-height: 20px; }
+  .kv-list:empty { padding: 0; }
+  .kv {
+    display: flex; align-items: stretch; align-self: flex-start; max-width: 100%;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    border: 1px solid rgba(56,189,248,0.35); border-radius: 8px; overflow: hidden;
+    transform: scale(0); animation: popIn 0.35s ease forwards;
+  }
+  .kv .k { background: rgba(56,189,248,0.14); color: var(--accent); padding: 5px 12px; font-weight: 700; white-space: nowrap; }
+  .kv .arrow { display: flex; align-items: center; padding: 0 8px; color: var(--muted); background: rgba(255,255,255,0.02); }
+  .kv .v { background: rgba(255,255,255,0.03); color: var(--text); padding: 5px 12px; }
+  .kv.hl { border-color: var(--accent3); }
+  .kv.hl .k { background: rgba(52,211,153,0.18); color: var(--accent3); }
+  .kv.hl .v { color: var(--accent3); }
+  .kv.gone { border-color: var(--accent2); opacity: .45; }
+  .kv.gone .k, .kv.gone .v { text-decoration: line-through; color: var(--accent2); }
+  .kv.new { border-color: var(--accent4); }
+  .kv.new .k { background: rgba(244,114,182,0.16); color: var(--accent4); }
+  .kv.new .v { color: var(--accent4); }
+
+  /* flat pill row — used for keys()/values() views */
+  .anim-list { display: flex; gap: 8px; flex-wrap: wrap; padding: 0 14px 12px; align-items: center; }
+  .anim-list:empty { padding: 0; }
+  .aitem { background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.35); border-radius: 50px; padding: 5px 14px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--accent); transform: scale(0); animation: popIn 0.35s ease forwards; }
+  .aitem.hl { background: rgba(52,211,153,0.18); border-color: var(--accent3); color: var(--accent3); }
+
+  /* vis pairs for the creation cards */
+  .vis-list { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; }
+
+  .note { margin-top: 12px; font-size: 12.5px; color: var(--muted); border-left: 2px solid var(--accent2); padding-left: 12px; line-height: 1.7; }
+  .note b { color: var(--accent2); }
+  .note code { font-family: 'JetBrains Mono', monospace; color: var(--accent); font-size: 12px; }
+
+  .bg-decor { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+  .bg-bracket { position: absolute; font-family: 'JetBrains Mono', monospace; color: rgba(56,189,248,0.03); font-size: 200px; font-weight: 700; animation: float linear infinite; user-select: none; }
+  main { position: relative; z-index: 1; }
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 60px 0; }
+  footer { text-align: center; padding: 40px; color: var(--muted); font-family: 'JetBrains Mono', monospace; font-size: 12px; border-top: 1px solid var(--border); }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  @keyframes fadeSlideDown { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes cardIn { to { opacity:1; transform:translateY(0); } }
+  @keyframes popIn { 0%{transform:scale(0) rotate(-2deg);opacity:0;} 70%{transform:scale(1.05);} 100%{transform:scale(1);opacity:1;} }
+  @keyframes float { 0%{transform:translateY(100vh);opacity:0;} 10%{opacity:1;} 90%{opacity:1;} 100%{transform:translateY(-200px) rotate(20deg);opacity:0;} }
+</style>
+</head>
+<body>
+<div class="bg-decor" id="bgDecor"></div>
+
+<!-- ═══ back to Python Basics ═══ -->
+<nav class="site-nav">
+  <a href="../index.html">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+    </svg>
+    <span>Python Basics</span>
+  </a>
+  <span class="site-nav-sep">/</span>
+  <span class="site-nav-here">Dictionaries</span>
+  <a class="site-nav-lesson" href="../lessons/16_lesson/16-lesson.html">Lesson 16 →</a>
+</nav>
+
+<main>
+
+<header>
+  <div class="header-badge">PYTHON 3 · DATA STRUCTURES</div>
+  <h1>Python <span>Dicts</span></h1>
+  <p class="subtitle"># key → value · ordered · mutable · unique keys · O(1) lookup</p>
+</header>
+
+<!-- ═══ SECTION 1: CREATION ═══ -->
+<section id="creation">
+  <div class="section-label">01 — creation</div>
+  <div class="section-title">Ways to Create a Dict</div>
+  <div class="card-stack">
+
+    <div class="card" data-delay="0">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(56,189,248,0.1)">{ }</div>
+        <div><div class="card-name">{ } Curly Braces</div><div class="card-desc">key: value pairs — the most direct way</div></div>
+        <div class="card-num-badge">01</div>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <span class="line"><span class="cm"># Basic dict — every key maps to one value</span></span>
+          <span class="line"><span class="va">person</span> = {<span class="str">'name'</span>: <span class="str">'Dana'</span>, <span class="str">'age'</span>: <span class="num">17</span>, <span class="str">'city'</span>: <span class="str">'Haifa'</span>}</span>
+          <span class="line blank"></span>
+          <span class="line"><span class="cm"># An empty dict — {} IS a dict (not a set!)</span></span>
+          <span class="line"><span class="va">empty</span> = {}</span>
+          <span class="line blank"></span>
+          <span class="line"><span class="cm"># Duplicate keys: the LAST one wins</span></span>
+          <span class="line"><span class="va">d</span> = {<span class="str">'a'</span>: <span class="num">1</span>, <span class="str">'a'</span>: <span class="num">2</span>}</span>
+          <span class="line"><span class="cm"># → {'a': 2}</span></span>
+          <span class="line blank"></span>
+          <span class="line"><span class="cm"># Values can be anything — keys must be hashable</span></span>
+          <span class="line"><span class="va">mixed</span> = {<span class="str">'nums'</span>: [<span class="num">1</span>, <span class="num">2</span>], <span class="num">7</span>: <span class="kw">True</span>, (<span class="num">0</span>, <span class="num">0</span>): <span class="str">'origin'</span>}</span>
+        </div>
+        <div class="vis-list" id="vis1"></div>
+        <div class="note"><b>Key rule:</b> keys must be immutable — <code>str</code>, <code>int</code>, <code>tuple</code>, <code>frozenset</code>. A <code>list</code> as a key raises <code>TypeError: unhashable type</code>.</div>
+      </div>
+    </div>
+
+    <div class="card" data-delay="1">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(251,191,36,0.1)">🏗️</div>
+        <div><div class="card-name">dict() Constructor</div><div class="card-desc">From keywords, from pairs, or from two lists with zip()</div></div>
+        <div class="card-num-badge">02</div>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <span class="line"><span class="cm"># From keyword arguments (keys become strings)</span></span>
+          <span class="line"><span class="va">a</span> = <span class="fn">dict</span>(<span class="va">name</span>=<span class="str">'Dana'</span>, <span class="va">age</span>=<span class="num">17</span>)</span>
+          <span class="line"><span class="cm"># → {'name': 'Dana', 'age': 17}</span></span>
+          <span class="line blank"></span>
+          <span class="line"><span class="cm"># From a list of (key, value) tuples</span></span>
+          <span class="line"><span class="va">b</span> = <span class="fn">dict</span>([(<span class="str">'x'</span>, <span class="num">1</span>), (<span class="str">'y'</span>, <span class="num">2</span>)])</span>
+          <span class="line"><span class="cm"># → {'x': 1, 'y': 2}</span></span>
+          <span class="line blank"></span>
+          <span class="line"><span class="cm"># From two parallel lists — zip() pairs them up</span></span>
+          <span class="line"><span class="va">keys</span>   = [<span class="str">'red'</span>, <span class="str">'green'</span>, <span class="str">'blue'</span>]</span>
+          <span class="line"><span class="va">values</span> = [<span class="str">'#f00'</span>, <span class="str">'#0f0'</span>, <span class="str">'#00f'</span>]</span>
+          <span class="line"><span class="va">colors</span> = <span class="fn">dict</span>(<span class="fn">zip</span>(<span class="va">keys</span>, <span class="va">values</span>))</span>
+          <span class="line"><span class="cm"># → {'red': '#f00', 'green': '#0f0', 'blue': '#00f'}</span></span>
+        </div>
+        <div class="vis-list" id="vis2"></div>
+      </div>
+    </div>
+
+    <div class="card" data-delay="2">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(244,114,182,0.1)">🗝️</div>
+        <div><div class="card-name">dict.fromkeys(keys, value)</div><div class="card-desc">Every key starts with the same value</div></div>
+        <div class="card-num-badge">03</div>
+      </div>
+      <div class="card-body">
+        <div class="code-block">
+          <span class="line"><span class="cm"># Same starting value for every key</span></span>
+          <span class="line"><span class="va">scores</span> = <span class="fn">dict</span>.<span class="fn">fromkeys</span>([<span class="str">'a'</span>, <span class="str">'b'</span>, <span class="str">'c'</span>], <span class="num">0</span>)</span>
+          <span class="line"><span class="cm"># → {'a': 0, 'b': 0, 'c': 0}</span></span>
+          <span class="line blank"></span>
+          <span class="line"><span class="cm"># No value given → every value is None</span></span>
+          <span class="line"><span class="va">blank</span> = <span class="fn">dict</span>.<span class="fn">fromkeys</span>(<span class="str">'abc'</span>)</span>
+          <span class="line"><span class="cm"># → {'a': None, 'b': None, 'c': None}</span></span>
+          <span class="line blank"></span>
+          <span class="line"><span class="cm"># ⚠️ All keys SHARE one mutable value!</span></span>
+          <span class="line"><span class="va">bad</span> = <span class="fn">dict</span>.<span class="fn">fromkeys</span>([<span class="str">'a'</span>, <span class="str">'b'</span>], [])</span>
+          <span class="line"><span class="va">bad</span>[<span class="str">'a'</span>].<span class="fn">append</span>(<span class="num">1</span>)</span>
+          <span class="line"><span class="cm"># → {'a': [1], 'b': [1]}   both changed!</span></span>
+        </div>
+        <div class="vis-list" id="vis4"></div>
+        <div class="note"><b>Fix for the trap:</b> give each key its own list — start from <code>{}</code> and fill it in a loop: <code>for k in keys: d[k] = []</code></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ═══ SECTION 2: METHODS ═══ -->
+<section id="methods">
+  <div class="section-label">02 — methods</div>
+  <div class="section-title">Dict Methods — Interactive Demo</div>
+  <div class="card-stack">
+
+    <!-- ACCESS -->
+    <div class="card" data-delay="0">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(56,189,248,0.1)">🔍</div>
+        <div><div class="card-name">d[key] &nbsp;vs&nbsp; .get(key, default)</div><div class="card-desc">[] raises KeyError if missing — .get() returns None instead</div></div>
+      </div>
+      <div class="card-body">
+        <div class="demo-area">
+          <div class="demo-bar"><span class="demo-label">LIVE DEMO</span><button class="run-btn" onclick="runGet()">▶ RUN</button></div>
+          <div class="demo-code">
+            <span class="line"><span class="va">d</span> = {<span class="str">'name'</span>: <span class="str">'Dana'</span>, <span class="str">'age'</span>: <span class="num">17</span>}</span>
+            <span class="line blank"></span>
+            <span class="line"><span class="kw">print</span>(<span class="va">d</span>[<span class="str">'name'</span>])</span>
+            <span class="line"><span class="cm"># → 'Dana'</span></span>
+            <span class="line blank"></span>
+            <span class="line"><span class="cm"># Missing key with [] → KeyError crash</span></span>
+            <span class="line"><span class="cm"># d['city']  → KeyError: 'city'</span></span>
+            <span class="line blank"></span>
+            <span class="line"><span class="cm"># .get() never crashes</span></span>
+            <span class="line"><span class="kw">print</span>(<span class="va">d</span>.<span class="fn">get</span>(<span class="str">'city'</span>))</span>
+            <span class="line"><span class="cm"># → None</span></span>
+            <span class="line blank"></span>
+            <span class="line"><span class="cm"># .get() with your own fallback</span></span>
+            <span class="line"><span class="kw">print</span>(<span class="va">d</span>.<span class="fn">get</span>(<span class="str">'city'</span>, <span class="str">'unknown'</span>))</span>
+          </div>
+          <div class="demo-output"><span class="out-prefix">&gt;&gt;&gt;</span><span id="res-get">click ▶ RUN</span></div>
+          <div class="kv-list" id="kv-get"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KEYS VALUES ITEMS -->
+    <div class="card" data-delay="1">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(251,191,36,0.1)">📋</div>
+        <div><div class="card-name">.keys() · .values() · .items()</div><div class="card-desc">The three views — live windows onto the dict</div></div>
+      </div>
+      <div class="card-body">
+        <div class="demo-area">
+          <div class="demo-bar"><span class="demo-label">LIVE DEMO</span><button class="run-btn" onclick="runViews()">▶ RUN</button></div>
+          <div class="demo-code">
+            <span class="line"><span class="va">stock</span> = {<span class="str">'apple'</span>: <span class="num">5</span>, <span class="str">'banana'</span>: <span class="num">2</span>, <span class="str">'cherry'</span>: <span class="num">9</span>}</span>
+            <span class="line blank"></span>
+            <span class="line"><span class="kw">print</span>(<span class="va">stock</span>.<span class="fn">keys</span>())</span>
+            <span class="line"><span class="cm"># → dict_keys(['apple', 'banana', 'cherry'])</span></span>
+            <span class="line blank"></span>
+            <span class="line"><span class="kw">print</span>(<span class="va">stock</span>.<span class="fn">values</span>())</span>
+            <span class="line"><span class="cm"># → dict_values([5, 2, 9])</span></span>
+            <span class="line blank"></span>
+            <span class="line"><span class="cm"># .items() gives (key, value) tuples</span></span>
+            <span class="line"><span class="kw">for</span> <span class="va">fruit</span>, <span class="va">qty</span> <span class="kw">in</span> <span class="va">stock</span>.<span class="fn">items</span>():</span>
+            <span class="line">    <span class="kw">print</span>(<span class="va">fruit</span>, <span class="str">'→'</span>, <span class="va">qty</span>)</span>
+            <span class="line blank"></span>
+            <span class="line"><span class="cm"># Need a real list? wrap it</span></span>
+            <span class="line"><span class="va">names</span> = <span class="fn">list</span>(<span class="va">stock</span>.<span class="fn">keys</span>())</span>
+          </div>
+          <div class="demo-output"><span class="out-prefix">&gt;&gt;&gt;</span><span id="res-views">click ▶ RUN</span></div>
+          <div class="anim-list" id="al-views"></div>
+          <div class="kv-list" id="kv-views"></div>
+        </div>
+        <div class="note"><b>Views are live:</b> change the dict and the view changes too — it is a window, not a snapshot.</div>
+      </div>
+    </div>
+
+    <!-- ADD / UPDATE -->
+    <div class="card" data-delay="2">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(52,211,153,0.1)">➕</div>
+        <div><div class="card-name">d[key] = value &nbsp;·&nbsp; .update()</div><div class="card-desc">Same syntax adds a new key or overwrites an existing one</div></div>
+      </div>
+      <div class="card-body">
+        <div class="demo-area">
+          <div class="demo-bar"><span class="demo-label">LIVE DEMO</span><button class="run-btn" onclick="runUpdate()">▶ RUN</button></div>
+          <div class="demo-code">
+            <span class="line"><span class="va">d</span> = {<span class="str">'name'</span>: <span class="str">'Dana'</span>, <span class="str">'age'</span>: <span class="num">17</span>}</span>
+            <span class="line blank"></span>
+            <span class="line"><span class="cm"># New key → added</span></span>
+            <span class="line"><span class="va">d</span>[<span class="str">'city'</span>] = <span class="str">'Haifa'</span></span>
+            <span class="line blank"></span>
+            <span class="line"><span class="cm"># Existing key → overwritten</span></span>
+            <span class="line"><span class="va">d</span>[<span class="str">'age'</span>] = <span class="num">18</span></span>
+            <span class="line blank"></span>
+            <span class="line"><span class="cm"># .update() merges a whole dict at once</span></span>
+            <span class="line"><span class="va">d</span>.<span class="fn">update</span>({<span class="str">'age'</span>: <span class="num">19</span>, <span class="str">'grade'</span>: <span class="num">12</span>})</span>
+            <span class="line blank"></span>
+            <span class="line"><span class="cm"># .update() also takes keyword arguments</span></span>
+            <span class="line"><span class="va">d</span>.<span class="fn">update</span>(<span class="va">city</span>=<span class="str">'Tel Aviv'</span>)</span>
+            <span class="line"><span class="kw">print</span>(<span class="va">d</span>)</span>
+          </div>
+          <div class="demo-output"><span class="out-prefix">&gt;&gt;&gt;</span><span id="res-update">click ▶ RUN</span></div>
+          <div class="kv-list" id="kv-update"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- POP / POPITEM -->
+    <div class="card" data-delay="3">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(244,114,182,0.1)">🗑️</div>
+        <div><div class="card-name">.pop(key) &nbsp;·&nbsp; .popitem()</div><div class="card-desc">Remove and hand back — by key, or the last pair added</div></div>
+      </div>
+      <div class="card-body">
+        <div class="demo-area">
+          <div class="demo-bar"><span class="demo-label">LIVE DEMO</span><button class="run-btn" onclick="runPop()">▶ RUN</button></div>
+          <div class="demo-code">
+            <span class="line"><span class="va">d</span> = {<span class="str">'a'</span>: <span class="num">1</span>, <span class="str">'b'</span>: <span class="num">2</span>, <span class="str">'c'</span>: <span class="num">3</span>, <span class="str">'d'</span>: <span class="num">4</span>}</span>
+            <span class="line blank"></span>
+            <span class="line"><span class="cm"># pop returns the VALUE it removed</span></span>
+            <span class="line"><span class="va">val</span> = <span class="va">d</span>.<span class="fn">pop</span>(<span class="str">'b'</span>)</span>
+            <span class="line"><span class="cm"># → 2</span></span>
+            <span class="line blank"></span>
+            <span class="line"><span class="cm"># Missing key → KeyError, unless you give a default</span></span>
+            <span class="line"><span class="va">safe</span> = <span class="va">d</span>.<span class="fn">pop</span>(<span class="str">'zzz'</span>, <span class="str">'not here'</span>)</span>
+            <span class="line blank"></span>
+            <span class="line"><span class="cm"># popitem removes the LAST inserted pair</span></span>
+            <span class="line"><span class="va">pair</span> = <span class="va">d</span>.<span class="fn">popitem</span>()</span>
+            <span class="line"><span class="cm"># → ('d', 4)   a tuple</span></span>
+            <span class="line"><span class="kw">print</span>(<span class="va">d</span>)</span>
+          </div>
+          <div class="demo-output"><span class="out-prefix">&gt;&gt;&gt;</span><span id="res-pop">click ▶ RUN</span></div>
+          <div class="kv-list" id="kv-pop"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETDEFAULT -->
+    <div class="card" data-delay="4">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(56,189,248,0.1)">🧩</div>
+        <div><div class="card-name">.setdefault(key, default)</div><div class="card-desc">Get it — and create it first if it is missing</div></div>
+      </div>
+      <div class="card-body">
+        <div class="demo-area">
+          <div class="demo-bar"><span class="demo-label">LIVE DEMO</span><button class="run-btn" onclick="runSetdefault()">▶ RUN</button></div>
+          <div class="demo-code">
+            <span class="line"><span class="va">d</span> = {<span class="str">'name'</span>: <span class="str">'Dana'</span>}</span>
+            <span class="line blank"></span>
+            <span class="line"><span class="cm"># Key exists → returns it, changes nothing</span></span>
+            <span class="line"><span class="va">d</span>.<span class="fn">setdefault</span>(<span class="str">'name'</span>, <span class="str">'Bob'</span>)</span>
+            <span class="line"><span class="cm"># → 'Dana'   (still Dana!)</span></span>
+            <span class="line blank"></span>
+            <span class="line"><span class="cm"># Key missing → inserts it, returns the default</span></span>
+            <span class="line"><span class="va">d</span>.<span class="fn">setdefault</span>(<span class="str">'age'</span>, <span class="num">17</span>)</span>
+            <span class="line"><span class="cm"># → 17, and d now has 'age'</span></span>
+            <span class="line blank"></span>
+            <span class="line"><span class="cm"># The classic use — grouping into lists</span></span>
+            <span class="line"><span class="va">groups</span> = {}</span>
+            <span class="line"><span class="kw">for</span> <span class="va">w</span> <span class="kw">in</span> [<span class="str">'cat'</span>, <span class="str">'cow'</span>, <span class="str">'dog'</span>]:</span>
+            <span class="line">    <span class="va">groups</span>.<span class="fn">setdefault</span>(<span class="va">w</span>[<span class="num">0</span>], []).<span class="fn">append</span>(<span class="va">w</span>)</span>
+            <span class="line"><span class="cm"># → {'c': ['cat', 'cow'], 'd': ['dog']}</span></span>
+          </div>
+          <div class="demo-output"><span class="out-prefix">&gt;&gt;&gt;</span><span id="res-setdefault">click ▶ RUN</span></div>
+          <div class="kv-list" id="kv-setdefault"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEL CLEAR COPY -->
+    <div class="card" data-delay="5">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(251,191,36,0.1)">🧹</div>
+        <div><div class="card-name">del &nbsp;·&nbsp; .clear() &nbsp;·&nbsp; .copy()</div><div class="card-desc">Delete one key, empty the dict, or duplicate it</div></div>
+      </div>
+      <div class="card-body">
+        <div class="demo-area">
+          <div class="demo-bar"><span class="demo-label">LIVE DEMO</span><button class="run-btn" onclick="runDelCopy()">▶ RUN</button></div>
+          <div class="demo-code">
+            <span class="line"><span class="va">d</span> = {<span class="str">'a'</span>: <span class="num">1</span>, <span class="str">'b'</span>: <span class="num">2</span>, <span class="str">'c'</span>: <span class="num">3</span>}</span>
+            <span class="line blank"></span>
+            <span class="line"><span class="cm"># del removes a key (returns nothing)</span></span>
+            <span class="line"><span class="kw">del</span> <span class="va">d</span>[<span class="str">'b'</span>]</span>
+            <span class="line blank"></span>
+            <span class="line"><span class="cm"># .copy() → an independent shallow copy</span></span>
+            <span class="line"><span class="va">clone</span> = <span class="va">d</span>.<span class="fn">copy</span>()</span>
+            <span class="line"><span class="va">clone</span>[<span class="str">'a'</span>] = <span class="num">99</span></span>
+            <span class="line"><span class="cm"># d['a'] is still 1</span></span>
+            <span class="line blank"></span>
+            <span class="line"><span class="cm"># ⚠️ clone = d does NOT copy — same object!</span></span>
+            <span class="line"><span class="va">alias</span> = <span class="va">d</span></span>
+            <span class="line"><span class="va">alias</span>[<span class="str">'a'</span>] = <span class="num">0</span>  <span class="cm"># d changed too</span></span>
+            <span class="line blank"></span>
+            <span class="line"><span class="cm"># .clear() empties it in place</span></span>
+            <span class="line"><span class="va">clone</span>.<span class="fn">clear</span>()</span>
+            <span class="line"><span class="cm"># → {}</span></span>
+          </div>
+          <div class="demo-output"><span class="out-prefix">&gt;&gt;&gt;</span><span id="res-delcopy">click ▶ RUN</span></div>
+          <div class="kv-list" id="kv-delcopy"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- IN / LEN / LOOP -->
+    <div class="card" data-delay="6">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(52,211,153,0.1)">📊</div>
+        <div><div class="card-name">in &nbsp;·&nbsp; len() &nbsp;·&nbsp; looping</div><div class="card-desc">Membership tests KEYS, not values — and it is instant</div></div>
+      </div>
+      <div class="card-body">
+        <div class="demo-area">
+          <div class="demo-bar"><span class="demo-label">LIVE DEMO</span><button class="run-btn" onclick="runBuiltins()">▶ RUN</button></div>
+          <div class="demo-code">
+            <span class="line"><span class="va">d</span> = {<span class="str">'a'</span>: <span class="num">10</span>, <span class="str">'b'</span>: <span class="num">20</span>, <span class="str">'c'</span>: <span class="num">30</span>}</span>
+            <span class="line blank"></span>
+            <span class="line"><span class="cm"># `in` checks KEYS — O(1), no searching</span></span>
+            <span class="line"><span class="kw">print</span>(<span class="str">'a'</span> <span class="kw">in</span> <span class="va">d</span>)</span>
+            <span class="line"><span class="cm"># → True</span></span>
+            <span class="line"><span class="kw">print</span>(<span class="num">10</span> <span class="kw">in</span> <span class="va">d</span>)</span>
+            <span class="line"><span class="cm"># → False  (10 is a value, not a key)</span></span>
+            <span class="line"><span class="kw">print</span>(<span class="num">10</span> <span class="kw">in</span> <span class="va">d</span>.<span class="fn">values</span>())</span>
+            <span class="line"><span class="cm"># → True</span></span>
+            <span class="line blank"></span>
+            <span class="line"><span class="cm"># len() = number of pairs</span></span>
+            <span class="line"><span class="kw">print</span>(<span class="fn">len</span>(<span class="va">d</span>))</span>
+            <span class="line blank"></span>
+            <span class="line"><span class="cm"># Looping a dict loops its KEYS</span></span>
+            <span class="line"><span class="kw">for</span> <span class="va">k</span> <span class="kw">in</span> <span class="va">d</span>:</span>
+            <span class="line">    <span class="kw">print</span>(<span class="va">k</span>, <span class="va">d</span>[<span class="va">k</span>])</span>
+          </div>
+          <div class="demo-output"><span class="out-prefix">&gt;&gt;&gt;</span><span id="res-builtins">click ▶ RUN</span></div>
+          <div class="kv-list" id="kv-builtins"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MERGE -->
+    <div class="card" data-delay="7">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(244,114,182,0.1)">🔗</div>
+        <div><div class="card-name">a | b &nbsp;·&nbsp; a |= b &nbsp;·&nbsp; {**a, **b}</div><div class="card-desc">Merging two dicts — the right side wins on conflicts</div></div>
+      </div>
+      <div class="card-body">
+        <div class="demo-area">
+          <div class="demo-bar"><span class="demo-label">LIVE DEMO</span><button class="run-btn" onclick="runMerge()">▶ RUN</button></div>
+          <div class="demo-code">
+            <span class="line"><span class="va">a</span> = {<span class="str">'x'</span>: <span class="num">1</span>, <span class="str">'y'</span>: <span class="num">2</span>}</span>
+            <span class="line"><span class="va">b</span> = {<span class="str">'y'</span>: <span class="num">99</span>, <span class="str">'z'</span>: <span class="num">3</span>}</span>
+            <span class="line blank"></span>
+            <span class="line"><span class="cm"># | makes a NEW dict (Python 3.9+)</span></span>
+            <span class="line"><span class="va">merged</span> = <span class="va">a</span> <span class="op">|</span> <span class="va">b</span></span>
+            <span class="line"><span class="cm"># → {'x': 1, 'y': 99, 'z': 3}   b wins on 'y'</span></span>
+            <span class="line blank"></span>
+            <span class="line"><span class="cm"># |= merges INTO a (like a.update(b))</span></span>
+            <span class="line"><span class="va">a</span> <span class="op">|=</span> <span class="va">b</span></span>
+            <span class="line blank"></span>
+            <span class="line"><span class="cm"># Works in every version: unpacking</span></span>
+            <span class="line"><span class="va">merged2</span> = {<span class="op">**</span><span class="va">a</span>, <span class="op">**</span><span class="va">b</span>}</span>
+          </div>
+          <div class="demo-output"><span class="out-prefix">&gt;&gt;&gt;</span><span id="res-merge">click ▶ RUN</span></div>
+          <div class="kv-list" id="kv-merge"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SORTING -->
+    <div class="card" data-delay="8">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(56,189,248,0.1)">🔢</div>
+        <div><div class="card-name">sorted() &nbsp;·&nbsp; max() &nbsp;·&nbsp; min()</div><div class="card-desc">Order a dict by its keys or by its values</div></div>
+      </div>
+      <div class="card-body">
+        <div class="demo-area">
+          <div class="demo-bar"><span class="demo-label">LIVE DEMO</span><button class="run-btn" onclick="runSorted()">▶ RUN</button></div>
+          <div class="demo-code">
+            <span class="line"><span class="va">scores</span> = {<span class="str">'dana'</span>: <span class="num">88</span>, <span class="str">'ben'</span>: <span class="num">95</span>, <span class="str">'ada'</span>: <span class="num">72</span>}</span>
+            <span class="line blank"></span>
+            <span class="line"><span class="cm"># Sorted by key (alphabetical)</span></span>
+            <span class="line"><span class="va">by_key</span> = <span class="fn">dict</span>(<span class="fn">sorted</span>(<span class="va">scores</span>.<span class="fn">items</span>()))</span>
+            <span class="line blank"></span>
+            <span class="line"><span class="cm"># Sorted by value, highest first</span></span>
+            <span class="line"><span class="va">by_val</span> = <span class="fn">dict</span>(<span class="fn">sorted</span>(</span>
+            <span class="line">    <span class="va">scores</span>.<span class="fn">items</span>(),</span>
+            <span class="line">    <span class="va">key</span>=<span class="kw">lambda</span> <span class="va">pair</span>: <span class="va">pair</span>[<span class="num">1</span>],</span>
+            <span class="line">    <span class="va">reverse</span>=<span class="kw">True</span>))</span>
+            <span class="line blank"></span>
+            <span class="line"><span class="cm"># The key with the biggest value</span></span>
+            <span class="line"><span class="va">best</span> = <span class="fn">max</span>(<span class="va">scores</span>, <span class="va">key</span>=<span class="va">scores</span>.<span class="fn">get</span>)</span>
+            <span class="line"><span class="cm"># → 'ben'</span></span>
+            <span class="line blank"></span>
+            <span class="line"><span class="va">total</span> = <span class="fn">sum</span>(<span class="va">scores</span>.<span class="fn">values</span>())</span>
+          </div>
+          <div class="demo-output"><span class="out-prefix">&gt;&gt;&gt;</span><span id="res-sorted">click ▶ RUN</span></div>
+          <div class="kv-list" id="kv-sorted"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NESTED -->
+    <div class="card" data-delay="9">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(251,191,36,0.1)">📦</div>
+        <div><div class="card-name">Nested Dicts</div><div class="card-desc">A value can be another dict — chain the brackets</div></div>
+      </div>
+      <div class="card-body">
+        <div class="demo-area">
+          <div class="demo-bar"><span class="demo-label">LIVE DEMO</span><button class="run-btn" onclick="runNested()">▶ RUN</button></div>
+          <div class="demo-code">
+            <span class="line"><span class="va">school</span> = {</span>
+            <span class="line">    <span class="str">'dana'</span>: {<span class="str">'age'</span>: <span class="num">17</span>, <span class="str">'grade'</span>: <span class="num">92</span>},</span>
+            <span class="line">    <span class="str">'ben'</span>:  {<span class="str">'age'</span>: <span class="num">18</span>, <span class="str">'grade'</span>: <span class="num">78</span>},</span>
+            <span class="line">}</span>
+            <span class="line blank"></span>
+            <span class="line"><span class="cm"># Chain the keys to go deeper</span></span>
+            <span class="line"><span class="kw">print</span>(<span class="va">school</span>[<span class="str">'dana'</span>][<span class="str">'grade'</span>])</span>
+            <span class="line"><span class="cm"># → 92</span></span>
+            <span class="line blank"></span>
+            <span class="line"><span class="cm"># Safe chaining with .get()</span></span>
+            <span class="line"><span class="kw">print</span>(<span class="va">school</span>.<span class="fn">get</span>(<span class="str">'zoe'</span>, {}).<span class="fn">get</span>(<span class="str">'grade'</span>, <span class="num">0</span>))</span>
+            <span class="line"><span class="cm"># → 0   (no crash)</span></span>
+            <span class="line blank"></span>
+            <span class="line"><span class="kw">for</span> <span class="va">name</span>, <span class="va">info</span> <span class="kw">in</span> <span class="va">school</span>.<span class="fn">items</span>():</span>
+            <span class="line">    <span class="kw">print</span>(<span class="va">name</span>, <span class="va">info</span>[<span class="str">'age'</span>])</span>
+          </div>
+          <div class="demo-output"><span class="out-prefix">&gt;&gt;&gt;</span><span id="res-nested">click ▶ RUN</span></div>
+          <div class="kv-list" id="kv-nested"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COUNTING -->
+    <div class="card" data-delay="10">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(52,211,153,0.1)">🧮</div>
+        <div><div class="card-name">The Counting Pattern</div><div class="card-desc">The #1 real-world use of a dict — tally things up</div></div>
+      </div>
+      <div class="card-body">
+        <div class="demo-area">
+          <div class="demo-bar"><span class="demo-label">LIVE DEMO</span><button class="run-btn" onclick="runCount()">▶ RUN</button></div>
+          <div class="demo-code">
+            <span class="line"><span class="va">text</span> = <span class="str">'mississippi'</span></span>
+            <span class="line"><span class="va">counts</span> = {}</span>
+            <span class="line blank"></span>
+            <span class="line"><span class="kw">for</span> <span class="va">ch</span> <span class="kw">in</span> <span class="va">text</span>:</span>
+            <span class="line">    <span class="va">counts</span>[<span class="va">ch</span>] = <span class="va">counts</span>.<span class="fn">get</span>(<span class="va">ch</span>, <span class="num">0</span>) <span class="op">+</span> <span class="num">1</span></span>
+            <span class="line blank"></span>
+            <span class="line"><span class="kw">print</span>(<span class="va">counts</span>)</span>
+            <span class="line"><span class="cm"># → {'m': 1, 'i': 4, 's': 4, 'p': 2}</span></span>
+          </div>
+          <div class="demo-output"><span class="out-prefix">&gt;&gt;&gt;</span><span id="res-count">click ▶ RUN</span></div>
+          <div class="kv-list" id="kv-count"></div>
+        </div>
+        <div class="note">Notice you cannot write <code>counts[ch] += 1</code> here — on the first letter the key does not exist yet, so <code>+= 1</code> reads a missing key and raises <code>KeyError</code>. That is exactly the problem <code>defaultdict</code> solves ↓</div>
+      </div>
+    </div>
+
+    <!-- DEFAULTDICT -->
+    <div class="card" data-delay="11">
+      <div class="card-header">
+        <div class="card-icon" style="background:rgba(56,189,248,0.1)">🪄</div>
+        <div><div class="card-name">defaultdict(int)</div><div class="card-desc">A dict that invents a starting value — so += just works</div></div>
+      </div>
+      <div class="card-body">
+        <div class="demo-area">
+          <div class="demo-bar"><span class="demo-label">LIVE DEMO</span><button class="run-btn" onclick="runDefaultdict()">▶ RUN</button></div>
+          <div class="demo-code">
+            <span class="line"><span class="kw">from</span> <span class="va">collections</span> <span class="kw">import</span> <span class="fn">defaultdict</span></span>
+            <span class="line blank"></span>
+            <span class="line"><span class="va">text</span> = <span class="str">'mississippi'</span></span>
+            <span class="line blank"></span>
+            <span class="line"><span class="cm"># int() is 0 — every new key starts at 0</span></span>
+            <span class="line"><span class="va">counts</span> = <span class="fn">defaultdict</span>(<span class="fn">int</span>)</span>
+            <span class="line blank"></span>
+            <span class="line"><span class="kw">for</span> <span class="va">ch</span> <span class="kw">in</span> <span class="va">text</span>:</span>
+            <span class="line">    <span class="va">counts</span>[<span class="va">ch</span>] <span class="op">+=</span> <span class="num">1</span>   <span class="cm"># no .get(), no KeyError</span></span>
+            <span class="line blank"></span>
+            <span class="line"><span class="kw">print</span>(<span class="va">counts</span>[<span class="str">'s'</span>])</span>
+            <span class="line"><span class="cm"># → 4</span></span>
+            <span class="line blank"></span>
+            <span class="line"><span class="cm"># A letter that was never there is simply 0</span></span>
+            <span class="line"><span class="kw">print</span>(<span class="va">counts</span>[<span class="str">'z'</span>])</span>
+            <span class="line"><span class="cm"># → 0   (and 'z' is now IN the dict!)</span></span>
+            <span class="line blank"></span>
+            <span class="line"><span class="cm"># Turn it back into a plain dict when done</span></span>
+            <span class="line"><span class="va">plain</span> = <span class="fn">dict</span>(<span class="va">counts</span>)</span>
+          </div>
+          <div class="demo-output"><span class="out-prefix">&gt;&gt;&gt;</span><span id="res-defaultdict">click ▶ RUN</span></div>
+          <div class="kv-list" id="kv-defaultdict"></div>
+        </div>
+        <div class="note"><b>The factory:</b> you pass a <i>function</i>, not a value. <code>defaultdict(int)</code> → <code>0</code>, <code>defaultdict(list)</code> → <code>[]</code>, <code>defaultdict(str)</code> → <code>''</code>, <code>defaultdict(set)</code> → <code>set()</code>. Python calls it fresh for every missing key. <b>Careful:</b> just <i>looking at</i> a missing key creates it — use <code>counts.get(ch)</code> when you only want to peek, since <code>.get()</code> never adds anything.</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+</main>
+<footer><span style="color:var(--accent)">python</span> · dictionaries reference guide · built with ❤️ and code</footer>
+
+<script>
+// ── Background decor ──
+const bg = document.getElementById('bgDecor');
+const chars = ['{','}',':','→','k','v'];
+function spawnBracket() {
+  const el = document.createElement('div');
+  el.className = 'bg-bracket';
+  el.textContent = chars[Math.floor(Math.random()*chars.length)];
+  el.style.left = Math.random()*90+'%';
+  el.style.animationDuration = (18+Math.random()*20)+'s';
+  el.style.animationDelay = (Math.random()*5)+'s';
+  bg.appendChild(el);
+  setTimeout(()=>el.remove(), 40000);
+}
+setInterval(spawnBracket, 3000);
+spawnBracket(); spawnBracket(); spawnBracket();
+
+// ── Scroll reveal ──
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const delay = parseInt(e.target.dataset.delay||0)*100;
+      setTimeout(()=>e.target.classList.add('visible'), delay);
+    }
+  });
+}, { threshold: 0.1 });
+document.querySelectorAll('.card').forEach(el=>observer.observe(el));
+
+// ── Render key → value pairs ──
+// pairs: [[key, value, cssClass?], ...]
+function renderKV(id, pairs) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = '';
+  pairs.forEach(([k, v, cls], i) => {
+    const row = document.createElement('div');
+    row.className = 'kv' + (cls ? ' ' + cls : '');
+    row.style.animationDelay = (i*70)+'ms';
+    const kEl = document.createElement('span');
+    kEl.className = 'k'; kEl.textContent = k;
+    const aEl = document.createElement('span');
+    aEl.className = 'arrow'; aEl.textContent = '→';
+    const vEl = document.createElement('span');
+    vEl.className = 'v'; vEl.textContent = v;
+    row.append(kEl, aEl, vEl);
+    el.appendChild(row);
+  });
+}
+
+// ── Render a flat pill row ──
+function renderPills(id, items, hl = []) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = '';
+  items.forEach((item, i) => {
+    const d = document.createElement('div');
+    d.className = 'aitem' + (hl.includes(item) ? ' hl' : '');
+    d.style.animationDelay = (i*60)+'ms';
+    d.textContent = item;
+    el.appendChild(d);
+  });
+}
+
+// ── Format a JS object the way Python prints a dict ──
+function py(v) {
+  if (v === null) return 'None';
+  if (v === true) return 'True';
+  if (v === false) return 'False';
+  if (typeof v === 'string') return "'" + v + "'";
+  if (Array.isArray(v)) return '[' + v.map(py).join(', ') + ']';
+  if (v instanceof Map) return '{' + [...v].map(([k, val]) => py(k) + ': ' + py(val)).join(', ') + '}';
+  if (typeof v === 'object') return '{' + Object.entries(v).map(([k, val]) => py(k) + ': ' + py(val)).join(', ') + '}';
+  return String(v);
+}
+// Object.entries always stringifies keys — keep numeric keys looking numeric
+function pyNumKeys(obj) {
+  return '{' + Object.entries(obj).map(([k, v]) => k + ': ' + py(v)).join(', ') + '}';
+}
+function pairsOf(obj) { return Object.entries(obj).map(([k, v]) => [k, py(v)]); }
+
+// ── Creation visuals ──
+setTimeout(() => {
+  renderKV('vis1', [["'name'", "'Dana'"], ["'age'", '17'], ["'city'", "'Haifa'"]]);
+  renderKV('vis2', [["'red'", "'#f00'"], ["'green'", "'#0f0'"], ["'blue'", "'#00f'"]]);
+  renderKV('vis4', [["'a'", '0'], ["'b'", '0'], ["'c'", '0']]);
+}, 600);
+
+/* ════════ SECTION 2 — METHOD RUNNERS ════════ */
+
+function runGet() {
+  const d = { name: 'Dana', age: 17 };
+  document.getElementById('res-get').textContent =
+    "d['name'] → 'Dana'\n" +
+    "d['city'] → KeyError: 'city'\n" +
+    "d.get('city') → None\n" +
+    "d.get('city', 'unknown') → 'unknown'";
+  renderKV('kv-get', [["'name'", "'Dana'", 'hl'], ["'age'", '17'], ["'city'", '?  missing', 'gone']]);
+}
+
+function runViews() {
+  const stock = { apple: 5, banana: 2, cherry: 9 };
+  const keys = Object.keys(stock);
+  const vals = Object.values(stock);
+  document.getElementById('res-views').textContent =
+    'dict_keys([' + keys.map(py).join(', ') + '])\n' +
+    'dict_values([' + vals.join(', ') + '])\n' +
+    keys.map(k => k + ' → ' + stock[k]).join('\n');
+  renderPills('al-views', keys);
+  renderKV('kv-views', pairsOf(stock));
+}
+
+function runUpdate() {
+  const d = { name: 'Dana', age: 17 };
+  d.city = 'Haifa';
+  d.age = 18;
+  Object.assign(d, { age: 19, grade: 12 });
+  d.city = 'Tel Aviv';
+  document.getElementById('res-update').textContent = py(d);
+  renderKV('kv-update', [
+    ["'name'", "'Dana'"],
+    ["'age'", '19', 'hl'],
+    ["'city'", "'Tel Aviv'", 'new'],
+    ["'grade'", '12', 'new'],
+  ]);
+}
+
+function runPop() {
+  const d = { a: 1, b: 2, c: 3, d: 4 };
+  const val = d.b; delete d.b;
+  const safe = 'not here';
+  const lastKey = Object.keys(d)[Object.keys(d).length - 1];
+  const pair = "('" + lastKey + "', " + d[lastKey] + ')';
+  delete d[lastKey];
+  document.getElementById('res-pop').textContent =
+    'pop("b") → ' + val + '\n' +
+    'pop("zzz", "not here") → ' + py(safe) + '\n' +
+    'popitem() → ' + pair + '\n' +
+    'd → ' + py(d);
+  renderKV('kv-pop', [
+    ["'a'", '1'],
+    ["'b'", '2', 'gone'],
+    ["'c'", '3'],
+    ["'d'", '4', 'gone'],
+  ]);
+}
+
+function runSetdefault() {
+  const d = { name: 'Dana' };
+  const kept = d.name;                      // key exists → unchanged
+  if (!('age' in d)) d.age = 17;            // key missing → inserted
+  const groups = {};
+  ['cat', 'cow', 'dog'].forEach(w => {
+    const k = w[0];
+    if (!(k in groups)) groups[k] = [];
+    groups[k].push(w);
+  });
+  document.getElementById('res-setdefault').textContent =
+    "setdefault('name', 'Bob') → " + py(kept) + "   (unchanged)\n" +
+    "setdefault('age', 17) → 17   (inserted)\n" +
+    'd → ' + py(d) + '\n' +
+    'groups → ' + py(groups);
+  renderKV('kv-setdefault', [
+    ["'name'", "'Dana'", 'hl'],
+    ["'age'", '17', 'new'],
+    ["'c'", "['cat', 'cow']"],
+    ["'d'", "['dog']"],
+  ]);
+}
+
+function runDelCopy() {
+  const d = { a: 1, b: 2, c: 3 };
+  delete d.b;
+  const afterDel = py(d);
+  const clone = { ...d };
+  clone.a = 99;
+  const alias = d;      // same object
+  alias.a = 0;
+  const cloneBefore = py(clone);
+  for (const k in clone) delete clone[k];
+  document.getElementById('res-delcopy').textContent =
+    "del d['b'] → " + afterDel + '\n' +
+    'clone (a set to 99) → ' + cloneBefore + '\n' +
+    "alias['a'] = 0  →  d is now " + py(d) + '   (aliases share!)\n' +
+    'clone.clear() → ' + py(clone);
+  renderKV('kv-delcopy', [
+    ["'a'", '0', 'hl'],
+    ["'b'", '2', 'gone'],
+    ["'c'", '3'],
+  ]);
+}
+
+function runBuiltins() {
+  const d = { a: 10, b: 20, c: 30 };
+  document.getElementById('res-builtins').textContent =
+    "'a' in d → True\n" +
+    '10 in d → False        (10 is a value)\n' +
+    '10 in d.values() → True\n' +
+    'len(d) → ' + Object.keys(d).length + '\n' +
+    Object.entries(d).map(([k, v]) => k + ' ' + v).join('\n');
+  renderKV('kv-builtins', pairsOf(d));
+}
+
+function runMerge() {
+  const a = { x: 1, y: 2 }, b = { y: 99, z: 3 };
+  const merged = { ...a, ...b };
+  Object.assign(a, b);   // a |= b
+  document.getElementById('res-merge').textContent =
+    'a | b → ' + py(merged) + '\n' +
+    'a |= b → a is now ' + py(a) + '\n' +
+    '{**a, **b} → ' + py({ ...a, ...b });
+  renderKV('kv-merge', [
+    ["'x'", '1'],
+    ["'y'", '99', 'hl'],
+    ["'z'", '3', 'new'],
+  ]);
+}
+
+function runSorted() {
+  const scores = { dana: 88, ben: 95, ada: 72 };
+  const byKey = Object.fromEntries(Object.entries(scores).sort((p, q) => p[0] < q[0] ? -1 : 1));
+  const byVal = Object.fromEntries(Object.entries(scores).sort((p, q) => q[1] - p[1]));
+  const best = Object.keys(scores).reduce((m, k) => scores[k] > scores[m] ? k : m);
+  const total = Object.values(scores).reduce((s, n) => s + n, 0);
+  document.getElementById('res-sorted').textContent =
+    'by_key → ' + py(byKey) + '\n' +
+    'by_val → ' + py(byVal) + '\n' +
+    'max(scores, key=scores.get) → ' + py(best) + '\n' +
+    'sum(scores.values()) → ' + total;
+  renderKV('kv-sorted', Object.entries(byVal).map(([k, v], i) => ["'" + k + "'", String(v), i === 0 ? 'hl' : '']));
+}
+
+function runNested() {
+  const school = {
+    dana: { age: 17, grade: 92 },
+    ben: { age: 18, grade: 78 },
+  };
+  document.getElementById('res-nested').textContent =
+    "school['dana']['grade'] → " + school.dana.grade + '\n' +
+    "school.get('zoe', {}).get('grade', 0) → 0\n" +
+    Object.entries(school).map(([n, i]) => n + ' ' + i.age).join('\n');
+  renderKV('kv-nested', [
+    ["'dana'", "{'age': 17, 'grade': 92}"],
+    ["'ben'", "{'age': 18, 'grade': 78}"],
+  ]);
+}
+
+function runCount() {
+  const text = 'mississippi';
+  const counts = {};
+  for (const ch of text) counts[ch] = (counts[ch] || 0) + 1;
+  document.getElementById('res-count').textContent = py(counts);
+  renderKV('kv-count', Object.entries(counts).map(([k, v]) => ["'" + k + "'", String(v)]));
+}
+
+function runDefaultdict() {
+  const text = 'mississippi';
+  const counts = {};
+  // defaultdict(int): a missing key is born as 0, so += 1 always has something to add to
+  for (const ch of text) {
+    if (!(ch in counts)) counts[ch] = 0;   // what defaultdict does for you
+    counts[ch] += 1;
+  }
+  const s = counts['s'];
+  if (!('z' in counts)) counts['z'] = 0;   // reading 'z' inserts it
+  document.getElementById('res-defaultdict').textContent =
+    "counts['s'] → " + s + '\n' +
+    "counts['z'] → 0        ('z' was just created)\n" +
+    'counts → defaultdict(<class \'int\'>, ' + py(counts) + ')\n' +
+    'dict(counts) → ' + py(counts);
+  renderKV('kv-defaultdict', Object.entries(counts).map(
+    ([k, v]) => ["'" + k + "'", String(v), k === 'z' ? 'new' : (k === 's' ? 'hl' : '')]));
+}
+</script>
+</body>
+</html>
