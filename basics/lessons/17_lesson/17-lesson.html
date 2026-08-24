@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lesson 17 - Dicts Part 2 &amp; Functions</title>
+  <style>
+    :root {
+      --bg-soft: #ffffff;
+      --green-1: #0f5a2e;
+      --green-2: #1f8f4e;
+      --green-3: #dbf6e5;
+      --mint: #e6fff2;
+      --text: #14281d;
+      --muted: #426654;
+      --border: #aadfbd;
+      --accent-a: #ddfbe7;
+      --accent-b: #fff4d8;
+      --code-bg: #0b2517;
+      --code-text: #d2ffe3;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Lucida Sans", "Segoe UI", sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 15% 10%, #e7fff0 0%, transparent 35%),
+                  radial-gradient(circle at 85% 18%, #fff5d6 0%, transparent 36%),
+                  linear-gradient(180deg, #f4fff6 0%, #ffffff 45%, #edfff4 100%);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    body::before, body::after {
+      content: "";
+      position: fixed;
+      width: 230px;
+      height: 230px;
+      z-index: -1;
+      border-radius: 999px;
+      filter: blur(2px);
+      opacity: 0.32;
+      animation: blobMove 8s ease-in-out infinite alternate;
+    }
+    body::before { background: #bff0d0; top: -30px; left: -40px; }
+    body::after { background: #ffe9a9; bottom: -40px; right: -40px; animation-delay: 1.4s; }
+
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 24px; }
+    .layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    /* a grid item defaults to min-width:auto and refuses to shrink below its
+       widest line — without this, one long console line stretches the panel */
+    .layout > main { min-width: 0; }
+    .card > * { max-width: 100%; }
+
+    .side-nav {
+      position: sticky;
+      top: 14px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 8px 22px rgba(18,102,55,0.1);
+      padding: 12px;
+    }
+    .side-title { margin: 0 0 8px; font-size: 0.9rem; color: var(--green-1); font-weight: 700; }
+    .topic-link {
+      display: block;
+      width: 100%;
+      text-align: left;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      padding: 8px 10px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.89rem;
+      text-transform: lowercase;
+      margin-bottom: 4px;
+      transition: all 0.2s ease;
+    }
+    .topic-link:hover { background: #f0fff4; color: var(--green-1); border-color: var(--border); }
+    .topic-link.active { background: #e8faee; color: var(--green-1); border-color: var(--green-2); font-weight: 700; }
+
+    .hero {
+      background: linear-gradient(135deg, var(--bg-soft) 0%, var(--accent-a) 55%, var(--accent-b) 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 12px 30px rgba(24,110,58,0.12);
+      margin-bottom: 22px;
+      animation: riseIn 0.75s ease both;
+    }
+
+    h1, h2, h3 { margin-top: 0; color: var(--green-1); }
+    h1 { font-size: 2rem; margin-bottom: 8px; }
+    code { color: var(--green-1); font-weight: 700; }
+
+    .tag {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      background: var(--green-3);
+      color: var(--green-1);
+      border: 1px solid var(--border);
+      margin-bottom: 10px;
+    }
+
+    .card {
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 16px;
+      box-shadow: 0 7px 22px rgba(18,102,55,0.08);
+      animation: riseIn 0.65s ease both;
+    }
+
+    .topic-panel { display: none; }
+    .topic-panel.active { display: block; }
+    .step-title { margin: 0 0 12px; font-size: 1.25rem; }
+    .side-divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+    .side-section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--green-2);
+      padding: 4px 4px 6px;
+    }
+    .nav-back {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--green-2);
+      background: #e9fbe8;
+      color: var(--green-1);
+      text-decoration: none;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      width: 100%;
+      text-align: center;
+    }
+    .nav-back:hover { background: #d8f7df; transform: translateY(-1px); }
+
+    .note {
+      background: var(--mint);
+      border-left: 4px solid var(--green-2);
+      padding: 10px 14px;
+      color: var(--muted);
+      margin: 12px 0;
+      border-radius: 6px;
+      font-size: 0.94rem;
+    }
+    .warn {
+      background: #fff6e2;
+      border-left: 4px solid #e0a800;
+      padding: 10px 14px;
+      color: #6b4e00;
+      margin: 12px 0;
+      border-radius: 6px;
+      font-size: 0.94rem;
+    }
+    .big-result { font-size: 1.1rem; margin: 18px 0 8px; color: var(--green-1); font-weight: 700; }
+
+    .code {
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 10px;
+      border: 1px solid #2f5a3d;
+      padding: 16px 18px;
+      overflow-x: auto;
+      margin: 10px 0 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95rem;
+      white-space: pre;
+      line-height: 1.7;
+    }
+    .code .cm { color: #6dbf8a; }
+    .code .fn { color: #ffa657; }
+    .code .kw { color: #79c0ff; }
+    .code .num { color: #d2a8ff; }
+    .code .str { color: #ffd580; }
+    .code .hl { background: rgba(125,231,135,0.16); border-radius: 4px; }
+    .code .bad { background: rgba(248,113,113,0.16); border-radius: 4px; }
+
+    .console {
+      background: #101418;
+      color: #e6edf3;
+      border-radius: 10px;
+      border: 1px solid #30363d;
+      padding: 12px 18px;
+      overflow-x: auto;
+      margin: 10px 0 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92rem;
+      white-space: pre;
+      line-height: 1.7;
+    }
+    .console .usr { color: #7ee787; font-weight: 700; }
+    .console .dim { color: #8b949e; }
+    .console .err { color: #ff9f9f; }
+
+    .ex-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .88rem;
+      margin: 10px 0 14px;
+    }
+    .ex-table th {
+      background: var(--green-3);
+      color: var(--green-1);
+      padding: 8px 12px;
+      text-align: left;
+      border: 1px solid var(--border);
+      font-size: .78rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+    .ex-table td { padding: 8px 12px; border: 1px solid var(--border); vertical-align: top; }
+    .ex-table tr:nth-child(even) td { background: #f4fff7; }
+    .task-box {
+      background: var(--mint);
+      border: 2px dashed var(--green-2);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin: 14px 0;
+    }
+    .task-box a {
+      color: var(--green-1);
+      font-weight: 800;
+      font-size: 1.02rem;
+      word-break: break-all;
+    }
+    .footer { text-align: center; color: var(--muted); font-size: 0.86rem; padding: 10px 0 16px; }
+
+    .task-list { padding-left: 22px; margin: 10px 0 0; }
+    .task-list li { margin-bottom: 10px; color: #1a3a2a; }
+    .task-list li strong { color: var(--green-1); }
+
+    .ex-title { display: flex; align-items: center; margin: 22px 0 8px; }
+    .ex-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--green-3); border: 2px solid var(--green-2);
+      color: var(--green-1); font-weight: 800; font-size: .88rem;
+      margin-right: 8px; flex-shrink: 0;
+    }
+    .ex-title h3 { margin: 0; font-size: 1.1rem; }
+
+    .kbd {
+      display: inline-block; padding: 2px 8px; border-radius: 6px;
+      background: #f0fff4; border: 1px solid var(--border);
+      border-bottom-width: 3px; font-family: Consolas, monospace;
+      font-size: .85rem; color: var(--green-1); font-weight: 700;
+    }
+
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 6px; }
+    .pill {
+      display: inline-block; padding: 4px 12px; border-radius: 999px;
+      background: #eafcef; border: 1px solid var(--border);
+      color: var(--green-1); font-weight: 700; font-size: .82rem;
+    }
+    .pill.now { background: #fff0c2; border-color: #e0a800; color: #6b4e00; }
+
+    .submission { background: var(--mint); border-color: var(--green-2); margin-top: 0; }
+    .submission a { color: var(--green-1); font-weight: 800; font-size: 1.05rem; word-break: break-all; }
+
+    /* ── Module toolbox ── */
+    .toolbox {
+      background: #f7fffb; border: 1px solid var(--border);
+      border-radius: 14px; padding: 16px 18px; margin: 14px 0;
+    }
+    .toolbox .tb-head {
+      display: flex; align-items: center; gap: 8px;
+      font-weight: 800; color: var(--green-1); margin-bottom: 10px;
+    }
+    .toolbox .tb-head .tb-ic {
+      width: 30px; height: 30px; border-radius: 9px; flex-shrink: 0;
+      background: linear-gradient(160deg, #2dd4bf, #0d9488);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 1rem;
+    }
+    .tool-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tool {
+      font-family: Consolas, monospace; font-size: .82rem; font-weight: 700;
+      background: #ffffff; border: 1px solid var(--border);
+      border-bottom-width: 3px; border-radius: 9px;
+      padding: 6px 11px; color: var(--green-1);
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .tool:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(18,102,55,0.16); }
+    .tool small { display: block; font-family: "Trebuchet MS", sans-serif; font-weight: 400; color: var(--muted); font-size: .72rem; }
+
+    /* ── before / after boxes ── */
+    .ba { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 12px 0 14px; }
+    .ba .bx {
+      font-family: Consolas, monospace; font-weight: 700; font-size: .95rem;
+      background: #ffffff; border: 1px solid var(--border);
+      border-bottom-width: 3px; border-radius: 10px; padding: 9px 13px; color: var(--green-1);
+      white-space: pre;
+    }
+    .ba .bx.old { background: #fff6e2; border-color: #e6c46a; color: #6b4e00; }
+    .ba .arw { font-weight: 800; color: var(--muted); }
+
+    /* ── side-by-side compare columns ── */
+    .vs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0 14px; }
+    .vs > div { min-width: 0; }
+    .vs .vs-head {
+      font-weight: 800; color: var(--green-1); font-size: .92rem;
+      padding: 6px 10px; border-radius: 8px; background: var(--green-3);
+      border: 1px solid var(--border); margin-bottom: 6px; text-align: center;
+    }
+    .vs .vs-head.bad { background: #fff6e2; border-color: #e6c46a; color: #6b4e00; }
+    .vs .code, .vs .console { margin: 0 0 8px; font-size: .88rem; }
+
+    /* ── key → value rows ── */
+    .kvbox {
+      background: #f5fff9; border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px 18px; margin: 12px 0 14px;
+    }
+    .kvrow { display: flex; align-items: stretch; margin-bottom: 6px; flex-wrap: wrap; }
+    .kvrow .kk, .kvrow .vv {
+      font-family: Consolas, monospace; font-weight: 800; font-size: .88rem;
+      padding: 6px 12px; border: 1px solid var(--border);
+    }
+    .kvrow .kk {
+      background: linear-gradient(160deg, #d6f8e4, #a9ecc6);
+      border-color: #7fd6a3; color: #08351d;
+      border-radius: 9px 0 0 9px; min-width: 130px;
+    }
+    .kvrow .ar {
+      display: flex; align-items: center; padding: 0 10px;
+      color: var(--muted); font-weight: 800; background: #ffffff;
+      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    }
+    .kvrow .vv { background: #ffffff; color: var(--green-1); border-radius: 0 9px 9px 0; border-left: none; }
+    .kvrow .vv.list { background: #fffaf0; color: #6b4e00; border-color: #e6c46a; }
+    .kvrow .vv.dict { background: #eef8ff; color: #1c4e80; border-color: #a9cdec; }
+    .kvrow .vv.set { background: #f7f0ff; color: #5b2a86; border-color: #cbb0e8; }
+    .kvbox-cap { font-family: Consolas, monospace; font-weight: 800; color: var(--green-1); margin-bottom: 8px; font-size: .88rem; }
+
+    /* ── figure blocks (the drawings) ── */
+    .fig {
+      background: #f5fff9; border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px; margin: 14px 0;
+      text-align: center;
+    }
+    .fig svg { width: 100%; height: auto; max-width: 620px; }
+    .fig .figcap {
+      font-size: .84rem; color: var(--muted); margin-top: 8px;
+      font-style: italic;
+    }
+
+    /* ── D&D item rack ── */
+    .rack { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 12px 0 6px; }
+    .slot {
+      width: 96px; padding: 10px 6px; border-radius: 12px; text-align: center;
+      background: linear-gradient(160deg, #ffffff, #eafcef);
+      border: 1px solid var(--border); border-bottom-width: 3px;
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .slot:hover { transform: translateY(-3px); box-shadow: 0 8px 16px rgba(18,102,55,0.18); }
+    .slot .ic { font-size: 1.9rem; line-height: 1.2; }
+    .slot .nm { font-family: Consolas, monospace; font-weight: 800; font-size: .78rem; color: var(--green-1); }
+    .slot.picked { background: linear-gradient(160deg, #fff6d9, #ffe9a9); border-color: #e0a800; }
+
+    /* ── attribute bars ── */
+    .stats { background: #f5fff9; border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; margin: 12px 0 14px; }
+    .stat { display: grid; grid-template-columns: 116px 1fr 34px; gap: 10px; align-items: center; margin-bottom: 7px; }
+    .stat .snm { font-family: Consolas, monospace; font-weight: 800; color: var(--green-1); font-size: .82rem; }
+    .stat .strack { height: 15px; border-radius: 8px; background: #e3efe8; border: 1px solid var(--border); overflow: hidden; }
+    .stat .sfill { height: 100%; background: linear-gradient(90deg, #a9ecc6, #4fc47f); }
+    .stat .sfill.hi { background: linear-gradient(90deg, #ffe1a8, #f0b429); }
+    .stat .sval { font-family: Consolas, monospace; font-weight: 800; color: var(--muted); font-size: .82rem; text-align: right; }
+
+    /* ── Hebrew / right-to-left panel ── */
+    .rtl { direction: rtl; text-align: right; }
+    .rtl .task-list { padding-left: 0; padding-right: 22px; }
+    .rtl .ex-table th, .rtl .ex-table td { text-align: right; }
+    .rtl .note, .rtl .warn { border-left: none; border-right: 4px solid var(--green-2); }
+    .rtl .warn { border-right-color: #e0a800; }
+    /* code and output stay English — always left-aligned, even on an RTL page */
+    .rtl .code, .rtl .console { direction: ltr; text-align: left; }
+
+    /* ── numbered build steps ── */
+    .steps { counter-reset: st; padding: 0; margin: 12px 0 0; list-style: none; }
+    .steps > li { position: relative; padding-left: 40px; margin-bottom: 18px; }
+    .steps > li::before {
+      counter-increment: st; content: counter(st);
+      position: absolute; left: 0; top: 0;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--green-3); border: 2px solid var(--green-2);
+      color: var(--green-1); font-weight: 800; font-size: .86rem;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .steps > li > .sh { font-weight: 800; color: var(--green-1); display: block; margin-bottom: 2px; }
+
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes blobMove {
+      from { transform: translate(0, 0) scale(1); }
+      to { transform: translate(24px, 18px) scale(1.06); }
+    }
+
+    @media (max-width: 760px) {
+      .wrap { padding: 14px; }
+      .layout { grid-template-columns: 1fr; }
+      .side-nav { position: static; }
+      h1 { font-size: 1.6rem; }
+      .code { font-size: 0.86rem; }
+      .ex-table { font-size: .8rem; }
+      .vs { grid-template-columns: 1fr; }
+      .kvrow .kk { min-width: 0; }
+      .stat { grid-template-columns: 92px 1fr 30px; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <span class="tag">Lesson 17 - August 24, 2026</span>
+    <h1>Dicts, Part 2 — and Your First Function 🔧</h1>
+    <p>Two halves today. First we finish the dictionary: taking pairs <em>out</em> (<code>pop</code>, <code>popitem</code>, <code>del</code>), filling in what is missing (<code>setdefault</code>), copying without accidentally sharing, merging two dicts with <code>|</code>, and the one line everybody wants — <strong>which key holds the biggest value</strong>. Then we put all of it to work on the job a dict was born for: <strong>counting things</strong>. And in the last file something genuinely new arrives — <code>def</code>. Until now your program was one long list of instructions running top to bottom. From today you can give a block of code a <strong>name</strong> and call it whenever you want.</p>
+  </section>
+
+  <div class="layout">
+    <aside class="side-nav" aria-label="Topic navigation">
+      <div class="side-title">Lesson 17 topics</div>
+
+      <div class="side-section-label">1 · Dicts, part 2</div>
+      <button class="topic-link active" data-target="topic-unpack">unpacking in a for</button>
+      <button class="topic-link" data-target="topic-items">.items() — both halves</button>
+      <button class="topic-link" data-target="topic-remove">pop · popitem · del</button>
+      <button class="topic-link" data-target="topic-setdefault">setdefault</button>
+      <button class="topic-link" data-target="topic-copy">copy vs alias · clear</button>
+      <button class="topic-link" data-target="topic-in">in · len · looping</button>
+      <button class="topic-link" data-target="topic-merge">merging with |</button>
+      <button class="topic-link" data-target="topic-max">max(d, key=d.get) 🏆</button>
+
+      <div class="side-section-label">2 · Counting</div>
+      <button class="topic-link" data-target="topic-count">the counting pattern</button>
+      <button class="topic-link" data-target="topic-defaultdict">defaultdict</button>
+
+      <div class="side-section-label">3 · Functions</div>
+      <button class="topic-link" data-target="topic-func">def — your first function</button>
+      <button class="topic-link" data-target="topic-order">define before you call</button>
+      <button class="topic-link" data-target="topic-global">global</button>
+      <button class="topic-link" data-target="topic-doc">docstring &amp; help()</button>
+
+      <hr class="side-divider">
+      <button class="topic-link" data-target="topic-github">github folder</button>
+      <button class="topic-link" data-target="topic-exercise">exercise - power of 2 ⚡</button>
+      <button class="topic-link" data-target="topic-homework-heb">שיעורי בית - עברית</button>
+
+      <div class="side-section-label">Navigation</div>
+      <a class="nav-back" href="../../index.html#lessons">Back to lessons</a>
+    </aside>
+
+    <main>
+
+      <!-- ═══ UNPACKING ═══ -->
+      <section class="card topic-panel active" id="topic-unpack">
+        <span class="tag">03_dict.py</span>
+        <h2 class="step-title">A <code>for</code> Loop Can Open the Box 📦</h2>
+        <p>The file opens with a line that looks strange until you see what it does:</p>
+        <div class="code">l1 = [{<span class="num">1</span>, <span class="num">2</span>}, [<span class="num">3</span>, <span class="num">4</span>], (<span class="num">5</span>, <span class="num">6</span>)]
+
+<span class="kw">for</span> x, y <span class="kw">in</span> l1:
+    <span class="fn">print</span>(<span class="str">'x='</span>, x, <span class="str">'y='</span>, y)</div>
+        <div class="console"><span class="dim">x= 1 y= 2</span>
+<span class="dim">x= 3 y= 4</span>
+<span class="dim">x= 5 y= 6</span></div>
+        <p>A list of three items — a <strong>set</strong>, a <strong>list</strong> and a <strong>tuple</strong>. Every one of them holds exactly two things, so instead of writing <code>for item in l1</code> and then digging out <code>item[0]</code> and <code>item[1]</code>, you write <strong>two names</strong> in the <code>for</code> line and Python hands you both at once. That is <strong>unpacking</strong>.</p>
+        <div class="ba">
+          <div class="bx old">for item in l1:
+    x = item[0]
+    y = item[1]</div>
+          <span class="arw">→</span>
+          <div class="bx">for x, y in l1:</div>
+        </div>
+        <div class="warn">
+          The number of names must match the number of items. If one entry held three things, <code>for x, y in l1</code> would raise <code>ValueError: too many values to unpack</code>. And a set has no order — <code>{1, 2}</code> only came out as <code>x=1 y=2</code> because of how these particular small numbers happen to be stored. Never rely on it.
+        </div>
+        <p>Remember this shape, because the very next thing in the file is a dictionary handing you exactly such pairs.</p>
+      </section>
+
+      <!-- ═══ ITEMS ═══ -->
+      <section class="card topic-panel" id="topic-items">
+        <span class="tag">03_dict.py</span>
+        <h2 class="step-title">.items() — Looping Both Halves at Once 🔑</h2>
+        <div class="code">stock = {<span class="str">'apple'</span>: <span class="num">5</span>, <span class="str">'banana'</span>: <span class="num">2</span>, <span class="str">'cherry'</span>: <span class="num">9</span>}
+<span class="fn">print</span>(stock.<span class="fn">items</span>())
+
+<span class="kw">for</span> key, value <span class="kw">in</span> stock.<span class="fn">items</span>():
+    <span class="fn">print</span>(<span class="str">'key='</span>, key, <span class="str">'value='</span>, value)</div>
+        <div class="console"><span class="dim">dict_items([('apple', 5), ('banana', 2), ('cherry', 9)])</span>
+<span class="dim">key= apple value= 5</span>
+<span class="dim">key= banana value= 2</span>
+<span class="dim">key= cherry value= 9</span></div>
+        <p>Look at the first printed line, before the loop. <code>.items()</code> hands back something that behaves like <strong>a list of two-item tuples</strong> — <code>('apple', 5)</code>, <code>('banana', 2)</code>… which is exactly the shape you just learned to unpack. That is the whole trick: <code>.items()</code> makes the pairs, and <code>for key, value in</code> opens each one.</p>
+        <div class="kvbox">
+          <div class="kvbox-cap">stock.items()</div>
+          <div class="kvrow"><span class="kk">'apple'</span><span class="ar">→</span><span class="vv">5</span></div>
+          <div class="kvrow"><span class="kk">'banana'</span><span class="ar">→</span><span class="vv">2</span></div>
+          <div class="kvrow"><span class="kk">'cherry'</span><span class="ar">→</span><span class="vv">9</span></div>
+        </div>
+        <p>Three ways to walk a dict, and it is worth knowing which one you want:</p>
+        <table class="ex-table">
+          <thead><tr><th>Loop</th><th>You get</th></tr></thead>
+          <tbody>
+            <tr><td><code>for k in stock:</code></td><td>the keys only (same as <code>.keys()</code>)</td></tr>
+            <tr><td><code>for v in stock.values():</code></td><td>the values only — no way back to the key</td></tr>
+            <tr><td><code>for k, v in stock.items():</code></td><td><strong>both</strong> — this is the one you will use most</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- ═══ REMOVING ═══ -->
+      <section class="card topic-panel" id="topic-remove">
+        <span class="tag">03_dict.py</span>
+        <h2 class="step-title">Taking a Pair Out — pop · popitem · del 🗑️</h2>
+        <div class="code">d = {<span class="str">'a'</span>: <span class="num">1</span>, <span class="str">'b'</span>: <span class="num">2</span>, <span class="str">'c'</span>: <span class="num">3</span>, <span class="str">'d'</span>: <span class="num">4</span>}
+
+<span class="cm"># pop returns the VALUE it removed</span>
+val = d.<span class="fn">pop</span>(<span class="str">'b'</span>)
+<span class="fn">print</span>(val)          <span class="cm"># → 2</span>
+
+<span class="cm"># Missing key → KeyError, unless you give a default</span>
+safe = d.<span class="fn">pop</span>(<span class="str">'zzz'</span>, <span class="str">'not here'</span>)
+<span class="fn">print</span>(safe)         <span class="cm"># → not here</span>
+
+<span class="cm"># popitem removes the LAST inserted pair</span>
+pair = d.<span class="fn">popitem</span>()   <span class="cm"># → ('d', 4)   a tuple</span>
+<span class="fn">print</span>(d)            <span class="cm"># → {'a': 1, 'c': 3}</span></div>
+        <table class="ex-table">
+          <thead><tr><th>Way</th><th>What it removes</th><th>What you get back</th></tr></thead>
+          <tbody>
+            <tr><td><code>del d['b']</code></td><td>the pair you name</td><td><strong>nothing</strong> — it is a statement, not a method</td></tr>
+            <tr><td><code>d.pop('b')</code></td><td>the pair you name</td><td>the <strong>value</strong> → <code>2</code></td></tr>
+            <tr><td><code>d.pop('zzz', 'not here')</code></td><td>nothing — the key is absent</td><td>your <strong>default</strong>, instead of a crash</td></tr>
+            <tr><td><code>d.popitem()</code></td><td>the <strong>last inserted</strong> pair</td><td>a <strong>tuple</strong> → <code>('d', 4)</code></td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          The second argument to <code>.pop()</code> is the same safety net as the second argument to <code>.get()</code> from last lesson. The difference between them: <code>.get()</code> looks, <code>.pop()</code> takes. Both refuse to crash when you hand them a fallback.
+        </div>
+        <div class="warn">
+          <code>popitem()</code> takes no arguments — you do not choose which pair goes, you get the most recently added one. On an empty dict it raises <code>KeyError: 'popitem(): dictionary is empty'</code>.
+        </div>
+      </section>
+
+      <!-- ═══ SETDEFAULT ═══ -->
+      <section class="card topic-panel" id="topic-setdefault">
+        <span class="tag">03_dict.py</span>
+        <h2 class="step-title">setdefault — Only If It Is Not There Yet 🪄</h2>
+        <div class="code">d = {<span class="str">'dana'</span>: <span class="str">'19:30:00'</span>}
+
+d.<span class="fn">setdefault</span>(<span class="str">'dana'</span>, <span class="str">'not here yet'</span>)   <span class="cm"># dana already exists → nothing changes</span>
+
+<span class="cm"># 1</span>
+d.<span class="fn">setdefault</span>(<span class="str">'omer'</span>, <span class="str">'not here yet'</span>)   <span class="cm"># omer is new → gets added</span>
+
+<span class="cm"># 2 same</span>
+<span class="kw">if</span> <span class="str">'omer'</span> <span class="kw">not in</span> d.<span class="fn">keys</span>():
+    d[<span class="str">'omer'</span>] = <span class="str">'not here yet'</span>
+
+<span class="fn">print</span>(d)</div>
+        <div class="console">{'dana': '19:30:00', 'omer': 'not here yet'}</div>
+        <p>Dana signed in at 19:30, so her value is <strong>left alone</strong>. Omer has no entry, so he gets the placeholder. The two blocks marked <code># 1</code> and <code># 2</code> in the file do the same thing — the second one spells out in three lines what the first does in one.</p>
+        <div class="vs">
+          <div>
+            <div class="vs-head">setdefault</div>
+            <div class="code">d.<span class="fn">setdefault</span>(k, v)</div>
+            <p style="font-size:.9rem">Adds <code>k</code> only if it is missing. Either way it <strong>returns</strong> the value that is now under <code>k</code>.</p>
+          </div>
+          <div>
+            <div class="vs-head bad">plain assignment</div>
+            <div class="code">d[k] = v</div>
+            <p style="font-size:.9rem">Always writes — and <strong>overwrites</strong> whatever was already there. Dana's 19:30 would be gone.</p>
+          </div>
+        </div>
+        <div class="note">
+          Keep the pair straight: <code>.get(k, default)</code> <strong>reads</strong> without touching the dict; <code>.setdefault(k, default)</code> reads <strong>and writes</strong> the default in when the key is missing.
+        </div>
+      </section>
+
+      <!-- ═══ COPY ═══ -->
+      <section class="card topic-panel" id="topic-copy">
+        <span class="tag">03_dict.py</span>
+        <h2 class="step-title">Copy, Alias, Clear — The Trap ⚠️</h2>
+        <div class="code">d = {<span class="str">'a'</span>: <span class="num">1</span>, <span class="str">'b'</span>: <span class="num">2</span>, <span class="str">'c'</span>: <span class="num">3</span>}
+
+<span class="cm"># del removes a key (returns nothing)</span>
+<span class="kw">del</span> d[<span class="str">'b'</span>]
+
+<span class="cm"># .copy() → an independent shallow copy</span>
+clone = d.<span class="fn">copy</span>()
+clone[<span class="str">'a'</span>] = <span class="num">99</span>       <span class="cm"># d['a'] is still 1</span>
+
+<span class="cm"># ⚠️ clone = d does NOT copy — same object!</span>
+alias = d
+<span class="hl">alias[<span class="str">'a'</span>] = <span class="num">0</span></span>        <span class="cm"># d changed too</span>
+
+<span class="cm"># .clear() empties it in place</span>
+clone.<span class="fn">clear</span>()           <span class="cm"># → {}</span></div>
+        <p>This is the most expensive misunderstanding in the language, so look at the drawing rather than the words. <code>=</code> does <strong>not</strong> make a new dict. It writes a second name on the <em>same</em> box:</p>
+        <div class="fig">
+          <svg viewBox="0 0 600 190" role="img" aria-label="alias equals d points both names at one dict, while copy creates a second independent dict">
+            <text x="150" y="18" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#b07d00">alias = d   (one box)</text>
+            <g font-family="Consolas, monospace" font-size="13" font-weight="700">
+              <rect x="30" y="40" width="80" height="30" rx="8" fill="#fff6e2" stroke="#e6c46a"/>
+              <text x="70" y="60" text-anchor="middle" fill="#6b4e00">d</text>
+              <rect x="30" y="96" width="80" height="30" rx="8" fill="#fff6e2" stroke="#e6c46a"/>
+              <text x="70" y="116" text-anchor="middle" fill="#6b4e00">alias</text>
+              <rect x="170" y="58" width="110" height="50" rx="10" fill="#ffffff" stroke="#e0a800" stroke-width="2"/>
+              <text x="225" y="88" text-anchor="middle" fill="#6b4e00">{'a': 0}</text>
+            </g>
+            <path d="M112 55 L168 76" stroke="#e0a800" stroke-width="2.5"/>
+            <path d="M112 111 L168 90" stroke="#e0a800" stroke-width="2.5"/>
+            <text x="150" y="152" text-anchor="middle" font-family="Consolas, monospace" font-size="11" fill="#6b4e00">change one → both change</text>
+            <line x1="300" y1="26" x2="300" y2="164" stroke="#aadfbd" stroke-dasharray="5 5"/>
+            <text x="450" y="18" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#1f8f4e">clone = d.copy()   (two boxes)</text>
+            <g font-family="Consolas, monospace" font-size="13" font-weight="700">
+              <rect x="330" y="40" width="80" height="30" rx="8" fill="#d6f8e4" stroke="#7fd6a3"/>
+              <text x="370" y="60" text-anchor="middle" fill="#08351d">d</text>
+              <rect x="330" y="96" width="80" height="30" rx="8" fill="#d6f8e4" stroke="#7fd6a3"/>
+              <text x="370" y="116" text-anchor="middle" fill="#08351d">clone</text>
+              <rect x="450" y="34" width="120" height="42" rx="10" fill="#ffffff" stroke="#1f8f4e" stroke-width="2"/>
+              <text x="510" y="60" text-anchor="middle" fill="#0f5a2e">{'a': 1}</text>
+              <rect x="450" y="94" width="120" height="42" rx="10" fill="#ffffff" stroke="#1f8f4e" stroke-width="2"/>
+              <text x="510" y="120" text-anchor="middle" fill="#0f5a2e">{'a': 99}</text>
+            </g>
+            <path d="M412 55 L448 55" stroke="#1f8f4e" stroke-width="2.5"/>
+            <path d="M412 111 L448 115" stroke="#1f8f4e" stroke-width="2.5"/>
+            <text x="450" y="165" text-anchor="middle" font-family="Consolas, monospace" font-size="11" fill="#0f5a2e">independent</text>
+          </svg>
+          <div class="figcap">Two names on one dict, versus two real dicts.</div>
+        </div>
+        <div class="note">
+          <strong>Shallow</strong> copy means the top level is new, but the values are shared. If a value is itself a list or a dict, both copies still point at that same inner object. For a fully independent copy there is <code>copy.deepcopy()</code> — a later lesson.
+        </div>
+        <p><code>.clear()</code> empties a dict <strong>in place</strong>, keeping the same box. That matters: every name pointing at that dict now sees <code>{}</code>.</p>
+      </section>
+
+      <!-- ═══ IN / LEN ═══ -->
+      <section class="card topic-panel" id="topic-in">
+        <span class="tag">03_dict.py</span>
+        <h2 class="step-title"><code>in</code> Asks About Keys 🔍</h2>
+        <div class="code">d = {<span class="str">'a'</span>: <span class="num">10</span>, <span class="str">'b'</span>: <span class="num">20</span>, <span class="str">'c'</span>: <span class="num">30</span>}
+
+<span class="cm"># `in` checks KEYS — O(1), no searching</span>
+<span class="fn">print</span>(<span class="str">'a'</span> <span class="kw">in</span> d)            <span class="cm"># → True   (same as 'a' in d.keys())</span>
+<span class="fn">print</span>(<span class="num">10</span> <span class="kw">in</span> d)             <span class="cm"># → False  (10 is a value, not a key)</span>
+<span class="fn">print</span>(<span class="num">10</span> <span class="kw">in</span> d.<span class="fn">values</span>())    <span class="cm"># → True</span>
+
+<span class="cm"># len() = number of pairs</span>
+<span class="fn">print</span>(<span class="fn">len</span>(d))              <span class="cm"># → 3</span>
+
+<span class="cm"># Looping a dict loops its KEYS</span>
+<span class="kw">for</span> k <span class="kw">in</span> d:                 <span class="cm"># same as: for k in d.keys()</span>
+    <span class="fn">print</span>(k, d[k])</div>
+        <div class="console"><span class="dim">True
+False
+True
+3
+a 10
+b 20
+c 30</span></div>
+        <p>Three facts worth memorising, because they decide how your programs get written:</p>
+        <ul class="task-list">
+          <li><strong><code>in</code> means "is this a key"</strong> — never a value. To ask about values you must say <code>in d.values()</code>, and that one really does search item by item.</li>
+          <li><strong>Key lookup is O(1)</strong> — the same hashing you met with sets. A dict with a million pairs answers <code>'a' in d</code> just as fast as one with three.</li>
+          <li><strong>A bare loop gives keys</strong>, and from a key you can always reach the value with <code>d[k]</code>. That is why both <code>for k in d:</code> and <code>for k, v in d.items():</code> are fine — <code>.items()</code> just saves you the extra lookup.</li>
+        </ul>
+      </section>
+
+      <!-- ═══ MERGE ═══ -->
+      <section class="card topic-panel" id="topic-merge">
+        <span class="tag">03_dict.py</span>
+        <h2 class="step-title">Merging Two Dicts with <code>|</code> ➕</h2>
+        <div class="code">a = {<span class="str">'x'</span>: <span class="num">1</span>, <span class="str">'y'</span>: <span class="num">2</span>}
+b = {<span class="str">'y'</span>: <span class="num">99</span>, <span class="str">'z'</span>: <span class="num">3</span>}
+
+<span class="cm"># | makes a NEW dict (Python 3.9+)</span>
+merged = a | b
+<span class="cm"># → {'x': 1, 'y': 99, 'z': 3}   b wins on 'y'</span>
+
+<span class="cm"># |= merges INTO a (like a.update(b))</span>
+a |= b
+
+<span class="cm"># Works in every version: unpacking</span>
+<span class="cm"># merged2 = {**a, **b}</span></div>
+        <div class="ba">
+          <div class="bx">{'x': 1, 'y': 2}</div>
+          <span class="arw">|</span>
+          <div class="bx">{'y': 99, 'z': 3}</div>
+          <span class="arw">→</span>
+          <div class="bx">{'x': 1, 'y': 99, 'z': 3}</div>
+        </div>
+        <p>You met <code>|</code> last lesson as set <strong>union</strong>. On dicts it means the same thing — everything from both sides — plus one rule sets never needed: when the <em>same key</em> appears on both sides, <strong>the right-hand dict wins</strong>. That is why <code>'y'</code> came out <code>99</code> and not <code>2</code>.</p>
+        <table class="ex-table">
+          <thead><tr><th>Written as</th><th>Effect</th></tr></thead>
+          <tbody>
+            <tr><td><code>merged = a | b</code></td><td>builds a <strong>third</strong> dict; <code>a</code> and <code>b</code> are untouched</td></tr>
+            <tr><td><code>a |= b</code></td><td>changes <code>a</code> <strong>in place</strong> — identical to <code>a.update(b)</code></td></tr>
+            <tr><td><code>{**a, **b}</code></td><td>same result as <code>a | b</code>, works before Python 3.9 too</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- ═══ MAX ═══ -->
+      <section class="card topic-panel" id="topic-max">
+        <span class="tag">03_dict.py</span>
+        <h2 class="step-title">Who Got the Highest Score? 🏆</h2>
+        <div class="code">scores = {<span class="str">'dana'</span>: <span class="num">88</span>, <span class="str">'ben'</span>: <span class="num">95</span>, <span class="str">'ada'</span>: <span class="num">72</span>}
+
+<span class="fn">print</span>(<span class="fn">max</span>(scores, key=scores.<span class="fn">get</span>))                 <span class="cm"># → ben     the KEY</span>
+<span class="fn">print</span>(scores.<span class="fn">get</span>(<span class="fn">max</span>(scores, key=scores.<span class="fn">get</span>)))     <span class="cm"># → 95      its value</span>
+<span class="fn">print</span>(<span class="fn">max</span>(scores.<span class="fn">values</span>()))                         <span class="cm"># → 95      the value alone</span>
+<span class="fn">print</span>(<span class="fn">max</span>([<span class="num">6</span>, <span class="num">90</span>, <span class="num">200</span>, -<span class="num">1</span>]))                       <span class="cm"># → 200     plain old max</span>
+
+k, v = <span class="fn">max</span>(scores, key=scores.<span class="fn">get</span>), <span class="fn">max</span>(scores.<span class="fn">values</span>())
+<span class="fn">print</span>(<span class="str">'k, v'</span>, k, v)                               <span class="cm"># → k, v ben 95</span></div>
+        <p>Start with the line you already understand: <code>max([6, 90, 200, -1])</code> is <code>200</code>. <code>max</code> looks at every item and keeps the biggest. Now hand it a <strong>dict</strong> — and a dict, looped plainly, gives its <strong>keys</strong>. So <code>max(scores)</code> would compare the strings <code>'dana'</code>, <code>'ben'</code>, <code>'ada'</code> alphabetically and answer <code>'dana'</code>. Not what anybody wanted.</p>
+        <div class="big-result">The <code>key=</code> argument changes what gets compared</div>
+        <p><code>key=scores.get</code> says: <em>for every candidate, do not compare it directly — first run it through <code>scores.get</code> and compare that instead.</em> The candidates are still the names, so the <strong>answer is a name</strong> — but the <strong>comparison</strong> happens on the numbers.</p>
+        <div class="fig">
+          <svg viewBox="0 0 600 160" role="img" aria-label="max with key equals scores.get compares the values but returns the key">
+            <text x="90" y="20" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#1f8f4e">candidates (keys)</text>
+            <text x="330" y="20" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#426654">compared as scores.get(k)</text>
+            <g font-family="Consolas, monospace" font-size="13" font-weight="700">
+              <rect x="30" y="32" width="120" height="30" rx="8" fill="#d6f8e4" stroke="#7fd6a3"/>
+              <text x="90" y="52" text-anchor="middle" fill="#08351d">'dana'</text>
+              <rect x="30" y="70" width="120" height="30" rx="8" fill="#d6f8e4" stroke="#7fd6a3"/>
+              <text x="90" y="90" text-anchor="middle" fill="#08351d">'ben'</text>
+              <rect x="30" y="108" width="120" height="30" rx="8" fill="#d6f8e4" stroke="#7fd6a3"/>
+              <text x="90" y="128" text-anchor="middle" fill="#08351d">'ada'</text>
+              <rect x="290" y="32" width="80" height="30" rx="8" fill="#ffffff" stroke="#aadfbd"/>
+              <text x="330" y="52" text-anchor="middle" fill="#0f5a2e">88</text>
+              <rect x="290" y="70" width="80" height="30" rx="8" fill="#fff0c2" stroke="#e0a800"/>
+              <text x="330" y="90" text-anchor="middle" fill="#6b4e00">95</text>
+              <rect x="290" y="108" width="80" height="30" rx="8" fill="#ffffff" stroke="#aadfbd"/>
+              <text x="330" y="128" text-anchor="middle" fill="#0f5a2e">72</text>
+            </g>
+            <path d="M156 47 L286 47M156 85 L286 85M156 123 L286 123" stroke="#aadfbd" stroke-width="2" stroke-dasharray="4 4"/>
+            <path d="M378 85 L432 85" stroke="#e0a800" stroke-width="3"/>
+            <path d="M424 79 L434 85 L424 91" fill="none" stroke="#e0a800" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="440" y="68" width="130" height="34" rx="10" fill="#fff0c2" stroke="#e0a800" stroke-width="2"/>
+            <text x="505" y="91" text-anchor="middle" font-family="Consolas, monospace" font-size="13" font-weight="800" fill="#6b4e00">'ben'</text>
+            <text x="505" y="126" text-anchor="middle" font-family="Consolas, monospace" font-size="11" fill="#6b4e00">the winner is a KEY</text>
+          </svg>
+          <div class="figcap">Judged on the values, returned as the key.</div>
+        </div>
+        <div class="warn">
+          Write <code>scores.get</code> with <strong>no parentheses</strong>. You are handing <code>max</code> the method itself, so that it can call it once per candidate. <code>scores.get()</code> would call it right now, with no key, and fail.
+        </div>
+        <div class="big-result">Sorting a dict — two one-liners</div>
+        <div class="code"><span class="fn">print</span>({k: scores[k] <span class="kw">for</span> k <span class="kw">in</span> <span class="fn">sorted</span>(scores)})
+<span class="cm"># → {'ada': 72, 'ben': 95, 'dana': 88}      by key, A-Z</span>
+
+<span class="fn">print</span>({k: scores[k] <span class="kw">for</span> k <span class="kw">in</span> <span class="fn">sorted</span>(scores, key=scores.<span class="fn">get</span>)})
+<span class="cm"># → {'ada': 72, 'dana': 88, 'ben': 95}      by value, low → high</span></div>
+        <p>The same <code>key=</code> idea, now on <code>sorted</code> instead of <code>max</code>, wrapped in a <strong>dict comprehension</strong> so the result is a dict again and not a list of names. There is a shorter version in the file, commented out for a later lesson:</p>
+        <div class="code"><span class="cm"># print('1 liner', max(scores.items(), key=lambda x: x[1]))</span></div>
+        <div class="note">
+          The full reference with a runnable demo for every dict method: <a href="../../20_dict/index.html">Dictionaries</a>.
+        </div>
+      </section>
+
+      <!-- ═══ COUNTING ═══ -->
+      <section class="card topic-panel" id="topic-count">
+        <span class="tag">04_dict.py</span>
+        <h2 class="step-title">The Counting Pattern 🔢</h2>
+        <p>This is what dictionaries get used for more than anything else. The task, written at the top of the file:</p>
+        <div class="code">text = <span class="str">'missiiiissippi'</span>
+
+<span class="cm"># {'m': 1, 'i': 4, 's': 4, 'p': 2}</span>
+
+d = {}
+
+<span class="cm"># 1 fill dict like in the example</span>
+<span class="cm"># 2 use max to find the letter which appears the most</span></div>
+        <p>Think about what you need for each letter, one at a time. <strong>Have I seen this one before?</strong> If no — start it at 1. If yes — take what is there and add one:</p>
+        <div class="code"><span class="kw">for</span> c <span class="kw">in</span> text:
+    <span class="fn">print</span>(c, end=<span class="str">" "</span>)
+    <span class="cm"># does c appear in dict-keys?</span>
+    <span class="cm">#   no  - add c: 1</span>
+    <span class="cm">#   yes - store the value + 1</span>
+    <span class="kw">if</span> c <span class="kw">not in</span> d:
+        d[c] = <span class="num">1</span>
+    <span class="kw">else</span>:
+        d[c] += <span class="num">1</span>
+
+    <span class="cm"># or</span>
+    <span class="cm"># d[c] = d.get(c, 0) + 1</span>
+
+<span class="fn">print</span>()
+<span class="fn">print</span>(d)
+<span class="fn">print</span>(f<span class="str">"max= '{max(d, key=d.get)}', {d[max(d, key=d.get)]} times"</span>)</div>
+        <div class="console"><span class="dim">m i s s i i i i s s i p p i </span>
+{'m': 1, 'i': 7, 's': 4, 'p': 2}
+max= 'i', 7 times</div>
+        <div class="big-result">The one-line version</div>
+        <p>The commented line in the file replaces the whole <code>if/else</code>:</p>
+        <div class="ba">
+          <div class="bx old">if c not in d:
+    d[c] = 1
+else:
+    d[c] += 1</div>
+          <span class="arw">→</span>
+          <div class="bx">d[c] = d.get(c, 0) + 1</div>
+        </div>
+        <p>Read it from the inside out. <code>d.get(c, 0)</code> is "the count so far, or <strong>zero</strong> if this letter is new". Add one. Store it back. The first time round that is <code>0 + 1</code>; every time after, it is the real count plus one. The <code>0</code> default does the entire job of the <code>if</code>.</p>
+        <div class="note">
+          <code>print(c, end=" ")</code> — <code>end=</code> replaces the newline that <code>print</code> normally adds, so the letters come out on one line as the loop walks them. It is only there to let you watch the loop; delete it and nothing about the counting changes.
+        </div>
+      </section>
+
+      <!-- ═══ DEFAULTDICT ═══ -->
+      <section class="card topic-panel" id="topic-defaultdict">
+        <span class="tag">04_dict.py</span>
+        <h2 class="step-title">defaultdict — Missing Keys That Build Themselves 🏗️</h2>
+        <div class="code"><span class="kw">from</span> collections <span class="kw">import</span> defaultdict
+
+text = <span class="str">'mississippi'</span>
+
+d = defaultdict(<span class="fn">int</span>)
+
+<span class="kw">for</span> c <span class="kw">in</span> text:
+    <span class="fn">print</span>(c, end=<span class="str">" "</span>)
+    <span class="hl">d[c] = d[c] + <span class="num">1</span></span>
+
+<span class="fn">print</span>()
+<span class="fn">print</span>(d)
+<span class="fn">print</span>(f<span class="str">"max= '{max(d, key=d.get)}', {d[max(d, key=d.get)]} times"</span>)</div>
+        <div class="console"><span class="dim">m i s s i s s i p p i </span>
+defaultdict(&lt;class 'int'&gt;, {'m': 1, 'i': 4, 's': 4, 'p': 2})
+max= 'i', 4 times</div>
+        <p>Look at the loop body: <code>d[c] = d[c] + 1</code> — no <code>if</code>, no <code>.get()</code>. On a normal dict the very first letter would blow up with <code>KeyError</code>, because you are <em>reading</em> <code>d['m']</code> before anything was ever written there.</p>
+        <div class="big-result">What <code>defaultdict(int)</code> promises</div>
+        <p>"If somebody asks for a key I do not have, do not raise — <strong>call <code>int()</code></strong>, store the result under that key, and hand it back." And <code>int()</code> with no arguments is <code>0</code>. So the first <code>d['m']</code> quietly becomes <code>0</code>, and <code>+ 1</code> makes it <code>1</code>.</p>
+        <div class="ba">
+          <div class="bx old">d = {}
+d['m'] + 1   →  KeyError</div>
+          <span class="arw">vs</span>
+          <div class="bx">d = defaultdict(int)
+d['m'] + 1   →  1</div>
+        </div>
+        <table class="ex-table">
+          <thead><tr><th>You write</th><th>A missing key becomes</th><th>Good for</th></tr></thead>
+          <tbody>
+            <tr><td><code>defaultdict(int)</code></td><td><code>0</code></td><td>counting</td></tr>
+            <tr><td><code>defaultdict(list)</code></td><td><code>[]</code></td><td>grouping — <code>d[k].append(x)</code></td></tr>
+            <tr><td><code>defaultdict(str)</code></td><td><code>''</code></td><td>building up text</td></tr>
+          </tbody>
+        </table>
+        <div class="warn">
+          Two things to keep in mind. It prints as <code>defaultdict(&lt;class 'int'&gt;, {...})</code> and not as a plain dict — wrap it in <code>dict(d)</code> if you want the clean look. And merely <em>reading</em> a missing key <strong>creates</strong> it, so a stray <code>d['zzz']</code> silently adds <code>'zzz': 0</code> to your data.
+        </div>
+        <div class="note">
+          <code>from collections import defaultdict</code> — <code>collections</code> ships with Python, there is nothing to install. Same shape as <code>import random</code> from lesson 8, except here you pull one name out of the module instead of taking the whole module.
+        </div>
+      </section>
+
+      <!-- ═══ FUNCTIONS ═══ -->
+      <section class="card topic-panel" id="topic-func">
+        <span class="tag">05_func.py</span>
+        <h2 class="step-title"><code>def</code> — Giving a Block of Code a Name 🏷️</h2>
+        <p>Everything you have written so far runs once, top to bottom. If you needed the same five lines in two places, you copied them. The file opens by sketching the idea in comments:</p>
+        <div class="code"><span class="cm"># functions</span>
+<span class="cm"># &lt;name&gt;</span>
+<span class="cm">#   1</span>
+<span class="cm">#   2</span>
+<span class="cm">#   3</span>
+<span class="cm"># ...</span>
+
+<span class="cm"># &lt;name&gt;</span>
+<span class="cm">#</span>
+<span class="cm">#</span>
+<span class="cm"># &lt;name&gt;</span></div>
+        <p>A <strong>name</strong>, and underneath it the indented lines that belong to it. That block does not run when Python reads it — it just gets stored under that name, waiting. It runs when you <strong>call</strong> it, and it runs again every time you call it again.</p>
+        <div class="fig">
+          <svg viewBox="0 0 600 200" role="img" aria-label="def stores a named block; calling the name runs it, and it can be called many times">
+            <text x="150" y="20" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#1f8f4e">def — stored, not run</text>
+            <rect x="30" y="32" width="240" height="120" rx="12" fill="#ffffff" stroke="#1f8f4e" stroke-width="2"/>
+            <g font-family="Consolas, monospace" font-size="13" font-weight="700">
+              <text x="46" y="58" fill="#0f5a2e">def greet():</text>
+              <rect x="62" y="70" width="190" height="24" rx="6" fill="#d6f8e4" stroke="#7fd6a3"/>
+              <text x="76" y="87" fill="#08351d" font-size="12">print("Hello")</text>
+              <rect x="62" y="102" width="190" height="24" rx="6" fill="#d6f8e4" stroke="#7fd6a3"/>
+              <text x="76" y="119" fill="#08351d" font-size="12">print("World")</text>
+            </g>
+            <text x="150" y="172" text-anchor="middle" font-family="Consolas, monospace" font-size="11" fill="#426654">nothing prints yet</text>
+            <path d="M286 92 L330 92" stroke="#426654" stroke-width="3"/>
+            <path d="M322 86 L332 92 L322 98" fill="none" stroke="#426654" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <text x="452" y="20" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#b07d00">greet() — runs it</text>
+            <g font-family="Consolas, monospace" font-size="13" font-weight="700">
+              <rect x="350" y="34" width="210" height="30" rx="8" fill="#fff0c2" stroke="#e0a800"/>
+              <text x="455" y="54" text-anchor="middle" fill="#6b4e00">greet()</text>
+              <rect x="350" y="76" width="210" height="30" rx="8" fill="#fff0c2" stroke="#e0a800"/>
+              <text x="455" y="96" text-anchor="middle" fill="#6b4e00">greet()</text>
+              <rect x="350" y="118" width="210" height="30" rx="8" fill="#fff0c2" stroke="#e0a800"/>
+              <text x="455" y="138" text-anchor="middle" fill="#6b4e00">greet()</text>
+            </g>
+            <text x="455" y="172" text-anchor="middle" font-family="Consolas, monospace" font-size="11" fill="#6b4e00">written once · run three times</text>
+          </svg>
+          <div class="figcap">Defining stores the block. Calling runs it.</div>
+        </div>
+        <p>Here is the real function from the file, with the two parts labelled:</p>
+        <div class="code"><span class="kw">def</span> <span class="fn">my_first_function</span>():          <span class="cm"># ← the def line, ends with a colon</span>
+    <span class="str">'''</span>
+<span class="str">    my first function</span>
+<span class="str">    this is a demo function</span>
+<span class="str">    :return:</span>
+<span class="str">    '''</span>
+    <span class="kw">global</span> x
+    x += <span class="num">1</span>
+    <span class="fn">print</span>(<span class="str">"Hello World"</span>)         <span class="cm"># ← the body, indented</span>
+    <span class="fn">print</span>(x)
+    <span class="fn">goodbye</span>()                    <span class="cm"># ← a function calling another function</span>
+
+
+<span class="fn">my_first_function</span>()                <span class="cm"># ← the call, back at the left margin</span></div>
+        <table class="ex-table">
+          <thead><tr><th>Part</th><th>Rule</th></tr></thead>
+          <tbody>
+            <tr><td><code>def</code></td><td>the keyword that starts a definition</td></tr>
+            <tr><td><code>my_first_function</code></td><td>the name — lowercase with underscores, like a variable</td></tr>
+            <tr><td><code>()</code></td><td>where parameters would go; empty here — this one takes nothing</td></tr>
+            <tr><td><code>:</code></td><td>ends the <code>def</code> line, exactly like <code>if</code> and <code>for</code></td></tr>
+            <tr><td>indented block</td><td>the body — everything indented belongs to the function</td></tr>
+            <tr><td><code>my_first_function()</code></td><td>the <strong>call</strong>. Without the <code>()</code> you are only naming it, not running it</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          The full topic page, with parameters, arguments and <code>return</code> worked through step by step: <a href="../../21_functions/python_basic9.html">Functions</a>.
+        </div>
+      </section>
+
+      <!-- ═══ ORDER ═══ -->
+      <section class="card topic-panel" id="topic-order">
+        <span class="tag">05_func.py</span>
+        <h2 class="step-title">Define Before You Call ⛔</h2>
+        <p>The first real line of the file is commented out on purpose:</p>
+        <div class="code"><span class="cm">##########</span>
+<span class="cm"># goodbye()  # Error</span>
+x = <span class="num">1</span></div>
+        <p>Uncomment it and you get:</p>
+        <div class="console"><span class="err">NameError: name 'goodbye' is not defined</span></div>
+        <p>Python reads the file from the top down. At that point it has not reached the <code>def goodbye():</code> line yet, so the name simply does not exist. <strong>A function must be defined before the line that calls it runs.</strong></p>
+        <div class="big-result">But look at what the file gets away with</div>
+        <div class="code"><span class="kw">def</span> <span class="fn">my_first_function</span>():
+    ...
+    <span class="hl"><span class="fn">goodbye</span>()</span>          <span class="cm"># goodbye is not defined yet — and this is fine!</span>
+
+
+<span class="kw">def</span> <span class="fn">goodbye</span>():
+    ...
+    <span class="cm"># my_first_function()</span>
+
+
+<span class="fn">my_first_function</span>()      <span class="cm"># by NOW, both names exist</span></div>
+        <p>Inside <code>my_first_function</code> there is a call to <code>goodbye</code>, written <em>above</em> the <code>def goodbye</code>. No error. The reason is the rule from the previous panel: the body of a function <strong>does not run when it is defined</strong>. Python only reads it. By the time <code>my_first_function()</code> is actually called on the last lines, <code>def goodbye</code> has long since been read, so the name is there.</p>
+        <div class="ba">
+          <div class="bx old">goodbye()
+
+def goodbye(): ...</div>
+          <span class="arw">NameError</span>
+          <div class="bx">def a():
+    b()
+
+def b(): ...
+
+a()</div>
+          <span class="arw">✓ works</span>
+        </div>
+        <div class="big-result">Reading the output in order</div>
+        <div class="code"><span class="fn">my_first_function</span>()
+<span class="fn">print</span>(<span class="str">'-- finished'</span>)
+<span class="fn">print</span>(<span class="num">3</span>)</div>
+        <div class="console"><span class="dim">Hello World</span>
+<span class="dim">2</span>
+<span class="dim">goodbye</span>
+<span class="dim">3</span>
+<span class="dim">-- finished</span>
+<span class="dim">3</span></div>
+        <p>Follow it line by line, because the order surprises people. <code>my_first_function()</code> prints <code>Hello World</code> and <code>2</code>, then calls <code>goodbye()</code>, which prints <code>goodbye</code> and <code>3</code>. Only when <code>goodbye</code> has completely finished does control come <strong>back</strong> to where it was, and only then does <code>-- finished</code> appear.</p>
+        <div class="warn">
+          Notice the commented <code># my_first_function()</code> inside <code>goodbye</code>. Uncomment it and the two functions call each other forever, until Python stops you with <code>RecursionError: maximum recursion depth exceeded</code>. It is left in the file as a warning, not as a suggestion.
+        </div>
+      </section>
+
+      <!-- ═══ GLOBAL ═══ -->
+      <section class="card topic-panel" id="topic-global">
+        <span class="tag">05_func.py</span>
+        <h2 class="step-title"><code>global</code> — Reaching Outside the Function 🌍</h2>
+        <div class="code">x = <span class="num">1</span>
+
+<span class="kw">def</span> <span class="fn">my_first_function</span>():
+    <span class="hl"><span class="kw">global</span> x</span>
+    x += <span class="num">1</span>
+    <span class="fn">print</span>(<span class="str">"Hello World"</span>)
+    <span class="fn">print</span>(x)         <span class="cm"># → 2</span>
+    <span class="fn">goodbye</span>()
+
+
+<span class="kw">def</span> <span class="fn">goodbye</span>():
+    <span class="hl"><span class="kw">global</span> x</span>
+    x += <span class="num">1</span>
+    <span class="fn">print</span>(<span class="str">"goodbye"</span>)
+    <span class="fn">print</span>(x)         <span class="cm"># → 3</span></div>
+        <p>A variable born inside a function is <strong>local</strong>: it exists while the function runs and disappears the moment it ends. Reading an outside variable is allowed anyway — but the second you <em>assign</em> to a name, Python decides that name is local, and <code>x += 1</code> is an assignment. Without the <code>global</code> line you would get:</p>
+        <div class="console"><span class="err">UnboundLocalError: cannot access local variable 'x' where it is not associated with a value</span></div>
+        <p><code>global x</code> is the promise: <em>when I say <code>x</code> in here, I mean the <code>x</code> outside — do not make me a new one.</em> That is why the count keeps climbing across the two functions: <code>1</code> at the top of the file, <code>2</code> in the first function, <code>3</code> in the second.</p>
+        <div class="stats">
+          <div class="stat"><span class="snm">x = 1</span><span class="strack"><span class="sfill" style="width:33%"></span></span><span class="sval">1</span></div>
+          <div class="stat"><span class="snm">first function</span><span class="strack"><span class="sfill" style="width:66%"></span></span><span class="sval">2</span></div>
+          <div class="stat"><span class="snm">goodbye</span><span class="strack"><span class="sfill hi" style="width:100%"></span></span><span class="sval">3</span></div>
+        </div>
+        <div class="warn">
+          <strong>Use it sparingly.</strong> <code>global</code> is shown here so you understand what scope <em>is</em>, not because it is good style. When any function anywhere can rewrite a variable, a bug becomes very hard to trace. The clean way is coming next lesson: hand values <strong>in</strong> as parameters and hand the answer <strong>out</strong> with <code>return</code>.
+        </div>
+        <div class="note">
+          Scope, local versus global, side by side with examples: <a href="../../21_functions/python_basic9.html">Functions</a>.
+        </div>
+      </section>
+
+      <!-- ═══ DOCSTRING ═══ -->
+      <section class="card topic-panel" id="topic-doc">
+        <span class="tag">05_func.py</span>
+        <h2 class="step-title">Docstrings and <code>help()</code> 📄</h2>
+        <div class="code"><span class="kw">def</span> <span class="fn">my_first_function</span>():
+    <span class="str">'''</span>
+<span class="str">    my first function</span>
+<span class="str">    this is a demo function</span>
+<span class="str">    :return:</span>
+<span class="str">    '''</span>
+    ...</div>
+        <p>The triple-quoted string on the first line of the body is a <strong>docstring</strong>. It is not a comment: a comment is thrown away, this one gets attached to the function and travels with it. Anyone can read it back without opening your file:</p>
+        <div class="code"><span class="fn">help</span>(my_first_function)</div>
+        <div class="console"><span class="dim">Help on function my_first_function in module __main__:</span>
+
+my_first_function()
+    my first function
+    this is a demo function
+    :return:</div>
+        <div class="warn">
+          <code>help(my_first_function)</code> — <strong>no parentheses</strong> on the inner name. <code>help(my_first_function())</code> would call your function first and then ask for help on whatever it returned.
+        </div>
+        <p>Try the same thing on functions you already use — <code>help(print)</code>, <code>help(dict.get)</code>, <code>help(max)</code>. Every one of them answers, because the people who wrote them left a docstring too.</p>
+        <div class="note">
+          <code>:return:</code> is PyCharm's template. Type <code>'''</code> under a <code>def</code> line and press <span class="kbd">Enter</span> — the editor writes the skeleton for you, with a <code>:param:</code> line for every parameter. Fill it in; the empty <code>:return:</code> in this file is just what the template left behind.
+        </div>
+      </section>
+
+      <!-- ═══ GITHUB ═══ -->
+      <section class="card topic-panel" id="topic-github">
+        <span class="tag">GitHub</span>
+        <h2 class="step-title">Lesson 17 GitHub Folder</h2>
+        <p>All the code from today's lesson:</p>
+        <div class="task-box">
+          <strong>Lesson folder:</strong><br>
+          <a href="https://github.com/pythonai080626-a11y/24.08.2026" target="_blank" rel="noopener">
+            https://github.com/pythonai080626-a11y/24.08.2026
+          </a>
+        </div>
+        <table class="ex-table">
+          <thead><tr><th>File</th><th>What it shows</th></tr></thead>
+          <tbody>
+            <tr><td>03_dict.py</td><td>Unpacking two names in a <code>for</code>; <code>.items()</code>; <code>pop</code>, <code>pop</code> with a default, <code>popitem</code>; <code>setdefault</code> and the <code>if not in</code> that equals it; <code>del</code>, <code>.copy()</code> versus an alias, <code>.clear()</code>; <code>in</code> on keys versus <code>.values()</code>, <code>len</code>; merging with <code>|</code> and <code>|=</code>; <code>max(scores, key=scores.get)</code> and sorting a dict by key and by value</td></tr>
+            <tr><td>04_dict.py</td><td>Counting the letters of <code>'missiiiissippi'</code> with <code>if/else</code> and with <code>d.get(c, 0) + 1</code>; the same job again with <code>defaultdict(int)</code>; and the word-counting text left at the bottom of the file</td></tr>
+            <tr><td>05_func.py</td><td><code>def</code>, calling, the <code>NameError</code> when you call too early, one function calling another, <code>global</code>, the docstring and <code>help()</code></td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          Topic pages for today: <a href="../../21_functions/python_basic9.html">Functions</a> — the new one — and <a href="../../20_dict/index.html">Dictionaries</a> for everything in the first half. Also worth a look again: <a href="../../06_for_loops/index.html">For Loops</a> and <a href="../../14_strings/index.html">Strings</a>.
+        </div>
+      </section>
+
+      <!-- ═══ EXERCISE ═══ -->
+      <section class="card topic-panel" id="topic-exercise">
+        <span class="tag">exercise</span>
+        <h2 class="step-title">Exercise — Is It a Power of 2? ⚡</h2>
+        <p>The user types a number. Your program answers <strong>yes, and which power</strong> — or <strong>no</strong>.</p>
+        <div class="console"><span class="dim">enter a number: </span><span class="usr">32</span>
+yes 2 power 5
+
+<span class="dim">enter a number: </span><span class="usr">100</span>
+no</div>
+        <div class="warn">
+          <strong>The two rules that make this an exercise:</strong>
+          <ol class="task-list" style="margin-top:6px">
+            <li><strong>Use a dict.</strong> The answer must come out of a <code>dict</code> — that is what today's lesson was about. Not a list, not an <code>if</code> chain.</li>
+            <li><strong>No calculating after the <code>input()</code>.</strong> No <code>**</code>, no dividing by 2 in a loop, no <code>log</code>. Every calculation happens <strong>before</strong> the user types. All that is left afterwards is <strong>one dict lookup</strong>.</li>
+          </ol>
+        </div>
+        <ol class="steps">
+          <li><span class="sh">Build the dict before the input</span>
+            Loop the exponents you want to support and fill a <strong>dict</strong> — one pair per power of two. This is the only place any arithmetic is allowed:
+            <div class="code">powers = {}
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">33</span>):
+    powers[?] = ?</div>
+          </li>
+          <li><span class="sh">Decide which way round the pair goes 🔑</span>
+            This is the whole exercise. You will be handed <code>32</code> and asked for <code>5</code> — so <code>32</code> has to be the <strong>key</strong> and <code>5</code> the <strong>value</strong>. Build it the other way round and you are back to searching.
+            <div class="kvbox">
+              <div class="kvbox-cap">powers   —   number → exponent</div>
+              <div class="kvrow"><span class="kk">1</span><span class="ar">→</span><span class="vv">0</span></div>
+              <div class="kvrow"><span class="kk">2</span><span class="ar">→</span><span class="vv">1</span></div>
+              <div class="kvrow"><span class="kk">4</span><span class="ar">→</span><span class="vv">2</span></div>
+              <div class="kvrow"><span class="kk">8</span><span class="ar">→</span><span class="vv">3</span></div>
+              <div class="kvrow"><span class="kk">16</span><span class="ar">→</span><span class="vv">4</span></div>
+              <div class="kvrow"><span class="kk">32</span><span class="ar">→</span><span class="vv">5</span></div>
+              <div class="kvrow"><span class="kk">…</span><span class="ar">→</span><span class="vv">…</span></div>
+            </div>
+          </li>
+          <li><span class="sh">Ask the user</span>
+            <code>input()</code> always hands back a <strong>string</strong>, and <code>'32'</code> is not the same key as <code>32</code>. Convert it with <code>int()</code> or nothing will ever be found.
+          </li>
+          <li><span class="sh">One lookup in the dict, then print</span>
+            Two tools from today do this, and both are a single line: <code>in</code> to ask whether the key is in the dict, or <code>.get()</code> with a default. Print <code>yes 2 power 5</code> or <code>no</code>.
+            <div class="warn" style="margin-top:8px">Careful with <code>.get()</code>: for <code>1</code> the exponent is <code>0</code>, and <code>0</code> is falsy — so <code>if p:</code> would wrongly answer <code>no</code> for the number 1. Ask <code>if p is not None:</code>, or use <code>in</code>.</div>
+          </li>
+          <li><span class="sh">⭐ Bonus — powers of 2, 3 <em>and</em> 5</span>
+            Build <strong>three</strong> dicts before the input — one for the powers of 2, one for 3, one for 5 — and check the number the user typed against <strong>all three</strong>. The rules do not change: everything is built up front, and after the <code>input()</code> there are only lookups.
+            <div class="code">powers2 = {}
+powers3 = {}
+powers5 = {}
+<span class="cm"># fill all three here, before the input</span></div>
+            <div class="console"><span class="dim">enter a number: </span><span class="usr">32</span>
+yes 2 power 5
+
+<span class="dim">enter a number: </span><span class="usr">81</span>
+yes 3 power 4
+
+<span class="dim">enter a number: </span><span class="usr">125</span>
+yes 5 power 3
+
+<span class="dim">enter a number: </span><span class="usr">100</span>
+no</div>
+            <div class="note" style="margin-top:8px">
+              Try <code>1</code> — it is <code>2**0</code>, <code>3**0</code> <em>and</em> <code>5**0</code>, so all three dicts have it. Decide what your program should say, and make sure it does not stop at the first match if you want all of them.
+            </div>
+            <div class="note" style="margin-top:8px">
+              <strong>The tidier way, once it works:</strong> instead of three separate names, keep one dict whose <em>values are dicts</em> — <code>tables = {2: {…}, 3: {…}, 5: {…}}</code> — and walk it with <code>for base, table in tables.items():</code>. Same two things from today: a nested dict, and <code>.items()</code>. Adding base 7 is then one line, not four.
+            </div>
+            <div class="note" style="margin-top:8px">
+              If you want the program to keep going, wrap the question in a <code>while True</code> that stops on <code>q</code> — with the dicts built <strong>once, before the loop</strong>, never inside it.
+            </div>
+          </li>
+        </ol>
+        <div class="note">
+          Why this is worth doing: the slow version divides by 2 over and over <em>after</em> every input. Yours does the work once, up front, and then answers any number in a single O(1) hash lookup — no matter how many numbers the user throws at it. That is the entire reason dictionaries exist.
+        </div>
+      </section>
+
+      <!-- ═══ HOMEWORK HEB ═══ -->
+      <section class="card topic-panel rtl" id="topic-homework-heb" dir="rtl">
+        <span class="tag">שיעורי בית</span>
+        <h2 class="step-title">שיעורי בית — האם זו חזקה של 2? ⚡</h2>
+        <p>המשתמש מקליד מספר. התוכנית עונה <strong>כן, ואיזו חזקה</strong> — או <strong>לא</strong>.</p>
+        <div class="console" dir="ltr"><span class="dim">enter a number: </span><span class="usr">32</span>
+yes 2 power 5
+
+<span class="dim">enter a number: </span><span class="usr">100</span>
+no</div>
+
+        <div class="warn">
+          <strong>שני החוקים שהופכים את זה לתרגיל:</strong>
+          <ol class="task-list" style="margin-top:6px">
+            <li><strong>חובה להשתמש במילון.</strong> התשובה חייבת לצאת מתוך <code dir="ltr">dict</code> — זה מה שלמדנו היום. לא רשימה, ולא שרשרת <code dir="ltr">if</code>.</li>
+            <li><strong>אסור לחשב אחרי ה-<code dir="ltr">input()</code>.</strong> בלי <code dir="ltr">**</code>, בלי חילוק ב-2 בלולאה ובלי <code dir="ltr">log</code>. כל החישובים נעשים <strong>לפני</strong> שהמשתמש מקליד. מה שנשאר אחר כך הוא <strong>חיפוש אחד במילון</strong>.</li>
+          </ol>
+        </div>
+
+        <div class="big-result">1 · בנו את המילון לפני הקלט 🏗️</div>
+        <p>עברו בלולאה על החזקות ומלאו <strong>מילון</strong> — זוג אחד לכל חזקה של 2. זה המקום היחיד שבו מותר לחשב:</p>
+        <div class="code" dir="ltr">powers = {}
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">33</span>):
+    powers[?] = ?
+
+<span class="fn">print</span>(powers)</div>
+
+        <div class="big-result">2 · מי המפתח ומי הערך? 🔑</div>
+        <p>זה כל התרגיל. אתם תקבלו את <code dir="ltr">32</code> ותצטרכו להחזיר <code dir="ltr">5</code> — ולכן <code dir="ltr">32</code> חייב להיות <strong>המפתח</strong> ו-<code dir="ltr">5</code> <strong>הערך</strong>. אם תבנו הפוך, תחזרו לחפש.</p>
+        <div class="kvbox">
+          <div class="kvbox-cap" dir="ltr">powers   —   number → exponent</div>
+          <div class="kvrow" dir="ltr"><span class="kk">1</span><span class="ar">→</span><span class="vv">0</span></div>
+          <div class="kvrow" dir="ltr"><span class="kk">2</span><span class="ar">→</span><span class="vv">1</span></div>
+          <div class="kvrow" dir="ltr"><span class="kk">4</span><span class="ar">→</span><span class="vv">2</span></div>
+          <div class="kvrow" dir="ltr"><span class="kk">8</span><span class="ar">→</span><span class="vv">3</span></div>
+          <div class="kvrow" dir="ltr"><span class="kk">16</span><span class="ar">→</span><span class="vv">4</span></div>
+          <div class="kvrow" dir="ltr"><span class="kk">32</span><span class="ar">→</span><span class="vv">5</span></div>
+          <div class="kvrow" dir="ltr"><span class="kk">…</span><span class="ar">→</span><span class="vv">…</span></div>
+        </div>
+
+        <div class="big-result">3 · בקשו מספר מהמשתמש ✍️</div>
+        <p><code dir="ltr">input()</code> תמיד מחזיר <strong>מחרוזת</strong>, ו-<code dir="ltr">'32'</code> הוא לא אותו מפתח כמו <code dir="ltr">32</code>. המירו עם <code dir="ltr">int()</code>, אחרת שום דבר לא יימצא לעולם.</p>
+        <div class="code" dir="ltr">n = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'enter a number: '</span>))</div>
+
+        <div class="big-result">4 · חיפוש אחד במילון, ואז הדפסה 🎯</div>
+        <p>שני כלים מהשיעור עושים בדיוק את זה, ושניהם שורה אחת: <code dir="ltr">in</code> ששואל אם המפתח נמצא במילון, או <code dir="ltr">.get()</code> עם ברירת מחדל. הדפיסו <code dir="ltr">yes 2 power 5</code> או <code dir="ltr">no</code>.</p>
+        <div class="note">
+          שימו לב למקרה של <code dir="ltr">1</code>: החזקה שלו היא <code dir="ltr">0</code>, ו-<code dir="ltr">0</code> נחשב <em>falsy</em>. אם תכתבו <code dir="ltr">if p:</code> אחרי <code dir="ltr">.get()</code>, התוכנית תענה <code dir="ltr">no</code> על המספר 1 — וזו טעות. כתבו <code dir="ltr">if p is not None:</code>, או פשוט השתמשו ב-<code dir="ltr">in</code>.
+        </div>
+
+        <div class="big-result">5 · ⭐ בונוס — חזקות של 2, 3 <span dir="ltr">ו-5</span></div>
+        <p>בנו <strong>שלושה</strong> מילונים לפני הקלט — אחד לחזקות של 2, אחד ל-3 ואחד ל-5 — ובדקו את המספר שהמשתמש הקליד מול <strong>שלושתם</strong>. החוקים לא משתנים: הכול נבנה מראש, ואחרי ה-<code dir="ltr">input()</code> יש רק חיפושים.</p>
+        <div class="code" dir="ltr">powers2 = {}
+powers3 = {}
+powers5 = {}
+<span class="cm"># fill all three here, before the input</span></div>
+        <div class="console" dir="ltr"><span class="dim">enter a number: </span><span class="usr">32</span>
+yes 2 power 5
+
+<span class="dim">enter a number: </span><span class="usr">81</span>
+yes 3 power 4
+
+<span class="dim">enter a number: </span><span class="usr">125</span>
+yes 5 power 3
+
+<span class="dim">enter a number: </span><span class="usr">100</span>
+no</div>
+        <div class="note">
+          נסו את <code dir="ltr">1</code> — הוא <code dir="ltr">2**0</code>, <code dir="ltr">3**0</code> <strong>וגם</strong> <code dir="ltr">5**0</code>, כלומר הוא נמצא בשלושת המילונים. תחליטו מה התוכנית שלכם אמורה להגיד, ואל תעצרו בהתאמה הראשונה אם אתם רוצים את כולן.
+        </div>
+        <div class="note">
+          <strong>הדרך המסודרת, אחרי שזה עובד:</strong> במקום שלושה שמות נפרדים, החזיקו מילון אחד <em>שהערכים שלו הם מילונים</em> — <code dir="ltr">tables = {2: {…}, 3: {…}, 5: {…}}</code> — ועברו עליו עם <code dir="ltr">for base, table in tables.items():</code>. בדיוק שני הדברים מהיום: מילון מקונן ו-<code dir="ltr">.items()</code>. להוסיף בסיס 7 זו אז שורה אחת במקום ארבע.
+        </div>
+        <div class="note">
+          אם תרצו שהתוכנית תמשיך לשאול, עטפו את השאלה ב-<code dir="ltr">while True</code> שנעצר על <code dir="ltr">q</code> — כשהמילונים נבנים <strong>פעם אחת, לפני הלולאה</strong>, אף פעם לא בתוכה.
+        </div>
+
+        <p><strong>פייתון בלבד</strong>. כתבו קובץ <code dir="ltr">.py</code> ב-PyCharm והריצו עם <span class="kbd">Shift</span> + <span class="kbd">F10</span>.</p>
+
+        <div class="card submission">
+          <ol class="task-list">
+            <li><strong>כתבו את התוכנית ב-<code dir="ltr">.py</code></strong> ב-PyCharm.</li>
+            <li><strong>העלו ל-GitHub</strong> ושלחו את הקישור אל:<br>
+              <a href="mailto:pythonai080626+hw17@gmail.com" dir="ltr">pythonai080626+hw17@gmail.com</a>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <div class="footer">Lesson 17 · Dicts, part 2 &amp; Functions · August 24, 2026</div>
+</div>
+
+<script>
+  const links = document.querySelectorAll('.topic-link');
+  const panels = document.querySelectorAll('.topic-panel');
+
+  function showTopic(id) {
+    panels.forEach(panel => panel.classList.toggle('active', panel.id === id));
+    links.forEach(link => link.classList.toggle('active', link.dataset.target === id));
+  }
+
+  links.forEach(link => {
+    link.addEventListener('click', () => {
+      showTopic(link.dataset.target);
+      location.hash = link.dataset.target;
+    });
+  });
+
+  const hash = location.hash.replace('#', '');
+  if (hash && document.getElementById(hash)) showTopic(hash);
+</script>
+</body>
+</html>
