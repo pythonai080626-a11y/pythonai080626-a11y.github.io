@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Functions 2 - Parameters &amp; Return</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:      #f5f0e8;
+    --paper:   #faf7f2;
+    --ink:     #1a1410;
+    --rust:    #c0440a;
+    --olive:   #5a6e2c;
+    --navy:    #1b3a5c;
+    --gold:    #b8860b;
+    --cream:   #e8e0d0;
+    --muted:   #7a6e60;
+    --border:  #ddd5c0;
+    --code-bg: #1c1814;
+    --c-kw:    #e8834a;
+    --c-fn:    #f0c040;
+    --c-str:   #7ec87e;
+    --c-num:   #e07070;
+    --c-cmt:   #4a4030;
+    --c-var:   #a8c4e0;
+    --c-ret:   #d090f0;
+    --shadow:  rgba(26,20,16,.1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'DM Mono', monospace;
+    overflow-x: hidden;
+  }
+
+  /* ── DIAGONAL STRIPE TEXTURE ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 24px,
+      rgba(180,160,120,.04) 24px,
+      rgba(180,160,120,.04) 25px
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── back to Python Basics ── */
+  .site-nav {
+    position: sticky; top: 0; z-index: 60;
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 22px;
+    background: rgba(245,240,232,0.92);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    font-size: .8rem;
+  }
+  .site-nav a {
+    display: inline-flex; align-items: center; gap: 7px;
+    color: var(--rust); text-decoration: none; font-weight: 500;
+    letter-spacing: .06em; text-transform: uppercase;
+    transition: color .2s ease;
+  }
+  .site-nav a:hover { color: var(--ink); }
+  .site-nav-sep { color: var(--muted); }
+  .site-nav-here { color: var(--ink); font-weight: 500; letter-spacing: .06em; text-transform: uppercase; }
+  .site-nav-lesson {
+    margin-left: auto;
+    border: 1px solid var(--border); border-radius: 999px;
+    padding: 4px 14px; background: var(--paper);
+    font-size: .72rem;
+  }
+  @media (max-width: 620px) {
+    .site-nav { padding: 9px 14px; font-size: .7rem; }
+    .site-nav-lesson { padding: 3px 10px; }
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: relative;
+    z-index: 2;
+    background: var(--ink);
+    padding: 0;
+    overflow: hidden;
+  }
+
+  .header-inner {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: stretch;
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 60px 40px;
+    gap: 40px;
+  }
+
+  .header-left { display: flex; flex-direction: column; justify-content: center; }
+
+  .issue-line {
+    font-size: .68rem;
+    letter-spacing: .25em;
+    text-transform: uppercase;
+    color: var(--rust);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: fadeIn .4s ease both;
+  }
+
+  .issue-line::before {
+    content: '';
+    display: inline-block;
+    width: 28px; height: 2px;
+    background: var(--rust);
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 7vw, 6rem);
+    font-weight: 900;
+    line-height: .95;
+    color: var(--paper);
+    letter-spacing: -.02em;
+    animation: fadeIn .5s .1s ease both;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--rust);
+  }
+
+  .header-sub {
+    margin-top: 22px;
+    font-size: .8rem;
+    color: #6a5e50;
+    line-height: 1.8;
+    max-width: 420px;
+    animation: fadeIn .5s .2s ease both;
+  }
+
+  /* big def() illustration */
+  .header-right {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn .6s .25s ease both;
+  }
+
+  .def-block {
+    background: #110f0c;
+    border: 1px solid #2e2820;
+    border-radius: 10px;
+    padding: 24px 30px;
+    font-size: 1rem;
+    line-height: 2.2;
+    white-space: nowrap;
+    box-shadow: 0 20px 60px rgba(0,0,0,.5);
+    /* the bare punctuation - ( ) = , : - inherits this. Without it the block
+       falls back to --ink, which is all but invisible on #110f0c. */
+    color: #d8cdbd;
+  }
+
+  .def-block .kw  { color: var(--c-kw);  font-weight: 500; }
+  .def-block .fn  { color: var(--c-fn); }
+  .def-block .str { color: var(--c-str); }
+  .def-block .num { color: var(--c-num); }
+  .def-block .ret { color: var(--c-ret); }
+  .def-block .dim { color: #3a342c; }
+
+  /* blinking cursor */
+  .cur {
+    display: inline-block;
+    width: 2px; height: 1em;
+    background: var(--c-fn);
+    vertical-align: middle;
+    margin-left: 2px;
+    animation: blink .9s step-end infinite;
+  }
+
+  @keyframes blink { 50% { opacity: 0; } }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* rust bar at bottom of header */
+  .header-bar {
+    height: 5px;
+    background: linear-gradient(90deg, var(--rust), var(--gold), var(--olive));
+  }
+
+  /* ── MAIN ── */
+  main {
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+    padding: 24px 0 0;
+  }
+
+  /* ── SECTION LABELS ── */
+  .sec-tag {
+    font-size: .65rem;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .sec-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--ink);
+    line-height: 1.1;
+  }
+
+  .sec-desc {
+    color: var(--muted);
+    font-size: .82rem;
+    line-height: 1.95;
+    max-width: 620px;
+    margin-bottom: 28px;
+  }
+
+  /* ── CODE CARD ── */
+  .code-card {
+    background: var(--code-bg);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px var(--shadow);
+    border: 1px solid #2a2420;
+  }
+
+  .code-bar {
+    display: flex; align-items: center; gap: 7px;
+    padding: 10px 16px;
+    background: #120f0c;
+    border-bottom: 1px solid #2a2420;
+  }
+
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dr { background: #ff5f57; } .dy { background: #ffbd2e; } .dg { background: #28ca41; }
+
+  .fname {
+    margin-left: 8px; font-size: .7rem;
+    color: #4a4030; letter-spacing: .06em;
+  }
+
+  pre {
+    padding: 26px 30px;
+    overflow-x: auto;
+    font-size: .87rem;
+    line-height: 2;
+    color: #c8b898;
+  }
+
+  /* syntax */
+  .kw  { color: var(--c-kw);  font-weight: 500; }
+  .fn  { color: var(--c-fn); }
+  .str { color: var(--c-str); }
+  .num { color: var(--c-num); }
+  .cmt { color: var(--c-cmt); font-style: italic; }
+  .var { color: var(--c-var); }
+  .ret { color: var(--c-ret); }
+  .op  { color: #7a6e60; }
+
+  /* ── ANATOMY DIAGRAM ── */
+  .anatomy-wrap {
+    background: var(--paper);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 36px;
+    position: relative;
+  }
+
+  .anatomy-code {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.05rem;
+    line-height: 2.8;
+    color: var(--ink);
+    position: relative;
+  }
+
+  .an-kw  { color: var(--rust);  font-weight: 700; }
+  .an-fn  { color: var(--navy);  font-weight: 700; }
+  .an-par { color: var(--olive); font-weight: 600; }
+  .an-ret { color: var(--gold);  font-weight: 600; }
+  .an-str { color: var(--olive); }
+
+  .callouts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 24px;
+  }
+
+  .callout {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: var(--cream);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: .75rem;
+    line-height: 1.6;
+    flex: 1;
+    min-width: 180px;
+    border-left: 3px solid transparent;
+    transition: transform .2s;
+  }
+
+  .callout:hover { transform: translateY(-2px); }
+  .callout.rust   { border-left-color: var(--rust); }
+  .callout.navy   { border-left-color: var(--navy); }
+  .callout.olive  { border-left-color: var(--olive); }
+  .callout.gold   { border-left-color: var(--gold); }
+
+  .callout-label {
+    font-weight: 700;
+    font-size: .72rem;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .callout.rust  .callout-label { color: var(--rust); }
+  .callout.navy  .callout-label { color: var(--navy); }
+  .callout.olive .callout-label { color: var(--olive); }
+  .callout.gold  .callout-label { color: var(--gold); }
+
+  .callout-desc { color: var(--muted); }
+
+  /* ── PARAMETER CARDS ── */
+  .param-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+  }
+
+  .pcard {
+    background: var(--paper);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 20px;
+    transition: all .22s;
+    cursor: default;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pcard::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+  }
+
+  .pcard.rust::after  { background: var(--rust); }
+  .pcard.navy::after  { background: var(--navy); }
+  .pcard.olive::after { background: var(--olive); }
+  .pcard.gold::after  { background: var(--gold); }
+
+  .pcard:hover { transform: translateY(-4px); box-shadow: 0 10px 28px var(--shadow); }
+
+  .pcard-icon { font-size: 1.7rem; margin-bottom: 12px; display: block;
+    animation: bob 3s ease-in-out infinite; }
+  .pcard:nth-child(2) .pcard-icon { animation-delay: .5s; }
+  .pcard:nth-child(3) .pcard-icon { animation-delay: 1s; }
+  .pcard:nth-child(4) .pcard-icon { animation-delay: 1.5s; }
+
+  @keyframes bob {
+    0%,100% { transform: translateY(0); }
+    50%      { transform: translateY(-5px); }
+  }
+
+  .pcard h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--ink);
+  }
+
+  .pcard p { font-size: .78rem; color: var(--muted); line-height: 1.75; }
+
+  /* ── TWO COL ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  @media (max-width: 660px) { .two-col { grid-template-columns: 1fr; } }
+
+  /* ── RETURN FLOW ── */
+  .return-flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+    padding: 4px 0 12px;
+  }
+
+  .rf-box {
+    background: var(--paper);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    text-align: center;
+    min-width: 130px;
+    flex-shrink: 0;
+  }
+
+  .rf-label { font-size: .62rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .rf-val   { font-size: .9rem; font-weight: 700; }
+  .rf-rust  { color: var(--rust); }
+  .rf-navy  { color: var(--navy); }
+  .rf-olive { color: var(--olive); }
+  .rf-gold  { color: var(--gold); }
+
+  .rf-arrow {
+    font-size: 1.4rem;
+    color: var(--muted);
+    padding: 0 8px;
+    flex-shrink: 0;
+    animation: arrowPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes arrowPulse {
+    0%,100% { opacity: .4; transform: scaleX(1); }
+    50%      { opacity: 1; transform: scaleX(1.15); }
+  }
+
+  /* ── SCOPE BOX ── */
+  .scope-visual {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  @media (max-width: 600px) { .scope-visual { grid-template-columns: 1fr; } }
+
+  .scope-box {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+  }
+
+  .scope-label {
+    position: absolute;
+    top: -12px; left: 16px;
+    background: var(--bg);
+    padding: 0 8px;
+    font-size: .68rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .scope-box.global { border-color: var(--navy); }
+  .scope-box.global .scope-label { color: var(--navy); }
+  .scope-box.local  { border-color: var(--rust); }
+  .scope-box.local  .scope-label { color: var(--rust); }
+
+  .scope-var {
+    font-size: .82rem;
+    padding: 7px 12px;
+    border-radius: 6px;
+    margin-bottom: 7px;
+    background: var(--cream);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .scope-var:last-child { margin-bottom: 0; }
+  .sv-name { color: var(--navy); font-weight: 600; }
+  .sv-val  { color: var(--rust); }
+  .sv-note { font-size: .68rem; color: var(--muted); }
+
+  /* ── INTERACTIVE DEMO ── */
+  .demo-wrap {
+    background: var(--code-bg);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #2a2420;
+    box-shadow: 0 8px 30px var(--shadow);
+  }
+
+  .demo-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: #120f0c;
+    border-bottom: 1px solid #2a2420;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .demo-title { font-size: .72rem; color: #4a4030; letter-spacing: .1em; }
+
+  .demo-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .demo-btn {
+    background: rgba(192,68,10,.1);
+    border: 1px solid rgba(192,68,10,.3);
+    color: var(--c-kw);
+    font-family: 'DM Mono', monospace;
+    font-size: .7rem;
+    padding: 5px 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all .2s;
+    letter-spacing: .05em;
+  }
+
+  .demo-btn:hover { background: rgba(192,68,10,.22); }
+  .demo-btn.active { background: var(--rust); color: #fff; border-color: var(--rust); }
+
+  .demo-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+
+  @media (max-width: 640px) { .demo-body { grid-template-columns: 1fr; } }
+
+  .demo-code {
+    padding: 24px 28px;
+    border-right: 1px solid #2a2420;
+    font-size: .83rem;
+    line-height: 2;
+    color: #c8b898;
+    overflow-x: auto;
+    min-height: 200px;
+  }
+
+  .demo-output {
+    padding: 24px 28px;
+    font-size: .83rem;
+    line-height: 2;
+    min-height: 200px;
+  }
+
+  .out-label { font-size: .65rem; letter-spacing: .16em; text-transform: uppercase; color: #4a4030; margin-bottom: 10px; }
+
+  .out-line {
+    opacity: 0; transform: translateX(-6px);
+    transition: opacity .2s, transform .2s;
+  }
+  .out-line.vis { opacity: 1; transform: translateX(0); }
+
+  .ol-rust   { color: var(--c-kw); }
+  .ol-green  { color: var(--c-str); }
+  .ol-purple { color: var(--c-ret); }
+  .ol-dim    { color: #4a4030; }
+  .ol-gold   { color: var(--c-fn); }
+
+  /* ── COMPARISON TABLE ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: .82rem;
+  }
+
+  th {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 13px 18px;
+    text-align: left;
+    font-size: .68rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    border: 1px solid #2a2420;
+  }
+
+  td {
+    padding: 11px 18px;
+    border: 1px solid var(--border);
+    color: var(--ink);
+    vertical-align: top;
+    background: var(--paper);
+  }
+
+  tr:nth-child(even) td { background: var(--cream); }
+  tr:hover td { background: rgba(192,68,10,.04); }
+
+  .tp { display: inline-block; padding: 2px 10px; border-radius: 5px; font-size: .68rem; font-weight: 600; }
+  .tp-r  { background: rgba(192,68,10,.12); color: var(--rust); }
+  .tp-n  { background: rgba(27,58,92,.12);  color: var(--navy); }
+  .tp-o  { background: rgba(90,110,44,.12); color: var(--olive); }
+  .tp-g  { background: rgba(184,134,11,.12);color: var(--gold); }
+
+  /* ── SCROLL REVEAL ── */
+/* ── sub-topic layout: sticky submenu + one panel at a time ── */
+  .shell {
+    position: relative; z-index: 1;
+    max-width: 1240px; margin: 0 auto;
+    padding: 48px 28px 90px;
+    display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 40px;
+    align-items: start;
+  }
+  .submenu {
+    position: sticky; top: 64px;
+    background: var(--paper);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 14px;
+    box-shadow: 0 6px 22px var(--shadow);
+  }
+  .submenu-title {
+    font-size: .64rem; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 12px; padding-left: 10px;
+  }
+  .submenu button {
+    display: block; width: 100%; text-align: left;
+    font-family: 'DM Mono', monospace; font-size: .78rem; line-height: 1.45;
+    background: none; border: 0; border-left: 3px solid transparent;
+    color: var(--muted); cursor: pointer;
+    padding: 9px 10px; margin-bottom: 2px; border-radius: 0 8px 8px 0;
+    transition: color .18s ease, background .18s ease, border-color .18s ease;
+  }
+  .submenu button:hover { color: var(--ink); background: var(--cream); }
+  .submenu button.active {
+    color: var(--rust); border-left-color: var(--rust);
+    background: var(--cream); font-weight: 500;
+  }
+  .submenu button .n {
+    display: inline-block; width: 20px; color: var(--gold); font-size: .7rem;
+  }
+  .submenu button.active .n { color: var(--rust); }
+  .submenu-sep { border: 0; border-top: 1px solid var(--border); margin: 14px 6px; }
+  .submenu-back {
+    display: block; text-align: center; text-decoration: none;
+    font-size: .72rem; letter-spacing: .06em; text-transform: uppercase;
+    color: var(--rust); border: 1px solid var(--border); border-radius: 9px;
+    padding: 9px 8px; background: var(--bg);
+  }
+  .submenu-back:hover { background: var(--cream); }
+
+  .panel { display: none; }
+  .panel.active { display: block; animation: panelin .3s ease; }
+  @keyframes panelin { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  .panel > section { margin: 0; }
+
+  .panel-foot {
+    display: flex; justify-content: space-between; gap: 14px;
+    margin-top: 44px; padding-top: 22px; border-top: 1px solid var(--border);
+  }
+  .panel-foot button {
+    font-family: 'DM Mono', monospace; font-size: .78rem;
+    background: var(--paper); border: 1px solid var(--border); border-radius: 10px;
+    color: var(--rust); cursor: pointer; padding: 10px 18px;
+    transition: background .18s ease, color .18s ease;
+  }
+  .panel-foot button:hover:not(:disabled) { background: var(--cream); color: var(--ink); }
+  .panel-foot button:disabled { opacity: .35; cursor: not-allowed; }
+
+  @media (max-width: 940px) {
+    .shell { grid-template-columns: 1fr; gap: 24px; padding: 32px 18px 70px; }
+    .submenu { position: static; }
+    .submenu button { display: inline-block; width: auto; border-left: 0; border-bottom: 3px solid transparent; border-radius: 8px; }
+    .submenu button.active { border-left: 0; border-bottom-color: var(--rust); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity .55s ease, transform .55s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ── FOOTER ── */
+  footer {
+    position: relative; z-index: 1;
+    background: var(--ink);
+    text-align: center;
+    padding: 32px;
+    font-size: .72rem;
+    color: #4a4030;
+    letter-spacing: .1em;
+    border-top: 4px solid var(--rust);
+  }
+
+  footer span { color: var(--c-kw); }
+</style>
+</head>
+<body>
+
+<!-- back to Python Basics -->
+<nav class="site-nav">
+  <a href="../index.html">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+    </svg>
+    <span>Python Basics</span>
+  </a>
+  <span class="site-nav-sep">/</span>
+  <span class="site-nav-here">Functions 2</span>
+  <a class="site-nav-lesson" href="../lessons/18_lesson/18-lesson.html">Lesson 18 &rarr;</a>
+</nav>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <div class="header-left">
+      <div class="issue-line">python fundamentals &middot; part two</div>
+      <h1>Func<em>tions 2</em></h1>
+      <p class="header-sub">Now the function talks back. Values go <strong>in</strong> through parameters, and an answer comes <strong>out</strong> through <code>return</code> &mdash; or does not, which is its own lesson.</p>
+    </div>
+    <div class="header-right">
+      <div class="def-block">
+        <span class="kw">def</span> <span class="fn">add</span>(<span style="color:#a8c4e0">x</span>=<span class="num">0</span>, <span style="color:#a8c4e0">y</span>=<span class="num">0</span>):<span class="dim"> ← defaults</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">return</span> <span class="ret">x + y</span><span class="dim">   ← hands it back</span><br>
+        <br>
+        <span style="color:#a8c4e0">r</span> = <span class="fn">add</span>(<span style="color:#a8c4e0">x</span>=<span class="num">5</span>, <span style="color:#a8c4e0">y</span>=<span class="num">10</span>)<span class="dim"> ← by name</span><br>
+        <span class="fn">print</span>(<span class="ret">r</span>)<span class="dim">              → 15</span><span class="cur"></span>
+      </div>
+    </div>
+  </div>
+  <div class="header-bar"></div>
+</header>
+
+<div class="shell">
+  <nav class="submenu" aria-label="Functions 2 topics">
+    <div class="submenu-title">On this page</div>
+    <button data-go="p1" class="active"><span class="n">01</span>Parameters</button>
+    <button data-go="p2"><span class="n">02</span>Default values</button>
+    <button data-go="p3"><span class="n">03</span>Calling with name=</button>
+    <button data-go="p4"><span class="n">04</span>return</button>
+    <button data-go="p5"><span class="n">05</span>Returning nothing</button>
+    <button data-go="p6"><span class="n">06</span>Docstrings</button>
+    <button data-go="p7"><span class="n">07</span>Quick reference</button>
+    <hr class="submenu-sep">
+    <a class="submenu-back" href="../lessons/18_lesson/18-lesson.html">Lesson 18 &rarr;</a>
+  </nav>
+
+  <main>
+  <div class="panel active" id="p1">
+  <!-- 1. PARAMETERS -->
+  <section>
+    <span class="sec-tag">01</span>
+    <h2 class="sec-title">Parameters &mdash; the slots in the def line</h2>
+    <p class="sec-desc">A function with empty <code>()</code> always does exactly the same thing. Put a name inside those brackets and the function gains a <strong>slot</strong>: a variable that does not exist until somebody calls the function and fills it.</p>
+
+    <div class="code-card" style="margin-top:20px">
+      <div class="code-bar"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span><span class="fname">parameters.py</span></div>
+      <pre>
+<span class="cmt"># one slot ─────────────────────────────────────</span>
+<span class="kw">def</span> <span class="fn">say_hello</span>(<span class="var">name</span>)<span class="op">:</span>
+    <span class="fn">print</span>(<span class="str">'Hello,'</span><span class="op">,</span> <span class="var">name</span>)
+
+<span class="fn">say_hello</span>(<span class="str">"Danny"</span>)          <span class="cmt"># Hello, Danny</span>
+<span class="fn">say_hello</span>(<span class="str">"Mor"</span>)            <span class="cmt"># Hello, Mor</span>
+
+<span class="cmt"># two slots, filled left to right ──────────────</span>
+<span class="kw">def</span> <span class="fn">rectangle_area</span>(<span class="var">width</span><span class="op">,</span> <span class="var">height</span>)<span class="op">:</span>
+    <span class="kw">return</span> <span class="var">width</span> <span class="op">*</span> <span class="var">height</span>
+
+<span class="fn">rectangle_area</span>(<span class="num">5</span><span class="op">,</span> <span class="num">10</span>)      <span class="cmt"># width=5, height=10  → 50</span>
+<span class="fn">rectangle_area</span>(<span class="num">10</span><span class="op">,</span> <span class="num">5</span>)      <span class="cmt"># width=10, height=5  → 50, but not the same slots</span>
+      </pre>
+    </div>
+
+    <div class="callout rust" style="margin-top:18px">
+      <div class="callout-label">The error you will meet</div>
+      <div class="callout-desc">Call <code>rectangle_area(5)</code> and Python stops you: <code>TypeError: rectangle_area() missing 1 required positional argument: 'height'</code>. A slot with no default <strong>must</strong> be filled.</div>
+    </div>
+  </section>
+
+    <div class="panel-foot">
+      <button disabled>&larr; start</button>
+      <button data-go="p2">Default values &rarr;</button>
+    </div>
+  </div>
+
+  <div class="panel" id="p2">
+  <!-- 2. DEFAULT VALUES -->
+  <section>
+    <span class="sec-tag">02</span>
+    <h2 class="sec-title">Default values &mdash; a slot that fills itself</h2>
+    <p class="sec-desc">Write <code>=</code> in the <strong>def</strong> line and the slot gets a fallback. Now the caller <em>may</em> pass a value, but does not have to. One function, two ways to call it.</p>
+
+    <div class="code-card">
+      <div class="code-bar"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span><span class="fname">defaults.py</span></div>
+      <pre>
+<span class="kw">def</span> <span class="fn">say_hello</span>(<span class="var">name</span><span class="op">=</span><span class="str">"incognito"</span>)<span class="op">:</span>
+    <span class="str">'''</span>
+<span class="str">    say hello to user</span>
+<span class="str">    :param name: name of the user. default is "incognito"</span>
+<span class="str">    :return: None</span>
+<span class="str">    '''</span>
+    <span class="fn">print</span>(<span class="str">'Hello,'</span><span class="op">,</span> <span class="var">name</span>)
+
+<span class="fn">say_hello</span>()                  <span class="cmt"># Hello, incognito   ← nothing passed, default used</span>
+<span class="fn">say_hello</span>(<span class="str">"Danny"</span>)           <span class="cmt"># Hello, Danny       ← default ignored</span>
+<span class="fn">say_hello</span>(<span class="str">"Mor"</span>)             <span class="cmt"># Hello, Mor</span>
+
+<span class="cmt"># every slot can have one ──────────────────────</span>
+<span class="kw">def</span> <span class="fn">add</span>(<span class="var">x</span><span class="op">=</span><span class="num">0</span><span class="op">,</span> <span class="var">y</span><span class="op">=</span><span class="num">0</span>)<span class="op">:</span>
+    <span class="kw">return</span> <span class="var">x</span> <span class="op">+</span> <span class="var">y</span>
+
+<span class="fn">add</span>()                        <span class="cmt"># → 0    both defaults</span>
+<span class="fn">add</span>(<span class="num">5</span>)                       <span class="cmt"># → 5    x=5, y still 0</span>
+<span class="fn">add</span>(<span class="num">5</span><span class="op">,</span> <span class="num">10</span>)                   <span class="cmt"># → 15</span>
+      </pre>
+    </div>
+
+    <div class="callouts" style="margin-top:20px">
+      <div class="callout navy">
+        <div class="callout-label">Order rule</div>
+        <div class="callout-desc">Slots <em>without</em> a default must come first. <code>def f(a, b=0)</code> is fine; <code>def f(a=0, b)</code> is a <code>SyntaxError</code>.</div>
+      </div>
+      <div class="callout olive">
+        <div class="callout-label">Say it in the docstring</div>
+        <div class="callout-desc">If a parameter has a default, write it down: <code>:param name: ... default is "incognito"</code>. The next reader should not have to guess.</div>
+      </div>
+    </div>
+  </section>
+
+    <div class="panel-foot">
+      <button data-go="p1">&larr; Parameters</button>
+      <button data-go="p3">Calling with name= &rarr;</button>
+    </div>
+  </div>
+
+  <div class="panel" id="p3">
+  <!-- 3. KEYWORD ARGUMENTS -->
+  <section>
+    <span class="sec-tag">03</span>
+    <h2 class="sec-title">Using <code>=</code> when you <em>call</em> it</h2>
+    <p class="sec-desc">The <code>=</code> shows up in two completely different places, and this is where people get lost. In the <strong>def</strong> line it sets a default. At the <strong>call</strong> it names which slot you are filling.</p>
+
+    <div class="two-col">
+      <div class="code-card">
+        <div class="code-bar"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span><span class="fname">in_the_def.py</span></div>
+        <pre>
+<span class="cmt"># = here means "if nobody passes one"</span>
+<span class="kw">def</span> <span class="fn">print_square</span>(<span class="var">x</span><span class="op">=</span><span class="num">0</span>)<span class="op">:</span>
+    <span class="fn">print</span>(<span class="var">x</span> <span class="op">**</span> <span class="num">2</span>)
+
+<span class="cmt"># the default is set ONCE,</span>
+<span class="cmt"># when the def line is read.</span>
+        </pre>
+      </div>
+      <div class="code-card">
+        <div class="code-bar"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span><span class="fname">in_the_call.py</span></div>
+        <pre>
+<span class="cmt"># = here means "this one goes in x"</span>
+<span class="fn">print_square</span>(<span class="var">x</span><span class="op">=</span><span class="num">5</span>)     <span class="cmt"># 25</span>
+<span class="fn">print_square</span>(<span class="num">5</span>)       <span class="cmt"># 25 - same thing</span>
+<span class="fn">print_square</span>()        <span class="cmt"># 0  - default</span>
+
+<span class="cmt"># nothing is being assigned</span>
+<span class="cmt"># to a variable called x here.</span>
+        </pre>
+      </div>
+    </div>
+
+    <p class="sec-desc" style="margin-top:20px">Naming the slot buys you two things: the call reads like a sentence, and the <strong>order stops mattering</strong>.</p>
+
+    <div class="code-card">
+      <div class="code-bar"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span><span class="fname">keywords.py</span></div>
+      <pre>
+<span class="kw">def</span> <span class="fn">rectangle_area</span>(<span class="var">width</span><span class="op">,</span> <span class="var">height</span>)<span class="op">:</span>
+    <span class="kw">return</span> <span class="var">width</span> <span class="op">*</span> <span class="var">height</span>
+
+<span class="fn">rectangle_area</span>(<span class="num">5</span><span class="op">,</span> <span class="num">10</span>)                      <span class="cmt"># positional  → 50</span>
+<span class="fn">rectangle_area</span>(<span class="var">width</span><span class="op">=</span><span class="num">5</span><span class="op">,</span> <span class="var">height</span><span class="op">=</span><span class="num">10</span>)       <span class="cmt"># by name     → 50</span>
+<span class="fn">rectangle_area</span>(<span class="var">height</span><span class="op">=</span><span class="num">10</span><span class="op">,</span> <span class="var">width</span><span class="op">=</span><span class="num">5</span>)       <span class="cmt"># backwards!  → 50, still right</span>
+
+<span class="cmt"># mixing is allowed - positional first, named after</span>
+<span class="fn">rectangle_area</span>(<span class="num">7.5</span><span class="op">,</span> <span class="var">height</span><span class="op">=</span><span class="num">12</span>)             <span class="cmt"># → 90.0</span>
+
+<span class="cmt"># but not the other way round</span>
+<span class="cmt"># rectangle_area(width=7.5, 12)   ← SyntaxError</span>
+      </pre>
+    </div>
+
+    <div class="callout gold" style="margin-top:18px">
+      <div class="callout-label">Why bother</div>
+      <div class="callout-desc">Six months from now, <code>book(4, 2, 1)</code> means nothing. <code>book(adults=4, kids=2, rooms=1)</code> still means something. Name them the moment a call stops being obvious.</div>
+    </div>
+  </section>
+
+    <div class="panel-foot">
+      <button data-go="p2">&larr; Default values</button>
+      <button data-go="p4">return &rarr;</button>
+    </div>
+  </div>
+
+  <div class="panel" id="p4">
+  <!-- 4. RETURN -->
+  <section>
+    <span class="sec-tag">04</span>
+    <h2 class="sec-title"><code>return</code> &mdash; sending the answer back</h2>
+    <p class="sec-desc">Printing shows a value to a human. <strong>Returning</strong> hands it to the rest of the program, which can store it, add to it, or pass it on. A function that only prints is a dead end.</p>
+
+    <div class="code-card">
+      <div class="code-bar"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span><span class="fname">returning.py</span></div>
+      <pre>
+<span class="kw">def</span> <span class="fn">add</span>(<span class="var">x</span><span class="op">=</span><span class="num">0</span><span class="op">,</span> <span class="var">y</span><span class="op">=</span><span class="num">0</span>)<span class="op">:</span>
+    <span class="str">'''</span>
+<span class="str">    add two numbers</span>
+<span class="str">    :param x: 1st number</span>
+<span class="str">    :param y: 2nd number</span>
+<span class="str">    :return: sum of x + y</span>
+<span class="str">    '''</span>
+    <span class="var">sum_xy</span> <span class="op">=</span> <span class="var">x</span> <span class="op">+</span> <span class="var">y</span>
+    <span class="kw">return</span> <span class="var">sum_xy</span>
+
+<span class="var">result</span> <span class="op">=</span> <span class="fn">add</span>(<span class="var">x</span><span class="op">=</span><span class="num">5</span><span class="op">,</span> <span class="var">y</span><span class="op">=</span><span class="num">10</span>)     <span class="cmt"># catch it in a variable</span>
+<span class="fn">print</span>(<span class="str">'add returned'</span><span class="op">,</span> <span class="var">result</span>)  <span class="cmt"># add returned 15</span>
+<span class="fn">print</span>(<span class="fn">add</span>(<span class="num">5</span><span class="op">,</span> <span class="num">10</span>))              <span class="cmt"># or use it on the spot → 15</span>
+
+<span class="cmt"># sum_xy only existed inside. print(sum_xy) → NameError</span>
+      </pre>
+    </div>
+
+    <p class="sec-desc" style="margin-top:22px"><code>return</code> also <strong>stops</strong> the function on the spot. Nothing after it runs &mdash; which is what makes these two versions identical:</p>
+
+    <div class="two-col">
+      <div class="code-card">
+        <div class="code-bar"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span><span class="fname">with_else.py</span></div>
+        <pre>
+<span class="kw">def</span> <span class="fn">max_number</span>(<span class="var">a</span><span class="op">=</span><span class="num">0</span><span class="op">,</span> <span class="var">b</span><span class="op">=</span><span class="num">0</span>)<span class="op">:</span>
+    <span class="kw">if</span> <span class="var">a</span> <span class="op">&gt;</span> <span class="var">b</span><span class="op">:</span>
+        <span class="kw">return</span> <span class="var">a</span>
+    <span class="kw">else</span><span class="op">:</span>
+        <span class="kw">return</span> <span class="var">b</span>
+        </pre>
+      </div>
+      <div class="code-card">
+        <div class="code-bar"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span><span class="fname">without_else.py</span></div>
+        <pre>
+<span class="kw">def</span> <span class="fn">max_number</span>(<span class="var">a</span><span class="op">=</span><span class="num">0</span><span class="op">,</span> <span class="var">b</span><span class="op">=</span><span class="num">0</span>)<span class="op">:</span>
+    <span class="kw">if</span> <span class="var">a</span> <span class="op">&gt;</span> <span class="var">b</span><span class="op">:</span>
+        <span class="kw">return</span> <span class="var">a</span>
+    <span class="kw">return</span> <span class="var">b</span>
+
+<span class="cmt"># if a &gt; b we already left.</span>
+        </pre>
+      </div>
+    </div>
+
+    <div class="code-card" style="margin-top:20px">
+      <div class="code-bar"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span><span class="fname">returning_anything.py</span></div>
+      <pre>
+<span class="cmt"># a function can hand back any type it likes</span>
+<span class="kw">def</span> <span class="fn">get_even_odd</span>(<span class="var">a</span><span class="op">=</span><span class="num">0</span>)<span class="op">:</span>
+    <span class="str">'''</span>
+<span class="str">    :param a: a number</span>
+<span class="str">    :return: "even" or "odd"</span>
+<span class="str">    '''</span>
+    <span class="kw">if</span> <span class="var">a</span> <span class="op">%</span> <span class="num">2</span> <span class="op">==</span> <span class="num">0</span><span class="op">:</span>
+        <span class="kw">return</span> <span class="str">"even"</span>
+    <span class="kw">return</span> <span class="str">"odd"</span>
+
+<span class="fn">print</span>(<span class="fn">get_even_odd</span>(<span class="num">0</span>))     <span class="cmt"># even</span>
+<span class="fn">print</span>(<span class="fn">get_even_odd</span>(<span class="num">7</span>))     <span class="cmt"># odd</span>
+<span class="fn">print</span>(<span class="fn">get_even_odd</span>(<span class="op">-</span><span class="num">3</span>))    <span class="cmt"># odd</span>
+
+<span class="cmt"># ...even a whole dictionary</span>
+<span class="kw">def</span> <span class="fn">count_letters</span>(<span class="var">text</span>)<span class="op">:</span>
+    <span class="var">d</span> <span class="op">=</span> {}
+    <span class="kw">for</span> <span class="var">c</span> <span class="kw">in</span> <span class="var">text</span><span class="op">:</span>
+        <span class="kw">if</span> <span class="var">c</span> <span class="kw">not</span> <span class="kw">in</span> <span class="var">d</span><span class="op">:</span>
+            <span class="var">d</span>[<span class="var">c</span>] <span class="op">=</span> <span class="num">1</span>
+        <span class="kw">else</span><span class="op">:</span>
+            <span class="var">d</span>[<span class="var">c</span>] <span class="op">+=</span> <span class="num">1</span>
+    <span class="kw">return</span> <span class="var">d</span>
+
+<span class="fn">print</span>(<span class="fn">count_letters</span>(<span class="str">'missiiiissippi'</span>))
+<span class="cmt"># {'m': 1, 'i': 7, 's': 4, 'p': 2}</span>
+      </pre>
+    </div>
+  </section>
+
+    <div class="panel-foot">
+      <button data-go="p3">&larr; Calling with name=</button>
+      <button data-go="p5">Returning nothing &rarr;</button>
+    </div>
+  </div>
+
+  <div class="panel" id="p5">
+  <!-- 5. NO RETURN -->
+  <section>
+    <span class="sec-tag">05</span>
+    <h2 class="sec-title">Functions that return nothing</h2>
+    <p class="sec-desc">Leave out <code>return</code> and the function still hands something back: <strong><code>None</code></strong>. Python always returns something. <code>None</code> is the value that means &ldquo;there was no answer&rdquo; &mdash; and it is a real value you can print, store and test.</p>
+
+    <div class="code-card">
+      <div class="code-bar"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span><span class="fname">none.py</span></div>
+      <pre>
+<span class="kw">def</span> <span class="fn">greeting</span>()<span class="op">:</span>
+    <span class="str">'''</span>
+<span class="str">    printing hello</span>
+<span class="str">    :return: None</span>
+<span class="str">    '''</span>
+    <span class="fn">print</span>(<span class="str">'hello, danny'</span>)
+
+<span class="fn">greeting</span>()               <span class="cmt"># hello, danny        ← it printed</span>
+
+<span class="var">x</span> <span class="op">=</span> <span class="fn">greeting</span>()          <span class="cmt"># hello, danny        ← it printed again</span>
+<span class="fn">print</span>(<span class="var">x</span>)                <span class="cmt"># None                ← and gave back nothing</span>
+
+<span class="cmt"># a function body that does nothing at all still needs a line</span>
+<span class="kw">def</span> <span class="fn">hi</span>()<span class="op">:</span>
+    <span class="str">'''</span>
+<span class="str">    this is my documentation</span>
+<span class="str">    :return:</span>
+<span class="str">    '''</span>
+    <span class="kw">pass</span>                  <span class="cmt"># a placeholder - "nothing here yet"</span>
+      </pre>
+    </div>
+
+    <p class="sec-desc" style="margin-top:22px">This is not a beginner&rsquo;s curiosity &mdash; it is the difference between the two kinds of method you already use every day.</p>
+
+    <div class="code-card">
+      <div class="code-bar"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span><span class="fname">gives_back_vs_changes.py</span></div>
+      <pre>
+<span class="var">d</span> <span class="op">=</span> {<span class="num">1</span><span class="op">:</span> <span class="str">'a'</span>}
+<span class="var">res</span> <span class="op">=</span> <span class="var">d</span><span class="op">.</span><span class="fn">pop</span>(<span class="num">1</span>)         <span class="cmt"># pop RETURNS what it removed</span>
+<span class="fn">print</span>(<span class="var">res</span>)                <span class="cmt"># a</span>
+
+<span class="var">a</span> <span class="op">=</span> [<span class="num">4</span><span class="op">,</span> <span class="num">3</span>]
+<span class="var">out</span> <span class="op">=</span> <span class="var">a</span><span class="op">.</span><span class="fn">sort</span>()          <span class="cmt"># sort changes the list IN PLACE</span>
+<span class="fn">print</span>(<span class="var">out</span>)                <span class="cmt"># None   ← nothing came back</span>
+<span class="fn">print</span>(<span class="var">a</span>)                  <span class="cmt"># [3, 4] ← but the list did change</span>
+      </pre>
+    </div>
+
+    <div class="callout rust" style="margin-top:18px">
+      <div class="callout-label">The classic bug</div>
+      <div class="callout-desc"><code>a = a.sort()</code> throws your list away and leaves you holding <code>None</code>. Ask yourself for every function you write and every method you call: <strong>does this give something back, or does it change something in place?</strong> It is almost never both.</div>
+    </div>
+  </section>
+
+    <div class="panel-foot">
+      <button data-go="p4">&larr; return</button>
+      <button data-go="p6">Docstrings &rarr;</button>
+    </div>
+  </div>
+
+  <div class="panel" id="p6">
+  <!-- 6. DOCSTRINGS -->
+  <section>
+    <span class="sec-tag">06</span>
+    <h2 class="sec-title">Say what goes in and what comes out</h2>
+    <p class="sec-desc">Now that functions have parameters and return values, the docstring has real work to do. Three lines, every time &mdash; what it does, what each parameter is, and what comes back.</p>
+
+    <div class="code-card">
+      <div class="code-bar"><span class="dot dr"></span><span class="dot dy"></span><span class="dot dg"></span><span class="fname">docstring.py</span></div>
+      <pre>
+<span class="kw">def</span> <span class="fn">rectangle_area</span>(<span class="var">width</span><span class="op">,</span> <span class="var">height</span>)<span class="op">:</span>
+    <span class="str">'''</span>
+<span class="str">    calculate area of rectangle</span>
+<span class="str">    :param width: width of rectangle</span>
+<span class="str">    :param height: height of rectangle</span>
+<span class="str">    :return: area of rectangle</span>
+<span class="str">    '''</span>
+    <span class="kw">return</span> <span class="var">width</span> <span class="op">*</span> <span class="var">height</span>
+
+<span class="fn">help</span>(<span class="fn">rectangle_area</span>)     <span class="cmt"># reads it straight back to you</span>
+      </pre>
+    </div>
+
+    <div class="callouts" style="margin-top:20px">
+      <div class="callout navy">
+        <div class="callout-label">:param</div>
+        <div class="callout-desc">One line per slot. Say what it means and, if it has a default, what that default is.</div>
+      </div>
+      <div class="callout olive">
+        <div class="callout-label">:return</div>
+        <div class="callout-desc">What comes back &mdash; and write <code>None</code> when the function only prints. That is information, not an empty line.</div>
+      </div>
+    </div>
+  </section>
+
+    <div class="panel-foot">
+      <button data-go="p5">&larr; Returning nothing</button>
+      <button data-go="p7">Quick reference &rarr;</button>
+    </div>
+  </div>
+
+  <div class="panel" id="p7">
+  <!-- QUICK REFERENCE -->
+  <section>
+    <span class="sec-tag">07</span>
+    <h2 class="sec-title">Quick reference</h2>
+
+    <div class="code-card">
+      <table>
+        <thead>
+          <tr><th>Concept</th><th>Syntax</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Parameter</td>
+            <td><span class="tp tp-r">def f(name):</span></td>
+            <td>A slot. Must be filled at the call, or <code>TypeError</code>.</td>
+          </tr>
+          <tr>
+            <td>Two parameters</td>
+            <td><span class="tp tp-n">def f(w, h):</span></td>
+            <td>Filled left to right. <code>f(5, 10)</code> &rarr; w=5, h=10.</td>
+          </tr>
+          <tr>
+            <td>Default value</td>
+            <td><span class="tp tp-o">def f(x=0):</span></td>
+            <td>Caller may skip it. Defaults come <em>after</em> non-defaults.</td>
+          </tr>
+          <tr>
+            <td>Keyword argument</td>
+            <td><span class="tp tp-g">f(x=5)</span></td>
+            <td>Names the slot at call time. Order stops mattering.</td>
+          </tr>
+          <tr>
+            <td>Mixing</td>
+            <td><span class="tp tp-n">f(7.5, height=12)</span></td>
+            <td>Positional first, named after. Never the reverse.</td>
+          </tr>
+          <tr>
+            <td>Return a value</td>
+            <td><span class="tp tp-r">return x + y</span></td>
+            <td>Hands it back <em>and</em> exits the function immediately.</td>
+          </tr>
+          <tr>
+            <td>Catch it</td>
+            <td><span class="tp tp-g">r = add(5, 10)</span></td>
+            <td>Or use it on the spot: <code>print(add(5, 10))</code>.</td>
+          </tr>
+          <tr>
+            <td>No return</td>
+            <td><span class="tp tp-o">print(greeting())</span></td>
+            <td>Prints <code>None</code>. Every function returns something.</td>
+          </tr>
+          <tr>
+            <td>Empty body</td>
+            <td><span class="tp tp-n">pass</span></td>
+            <td>A placeholder so the indented block is not empty.</td>
+          </tr>
+          <tr>
+            <td>Docstring</td>
+            <td><span class="tp tp-r">:param / :return</span></td>
+            <td>First thing in the body. <code>help(f)</code> reads it back.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+    <div class="panel-foot">
+      <button data-go="p6">&larr; Docstrings</button>
+      <button disabled>end &rarr;</button>
+    </div>
+  </div>
+  </main>
+</div>
+
+<footer>
+  Python Functions 2 &middot; parameters, defaults, keywords &amp; <span>return</span> &middot; Lesson 18
+</footer>
+
+<script>
+  const panels = document.querySelectorAll('.panel');
+  const menuBtns = document.querySelectorAll('.submenu button');
+  const siteNav = document.querySelector('.site-nav');
+  const headerBar = document.querySelector('.header-bar');
+
+  /* Switching topic should land you on the content, not send you back up past
+     the whole masthead. We stop with the striped header bar tucked just under
+     the sticky nav, so that line is the top edge and the panel starts below it. */
+  function scrollToContent() {
+    const navH = siteNav ? siteNav.offsetHeight : 0;
+    const y = headerBar.getBoundingClientRect().top + window.scrollY - navH;
+    window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+  }
+
+  function show(id, scroll) {
+    if (!document.getElementById(id)) return;
+    panels.forEach(p => p.classList.toggle('active', p.id === id));
+    menuBtns.forEach(b => b.classList.toggle('active', b.dataset.go === id));
+    history.replaceState(null, '', '#' + id);
+    if (scroll) scrollToContent();
+  }
+
+  document.querySelectorAll('[data-go]').forEach(b => {
+    b.addEventListener('click', () => show(b.dataset.go, true));
+  });
+
+  const hash = location.hash.replace('#', '');
+  if (hash) show(hash, false);
+</script>
+</body>
+</html>

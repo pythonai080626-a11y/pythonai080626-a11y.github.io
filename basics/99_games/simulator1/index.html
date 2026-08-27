@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dict Race</title>
+<style>
+:root{
+  --bg:#05060f; --panel:#0d1020; --panel2:#12162b; --line:#232847;
+  --ink:#e8ecff; --dim:#8b93bd;
+  --cyan:#22e0ff; --pink:#ff3ea5; --lime:#b8ff3d; --amber:#ffcc3d; --violet:#a06bff;
+  --mono:ui-monospace,"Cascadia Code","JetBrains Mono",Consolas,"Courier New",monospace;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0; background:var(--bg); color:var(--ink);
+  font-family:var(--mono); font-size:15px; overflow-x:hidden}
+
+/* ---------- the moving background ---------- */
+.aurora{position:fixed; inset:-20%; z-index:0; filter:blur(90px); opacity:.55; pointer-events:none}
+.blob{position:absolute; width:46vw; height:46vw; border-radius:50%}
+.b1{background:#1b6cff; top:-8%; left:-6%;  animation:drift1 19s ease-in-out infinite}
+.b2{background:#ff2e8b; bottom:-12%; right:-8%; animation:drift2 23s ease-in-out infinite}
+.b3{background:#00d9a3; top:35%; left:45%; animation:drift3 27s ease-in-out infinite}
+@keyframes drift1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(14vw,10vh) scale(1.2)}}
+@keyframes drift2{0%,100%{transform:translate(0,0) scale(1.1)}50%{transform:translate(-12vw,-8vh) scale(.9)}}
+@keyframes drift3{0%,100%{transform:translate(0,0)}50%{transform:translate(-16vw,12vh)}}
+.grid{position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.25;
+  background-image:linear-gradient(rgba(120,140,255,.09) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(120,140,255,.09) 1px,transparent 1px);
+  background-size:44px 44px;
+  mask-image:radial-gradient(ellipse at 50% 0%,#000 40%,transparent 78%);
+  -webkit-mask-image:radial-gradient(ellipse at 50% 0%,#000 40%,transparent 78%);}
+
+/* ---------- shell ---------- */
+.wrap{position:relative; z-index:1; max-width:1500px; margin:0 auto; padding:18px 20px 60px}
+header{display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:16px}
+.logo{font-size:26px; font-weight:800; letter-spacing:.16em;
+  background:linear-gradient(92deg,var(--cyan),var(--pink) 55%,var(--amber));
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  text-shadow:0 0 34px rgba(34,224,255,.28)}
+.logo small{display:block; font-size:10px; letter-spacing:.36em; color:var(--dim);
+  -webkit-text-fill-color:var(--dim); margin-top:3px}
+.spacer{flex:1}
+.badge{display:flex; align-items:center; gap:9px; background:rgba(18,22,43,.85);
+  border:1px solid var(--line); border-radius:12px; padding:8px 14px}
+.badge .who{color:var(--cyan); font-weight:700}
+.scoreBig{font-size:26px; font-weight:800; color:var(--lime);
+  text-shadow:0 0 20px rgba(184,255,61,.45); min-width:70px; text-align:right}
+.scoreBig.bump{animation:bump .5s cubic-bezier(.2,1.7,.4,1)}
+@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.45)}100%{transform:scale(1)}}
+.restart{font-size:12px; padding:9px 13px; border-color:#3a2140; color:var(--pink);
+  background:rgba(255,62,165,.07)}
+.restart:hover{border-color:var(--pink)}
+
+.cols{display:grid; grid-template-columns:1fr 330px; gap:20px; align-items:start}
+@media(max-width:1080px){.cols{grid-template-columns:1fr}}
+.card{background:linear-gradient(180deg,rgba(13,16,32,.94),rgba(10,12,26,.94));
+  border:1px solid var(--line); border-radius:18px; padding:18px;
+  box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.card.shake{animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-11px)}
+  40%{transform:translateX(9px)}60%{transform:translateX(-6px)}80%{transform:translateX(4px)}}
+
+/* ---------- progress strip (look only - no clicking) ---------- */
+.strip{display:flex; gap:7px; margin-bottom:14px; flex-wrap:wrap; align-items:stretch}
+.step{flex:1 1 42px; min-width:42px; border-radius:10px; border:1px solid var(--line);
+  background:rgba(255,255,255,.03); color:var(--dim); padding:7px 4px; text-align:center;
+  font-size:14px; font-weight:700; transition:.3s; overflow:hidden}
+.step .sub{display:block; font-size:9px; letter-spacing:.1em; font-weight:400; margin-top:3px}
+.step.won{border-color:var(--lime); background:rgba(184,255,61,.13); color:var(--lime)}
+.step.gave{border-color:#4a4460; background:rgba(160,107,255,.1); color:#9d94bb}
+.step.now{border-color:var(--cyan); background:rgba(34,224,255,.14); color:var(--cyan);
+  flex:3 1 150px; box-shadow:0 0 0 1px var(--cyan) inset, 0 8px 30px rgba(34,224,255,.22)}
+.step.now .sub{color:var(--ink)}
+.step.locked{opacity:.4}
+
+/* ---------- labels + code ---------- */
+.lab{font-size:10px; letter-spacing:.26em; color:var(--dim); margin:0 0 7px; text-transform:uppercase}
+.lab i{font-style:normal; color:var(--violet)}
+.setup,.want{background:#070a16; border:1px solid var(--line); border-radius:12px;
+  padding:12px 14px; white-space:pre-wrap; word-break:break-word; line-height:1.55; font-size:14px}
+.setup{border-left:3px solid var(--violet)}
+.want{border-left:3px solid var(--amber); color:var(--amber)}
+.task{font-size:17px; line-height:1.65; margin:0; color:#fff}
+.two{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:14px 0}
+@media(max-width:700px){.two{grid-template-columns:1fr}}
+.qname{font-size:13px; color:var(--dim); letter-spacing:.1em; margin:0 0 12px}
+.qname b{color:var(--ink)}
+.qname b.t{color:var(--cyan)}
+
+/* ---------- the bonus clock ---------- */
+.timer{margin:4px 0 14px}
+.trow{display:flex; justify-content:space-between; font-size:11px; letter-spacing:.14em;
+  color:var(--dim); margin-bottom:6px}
+.tval{color:var(--lime); font-weight:700}
+.track{height:9px; border-radius:9px; background:#0a0d1c; border:1px solid var(--line); overflow:hidden}
+.fill{height:100%; width:100%; border-radius:9px;
+  background:linear-gradient(90deg,var(--lime),var(--amber)); transition:width .25s linear}
+.fill.cold{background:linear-gradient(90deg,#3a4370,#576091)}
+
+/* ---------- editor ---------- */
+.edwrap{border:1px solid var(--line); border-radius:14px; overflow:hidden; background:#070a16;
+  display:flex; transition:.2s}
+.edwrap:focus-within{border-color:var(--cyan); box-shadow:0 0 0 1px var(--cyan), 0 0 34px rgba(34,224,255,.18)}
+.gutter{padding:14px 10px 14px 14px; color:#3d466f; font-size:14px; line-height:1.6;
+  text-align:right; user-select:none; background:#060812; min-width:44px; white-space:pre}
+.codewrap{position:relative; flex:1; min-height:170px}
+.hl,#code{margin:0; padding:14px; font-family:var(--mono); font-size:14px; line-height:1.6;
+  white-space:pre-wrap; word-break:break-word; border:0; letter-spacing:0; tab-size:4}
+.hl{position:absolute; inset:0; pointer-events:none; overflow:hidden; color:var(--ink)}
+#code{position:relative; width:100%; height:100%; min-height:170px; resize:vertical;
+  background:transparent; color:transparent; caret-color:var(--cyan); outline:none; display:block}
+#code::selection{background:rgba(34,224,255,.28)}
+.k{color:var(--pink)}   .s{color:var(--lime)}   .n{color:var(--amber)}
+.c{color:#5a6494; font-style:italic}  .f{color:var(--cyan)}  .p{color:#c9d2ff}
+
+.row{display:flex; gap:11px; margin-top:14px; flex-wrap:wrap; align-items:center}
+button{font-family:var(--mono); cursor:pointer; border-radius:12px; font-size:14px;
+  padding:12px 22px; border:1px solid var(--line); background:var(--panel2); color:var(--ink);
+  transition:.16s; font-weight:600}
+button:hover:not(:disabled){transform:translateY(-2px)}
+button:disabled{opacity:.45; cursor:not-allowed}
+.run{background:linear-gradient(92deg,var(--cyan),#3ba0ff); color:#04121c; border:0; font-weight:800;
+  letter-spacing:.06em; box-shadow:0 10px 30px rgba(34,224,255,.28)}
+.hint{border-color:var(--amber); color:var(--amber); background:rgba(255,204,61,.08)}
+.giveup{border-color:#463a5e; color:#a89bc7; background:rgba(160,107,255,.07); font-size:13px}
+.giveup:hover:not(:disabled){border-color:var(--violet); color:#cbb8ff}
+.kbd{font-size:11px; color:var(--dim)}
+.kbd b{color:var(--ink); background:#1a1f3a; border:1px solid var(--line); border-radius:5px; padding:2px 6px}
+
+/* ---------- the shape note ---------- */
+.shape{margin:12px 0 0; border-radius:12px; padding:11px 14px; font-size:13.5px;
+  line-height:1.7; border:1px solid var(--line); background:rgba(255,255,255,.03); color:var(--dim)}
+.shape b{color:var(--ink)}
+.shape.multi{border-color:var(--violet); background:rgba(160,107,255,.12); color:#dcd0ff}
+.shape.multi b{color:#fff}
+
+/* ---------- result ---------- */
+.res{margin-top:14px; border-radius:13px; padding:13px 15px; border:1px solid var(--line);
+  background:#070a16; display:none; animation:pop .28s}
+@keyframes pop{from{opacity:0; transform:translateY(9px)}to{opacity:1; transform:none}}
+.res.show{display:block}
+.res.pass{border-color:var(--lime); box-shadow:0 0 30px rgba(184,255,61,.18)}
+.res.fail{border-color:var(--pink); box-shadow:0 0 30px rgba(255,62,165,.16)}
+.res h4{margin:0 0 8px; font-size:15px; letter-spacing:.05em}
+.res.pass h4{color:var(--lime)} .res.fail h4{color:var(--pink)}
+.res pre{margin:6px 0 0; white-space:pre-wrap; word-break:break-word; font-size:13.5px; color:var(--dim)}
+.res .got{color:var(--ink)}
+.gain{float:right; font-size:19px; font-weight:800; color:var(--lime)}
+.nextup{margin-top:11px; color:var(--cyan); font-size:13px}
+.hintbox{margin-top:12px; border-radius:12px; padding:12px 14px; display:none;
+  border:1px solid var(--amber); background:rgba(255,204,61,.08); color:var(--amber); line-height:1.7}
+.hintbox.show{display:block; animation:pop .3s}
+
+/* ---------- the answer, after giving up ---------- */
+.answerbox{margin-top:14px; border-radius:13px; padding:15px 17px; display:none;
+  border:1px solid var(--violet); background:rgba(160,107,255,.11); animation:pop .3s}
+.answerbox.show{display:block}
+.answerbox h4{margin:0 0 10px; font-size:15px; color:#cbb8ff; letter-spacing:.05em}
+.answerbox pre{margin:0; padding:12px 14px; border-radius:10px; background:#070a16;
+  border-left:3px solid var(--violet); color:var(--ink); font-size:14px; line-height:1.6;
+  white-space:pre-wrap; word-break:break-word}
+.answerbox .why{margin:12px 0 0; color:#c3b6e0; font-size:13px; line-height:1.7}
+.answerbox .zero{float:right; font-size:15px; font-weight:800; color:#9d94bb}
+
+/* ---------- finished ---------- */
+.done{display:none; text-align:center; padding:40px 24px}
+.done.show{display:block; animation:pop .5s}
+.done .big{font-size:64px; font-weight:800; color:var(--lime);
+  text-shadow:0 0 50px rgba(184,255,61,.5); line-height:1.1}
+.done .of{color:var(--dim); font-size:15px; margin:6px 0 22px}
+.done h2{margin:0 0 8px; font-size:24px; letter-spacing:.08em}
+.done p{color:var(--dim); line-height:1.7; margin:0 auto 22px; max-width:460px}
+
+/* ---------- leaderboard ---------- */
+.side h3{margin:0 0 12px; font-size:11px; letter-spacing:.28em; color:var(--dim)}
+.me{display:flex; align-items:center; gap:8px; font-size:12px; color:var(--dim); margin-bottom:14px}
+.lb{display:flex; flex-direction:column; gap:9px; max-height:62vh; overflow-y:auto; padding-right:4px}
+.lb::-webkit-scrollbar{width:6px}.lb::-webkit-scrollbar-thumb{background:var(--line); border-radius:6px}
+.pl{border:1px solid var(--line); border-radius:12px; padding:9px 11px;
+  background:rgba(255,255,255,.02); transition:.3s}
+.pl.self{border-color:var(--cyan); background:rgba(34,224,255,.09)}
+.pl .top{display:flex; align-items:center; gap:8px; font-size:13px; margin-bottom:7px}
+.pl .nm{flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.pl .sc{color:var(--lime); font-weight:800}
+.rank{width:20px; text-align:center; color:var(--dim); font-size:11px}
+.pl.r1 .rank{color:#ffd54a} .pl.r2 .rank{color:#cfd8e8} .pl.r3 .rank{color:#e0995a}
+.bar{height:7px; border-radius:7px; background:#0a0d1c; overflow:hidden; display:flex; gap:2px; padding:1px}
+.seg{flex:1; border-radius:5px; background:#1b2140; transition:.4s}
+.seg.on{background:linear-gradient(90deg,var(--cyan),var(--lime)); box-shadow:0 0 10px rgba(34,224,255,.5)}
+.seg.zero{background:#4a4460}
+.empty{color:var(--dim); font-size:12px; line-height:1.6}
+
+/* ---------- join ---------- */
+.gate{position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center;
+  background:rgba(3,4,12,.93); backdrop-filter:blur(9px)}
+.gate.hide{display:none}
+.gatecard{width:min(470px,92vw); text-align:center; padding:38px 30px}
+.gatecard h2{margin:0 0 6px; font-size:22px; letter-spacing:.06em}
+.gatecard p{color:var(--dim); margin:0 0 22px; line-height:1.8; font-size:13.5px}
+input{width:100%; font-family:var(--mono); font-size:19px; text-align:center; padding:15px;
+  border-radius:13px; border:1px solid var(--line); background:#070a16; color:var(--ink); outline:none}
+input:focus{border-color:var(--cyan); box-shadow:0 0 26px rgba(34,224,255,.2)}
+
+
+/* ---------- our own dialog, instead of the browser's grey box ---------- */
+.modal{position:fixed; inset:0; z-index:90; display:none; align-items:center; justify-content:center;
+  background:rgba(3,4,12,.82); backdrop-filter:blur(7px); padding:20px}
+.modal.show{display:flex; animation:mfade .18s ease}
+@keyframes mfade{from{opacity:0}to{opacity:1}}
+.modalcard{width:min(460px,100%); text-align:center; padding:30px 28px 24px;
+  border-radius:20px; border:1px solid var(--violet);
+  background:linear-gradient(180deg,#141833,#0b0e1e);
+  box-shadow:0 30px 90px rgba(0,0,0,.7), 0 0 60px rgba(160,107,255,.18);
+  animation:mpop .26s cubic-bezier(.2,1.5,.42,1)}
+@keyframes mpop{from{opacity:0; transform:scale(.9) translateY(14px)}to{opacity:1; transform:none}}
+.modal.pink .modalcard{border-color:var(--pink); box-shadow:0 30px 90px rgba(0,0,0,.7), 0 0 60px rgba(255,62,165,.18)}
+.micon{width:64px; height:64px; margin:0 auto 16px; border-radius:50%; font-size:30px;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(160,107,255,.16); border:1px solid rgba(160,107,255,.5)}
+.modal.pink .micon{background:rgba(255,62,165,.14); border-color:rgba(255,62,165,.5)}
+.modalcard h3{margin:0 0 10px; font-size:19px; letter-spacing:.04em; color:var(--ink)}
+.modalcard p{margin:0 0 24px; color:var(--dim); font-size:13.5px; line-height:1.85}
+.mrow{display:flex; gap:11px; justify-content:center; flex-wrap:wrap}
+.mrow button{padding:12px 20px; font-size:13.5px}
+.mcancel{border-color:var(--line); color:var(--dim); background:rgba(255,255,255,.03)}
+.mcancel:hover{border-color:var(--ink); color:var(--ink)}
+.mok{background:linear-gradient(92deg,var(--violet),#7c4dff); color:#fff; border:0; font-weight:800;
+  box-shadow:0 10px 30px rgba(160,107,255,.32)}
+.modal.pink .mok{background:linear-gradient(92deg,var(--pink),#ff6f61); box-shadow:0 10px 30px rgba(255,62,165,.32)}
+
+/* ---------- toast + confetti ---------- */
+.toast{position:fixed; left:50%; top:22px; transform:translateX(-50%) translateY(-140%); z-index:60;
+  background:var(--panel2); border:1px solid var(--cyan); color:var(--ink);
+  padding:12px 22px; border-radius:12px; transition:.4s cubic-bezier(.2,1.5,.4,1);
+  box-shadow:0 14px 40px rgba(0,0,0,.6); font-size:14px}
+.toast.on{transform:translateX(-50%) translateY(0)}
+.dot{position:fixed; width:9px; height:9px; z-index:70; pointer-events:none; border-radius:2px}
+</style>
+</head>
+<body>
+<div class="aurora"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+<div class="grid"></div>
+
+<div class="wrap">
+  <header>
+    <div class="logo">DICT&nbsp;RACE<small>LESSON 17 · WARM UP</small></div>
+    <div class="spacer"></div>
+    <div class="badge"><span id="pet">🦊</span><span class="who" id="whoami">—</span></div>
+    <div class="badge">POINTS <span class="scoreBig" id="score">0</span></div>
+    <button class="restart" id="restartBtn">⟲ start over</button>
+  </header>
+
+  <div class="cols">
+    <div>
+      <div class="strip" id="strip"></div>
+
+      <div class="card" id="stage">
+        <div id="playing">
+          <p class="qname">CHALLENGE <b id="qnum">1</b> OF <b id="qtot">20</b> · <b class="t" id="qtitle">—</b></p>
+
+          <div class="timer">
+            <div class="trow"><span id="tlabel">FULL SPEED BONUS</span><span class="tval" id="tval">100 pts</span></div>
+            <div class="track"><div class="fill" id="fill"></div></div>
+          </div>
+
+          <p class="lab">Already in memory <i>— you do not type this</i></p>
+          <div class="setup" id="setup">—</div>
+
+          <div class="two">
+            <div>
+              <p class="lab">Your mission</p>
+              <p class="task" id="task">—</p>
+            </div>
+            <div>
+              <p class="lab">The answer should be <i>&mdash; printed, or just left on the last line</i></p>
+              <div class="want" id="want">—</div>
+              <p class="lab" style="margin:8px 0 0; letter-spacing:.12em; text-transform:none">
+                <span id="shows">—</span> · no <b>print</b> needed, no <b>list</b> needed, any order</p>
+            </div>
+          </div>
+
+          <p class="shape" id="shape">—</p>
+
+          <p class="lab" style="margin-top:16px">Your code</p>
+          <div class="edwrap">
+            <div class="gutter" id="gutter">1</div>
+            <div class="codewrap">
+              <pre class="hl" id="hl"></pre>
+              <textarea id="code" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
+            </div>
+          </div>
+
+          <div class="row">
+            <button class="run" id="runBtn">▶ RUN</button>
+            <button class="hint" id="hintBtn">💡 HINT — costs half</button>
+            <button class="giveup" id="giveupBtn">🤷 I don't know</button>
+            <span class="kbd"><b>Ctrl</b> + <b>Enter</b> runs it</span>
+          </div>
+
+          <div class="hintbox" id="hintbox"></div>
+
+          <div class="answerbox" id="answerbox">
+            <h4><span class="zero">0 pts</span>THE ANSWER WAS</h4>
+            <pre id="answerCode">—</pre>
+            <p class="why" id="answerWhy">—</p>
+            <button class="run" id="nextBtn" style="margin-top:14px">NEXT CHALLENGE →</button>
+          </div>
+
+          <div class="res" id="res"></div>
+        </div>
+
+        <div class="done" id="done">
+          <h2 id="doneTitle">🏆 ALL DONE</h2>
+          <div class="big" id="finalScore">0</div>
+          <div class="of">out of <span id="finalMax">2000</span></div>
+          <p id="finalWord">—</p>
+          <button class="run" id="againBtn">⟲ play it again</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card side">
+      <h3>LIVE — THE CLASS</h3>
+      <div class="me"><span id="conn">●</span> <span id="connTxt">connecting…</span></div>
+      <div class="lb" id="lb"><div class="empty">nobody has joined yet.</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="gate" id="gate">
+  <div class="card gatecard">
+    <div class="logo" style="font-size:32px">DICT&nbsp;RACE<small>20 CHALLENGES · 2000 POINTS</small></div>
+    <h2 style="margin-top:20px">What is your name?</h2>
+    <p>One challenge at a time.<br>
+       Solve it and the next one opens by itself.<br>
+       No need to print it or wrap it in a list.<br>
+       Under 40 seconds is worth <b style="color:var(--lime)">100</b>,
+       after that <b style="color:var(--amber)">50</b>.</p>
+    <input id="nameIn" maxlength="20" placeholder="type it and press Enter" autofocus>
+  </div>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modalcard">
+    <div class="micon" id="mIcon">?</div>
+    <h3 id="mTitle">&mdash;</h3>
+    <p id="mText">&mdash;</p>
+    <div class="mrow">
+      <button class="mcancel" id="mCancel">Cancel</button>
+      <button class="mok" id="mOk">OK</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const API = location.origin;
+
+let me = '', QS = [], cur = 1, fast = 40, total = 20;
+let solved = {}, hinted = {}, gaveup = {}, deadline = 0, finished = false;
+const drafts = {};                      // question number -> what they typed
+
+/* solved[q] can legitimately be 0 (they gave up), and 0 is falsy in JS.
+   So every "have they done this one" test asks for undefined, never truthiness. */
+const isDone = q => solved[q] !== undefined;
+
+async function post(path, body){
+  const r = await fetch(API + path, {
+    method:'POST',
+    headers:{'Content-Type':'application/json','ngrok-skip-browser-warning':'1'},
+    body: JSON.stringify(body || {})
+  });
+  return r.json();
+}
+async function get(path){
+  const r = await fetch(API + path, {headers:{'ngrok-skip-browser-warning':'1'}});
+  return r.json();
+}
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+/* question text is written with one idea per line - keep those breaks */
+function nl(s){return esc(s).split('\n').join('<br>');}
+
+/* ---------------- python syntax colours ---------------- */
+const KW = /^(for|in|if|elif|else|while|print|return|def|not|and|or|is|True|False|None|break|continue|pass|del)$/;
+const FN = /^(list|dict|set|tuple|sorted|max|min|sum|len|str|int|float|reversed|enumerate|zip|round|abs|type)$/;
+function highlight(src){
+  const re = /(#[^\n]*)|([furbFURB]{0,2}'(?:\\.|[^'\\\n])*'|[furbFURB]{0,2}"(?:\\.|[^"\\\n])*")|(\b\d+\.?\d*\b)|([A-Za-z_]\w*)/g;
+  let out = '', last = 0, m;
+  while((m = re.exec(src)) !== null){
+    out += esc(src.slice(last, m.index));
+    if(m[1])      out += '<span class="c">' + esc(m[1]) + '</span>';
+    else if(m[2]) out += '<span class="s">' + esc(m[2]) + '</span>';
+    else if(m[3]) out += '<span class="n">' + esc(m[3]) + '</span>';
+    else {
+      const w = m[4];
+      out += '<span class="' + (KW.test(w) ? 'k' : (FN.test(w) ? 'f' : 'p')) + '">' + esc(w) + '</span>';
+    }
+    last = re.lastIndex;
+  }
+  return out + esc(src.slice(last)) + '\n';
+}
+function paintEditor(){
+  const src = $('code').value;
+  $('hl').innerHTML = highlight(src);
+  let g = '';
+  for(let i = 1; i <= Math.max(src.split('\n').length, 1); i++) g += i + '\n';
+  $('gutter').textContent = g;
+  drafts[cur] = src;
+}
+
+/* ---------------- the bonus clock ---------------- */
+function tick(){
+  if(finished) return;
+  const left = Math.max(0, (deadline - Date.now()) / 1000);
+  const warm = left > 0;
+  $('fill').style.width = Math.max(0, Math.min(100, (left / fast) * 100)) + '%';
+  $('fill').classList.toggle('cold', !warm);
+  const base = warm ? 100 : 50;
+  const worth = hinted[cur] ? base / 2 : base;
+  $('tlabel').textContent = warm
+      ? 'FULL SPEED BONUS · ' + left.toFixed(1) + 's LEFT'
+      : 'BONUS GONE — STILL WORTH POINTS';
+  $('tval').textContent = worth + ' pts' + (hinted[cur] ? '  (hint used)' : '');
+}
+setInterval(tick, 100);
+
+/* ---------------- the progress strip (look only) ---------------- */
+function drawStrip(){
+  $('strip').innerHTML = '';
+  QS.forEach(q => {
+    const d = document.createElement('div');
+    const done = isDone(q.q), gave = !!gaveup[q.q], now = q.q === cur && !finished;
+    d.className = 'step' + (gave ? ' gave' : done ? ' won' : now ? ' now' : ' locked');
+    const face = gave ? '—' : done ? '✔' : q.q;
+    const sub  = gave ? 'shown' : done ? '+' + solved[q.q] : now ? esc(q.title) : '🔒';
+    d.innerHTML = face + '<span class="sub">' + sub + '</span>';
+    $('strip').appendChild(d);
+  });
+}
+
+/* ---------------- moving through the game ---------------- */
+function nextUnsolved(){
+  for(const q of QS) if(!isDone(q.q)) return q.q;
+  return 0;
+}
+async function openQ(n){
+  cur = n; finished = false;
+  $('playing').style.display = '';
+  $('done').classList.remove('show');
+  const q = QS.find(x => x.q === n);
+  $('qnum').textContent = n;
+  $('qtot').textContent = total;
+  $('qtitle').textContent = q.title;
+  $('setup').innerHTML = highlight(q.setup);
+  $('task').innerHTML = nl(q.task);
+  $('want').textContent = q.answer;
+  $('shows').textContent = q.shows;
+  const multi = (q.lines || 1) > 1;
+  $('shape').className = 'shape' + (multi ? ' multi' : '');
+  $('shape').innerHTML = (multi ? '⚠ <b>This one is not a one-liner.</b><br>' : '<b>Shape:</b> ')
+                       + nl(q.shape || 'one line');
+  $('res').className = 'res';
+  $('hintbox').className = 'hintbox';
+  $('answerbox').className = 'answerbox';
+  $('code').value = drafts[n] || '';
+  paintEditor();
+  drawStrip();
+  const r = await post('/api/open', {name: me, q: n});
+  deadline = Date.now() + (r.fast_left || 0) * 1000;
+  if(r.hinted) hinted[n] = true;
+  $('hintBtn').disabled = false;
+  $('hintBtn').textContent = hinted[n] ? '💡 show the hint again' : '💡 HINT — costs half';
+  $('giveupBtn').disabled = false;
+  $('runBtn').disabled = false;
+  $('runBtn').textContent = '▶ RUN';
+  tick();
+  $('code').focus();
+}
+function goNext(score){
+  const nxt = nextUnsolved();
+  if(nxt) openQ(nxt); else showFinished(score);
+}
+function showFinished(score){
+  finished = true;
+  $('playing').style.display = 'none';
+  $('done').classList.add('show');
+  $('doneTitle').textContent = '🏆 ALL ' + total + ' DONE';
+  $('finalScore').textContent = score;
+  $('finalMax').textContent = total * 100;
+  const pct = score / (total * 100);
+  $('finalWord').textContent =
+      pct === 1  ? 'A perfect run. Every challenge at full speed, no hints. Nothing left to teach you today.'
+    : pct >= 0.8 ? 'A strong run — you had the commands ready before you needed them.'
+    : pct >= 0.6 ? 'Every challenge done. The clock and the hints cost you a little, the dict did not.'
+    : pct >= 0.3 ? 'You got through all of them, and you saw every answer. That is how the next one sticks.'
+    :              'All the way to the end. Now you know what each of these commands is for.';
+  drawStrip();
+  confetti(); setTimeout(confetti, 400); setTimeout(confetti, 800);
+}
+
+/* ---------------- run ---------------- */
+async function run(){
+  if(finished) return;
+  const code = $('code').value;
+  if(!code.trim()) return;
+  $('runBtn').disabled = true;
+  $('runBtn').textContent = '⏳ RUNNING…';
+  let r;
+  try{ r = await post('/api/run', {name: me, q: cur, code: code}); }
+  catch(e){ r = {passed:false, reason:'lost the server — is it still running?', output:'', answer:''}; }
+  $('runBtn').textContent = '▶ RUN';
+
+  const box = $('res');
+  box.className = 'res show ' + (r.passed ? 'pass' : 'fail');
+
+  if(r.passed){
+    if(!isDone(cur)) solved[cur] = r.gained || 0;
+    bumpScore(r.score);
+    confetti();
+    drawStrip();
+    const nxt = nextUnsolved();
+    box.innerHTML = (r.gained ? '<span class="gain">+' + r.gained + '</span>' : '') +
+      '<h4>✔ THAT IS IT — in ' + r.seconds + 's</h4>' +
+      '<pre class="got">' + esc(r.output) + '</pre>' +
+      '<div class="nextup">' + (nxt ? 'challenge ' + nxt + ' opening…' : 'that was the last one…') + '</div>';
+    $('hintBtn').disabled = true;
+    $('giveupBtn').disabled = true;
+    setTimeout(() => goNext(r.score), 1700);
+  } else {
+    $('runBtn').disabled = false;
+    box.innerHTML = '<h4>✖ NOT YET</h4><pre>' + esc(r.reason || '') + '</pre>' +
+      (r.output ? '<pre class="lab" style="letter-spacing:.2em;margin-top:10px">WHAT CAME OUT</pre><pre class="got">' + esc(r.output.trimEnd()) + '</pre>' : '') +
+      '<pre class="lab" style="letter-spacing:.2em;margin-top:10px">WE WANT THESE VALUES</pre><pre class="got">' + esc(r.answer) + '</pre>';
+    $('stage').classList.add('shake');
+    setTimeout(() => $('stage').classList.remove('shake'), 420);
+  }
+  tick();
+}
+
+function bumpScore(v){
+  $('score').textContent = v;
+  $('score').classList.remove('bump');
+  void $('score').offsetWidth;
+  $('score').classList.add('bump');
+}
+
+async function useHint(){
+  if(finished || isDone(cur)) return;
+  hinted[cur] = true;
+  const r = await post('/api/hint', {name: me, q: cur});
+  $('hintbox').className = 'hintbox show';
+  $('hintbox').innerHTML = '💡 ' + nl(r.hint);
+  $('hintBtn').textContent = '💡 show the hint again';
+  tick();
+}
+
+/* ---------------- I don't know ---------------- */
+let pendingScore = 0;
+async function giveUp(){
+  if(finished || isDone(cur)) return;
+  const ok = await ask({
+    icon: '\u{1F937}', tone: 'violet',
+    title: 'Show you the answer?',
+    text: 'Challenge ' + cur + ' of ' + total + '.\nYou will score 0 on this one and move straight to the next.',
+    ok: 'Show me the answer', cancel: 'Let me keep trying'});
+  if(!ok) return;
+  const r = await post('/api/giveup', {name: me, q: cur});
+  solved[cur] = 0;
+  gaveup[cur] = true;
+  pendingScore = r.score;
+  $('answerCode').textContent = r.solution;
+  $('answerWhy').innerHTML = '<b>Worth knowing:</b> ' + nl(r.trap);
+  $('answerbox').className = 'answerbox show';
+  $('res').className = 'res';
+  $('hintBtn').disabled = true;
+  $('giveupBtn').disabled = true;
+  $('runBtn').disabled = true;
+  drawStrip();
+  $('nextBtn').scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+/* ---------------- our own dialog ----------------
+   Same job as confirm(), but it belongs to the page. Returns a promise
+   that settles true/false. Enter says yes, Escape and the backdrop say no. */
+let askResolve = null;
+function ask(o){
+  return new Promise(resolve => {
+    askResolve = resolve;
+    $('mIcon').textContent  = o.icon || '?';
+    $('mTitle').textContent = o.title || '';
+    $('mText').innerHTML    = nl(o.text || '');
+    $('mOk').textContent     = o.ok || 'Yes';
+    $('mCancel').textContent = o.cancel || 'Cancel';
+    $('modal').className = 'modal show' + (o.tone ? ' ' + o.tone : '');
+    setTimeout(() => $('mOk').focus(), 60);
+  });
+}
+function closeAsk(answer){
+  if(!askResolve) return;
+  $('modal').className = 'modal';
+  const done = askResolve; askResolve = null;
+  done(answer);
+}
+$('mOk').onclick = () => closeAsk(true);
+$('mCancel').onclick = () => closeAsk(false);
+$('modal').addEventListener('click', e => { if(e.target === $('modal')) closeAsk(false); });
+document.addEventListener('keydown', e => {
+  if(!askResolve) return;
+  if(e.key === 'Escape'){ e.preventDefault(); closeAsk(false); }
+  else if(e.key === 'Enter'){ e.preventDefault(); closeAsk(true); }
+}, true);
+
+/* ---------------- start over ---------------- */
+async function restart(){
+  const ok = await ask({
+    icon: '\u27F2', tone: 'pink',
+    title: 'Hand the keyboard over?',
+    text: 'This game gets wiped and the score goes back to 0.\nWe will ask for a name again, so the next player can start clean.',
+    ok: 'Wipe it and start over', cancel: 'Keep playing'});
+  if(!ok) return;
+  await post('/api/restart', {name: me});
+  solved = {}; hinted = {}; gaveup = {}; finished = false;
+  for(const k in drafts) delete drafts[k];
+  me = '';
+  $('score').textContent = 0;
+  $('whoami').textContent = '—';
+  $('pet').textContent = '🎮';
+  $('res').className = 'res';
+  $('hintbox').className = 'hintbox';
+  $('answerbox').className = 'answerbox';
+  $('strip').innerHTML = '';
+  $('gate').classList.remove('hide');       // ask who is playing, all over again
+  $('nameIn').value = '';
+  $('nameIn').focus();
+}
+
+/* ---------------- the live board ---------------- */
+async function refresh(){
+  let s;
+  try{ s = await get('/api/state'); }
+  catch(e){ $('conn').style.color = 'var(--pink)'; $('connTxt').textContent = 'server not answering'; return; }
+  $('conn').style.color = 'var(--lime)';
+  const list = Object.values(s.students);
+  $('connTxt').textContent = list.length + ' playing · live';
+  list.sort((a, b) => b.score - a.score || Object.keys(b.solved).length - Object.keys(a.solved).length);
+  $('lb').innerHTML = list.length ? '' : '<div class="empty">nobody has joined yet.</div>';
+  list.forEach((p, i) => {
+    const d = document.createElement('div');
+    d.className = 'pl' + (p.name === me ? ' self' : '') + (i < 3 ? ' r' + (i + 1) : '');
+    let segs = '';
+    for(let q = 1; q <= s.total; q++){
+      const pts = p.solved[q];
+      segs += '<div class="seg' + (pts === undefined ? '' : (pts > 0 ? ' on' : ' zero')) + '"></div>';
+    }
+    d.innerHTML = '<div class="top"><span class="rank">' + (i + 1) + '</span>' +
+      '<span>' + petOf(p.pet) + '</span>' +
+      '<span class="nm">' + esc(p.name) + '</span>' +
+      '<span class="sc">' + p.score + '</span></div>' +
+      '<div class="bar">' + segs + '</div>';
+    $('lb').appendChild(d);
+    if(p.name === me && +$('score').textContent !== p.score) $('score').textContent = p.score;
+  });
+}
+const PETS = {fox:'🦊',panda:'🐼',owl:'🦉',octopus:'🐙',unicorn:'🦄',turtle:'🐢',lion:'🦁',
+  bee:'🐝',trex:'🦖',whale:'🐳',butterfly:'🦋',penguin:'🐧',koala:'🐨',dolphin:'🐬',
+  horse:'🐴',parrot:'🦜',frog:'🐸',crab:'🦀',shark:'🦈',tiger:'🐯'};
+const petOf = k => PETS[k] || '🦊';
+
+/* ---------------- sugar ---------------- */
+let toastT;
+function toast(msg){
+  $('toast').textContent = msg;
+  $('toast').classList.add('on');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => $('toast').classList.remove('on'), 3200);
+}
+function confetti(){
+  const colors = ['#22e0ff','#ff3ea5','#b8ff3d','#ffcc3d','#a06bff'];
+  for(let i = 0; i < 70; i++){
+    const d = document.createElement('div');
+    d.className = 'dot';
+    d.style.background = colors[i % colors.length];
+    d.style.left = (45 + Math.random() * 10) + 'vw';
+    d.style.top = '42vh';
+    document.body.appendChild(d);
+    const ang = Math.random() * Math.PI * 2, pow = 130 + Math.random() * 420;
+    d.animate([
+      {transform:'translate(0,0) rotate(0deg)', opacity:1},
+      {transform:'translate(' + Math.cos(ang) * pow + 'px,' +
+        (Math.sin(ang) * pow + 460) + 'px) rotate(' + (Math.random() * 900 - 450) + 'deg)', opacity:0}
+    ], {duration: 1100 + Math.random() * 900, easing:'cubic-bezier(.15,.7,.4,1)'})
+     .onfinish = () => d.remove();
+  }
+}
+
+/* ---------------- editor keys ---------------- */
+$('code').addEventListener('input', paintEditor);
+$('code').addEventListener('scroll', () => { $('hl').scrollTop = $('code').scrollTop; });
+$('code').addEventListener('keydown', e => {
+  if(e.key === 'Enter' && (e.ctrlKey || e.metaKey)){ e.preventDefault(); return run(); }
+  const el = e.target, s = el.selectionStart;
+  if(e.key === 'Tab'){
+    e.preventDefault();
+    el.value = el.value.slice(0, s) + '    ' + el.value.slice(el.selectionEnd);
+    el.selectionStart = el.selectionEnd = s + 4;
+    paintEditor();
+  }
+  if(e.key === 'Enter' && !e.ctrlKey && !e.metaKey){
+    const line = el.value.slice(0, s).split('\n').pop();
+    const pad = (line.match(/^\s*/) || [''])[0] + (line.trimEnd().endsWith(':') ? '    ' : '');
+    if(pad){
+      e.preventDefault();
+      el.value = el.value.slice(0, s) + '\n' + pad + el.value.slice(el.selectionEnd);
+      el.selectionStart = el.selectionEnd = s + 1 + pad.length;
+      paintEditor();
+    }
+  }
+});
+$('runBtn').onclick = run;
+$('hintBtn').onclick = useHint;
+$('giveupBtn').onclick = giveUp;
+$('nextBtn').onclick = () => goNext(pendingScore);
+$('restartBtn').onclick = restart;
+$('againBtn').onclick = restart;
+
+/* ---------------- join ---------------- */
+$('nameIn').addEventListener('keydown', async e => {
+  if(e.key !== 'Enter') return;
+  const n = e.target.value.trim();
+  if(!n) return;
+  me = n;
+  localStorage.setItem('dictrace-name', n);
+  const r = await post('/api/join', {name: me});
+  QS = r.questions; fast = r.fast; total = r.total;
+  solved = {}; hinted = {}; gaveup = {};
+  for(const k in r.student.solved) solved[+k] = r.student.solved[k];
+  for(const k in r.student.hinted) hinted[+k] = true;
+  for(const k in (r.student.gaveup || {})) gaveup[+k] = true;
+  $('pet').textContent = petOf(r.student.pet);
+  $('whoami').textContent = me;
+  $('score').textContent = r.student.score;
+  $('gate').classList.add('hide');
+  const nxt = nextUnsolved();               // a latecomer, or somebody coming back
+  if(nxt) await openQ(nxt); else showFinished(r.student.score);
+  refresh();
+});
+const saved = localStorage.getItem('dictrace-name');
+if(saved) $('nameIn').value = saved;
+$('nameIn').focus();
+setInterval(refresh, 2000);
+</script>
+</body>
+</html>

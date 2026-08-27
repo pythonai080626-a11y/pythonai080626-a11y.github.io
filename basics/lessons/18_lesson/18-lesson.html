@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lesson 18 - Functions Part 2</title>
+  <style>
+    :root {
+      --bg-soft: #ffffff;
+      --green-1: #0f5a2e;
+      --green-2: #1f8f4e;
+      --green-3: #dbf6e5;
+      --mint: #e6fff2;
+      --text: #14281d;
+      --muted: #426654;
+      --border: #aadfbd;
+      --accent-a: #ddfbe7;
+      --accent-b: #fff4d8;
+      --code-bg: #0b2517;
+      --code-text: #d2ffe3;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Lucida Sans", "Segoe UI", sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 15% 10%, #e7fff0 0%, transparent 35%),
+                  radial-gradient(circle at 85% 18%, #fff5d6 0%, transparent 36%),
+                  linear-gradient(180deg, #f4fff6 0%, #ffffff 45%, #edfff4 100%);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    body::before, body::after {
+      content: "";
+      position: fixed;
+      width: 230px;
+      height: 230px;
+      z-index: -1;
+      border-radius: 999px;
+      filter: blur(2px);
+      opacity: 0.32;
+      animation: blobMove 8s ease-in-out infinite alternate;
+    }
+    body::before { background: #bff0d0; top: -30px; left: -40px; }
+    body::after { background: #ffe9a9; bottom: -40px; right: -40px; animation-delay: 1.4s; }
+
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 24px; }
+    .layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    /* a grid item defaults to min-width:auto and refuses to shrink below its
+       widest line — without this, one long console line stretches the panel */
+    .layout > main { min-width: 0; }
+    .card > * { max-width: 100%; }
+
+    .side-nav {
+      position: sticky;
+      top: 14px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 8px 22px rgba(18,102,55,0.1);
+      padding: 12px;
+    }
+    .side-title { margin: 0 0 8px; font-size: 0.9rem; color: var(--green-1); font-weight: 700; }
+    .topic-link {
+      display: block;
+      width: 100%;
+      text-align: left;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      padding: 8px 10px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.89rem;
+      text-transform: lowercase;
+      margin-bottom: 4px;
+      transition: all 0.2s ease;
+    }
+    .topic-link:hover { background: #f0fff4; color: var(--green-1); border-color: var(--border); }
+    .topic-link.active { background: #e8faee; color: var(--green-1); border-color: var(--green-2); font-weight: 700; }
+
+    .hero {
+      background: linear-gradient(135deg, var(--bg-soft) 0%, var(--accent-a) 55%, var(--accent-b) 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 12px 30px rgba(24,110,58,0.12);
+      margin-bottom: 22px;
+      animation: riseIn 0.75s ease both;
+    }
+
+    h1, h2, h3 { margin-top: 0; color: var(--green-1); }
+    h1 { font-size: 2rem; margin-bottom: 8px; }
+    code { color: var(--green-1); font-weight: 700; }
+
+    .tag {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      background: var(--green-3);
+      color: var(--green-1);
+      border: 1px solid var(--border);
+      margin-bottom: 10px;
+    }
+
+    .card {
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 16px;
+      box-shadow: 0 7px 22px rgba(18,102,55,0.08);
+      animation: riseIn 0.65s ease both;
+    }
+
+    .topic-panel { display: none; }
+    .topic-panel.active { display: block; }
+    .step-title { margin: 0 0 12px; font-size: 1.25rem; }
+    .side-divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+    .side-section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--green-2);
+      padding: 4px 4px 6px;
+    }
+    .nav-back {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--green-2);
+      background: #e9fbe8;
+      color: var(--green-1);
+      text-decoration: none;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      width: 100%;
+      text-align: center;
+    }
+    .nav-back:hover { background: #d8f7df; transform: translateY(-1px); }
+
+    .note {
+      background: var(--mint);
+      border-left: 4px solid var(--green-2);
+      padding: 10px 14px;
+      color: var(--muted);
+      margin: 12px 0;
+      border-radius: 6px;
+      font-size: 0.94rem;
+    }
+    .warn {
+      background: #fff6e2;
+      border-left: 4px solid #e0a800;
+      padding: 10px 14px;
+      color: #6b4e00;
+      margin: 12px 0;
+      border-radius: 6px;
+      font-size: 0.94rem;
+    }
+    .big-result { font-size: 1.1rem; margin: 18px 0 8px; color: var(--green-1); font-weight: 700; }
+
+    .code {
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 10px;
+      border: 1px solid #2f5a3d;
+      padding: 16px 18px;
+      overflow-x: auto;
+      margin: 10px 0 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95rem;
+      white-space: pre;
+      line-height: 1.7;
+    }
+    .code .cm { color: #6dbf8a; }
+    .code .fn { color: #ffa657; }
+    .code .kw { color: #79c0ff; }
+    .code .num { color: #d2a8ff; }
+    .code .str { color: #ffd580; }
+    .code .hl { background: rgba(125,231,135,0.16); border-radius: 4px; }
+    .code .bad { background: rgba(248,113,113,0.16); border-radius: 4px; }
+
+    .console {
+      background: #101418;
+      color: #e6edf3;
+      border-radius: 10px;
+      border: 1px solid #30363d;
+      padding: 12px 18px;
+      overflow-x: auto;
+      margin: 10px 0 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92rem;
+      white-space: pre;
+      line-height: 1.7;
+    }
+    .console .usr { color: #7ee787; font-weight: 700; }
+    .console .dim { color: #8b949e; }
+    .console .err { color: #ff9f9f; }
+
+    .ex-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .88rem;
+      margin: 10px 0 14px;
+    }
+    .ex-table th {
+      background: var(--green-3);
+      color: var(--green-1);
+      padding: 8px 12px;
+      text-align: left;
+      border: 1px solid var(--border);
+      font-size: .78rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+    .ex-table td { padding: 8px 12px; border: 1px solid var(--border); vertical-align: top; }
+    .ex-table tr:nth-child(even) td { background: #f4fff7; }
+    .task-box {
+      background: var(--mint);
+      border: 2px dashed var(--green-2);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin: 14px 0;
+    }
+    .task-box a {
+      color: var(--green-1);
+      font-weight: 800;
+      font-size: 1.02rem;
+      word-break: break-all;
+    }
+    .footer { text-align: center; color: var(--muted); font-size: 0.86rem; padding: 10px 0 16px; }
+
+    .task-list { padding-left: 22px; margin: 10px 0 0; }
+    .task-list li { margin-bottom: 10px; color: #1a3a2a; }
+    .task-list li strong { color: var(--green-1); }
+
+    .ex-title { display: flex; align-items: center; margin: 22px 0 8px; }
+    .ex-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--green-3); border: 2px solid var(--green-2);
+      color: var(--green-1); font-weight: 800; font-size: .88rem;
+      margin-right: 8px; flex-shrink: 0;
+    }
+    .ex-title h3 { margin: 0; font-size: 1.1rem; }
+
+    .kbd {
+      display: inline-block; padding: 2px 8px; border-radius: 6px;
+      background: #f0fff4; border: 1px solid var(--border);
+      border-bottom-width: 3px; font-family: Consolas, monospace;
+      font-size: .85rem; color: var(--green-1); font-weight: 700;
+    }
+
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 6px; }
+    .pill {
+      display: inline-block; padding: 4px 12px; border-radius: 999px;
+      background: #eafcef; border: 1px solid var(--border);
+      color: var(--green-1); font-weight: 700; font-size: .82rem;
+    }
+    .pill.now { background: #fff0c2; border-color: #e0a800; color: #6b4e00; }
+
+    .submission { background: var(--mint); border-color: var(--green-2); margin-top: 0; }
+    .submission a { color: var(--green-1); font-weight: 800; font-size: 1.05rem; word-break: break-all; }
+
+    /* ── Module toolbox ── */
+    .toolbox {
+      background: #f7fffb; border: 1px solid var(--border);
+      border-radius: 14px; padding: 16px 18px; margin: 14px 0;
+    }
+    .toolbox .tb-head {
+      display: flex; align-items: center; gap: 8px;
+      font-weight: 800; color: var(--green-1); margin-bottom: 10px;
+    }
+    .toolbox .tb-head .tb-ic {
+      width: 30px; height: 30px; border-radius: 9px; flex-shrink: 0;
+      background: linear-gradient(160deg, #2dd4bf, #0d9488);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 1rem;
+    }
+    .tool-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tool {
+      font-family: Consolas, monospace; font-size: .82rem; font-weight: 700;
+      background: #ffffff; border: 1px solid var(--border);
+      border-bottom-width: 3px; border-radius: 9px;
+      padding: 6px 11px; color: var(--green-1);
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .tool:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(18,102,55,0.16); }
+    .tool small { display: block; font-family: "Trebuchet MS", sans-serif; font-weight: 400; color: var(--muted); font-size: .72rem; }
+
+    /* ── before / after boxes ── */
+    .ba { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 12px 0 14px; }
+    .ba .bx {
+      font-family: Consolas, monospace; font-weight: 700; font-size: .95rem;
+      background: #ffffff; border: 1px solid var(--border);
+      border-bottom-width: 3px; border-radius: 10px; padding: 9px 13px; color: var(--green-1);
+      white-space: pre;
+    }
+    .ba .bx.old { background: #fff6e2; border-color: #e6c46a; color: #6b4e00; }
+    .ba .arw { font-weight: 800; color: var(--muted); }
+
+    /* ── side-by-side compare columns ── */
+    .vs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0 14px; }
+    .vs > div { min-width: 0; }
+    .vs .vs-head {
+      font-weight: 800; color: var(--green-1); font-size: .92rem;
+      padding: 6px 10px; border-radius: 8px; background: var(--green-3);
+      border: 1px solid var(--border); margin-bottom: 6px; text-align: center;
+    }
+    .vs .vs-head.bad { background: #fff6e2; border-color: #e6c46a; color: #6b4e00; }
+    .vs .code, .vs .console { margin: 0 0 8px; font-size: .88rem; }
+
+    /* ── key → value rows ── */
+    .kvbox {
+      background: #f5fff9; border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px 18px; margin: 12px 0 14px;
+    }
+    .kvrow { display: flex; align-items: stretch; margin-bottom: 6px; flex-wrap: wrap; }
+    .kvrow .kk, .kvrow .vv {
+      font-family: Consolas, monospace; font-weight: 800; font-size: .88rem;
+      padding: 6px 12px; border: 1px solid var(--border);
+    }
+    .kvrow .kk {
+      background: linear-gradient(160deg, #d6f8e4, #a9ecc6);
+      border-color: #7fd6a3; color: #08351d;
+      border-radius: 9px 0 0 9px; min-width: 130px;
+    }
+    .kvrow .ar {
+      display: flex; align-items: center; padding: 0 10px;
+      color: var(--muted); font-weight: 800; background: #ffffff;
+      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    }
+    .kvrow .vv { background: #ffffff; color: var(--green-1); border-radius: 0 9px 9px 0; border-left: none; }
+    .kvrow .vv.list { background: #fffaf0; color: #6b4e00; border-color: #e6c46a; }
+    .kvrow .vv.dict { background: #eef8ff; color: #1c4e80; border-color: #a9cdec; }
+    .kvrow .vv.set { background: #f7f0ff; color: #5b2a86; border-color: #cbb0e8; }
+    .kvbox-cap { font-family: Consolas, monospace; font-weight: 800; color: var(--green-1); margin-bottom: 8px; font-size: .88rem; }
+
+    /* ── figure blocks (the drawings) ── */
+    .fig {
+      background: #f5fff9; border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px; margin: 14px 0;
+      text-align: center;
+    }
+    .fig svg { width: 100%; height: auto; max-width: 620px; }
+    .fig .figcap {
+      font-size: .84rem; color: var(--muted); margin-top: 8px;
+      font-style: italic;
+    }
+
+    /* ── D&D item rack ── */
+    .rack { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 12px 0 6px; }
+    .slot {
+      width: 96px; padding: 10px 6px; border-radius: 12px; text-align: center;
+      background: linear-gradient(160deg, #ffffff, #eafcef);
+      border: 1px solid var(--border); border-bottom-width: 3px;
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .slot:hover { transform: translateY(-3px); box-shadow: 0 8px 16px rgba(18,102,55,0.18); }
+    .slot .ic { font-size: 1.9rem; line-height: 1.2; }
+    .slot .nm { font-family: Consolas, monospace; font-weight: 800; font-size: .78rem; color: var(--green-1); }
+    .slot.picked { background: linear-gradient(160deg, #fff6d9, #ffe9a9); border-color: #e0a800; }
+
+    /* ── attribute bars ── */
+    .stats { background: #f5fff9; border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; margin: 12px 0 14px; }
+    .stat { display: grid; grid-template-columns: 116px 1fr 34px; gap: 10px; align-items: center; margin-bottom: 7px; }
+    .stat .snm { font-family: Consolas, monospace; font-weight: 800; color: var(--green-1); font-size: .82rem; }
+    .stat .strack { height: 15px; border-radius: 8px; background: #e3efe8; border: 1px solid var(--border); overflow: hidden; }
+    .stat .sfill { height: 100%; background: linear-gradient(90deg, #a9ecc6, #4fc47f); }
+    .stat .sfill.hi { background: linear-gradient(90deg, #ffe1a8, #f0b429); }
+    .stat .sval { font-family: Consolas, monospace; font-weight: 800; color: var(--muted); font-size: .82rem; text-align: right; }
+
+    /* ── Hebrew / right-to-left panel ── */
+    .rtl { direction: rtl; text-align: right; }
+    .rtl .task-list { padding-left: 0; padding-right: 22px; }
+    .rtl .ex-table th, .rtl .ex-table td { text-align: right; }
+    .rtl .note, .rtl .warn { border-left: none; border-right: 4px solid var(--green-2); }
+    .rtl .warn { border-right-color: #e0a800; }
+    /* code and output stay English — always left-aligned, even on an RTL page */
+    .rtl .code, .rtl .console { direction: ltr; text-align: left; }
+
+    /* ── numbered build steps ── */
+    .steps { counter-reset: st; padding: 0; margin: 12px 0 0; list-style: none; }
+    .steps > li { position: relative; padding-left: 40px; margin-bottom: 18px; }
+    .steps > li::before {
+      counter-increment: st; content: counter(st);
+      position: absolute; left: 0; top: 0;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--green-3); border: 2px solid var(--green-2);
+      color: var(--green-1); font-weight: 800; font-size: .86rem;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .steps > li > .sh { font-weight: 800; color: var(--green-1); display: block; margin-bottom: 2px; }
+
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes blobMove {
+      from { transform: translate(0, 0) scale(1); }
+      to { transform: translate(24px, 18px) scale(1.06); }
+    }
+
+    @media (max-width: 760px) {
+      .wrap { padding: 14px; }
+      .layout { grid-template-columns: 1fr; }
+      .side-nav { position: static; }
+      h1 { font-size: 1.6rem; }
+      .code { font-size: 0.86rem; }
+      .ex-table { font-size: .8rem; }
+      .vs { grid-template-columns: 1fr; }
+      .kvrow .kk { min-width: 0; }
+      .stat { grid-template-columns: 92px 1fr 30px; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <span class="tag">Lesson 18 - August 27, 2026</span>
+    <h1>Functions, Part 2 — In and Out 🔁</h1>
+    <p>Last lesson your function had a name and a body. Today it gets a <strong>door on each side</strong>. Values go <em>in</em> through <strong>parameters</strong> — with default values for the ones the caller can skip, and the option to name them at the call so the order stops mattering. An answer comes back <em>out</em> through <strong>return</strong>, which also ends the function on the spot. And when there is no <code>return</code> at all, something still comes back: <code>None</code> — the difference between <code>d.pop()</code>, which hands you what it removed, and <code>a.sort()</code>, which hands you nothing.</p>
+  </section>
+
+  <div class="layout">
+    <aside class="side-nav" aria-label="Topic navigation">
+      <div class="side-title">Lesson 18 topics</div>
+
+      <div class="side-section-label">1 · Parameters</div>
+      <button class="topic-link active" data-target="topic-param">one slot in the brackets</button>
+      <button class="topic-link" data-target="topic-two">two slots · order matters</button>
+
+      <div class="side-section-label">2 · Defaults &amp; names</div>
+      <button class="topic-link" data-target="topic-default">default values</button>
+      <button class="topic-link" data-target="topic-keyword">calling with name=</button>
+
+      <div class="side-section-label">3 · return</div>
+      <button class="topic-link" data-target="topic-return">return — the answer back</button>
+      <button class="topic-link" data-target="topic-exit">return ends it 🚪</button>
+      <button class="topic-link" data-target="topic-none">no return → None</button>
+      <button class="topic-link" data-target="topic-inplace">gives back vs changes ⚠️</button>
+
+      <div class="side-section-label">4 · Writing it down</div>
+      <button class="topic-link" data-target="topic-doc">:param and :return</button>
+
+      <hr class="side-divider">
+      <button class="topic-link" data-target="topic-github">github folder</button>
+      <button class="topic-link" data-target="topic-exercise">homework — 4 functions ✍️</button>
+      <button class="topic-link" data-target="topic-homework-heb">שיעורי בית - עברית</button>
+
+      <div class="side-section-label">Navigation</div>
+      <a class="nav-back" href="../../index.html#lessons">Back to lessons</a>
+    </aside>
+
+    <main>
+
+      <!-- ═══ ONE PARAMETER ═══ -->
+      <section class="card topic-panel active" id="topic-param">
+        <span class="tag">func_02.py</span>
+        <h2 class="step-title">A Name Inside the Brackets 📥</h2>
+        <p>Last lesson every function had empty <code>()</code>, so every call did exactly the same thing. Put a name inside those brackets and the function gains a <strong>slot</strong> — a variable that does not exist yet, and gets its value from whoever calls.</p>
+        <div class="code"><span class="kw">def</span> <span class="fn">say_hello</span>(name):
+    <span class="fn">print</span>(<span class="str">'Hello,'</span>, name)
+
+<span class="fn">say_hello</span>(<span class="str">"Danny"</span>)
+<span class="fn">say_hello</span>(<span class="str">"Mor"</span>)</div>
+        <div class="console">Hello, Danny
+Hello, Mor</div>
+        <p>One function, two different results. The word in the <code>def</code> line and the value at the call have two different names, and it is worth getting them straight now:</p>
+        <table class="ex-table">
+          <thead><tr><th>Word</th><th>Where</th><th>What it is</th></tr></thead>
+          <tbody>
+            <tr><td><strong>parameter</strong></td><td><code>def say_hello(name):</code></td><td>the empty slot — a promise that a value will arrive</td></tr>
+            <tr><td><strong>argument</strong></td><td><code>say_hello("Danny")</code></td><td>the real value you hand over at the call</td></tr>
+          </tbody>
+        </table>
+        <div class="fig">
+          <svg viewBox="0 0 600 190" role="img" aria-label="The argument at the call travels into the parameter slot inside the function">
+            <text x="120" y="20" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#b07d00">the call</text>
+            <rect x="24" y="34" width="196" height="44" rx="10" fill="#fff0c2" stroke="#e0a800" stroke-width="2"/>
+            <text x="122" y="62" text-anchor="middle" font-family="Consolas, monospace" font-size="13" font-weight="700" fill="#6b4e00">say_hello("Danny")</text>
+            <path d="M232 56 L300 56 L300 96 L342 96" fill="none" stroke="#426654" stroke-width="3"/>
+            <path d="M334 90 L344 96 L334 102" fill="none" stroke="#426654" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <text x="286" y="46" text-anchor="middle" font-family="Consolas, monospace" font-size="11" fill="#426654">travels in</text>
+            <text x="466" y="20" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#1f8f4e">inside the function</text>
+            <rect x="350" y="34" width="228" height="124" rx="12" fill="#ffffff" stroke="#1f8f4e" stroke-width="2"/>
+            <text x="366" y="60" font-family="Consolas, monospace" font-size="13" font-weight="700" fill="#0f5a2e">def say_hello(name):</text>
+            <rect x="374" y="76" width="152" height="26" rx="6" fill="#d6f8e4" stroke="#7fd6a3"/>
+            <text x="386" y="94" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#08351d">name = "Danny"</text>
+            <text x="374" y="124" font-family="Consolas, monospace" font-size="12" fill="#08351d">print('Hello,', name)</text>
+            <text x="464" y="148" text-anchor="middle" font-family="Consolas, monospace" font-size="11" fill="#426654">name only exists in here</text>
+          </svg>
+          <div class="figcap">The argument fills the parameter. When the function ends, the slot is gone.</div>
+        </div>
+        <div class="warn">
+          <strong>The slot must be filled.</strong> A parameter with no default is not optional. Call <code>say_hello()</code> with nothing and Python stops you:
+          <div class="code" style="margin-top:6px">TypeError: say_hello() missing 1 required positional argument: <span class="str">'name'</span></div>
+        </div>
+      </section>
+
+      <!-- ═══ TWO PARAMETERS ═══ -->
+      <section class="card topic-panel" id="topic-two">
+        <span class="tag">func_02.py</span>
+        <h2 class="step-title">Two Slots, Filled Left to Right ↔️</h2>
+        <p>Separate parameters with a comma and you get two slots. Python fills them <strong>in order</strong>: the first argument goes into the first parameter, the second into the second. Nothing clever, and nothing checks that you meant it that way.</p>
+        <div class="code"><span class="kw">def</span> <span class="fn">rectangle_area</span>(width, height):
+    <span class="kw">return</span> width * height
+
+<span class="fn">print</span>(<span class="fn">rectangle_area</span>(<span class="num">5</span>, <span class="num">10</span>))
+<span class="fn">print</span>(<span class="fn">rectangle_area</span>(<span class="num">10</span>, <span class="num">10</span>))
+<span class="fn">print</span>(<span class="fn">rectangle_area</span>(<span class="num">7.5</span>, <span class="num">12</span>))</div>
+        <div class="console">50
+100
+90.0</div>
+        <table class="ex-table">
+          <thead><tr><th>The call</th><th>width becomes</th><th>height becomes</th></tr></thead>
+          <tbody>
+            <tr><td><code>rectangle_area(5, 10)</code></td><td>5</td><td>10</td></tr>
+            <tr><td><code>rectangle_area(10, 5)</code></td><td>10</td><td>5</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          For a rectangle the area comes out the same either way, so a swap goes unnoticed. Try the same mistake on <code>divide(a, b)</code> and the answer is simply wrong. This is exactly the problem the next-but-one topic solves.
+        </div>
+      </section>
+
+      <!-- ═══ DEFAULT VALUES ═══ -->
+      <section class="card topic-panel" id="topic-default">
+        <span class="tag">func_02.py</span>
+        <h2 class="step-title">Default Values — a Slot That Fills Itself 🎁</h2>
+        <p>Put an <code>=</code> in the <code>def</code> line and the slot gets a fallback. The caller <em>may</em> still pass a value, but no longer has to.</p>
+        <div class="code"><span class="kw">def</span> <span class="fn">say_hello</span>(name=<span class="str">"incognito"</span>):
+    <span class="str">'''</span>
+<span class="str">    say hello to user</span>
+<span class="str">    :param name: name of the user. default is "incognito"</span>
+<span class="str">    :return: None</span>
+<span class="str">    '''</span>
+    <span class="fn">print</span>(<span class="str">'Hello,'</span>, name)
+
+<span class="fn">say_hello</span>()            <span class="cm"># nothing passed</span>
+<span class="fn">say_hello</span>(danny)
+<span class="fn">say_hello</span>(mor)
+<span class="fn">say_hello</span>(<span class="str">"John"</span>)</div>
+        <div class="console">Hello, incognito
+Hello, Danny
+Hello, Mor
+Hello, John</div>
+        <p>Every slot can have one. Here both do, so the function survives being called with two arguments, one, or none at all:</p>
+        <div class="code"><span class="kw">def</span> <span class="fn">add</span>(x=<span class="num">0</span>, y=<span class="num">0</span>):
+    <span class="kw">return</span> x + y
+
+<span class="fn">print</span>(<span class="fn">add</span>())        <span class="cm"># 0   — both defaults</span>
+<span class="fn">print</span>(<span class="fn">add</span>(<span class="num">5</span>))       <span class="cm"># 5   — x=5, y still 0</span>
+<span class="fn">print</span>(<span class="fn">add</span>(<span class="num">5</span>, <span class="num">10</span>))   <span class="cm"># 15</span></div>
+        <div class="warn">
+          <strong>One rule to remember.</strong> Slots <em>without</em> a default have to come first.
+          <div class="code" style="margin-top:6px"><span class="kw">def</span> <span class="fn">f</span>(a, b=<span class="num">0</span>):   <span class="cm"># fine</span>
+<span class="kw">def</span> <span class="fn">f</span>(a=<span class="num">0</span>, b):   <span class="cm"># SyntaxError: non-default argument follows default argument</span></div>
+          It makes sense if you think about the call: Python fills slots left to right, so it cannot skip <code>a</code> to reach <code>b</code>.
+        </div>
+      </section>
+
+      <!-- ═══ KEYWORD ARGUMENTS ═══ -->
+      <section class="card topic-panel" id="topic-keyword">
+        <span class="tag">func_02.py</span>
+        <h2 class="step-title">Using <code>=</code> When You <em>Call</em> It 🏷️</h2>
+        <p>The <code>=</code> now shows up in two places that look identical and mean completely different things. This is the one to slow down on.</p>
+        <table class="ex-table">
+          <thead><tr><th>Where</th><th>Looks like</th><th>Means</th></tr></thead>
+          <tbody>
+            <tr><td>in the <code>def</code> line</td><td><code>def print_square(x=0):</code></td><td>&ldquo;if nobody passes one, use 0&rdquo;</td></tr>
+            <tr><td>at the <strong>call</strong></td><td><code>print_square(x=5)</code></td><td>&ldquo;this 5 goes in the slot called x&rdquo;</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          Nothing is being assigned to a variable named <code>x</code> at the call. You are pointing at a slot by name. There is no <code>x</code> outside the function afterwards.
+        </div>
+        <div class="code"><span class="kw">def</span> <span class="fn">print_square</span>(x=<span class="num">0</span>):
+    <span class="str">'''</span>
+<span class="str">    printing square</span>
+<span class="str">    :param x: number</span>
+<span class="str">    :return: None</span>
+<span class="str">    '''</span>
+    <span class="fn">print</span>(x ** <span class="num">2</span>)
+
+<span class="fn">print_square</span>()        <span class="cm"># 0   — the default</span>
+<span class="fn">print_square</span>(x=<span class="num">0</span>)     <span class="cm"># 0   — named</span>
+<span class="fn">print_square</span>(<span class="num">5</span>)       <span class="cm"># 25  — positional</span>
+<span class="fn">print_square</span>(<span class="num">10</span>)      <span class="cm"># 100</span></div>
+        <p>Naming the slot buys you the thing the previous topic was missing: <strong>the order stops mattering</strong>.</p>
+        <div class="code"><span class="kw">def</span> <span class="fn">rectangle_area</span>(width, height):
+    <span class="kw">return</span> width * height
+
+<span class="fn">rectangle_area</span>(<span class="num">5</span>, <span class="num">10</span>)                <span class="cm"># positional  → 50</span>
+<span class="fn">rectangle_area</span>(width=<span class="num">5</span>, height=<span class="num">10</span>)   <span class="cm"># by name     → 50</span>
+<span class="fn">rectangle_area</span>(height=<span class="num">10</span>, width=<span class="num">5</span>)   <span class="cm"># backwards   → 50, still right</span>
+
+<span class="cm"># mixing is allowed — positional first, named after</span>
+<span class="fn">rectangle_area</span>(<span class="num">7.5</span>, height=<span class="num">12</span>)         <span class="cm"># → 90.0</span>
+
+<span class="cm"># but never the other way round</span>
+<span class="cm"># rectangle_area(width=7.5, 12)   ← SyntaxError</span></div>
+        <div class="note">
+          Use it the moment a call stops explaining itself. <code>book(4, 2, 1)</code> means nothing in six months. <code>book(adults=4, kids=2, rooms=1)</code> still does.
+        </div>
+      </section>
+
+      <!-- ═══ RETURN ═══ -->
+      <section class="card topic-panel" id="topic-return">
+        <span class="tag">func_02.py</span>
+        <h2 class="step-title"><code>return</code> — Handing the Answer Back 📤</h2>
+        <p>So far our functions have <strong>printed</strong>. Printing shows a value to a human and then it is gone — you cannot add to it, store it or pass it on. <code>return</code> hands the value back to the program instead.</p>
+        <div class="code"><span class="kw">def</span> <span class="fn">add</span>(x=<span class="num">0</span>, y=<span class="num">0</span>):
+    <span class="str">'''</span>
+<span class="str">    add two numbers</span>
+<span class="str">    :param x: 1st number</span>
+<span class="str">    :param y: 2nd number</span>
+<span class="str">    :return: sum of x+y</span>
+<span class="str">    '''</span>
+    sum_xy = x + y
+    <span class="kw">return</span> sum_xy
+
+
+result = <span class="fn">add</span>(x=<span class="num">5</span>, y=<span class="num">10</span>)
+<span class="fn">print</span>(<span class="str">'add returned'</span>, result)
+<span class="fn">print</span>(<span class="fn">add</span>(<span class="num">5</span>, <span class="num">10</span>))</div>
+        <div class="console">add returned 15
+15</div>
+        <table class="ex-table">
+          <thead><tr><th>Line</th><th>What happens</th></tr></thead>
+          <tbody>
+            <tr><td><code>result = add(x=5, y=10)</code></td><td>the function runs, and the value it returns is stored in <code>result</code></td></tr>
+            <tr><td><code>print(add(5, 10))</code></td><td>the returned value goes straight into <code>print</code> — no variable needed</td></tr>
+            <tr><td><code>print(sum_xy)</code></td><td><strong>NameError.</strong> <code>sum_xy</code> lived inside the function and is gone</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          <strong>print or return?</strong> If a human is the only one who needs to see it — print. If any other line of your program needs the value — return. When in doubt, return: the caller can always print it afterwards.
+        </div>
+      </section>
+
+      <!-- ═══ RETURN EXITS ═══ -->
+      <section class="card topic-panel" id="topic-exit">
+        <span class="tag">func_02.py</span>
+        <h2 class="step-title"><code>return</code> Also Walks Out the Door 🚪</h2>
+        <p><code>return</code> does two jobs at once: it hands the value back, <strong>and it ends the function immediately</strong>. Nothing written after it runs. That is why these two are exactly the same function:</p>
+        <div class="code"><span class="cm"># 1 — with else</span>
+<span class="kw">def</span> <span class="fn">max_number</span>(a=<span class="num">0</span>, b=<span class="num">0</span>):
+    <span class="kw">if</span> a &gt; b:
+        <span class="kw">return</span> a
+    <span class="kw">else</span>:
+        <span class="kw">return</span> b
+
+<span class="cm"># 2 — same thing, no else needed</span>
+<span class="kw">def</span> <span class="fn">max_number</span>(a=<span class="num">0</span>, b=<span class="num">0</span>):
+    <span class="kw">if</span> a &gt; b:
+        <span class="kw">return</span> a
+    <span class="kw">return</span> b
+
+<span class="fn">print</span>(<span class="fn">max_number</span>(<span class="num">10</span>, <span class="num">9</span>))   <span class="cm"># 10</span></div>
+        <p>In the second version, if <code>a &gt; b</code> is true we have already left the building — so the last line can only be reached when it was false. The <code>else</code> adds nothing.</p>
+        <p>A function may hand back any type it likes, and it can have several <code>return</code> lines. Whichever one runs first, wins:</p>
+        <div class="code"><span class="kw">def</span> <span class="fn">get_even_odd</span>(a=<span class="num">0</span>):
+    <span class="str">'''</span>
+<span class="str">    get even or odd number</span>
+<span class="str">    :param a: a number</span>
+<span class="str">    :return: "even" or "odd"</span>
+<span class="str">    '''</span>
+    <span class="kw">if</span> a % <span class="num">2</span> == <span class="num">0</span>:
+        <span class="kw">return</span> <span class="str">"even"</span>
+    <span class="kw">return</span> <span class="str">"odd"</span>
+
+<span class="fn">print</span>(<span class="fn">get_even_odd</span>(<span class="num">0</span>))
+<span class="fn">print</span>(<span class="fn">get_even_odd</span>(<span class="num">2</span>))
+<span class="fn">print</span>(<span class="fn">get_even_odd</span>(<span class="num">7</span>))
+<span class="fn">print</span>(<span class="fn">get_even_odd</span>(<span class="num">11</span>))
+<span class="fn">print</span>(<span class="fn">get_even_odd</span>(<span class="op">-</span><span class="num">3</span>))</div>
+        <div class="console">even
+even
+odd
+odd
+odd</div>
+        <p>And with everything from last lesson, a function can hand back a whole <strong>dictionary</strong>:</p>
+        <div class="code"><span class="kw">def</span> <span class="fn">count_letters</span>(text):
+    <span class="str">'''</span>
+<span class="str">    count letters</span>
+<span class="str">    :param text: text phrase</span>
+<span class="str">    :return: dict of count of letters</span>
+<span class="str">    '''</span>
+    d = {}
+    <span class="kw">for</span> c <span class="kw">in</span> text:
+        <span class="kw">if</span> c <span class="kw">not</span> <span class="kw">in</span> d:
+            d[c] = <span class="num">1</span>
+        <span class="kw">else</span>:
+            d[c] += <span class="num">1</span>
+    <span class="kw">return</span> d
+
+<span class="fn">print</span>(<span class="fn">count_letters</span>(<span class="str">'missiiiissippi'</span>))</div>
+        <div class="console">{'m': 1, 'i': 7, 's': 4, 'p': 2}</div>
+        <div class="note">
+          This is last lesson's counting pattern with a <code>def</code> around it and a <code>return</code> at the end. That is all a function is — a block you already wrote, given a name and a way to answer.
+        </div>
+      </section>
+
+      <!-- ═══ NO RETURN ═══ -->
+      <section class="card topic-panel" id="topic-none">
+        <span class="tag">func_02.py</span>
+        <h2 class="step-title">No <code>return</code>? You Still Get Something: <code>None</code> 🕳️</h2>
+        <p>A function without a <code>return</code> line does not hand back &ldquo;nothing&rdquo;. It hands back <code>None</code> — a real value, of a real type, that you can store and print.</p>
+        <div class="code"><span class="kw">def</span> <span class="fn">greeting</span>():
+    <span class="str">'''</span>
+<span class="str">    printing hello</span>
+<span class="str">    :return: None</span>
+<span class="str">    '''</span>
+    <span class="fn">print</span>(<span class="str">'hello, danny'</span>)
+
+<span class="fn">greeting</span>()            <span class="cm"># it prints</span>
+
+x = <span class="fn">greeting</span>()        <span class="cm"># it prints again...</span>
+<span class="fn">print</span>(x)              <span class="cm"># ...and hands back nothing</span></div>
+        <div class="console">hello, danny
+hello, danny
+None</div>
+        <p>Notice what happened on the last two lines: the function did its job, <em>and</em> gave back <code>None</code>. Both are true at once. A function that only prints is doing half the work — useful to a human, useless to the rest of your program.</p>
+        <p>And when there is nothing to write in the body yet, Python still needs the indented block to exist. That is what <code>pass</code> is for:</p>
+        <div class="code"><span class="kw">def</span> <span class="fn">hi</span>():
+    <span class="str">'''</span>
+<span class="str">    this is my documentation</span>
+<span class="str">    :return:</span>
+<span class="str">    '''</span>
+    <span class="kw">pass</span>
+
+<span class="fn">help</span>(hi)</div>
+        <div class="note">
+          <code>pass</code> means &ldquo;deliberately empty&rdquo;. It is how you sketch a function you have not written yet without breaking the file.
+        </div>
+      </section>
+
+      <!-- ═══ IN PLACE VS RETURN ═══ -->
+      <section class="card topic-panel" id="topic-inplace">
+        <span class="tag">func_02.py</span>
+        <h2 class="step-title">Gives It Back, or Changes It? ⚠️</h2>
+        <p>This is not a beginner&rsquo;s curiosity — it is the difference between two kinds of method you have been using since lesson 13, and it is behind one of the most common bugs there is.</p>
+        <div class="code">d = {<span class="num">1</span>: <span class="str">'a'</span>}
+res = d.<span class="fn">pop</span>(<span class="num">1</span>)      <span class="cm"># pop RETURNS what it removed</span>
+<span class="fn">print</span>(res)             <span class="cm"># a</span>
+
+a = [<span class="num">4</span>, <span class="num">3</span>]
+out = a.<span class="fn">sort</span>()       <span class="cm"># sort changes the list IN PLACE</span>
+<span class="fn">print</span>(out)             <span class="cm"># None  ← nothing came back</span>
+<span class="fn">print</span>(a)               <span class="cm"># [3, 4] ← but the list did change</span></div>
+        <table class="ex-table">
+          <thead><tr><th>Call</th><th>Returns</th><th>Changes the original?</th></tr></thead>
+          <tbody>
+            <tr><td><code>d.pop(1)</code></td><td>the removed value</td><td>yes</td></tr>
+            <tr><td><code>a.sort()</code></td><td><code>None</code></td><td>yes, in place</td></tr>
+            <tr><td><code>sorted(a)</code></td><td>a new sorted list</td><td>no</td></tr>
+            <tr><td><code>a.append(5)</code></td><td><code>None</code></td><td>yes, in place</td></tr>
+          </tbody>
+        </table>
+        <div class="warn">
+          <strong>The classic bug.</strong>
+          <div class="code" style="margin-top:6px">a = a.<span class="fn">sort</span>()     <span class="cm"># a is now None. The list is gone.</span></div>
+          You threw the list away and kept the <code>None</code>. Ask it of every function you write and every method you call: <strong>does this give something back, or does it change something in place?</strong> It is almost never both.
+        </div>
+      </section>
+
+      <!-- ═══ DOCSTRING ═══ -->
+      <section class="card topic-panel" id="topic-doc">
+        <span class="tag">func_02.py</span>
+        <h2 class="step-title">Now the Docstring Has Real Work 📝</h2>
+        <p>Last lesson a docstring said what the function did. Now that functions have slots and answers, it has two more jobs: say what goes <strong>in</strong>, and say what comes <strong>out</strong>.</p>
+        <div class="code"><span class="kw">def</span> <span class="fn">rectangle_area</span>(width, height):
+    <span class="str">'''</span>
+<span class="str">    calculate area of rectangle</span>
+<span class="str">    :param width: width of rectangle</span>
+<span class="str">    :param height: height of rectangle</span>
+<span class="str">    :return: area of rectangle</span>
+<span class="str">    '''</span>
+    <span class="kw">return</span> width * height
+
+<span class="fn">help</span>(rectangle_area)</div>
+        <table class="ex-table">
+          <thead><tr><th>Line</th><th>Write</th></tr></thead>
+          <tbody>
+            <tr><td>first line</td><td>what the function does, in a few words</td></tr>
+            <tr><td><code>:param name:</code></td><td>one line per slot — what it means, and its default if it has one</td></tr>
+            <tr><td><code>:return:</code></td><td>what comes back. Write <code>None</code> if the function only prints</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          Writing <code>:return: None</code> is not a wasted line. It tells the next reader &mdash; you, next week &mdash; not to go looking for a value that was never there.
+        </div>
+        <div class="task-box">
+          <strong>Topic page:</strong> everything above, with more examples &rarr;
+          <a href="../../22_functions2/index.html">Functions 2</a>
+        </div>
+      </section>
+
+      <!-- ═══ GITHUB ═══ -->
+      <section class="card topic-panel" id="topic-github">
+        <span class="tag">GitHub</span>
+        <h2 class="step-title">Lesson 18 GitHub Folder</h2>
+        <p>All the code from today's lesson:</p>
+        <div class="task-box">
+          <strong>Lesson folder:</strong><br>
+          <a href="https://github.com/pythonai080626-a11y/27.08.2026" target="_blank" rel="noopener">
+            https://github.com/pythonai080626-a11y/27.08.2026
+          </a>
+        </div>
+        <table class="ex-table">
+          <thead><tr><th>File</th><th>What it shows</th></tr></thead>
+          <tbody>
+            <tr><td>func_02.py</td><td><code>pass</code> and <code>help()</code>; a function that only prints and returns <code>None</code>; <code>d.pop()</code> returning a value against <code>a.sort()</code> returning <code>None</code>; a default value on <code>say_hello(name="incognito")</code>; calling with <code>x=</code>; <code>add(x=0, y=0)</code> with a <code>return</code>; <code>rectangle_area(width, height)</code> with no defaults; <code>max_number</code> written with and without <code>else</code>; <code>get_even_odd</code>; and <code>count_letters</code> returning a whole dictionary</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          Topic pages for today: <a href="../../22_functions2/index.html">Functions 2</a> &mdash; the new one &mdash; and <a href="../../21_functions/python_basic9.html">Functions</a> from last lesson. <a href="../../20_dict/index.html">Dictionaries</a> is worth another look for <code>count_letters</code>.
+        </div>
+      </section>
+
+      <!-- ═══ HOMEWORK EN ═══ -->
+      <section class="card topic-panel" id="topic-exercise">
+        <span class="tag">Homework</span>
+        <h2 class="step-title">Homework — Four Functions ✍️</h2>
+        <p>Four small functions. Every one takes <strong>parameters</strong> and hands back an answer with <strong>return</strong>. Nothing here needs anything you have not met — no tuples, no <code>try</code>, just <code>def</code>, a couple of slots and a <code>return</code>.</p>
+        <div class="warn">
+          <strong>Three rules for all four:</strong>
+          <ol class="task-list" style="margin-top:6px">
+            <li>Every function gets a <strong>docstring</strong> with <code>:param</code> for each slot and <code>:return:</code> for the answer. No exceptions — this is the habit we are building.</li>
+            <li><strong>Return, do not print.</strong> The <code>print</code> happens outside, on what came back.</li>
+            <li>Call each one at least twice with different values, and print what came back.</li>
+          </ol>
+        </div>
+
+        <div class="big-result">1 · circle_area(radius) 🟠</div>
+        <p>One parameter, no default. Return the area &mdash; <code>3.14 * radius ** 2</code>. Do not print inside.</p>
+        <div class="code"><span class="kw">def</span> <span class="fn">circle_area</span>(radius):
+    <span class="cm"># docstring here</span>
+    <span class="cm"># return the area</span>
+
+<span class="fn">print</span>(<span class="fn">circle_area</span>(<span class="num">1</span>))
+<span class="fn">print</span>(<span class="fn">circle_area</span>(<span class="num">2.5</span>))
+<span class="fn">print</span>(<span class="fn">circle_area</span>(radius=<span class="num">10</span>))</div>
+        <div class="console">3.14
+19.625
+314.0</div>
+
+        <div class="big-result">2 · is_adult(age=0) 🎂</div>
+        <p>A <strong>default value</strong> this time. Return <code>True</code> if the age is 18 or more, otherwise <code>False</code>. Return the answer &mdash; do not print it, and do not return the strings <code>"True"</code> / <code>"False"</code>.</p>
+        <div class="code"><span class="fn">print</span>(<span class="fn">is_adult</span>())          <span class="cm"># the default kicks in</span>
+<span class="fn">print</span>(<span class="fn">is_adult</span>(<span class="num">17</span>))
+<span class="fn">print</span>(<span class="fn">is_adult</span>(<span class="num">18</span>))
+<span class="fn">print</span>(<span class="fn">is_adult</span>(age=<span class="num">40</span>))</div>
+        <div class="console">False
+False
+True
+True</div>
+
+        <div class="big-result">3 · apply_discount(price, percent=10) 💸</div>
+        <p>One required slot and one with a default. Return the price <strong>after</strong> the discount.</p>
+        <div class="code"><span class="fn">print</span>(<span class="fn">apply_discount</span>(<span class="num">200</span>))              <span class="cm"># 10% — the default</span>
+<span class="fn">print</span>(<span class="fn">apply_discount</span>(<span class="num">200</span>, <span class="num">25</span>))
+<span class="fn">print</span>(<span class="fn">apply_discount</span>(<span class="num">200</span>, percent=<span class="num">50</span>))
+<span class="fn">print</span>(<span class="fn">apply_discount</span>(price=<span class="num">80</span>, percent=<span class="num">5</span>))</div>
+        <div class="console">180.0
+150.0
+100.0
+76.0</div>
+        <div class="note">
+          Remember the order rule: <code>price</code> has no default, so it has to come first in the <code>def</code> line.
+        </div>
+
+        <div class="big-result">4 · count_vowels(text) 🔤</div>
+        <p>A loop inside a function. Go through the text, count how many letters are vowels, and <strong>return the number</strong>.</p>
+        <div class="code"><span class="kw">def</span> <span class="fn">count_vowels</span>(text):
+    <span class="cm"># docstring</span>
+    vowels = <span class="str">'aeiou'</span>
+    count = <span class="num">0</span>
+    <span class="cm"># loop over text, count the vowels</span>
+    <span class="cm"># return count</span>
+
+<span class="fn">print</span>(<span class="fn">count_vowels</span>(<span class="str">'incognito'</span>))
+<span class="fn">print</span>(<span class="fn">count_vowels</span>(<span class="str">'missiiiissippi'</span>))
+<span class="fn">print</span>(<span class="fn">count_vowels</span>(<span class="str">'xyz'</span>))</div>
+        <div class="console">4
+7
+0</div>
+        <div class="note">
+          <code>c in vowels</code> answers &ldquo;is this letter a vowel?&rdquo; with <code>True</code> or <code>False</code> &mdash; the same <code>in</code> you used on dictionaries last lesson.
+        </div>
+
+      </section>
+
+      <!-- ═══ HOMEWORK HE ═══ -->
+      <section class="card topic-panel rtl" id="topic-homework-heb" dir="rtl">
+        <span class="tag">שיעורי בית</span>
+        <h2 class="step-title">שיעורי בית — ארבע פונקציות ✍️</h2>
+        <p>ארבע פונקציות קטנות. כל אחת מקבלת <strong>פרמטרים</strong> ומחזירה תשובה עם <strong dir="ltr">return</strong>. אין כאן שום דבר שלא למדתם — בלי tuple, בלי <code dir="ltr">try</code>, רק <code dir="ltr">def</code>, כמה פרמטרים ו-<code dir="ltr">return</code>.</p>
+        <div class="warn">
+          <strong>שלושה כללים לכל הארבע:</strong>
+          <ol class="task-list" style="margin-top:6px">
+            <li>לכל פונקציה חייב להיות <strong>docstring</strong> עם <code dir="ltr">:param</code> לכל פרמטר ו-<code dir="ltr">:return:</code> לתשובה. בלי יוצאי דופן — זה ההרגל שאנחנו בונים.</li>
+            <li><strong>להחזיר, לא להדפיס.</strong> ה-<code dir="ltr">print</code> קורה בחוץ, על מה שחזר.</li>
+            <li>קראו לכל פונקציה לפחות פעמיים עם ערכים שונים, והדפיסו מה חזר.</li>
+          </ol>
+        </div>
+
+        <div class="big-result">1 · <span dir="ltr">circle_area(radius)</span> 🟠</div>
+        <p>פרמטר אחד, בלי ברירת מחדל. החזירו את השטח — <code dir="ltr">3.14 * radius ** 2</code>. בלי <code dir="ltr">print</code> בפנים.</p>
+        <div class="code" dir="ltr"><span class="fn">print</span>(<span class="fn">circle_area</span>(<span class="num">1</span>))
+<span class="fn">print</span>(<span class="fn">circle_area</span>(<span class="num">2.5</span>))
+<span class="fn">print</span>(<span class="fn">circle_area</span>(radius=<span class="num">10</span>))</div>
+        <div class="console" dir="ltr">3.14
+19.625
+314.0</div>
+
+        <div class="big-result">2 · <span dir="ltr">is_adult(age=0)</span> 🎂</div>
+        <p>הפעם עם <strong>ברירת מחדל</strong>. החזירו <code dir="ltr">True</code> אם הגיל 18 ומעלה, אחרת <code dir="ltr">False</code>. להחזיר — לא להדפיס, ולא להחזיר את המחרוזות <code dir="ltr">"True"</code> / <code dir="ltr">"False"</code>.</p>
+        <div class="code" dir="ltr"><span class="fn">print</span>(<span class="fn">is_adult</span>())
+<span class="fn">print</span>(<span class="fn">is_adult</span>(<span class="num">17</span>))
+<span class="fn">print</span>(<span class="fn">is_adult</span>(<span class="num">18</span>))
+<span class="fn">print</span>(<span class="fn">is_adult</span>(age=<span class="num">40</span>))</div>
+        <div class="console" dir="ltr">False
+False
+True
+True</div>
+
+        <div class="big-result">3 · <span dir="ltr">apply_discount(price, percent=10)</span> 💸</div>
+        <p>פרמטר אחד חובה ואחד עם ברירת מחדל. החזירו את המחיר <strong>אחרי</strong> ההנחה.</p>
+        <div class="code" dir="ltr"><span class="fn">print</span>(<span class="fn">apply_discount</span>(<span class="num">200</span>))
+<span class="fn">print</span>(<span class="fn">apply_discount</span>(<span class="num">200</span>, <span class="num">25</span>))
+<span class="fn">print</span>(<span class="fn">apply_discount</span>(<span class="num">200</span>, percent=<span class="num">50</span>))
+<span class="fn">print</span>(<span class="fn">apply_discount</span>(price=<span class="num">80</span>, percent=<span class="num">5</span>))</div>
+        <div class="console" dir="ltr">180.0
+150.0
+100.0
+76.0</div>
+        <div class="note">
+          זכרו את כלל הסדר: ל-<code dir="ltr">price</code> אין ברירת מחדל, ולכן הוא חייב להופיע ראשון בשורת ה-<code dir="ltr">def</code>.
+        </div>
+
+        <div class="big-result">4 · <span dir="ltr">count_vowels(text)</span> 🔤</div>
+        <p>לולאה בתוך פונקציה. עברו על הטקסט, ספרו כמה אותיות הן תנועות, ו<strong>החזירו את המספר</strong>.</p>
+        <div class="code" dir="ltr"><span class="kw">def</span> <span class="fn">count_vowels</span>(text):
+    <span class="cm"># docstring</span>
+    vowels = <span class="str">'aeiou'</span>
+    count = <span class="num">0</span>
+    <span class="cm"># loop over text, count the vowels</span>
+    <span class="cm"># return count</span>
+
+<span class="fn">print</span>(<span class="fn">count_vowels</span>(<span class="str">'incognito'</span>))
+<span class="fn">print</span>(<span class="fn">count_vowels</span>(<span class="str">'missiiiissippi'</span>))
+<span class="fn">print</span>(<span class="fn">count_vowels</span>(<span class="str">'xyz'</span>))</div>
+        <div class="console" dir="ltr">4
+7
+0</div>
+        <div class="note">
+          <code dir="ltr">c in vowels</code> עונה &rdquo;האם האות הזו תנועה?&ldquo; עם <code dir="ltr">True</code> או <code dir="ltr">False</code> — אותו <code dir="ltr">in</code> שהשתמשתם בו על מילונים בשיעור הקודם.
+        </div>
+
+      </section>
+
+    </main>
+  </div>
+
+  <div class="footer">Lesson 18 &middot; Functions, part 2 &mdash; parameters, defaults, keywords &amp; return &middot; August 27, 2026</div>
+</div>
+
+<script>
+  const links = document.querySelectorAll('.topic-link');
+  const panels = document.querySelectorAll('.topic-panel');
+
+  function showTopic(id) {
+    panels.forEach(panel => panel.classList.toggle('active', panel.id === id));
+    links.forEach(link => link.classList.toggle('active', link.dataset.target === id));
+  }
+
+  links.forEach(link => {
+    link.addEventListener('click', () => {
+      showTopic(link.dataset.target);
+      location.hash = link.dataset.target;
+    });
+  });
+
+  const hash = location.hash.replace('#', '');
+  if (hash && document.getElementById(hash)) showTopic(hash);
+</script>
+</body>
+</html>

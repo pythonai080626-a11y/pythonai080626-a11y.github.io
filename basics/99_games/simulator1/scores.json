@@ -1,0 +1,42 @@
+{
+  "students": {
+    "itay": {
+      "name": "itay",
+      "score": 0,
+      "solved": {},
+      "hinted": {},
+      "gaveup": {},
+      "opened": {},
+      "tries": 0,
+      "q": 1,
+      "joined": "22:02:10",
+      "last": "22:02:10",
+      "pet": "fox"
+    },
+    "tr": {
+      "name": "tr",
+      "score": 0,
+      "solved": {
+        "1": 0,
+        "2": 0
+      },
+      "hinted": {},
+      "gaveup": {
+        "1": true,
+        "2": true
+      },
+      "opened": {
+        "1": 1787857335.2629666,
+        "2": 1787857340.2448916,
+        "3": 1787857345.4258487
+      },
+      "tries": 0,
+      "q": 3,
+      "joined": "22:02:15",
+      "last": "22:02:25",
+      "pet": "panda"
+    }
+  },
+  "accepted": {},
+  "spotlight": 1
+}

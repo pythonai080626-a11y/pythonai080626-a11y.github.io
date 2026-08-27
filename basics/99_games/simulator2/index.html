@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dict Race — solo</title>
+<style>
+:root{
+  --bg:#05060f; --panel:#0d1020; --panel2:#12162b; --line:#232847;
+  --ink:#e8ecff; --dim:#8b93bd;
+  --cyan:#22e0ff; --pink:#ff3ea5; --lime:#b8ff3d; --amber:#ffcc3d; --violet:#a06bff;
+  --mono:ui-monospace,"Cascadia Code","JetBrains Mono",Consolas,"Courier New",monospace;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0; background:var(--bg); color:var(--ink);
+  font-family:var(--mono); font-size:15px; overflow-x:hidden}
+
+/* ---------- moving background ---------- */
+.aurora{position:fixed; inset:-20%; z-index:0; filter:blur(90px); opacity:.55; pointer-events:none}
+.blob{position:absolute; width:46vw; height:46vw; border-radius:50%}
+.b1{background:#1b6cff; top:-8%; left:-6%;  animation:drift1 19s ease-in-out infinite}
+.b2{background:#ff2e8b; bottom:-12%; right:-8%; animation:drift2 23s ease-in-out infinite}
+.b3{background:#00d9a3; top:35%; left:45%; animation:drift3 27s ease-in-out infinite}
+@keyframes drift1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(14vw,10vh) scale(1.2)}}
+@keyframes drift2{0%,100%{transform:translate(0,0) scale(1.1)}50%{transform:translate(-12vw,-8vh) scale(.9)}}
+@keyframes drift3{0%,100%{transform:translate(0,0)}50%{transform:translate(-16vw,12vh)}}
+.grid{position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.25;
+  background-image:linear-gradient(rgba(120,140,255,.09) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(120,140,255,.09) 1px,transparent 1px);
+  background-size:44px 44px;
+  mask-image:radial-gradient(ellipse at 50% 0%,#000 40%,transparent 78%);
+  -webkit-mask-image:radial-gradient(ellipse at 50% 0%,#000 40%,transparent 78%);}
+
+/* ---------- shell ---------- */
+.wrap{position:relative; z-index:1; max-width:1080px; margin:0 auto; padding:18px 20px 60px}
+header{display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:16px}
+.logo{font-size:26px; font-weight:800; letter-spacing:.16em;
+  background:linear-gradient(92deg,var(--cyan),var(--pink) 55%,var(--amber));
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  text-shadow:0 0 34px rgba(34,224,255,.28)}
+.logo small{display:block; font-size:10px; letter-spacing:.36em; color:var(--dim);
+  -webkit-text-fill-color:var(--dim); margin-top:3px}
+.spacer{flex:1}
+.badge{display:flex; align-items:center; gap:9px; background:rgba(18,22,43,.85);
+  border:1px solid var(--line); border-radius:12px; padding:8px 14px; font-size:12px;
+  letter-spacing:.14em; color:var(--dim)}
+.scoreBig{font-size:26px; font-weight:800; color:var(--lime);
+  text-shadow:0 0 20px rgba(184,255,61,.45); min-width:70px; text-align:right; letter-spacing:0}
+.scoreBig.bump{animation:bump .5s cubic-bezier(.2,1.7,.4,1)}
+@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.45)}100%{transform:scale(1)}}
+.restart{font-size:12px; padding:9px 13px; border-color:#3a2140; color:var(--pink);
+  background:rgba(255,62,165,.07)}
+.restart:hover{border-color:var(--pink)}
+
+.card{background:linear-gradient(180deg,rgba(13,16,32,.94),rgba(10,12,26,.94));
+  border:1px solid var(--line); border-radius:18px; padding:18px;
+  box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.card.shake{animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-11px)}
+  40%{transform:translateX(9px)}60%{transform:translateX(-6px)}80%{transform:translateX(4px)}}
+
+/* ---------- progress strip ---------- */
+.strip{display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap; align-items:stretch}
+.step{flex:1 1 38px; min-width:38px; border-radius:9px; border:1px solid var(--line);
+  background:rgba(255,255,255,.03); color:var(--dim); padding:6px 3px; text-align:center;
+  font-size:13px; font-weight:700; transition:.3s; overflow:hidden}
+.step .sub{display:block; font-size:8px; letter-spacing:.08em; font-weight:400; margin-top:2px}
+.step.won{border-color:var(--lime); background:rgba(184,255,61,.13); color:var(--lime)}
+.step.gave{border-color:#4a4460; background:rgba(160,107,255,.1); color:#9d94bb}
+.step.now{border-color:var(--cyan); background:rgba(34,224,255,.14); color:var(--cyan);
+  flex:3 1 130px; box-shadow:0 0 0 1px var(--cyan) inset, 0 8px 30px rgba(34,224,255,.22)}
+.step.now .sub{color:var(--ink)}
+.step.locked{opacity:.4}
+
+/* ---------- labels + code ---------- */
+.lab{font-size:10px; letter-spacing:.26em; color:var(--dim); margin:0 0 7px; text-transform:uppercase}
+.lab i{font-style:normal; color:var(--violet)}
+.setup,.want{background:#070a16; border:1px solid var(--line); border-radius:12px;
+  padding:12px 14px; white-space:pre-wrap; word-break:break-word; line-height:1.55; font-size:14px}
+.setup{border-left:3px solid var(--violet)}
+.want{border-left:3px solid var(--amber); color:var(--amber)}
+.task{font-size:17px; line-height:1.65; margin:0; color:#fff}
+.two{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:14px 0}
+@media(max-width:700px){.two{grid-template-columns:1fr}}
+.qname{font-size:13px; color:var(--dim); letter-spacing:.1em; margin:0 0 12px}
+.qname b{color:var(--ink)}
+.qname b.t{color:var(--cyan)}
+
+/* ---------- bonus clock ---------- */
+.timer{margin:4px 0 14px}
+.trow{display:flex; justify-content:space-between; font-size:11px; letter-spacing:.14em;
+  color:var(--dim); margin-bottom:6px}
+.tval{color:var(--lime); font-weight:700}
+.track{height:9px; border-radius:9px; background:#0a0d1c; border:1px solid var(--line); overflow:hidden}
+.fill{height:100%; width:100%; border-radius:9px;
+  background:linear-gradient(90deg,var(--lime),var(--amber)); transition:width .25s linear}
+.fill.cold{background:linear-gradient(90deg,#3a4370,#576091)}
+
+/* ---------- editor ---------- */
+.edwrap{border:1px solid var(--line); border-radius:14px; overflow:hidden; background:#070a16;
+  display:flex; transition:.2s}
+.edwrap:focus-within{border-color:var(--cyan); box-shadow:0 0 0 1px var(--cyan), 0 0 34px rgba(34,224,255,.18)}
+.gutter{padding:14px 10px 14px 14px; color:#3d466f; font-size:14px; line-height:1.6;
+  text-align:right; user-select:none; background:#060812; min-width:44px; white-space:pre}
+.codewrap{position:relative; flex:1; min-height:170px}
+.hl,#code{margin:0; padding:14px; font-family:var(--mono); font-size:14px; line-height:1.6;
+  white-space:pre-wrap; word-break:break-word; border:0; letter-spacing:0; tab-size:4}
+.hl{position:absolute; inset:0; pointer-events:none; overflow:hidden; color:var(--ink)}
+#code{position:relative; width:100%; height:100%; min-height:170px; resize:vertical;
+  background:transparent; color:transparent; caret-color:var(--cyan); outline:none; display:block}
+#code::selection{background:rgba(34,224,255,.28)}
+.k{color:var(--pink)}   .s{color:var(--lime)}   .n{color:var(--amber)}
+.c{color:#5a6494; font-style:italic}  .f{color:var(--cyan)}  .p{color:#c9d2ff}
+
+.row{display:flex; gap:11px; margin-top:14px; flex-wrap:wrap; align-items:center}
+button{font-family:var(--mono); cursor:pointer; border-radius:12px; font-size:14px;
+  padding:12px 22px; border:1px solid var(--line); background:var(--panel2); color:var(--ink);
+  transition:.16s; font-weight:600}
+button:hover:not(:disabled){transform:translateY(-2px)}
+button:disabled{opacity:.45; cursor:not-allowed}
+.run{background:linear-gradient(92deg,var(--cyan),#3ba0ff); color:#04121c; border:0; font-weight:800;
+  letter-spacing:.06em; box-shadow:0 10px 30px rgba(34,224,255,.28)}
+.hint{border-color:var(--amber); color:var(--amber); background:rgba(255,204,61,.08)}
+.giveup{border-color:#463a5e; color:#a89bc7; background:rgba(160,107,255,.07); font-size:13px}
+.giveup:hover:not(:disabled){border-color:var(--violet); color:#cbb8ff}
+.kbd{font-size:11px; color:var(--dim)}
+.kbd b{color:var(--ink); background:#1a1f3a; border:1px solid var(--line); border-radius:5px; padding:2px 6px}
+
+/* ---------- shape note ---------- */
+.shape{margin:12px 0 0; border-radius:12px; padding:11px 14px; font-size:13.5px;
+  line-height:1.7; border:1px solid var(--line); background:rgba(255,255,255,.03); color:var(--dim)}
+.shape b{color:var(--ink)}
+.shape.multi{border-color:var(--violet); background:rgba(160,107,255,.12); color:#dcd0ff}
+.shape.multi b{color:#fff}
+
+/* ---------- result ---------- */
+.res{margin-top:14px; border-radius:13px; padding:13px 15px; border:1px solid var(--line);
+  background:#070a16; display:none; animation:pop .28s}
+@keyframes pop{from{opacity:0; transform:translateY(9px)}to{opacity:1; transform:none}}
+.res.show{display:block}
+.res.pass{border-color:var(--lime); box-shadow:0 0 30px rgba(184,255,61,.18)}
+.res.fail{border-color:var(--pink); box-shadow:0 0 30px rgba(255,62,165,.16)}
+.res h4{margin:0 0 8px; font-size:15px; letter-spacing:.05em}
+.res.pass h4{color:var(--lime)} .res.fail h4{color:var(--pink)}
+.res pre{margin:6px 0 0; white-space:pre-wrap; word-break:break-word; font-size:13.5px; color:var(--dim)}
+.res .got{color:var(--ink)}
+.gain{float:right; font-size:19px; font-weight:800; color:var(--lime)}
+.nextup{margin-top:11px; color:var(--cyan); font-size:13px}
+.hintbox{margin-top:12px; border-radius:12px; padding:12px 14px; display:none;
+  border:1px solid var(--amber); background:rgba(255,204,61,.08); color:var(--amber); line-height:1.7}
+.hintbox.show{display:block; animation:pop .3s}
+
+/* ---------- the answer, after giving up ---------- */
+.answerbox{margin-top:14px; border-radius:13px; padding:15px 17px; display:none;
+  border:1px solid var(--violet); background:rgba(160,107,255,.11); animation:pop .3s}
+.answerbox.show{display:block}
+.answerbox h4{margin:0 0 10px; font-size:15px; color:#cbb8ff; letter-spacing:.05em}
+.answerbox pre{margin:0; padding:12px 14px; border-radius:10px; background:#070a16;
+  border-left:3px solid var(--violet); color:var(--ink); font-size:14px; line-height:1.6;
+  white-space:pre-wrap; word-break:break-word}
+.answerbox .why{margin:12px 0 0; color:#c3b6e0; font-size:13px; line-height:1.7}
+.answerbox .zero{float:right; font-size:15px; font-weight:800; color:#9d94bb}
+
+/* ---------- finished ---------- */
+.done{display:none; text-align:center; padding:40px 24px}
+.done.show{display:block; animation:pop .5s}
+.done .big{font-size:64px; font-weight:800; color:var(--lime);
+  text-shadow:0 0 50px rgba(184,255,61,.5); line-height:1.1}
+.done .of{color:var(--dim); font-size:15px; margin:6px 0 22px}
+.done h2{margin:0 0 8px; font-size:24px; letter-spacing:.08em}
+.done p{color:var(--dim); line-height:1.7; margin:0 auto 22px; max-width:460px}
+.tally{display:flex; gap:14px; justify-content:center; margin:0 0 24px; flex-wrap:wrap}
+.tally div{border:1px solid var(--line); border-radius:12px; padding:10px 18px; min-width:96px}
+.tally b{display:block; font-size:22px; line-height:1.3}
+.tally span{font-size:10px; letter-spacing:.18em; color:var(--dim)}
+
+/* ---------- boot screen ---------- */
+.boot{position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center;
+  background:rgba(3,4,12,.94); backdrop-filter:blur(9px); text-align:center}
+.boot.hide{display:none}
+.bootcard{width:min(520px,92vw); padding:40px 32px}
+.bootcard h2{margin:22px 0 8px; font-size:21px; letter-spacing:.05em}
+.bootcard p{color:var(--dim); margin:0 0 24px; line-height:1.85; font-size:13.5px}
+.loadbar{height:8px; border-radius:8px; background:#0a0d1c; border:1px solid var(--line);
+  overflow:hidden; margin:0 0 16px}
+.loadbar div{height:100%; width:0%; border-radius:8px;
+  background:linear-gradient(90deg,var(--cyan),var(--lime)); transition:width .5s ease}
+.bootmsg{font-size:12px; color:var(--dim); letter-spacing:.1em; min-height:18px}
+#startBtn{display:none; margin-top:8px}
+#startBtn.show{display:inline-block}
+
+
+/* ---------- our own dialog, instead of the browser's grey box ---------- */
+.modal{position:fixed; inset:0; z-index:90; display:none; align-items:center; justify-content:center;
+  background:rgba(3,4,12,.82); backdrop-filter:blur(7px); padding:20px}
+.modal.show{display:flex; animation:mfade .18s ease}
+@keyframes mfade{from{opacity:0}to{opacity:1}}
+.modalcard{width:min(460px,100%); text-align:center; padding:30px 28px 24px;
+  border-radius:20px; border:1px solid var(--violet);
+  background:linear-gradient(180deg,#141833,#0b0e1e);
+  box-shadow:0 30px 90px rgba(0,0,0,.7), 0 0 60px rgba(160,107,255,.18);
+  animation:mpop .26s cubic-bezier(.2,1.5,.42,1)}
+@keyframes mpop{from{opacity:0; transform:scale(.9) translateY(14px)}to{opacity:1; transform:none}}
+.modal.pink .modalcard{border-color:var(--pink); box-shadow:0 30px 90px rgba(0,0,0,.7), 0 0 60px rgba(255,62,165,.18)}
+.micon{width:64px; height:64px; margin:0 auto 16px; border-radius:50%; font-size:30px;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(160,107,255,.16); border:1px solid rgba(160,107,255,.5)}
+.modal.pink .micon{background:rgba(255,62,165,.14); border-color:rgba(255,62,165,.5)}
+.modalcard h3{margin:0 0 10px; font-size:19px; letter-spacing:.04em; color:var(--ink)}
+.modalcard p{margin:0 0 24px; color:var(--dim); font-size:13.5px; line-height:1.85}
+.mrow{display:flex; gap:11px; justify-content:center; flex-wrap:wrap}
+.mrow button{padding:12px 20px; font-size:13.5px}
+.mcancel{border-color:var(--line); color:var(--dim); background:rgba(255,255,255,.03)}
+.mcancel:hover{border-color:var(--ink); color:var(--ink)}
+.mok{background:linear-gradient(92deg,var(--violet),#7c4dff); color:#fff; border:0; font-weight:800;
+  box-shadow:0 10px 30px rgba(160,107,255,.32)}
+.modal.pink .mok{background:linear-gradient(92deg,var(--pink),#ff6f61); box-shadow:0 10px 30px rgba(255,62,165,.32)}
+
+/* ---------- toast + confetti ---------- */
+.toast{position:fixed; left:50%; top:22px; transform:translateX(-50%) translateY(-140%); z-index:60;
+  background:var(--panel2); border:1px solid var(--cyan); color:var(--ink);
+  padding:12px 22px; border-radius:12px; transition:.4s cubic-bezier(.2,1.5,.4,1);
+  box-shadow:0 14px 40px rgba(0,0,0,.6); font-size:14px}
+.toast.on{transform:translateX(-50%) translateY(0)}
+.dot{position:fixed; width:9px; height:9px; z-index:70; pointer-events:none; border-radius:2px}
+</style>
+</head>
+<body>
+<div class="aurora"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div></div>
+<div class="grid"></div>
+
+<div class="wrap">
+  <header>
+    <div class="logo">DICT&nbsp;RACE<small>SOLO · RUNS IN YOUR BROWSER</small></div>
+    <div class="spacer"></div>
+    <div class="badge">DONE <span id="doneCount" style="color:var(--ink)">0/20</span></div>
+    <div class="badge">POINTS <span class="scoreBig" id="score">0</span></div>
+    <button class="restart" id="restartBtn">⟲ new game</button>
+  </header>
+
+  <div class="strip" id="strip"></div>
+
+  <div class="card" id="stage">
+    <div id="playing">
+      <p class="qname">CHALLENGE <b id="qnum">1</b> OF <b id="qtot">20</b> · <b class="t" id="qtitle">—</b></p>
+
+      <div class="timer">
+        <div class="trow"><span id="tlabel">FULL SPEED BONUS</span><span class="tval" id="tval">100 pts</span></div>
+        <div class="track"><div class="fill" id="fill"></div></div>
+      </div>
+
+      <p class="lab">Already in memory <i>— you do not type this</i></p>
+      <div class="setup" id="setup">—</div>
+
+      <div class="two">
+        <div>
+          <p class="lab">Your mission</p>
+          <p class="task" id="task">—</p>
+        </div>
+        <div>
+          <p class="lab">The answer should be <i>&mdash; printed, or just left on the last line</i></p>
+          <div class="want" id="want">—</div>
+          <p class="lab" style="margin:8px 0 0; letter-spacing:.12em; text-transform:none">
+            <span id="shows">—</span> · no <b>print</b> needed, no <b>list</b> needed, any order</p>
+        </div>
+      </div>
+
+      <p class="shape" id="shape">—</p>
+
+      <p class="lab" style="margin-top:16px">Your code</p>
+      <div class="edwrap">
+        <div class="gutter" id="gutter">1</div>
+        <div class="codewrap">
+          <pre class="hl" id="hl"></pre>
+          <textarea id="code" spellcheck="false" autocomplete="off" autocapitalize="off"></textarea>
+        </div>
+      </div>
+
+      <div class="row">
+        <button class="run" id="runBtn">▶ RUN</button>
+        <button class="hint" id="hintBtn">💡 HINT — costs half</button>
+        <button class="giveup" id="giveupBtn">🤷 I don't know</button>
+        <span class="kbd"><b>Ctrl</b> + <b>Enter</b> runs it</span>
+      </div>
+
+      <div class="hintbox" id="hintbox"></div>
+
+      <div class="answerbox" id="answerbox">
+        <h4><span class="zero">0 pts</span>THE ANSWER WAS</h4>
+        <pre id="answerCode">—</pre>
+        <p class="why" id="answerWhy">—</p>
+        <button class="run" id="nextBtn" style="margin-top:14px">NEXT CHALLENGE →</button>
+      </div>
+
+      <div class="res" id="res"></div>
+    </div>
+
+    <div class="done" id="done">
+      <h2 id="doneTitle">🏆 ALL 20 DONE</h2>
+      <div class="big" id="finalScore">0</div>
+      <div class="of">out of <span id="finalMax">2000</span></div>
+      <div class="tally">
+        <div><b style="color:var(--lime)" id="tSolved">0</b><span>SOLVED</span></div>
+        <div><b style="color:var(--amber)" id="tHints">0</b><span>HINTS USED</span></div>
+        <div><b style="color:#9d94bb" id="tShown">0</b><span>ANSWERS SHOWN</span></div>
+      </div>
+      <p id="finalWord">—</p>
+      <button class="run" id="againBtn">⟲ play again — new order</button>
+    </div>
+  </div>
+</div>
+
+<div class="boot" id="boot">
+  <div class="card bootcard">
+    <div class="logo" style="font-size:32px">DICT&nbsp;RACE<small>20 CHALLENGES · 2000 POINTS</small></div>
+    <h2>Twenty dictionary challenges</h2>
+    <p>You write real Python and it really runs — right here in this tab.<br>
+       Nothing to install, nothing to sign in to.<br>
+       Under 40 seconds is worth <b style="color:var(--lime)">100</b>,
+       after that <b style="color:var(--amber)">50</b>.<br>
+       The order is shuffled every game.</p>
+    <div class="loadbar"><div id="loadfill"></div></div>
+    <div class="bootmsg" id="bootmsg">waking up Python…</div>
+    <button class="run" id="startBtn">▶ START</button>
+  </div>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modalcard">
+    <div class="micon" id="mIcon">?</div>
+    <h3 id="mTitle">&mdash;</h3>
+    <p id="mText">&mdash;</p>
+    <div class="mrow">
+      <button class="mcancel" id="mCancel">Cancel</button>
+      <button class="mok" id="mOk">OK</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="questions.js"></script>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.28.3/full/pyodide.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+
+/* ============================================================ settings == */
+const PYODIDE_URL = 'https://cdn.jsdelivr.net/pyodide/v0.28.3/full/';
+const FAST_SECONDS = 40;      // the 100-point window
+const MAX_CODE = 2000;
+
+/* Things that have no business in a dict exercise. `while` is in here for a
+   reason the server version does not need: Python runs on this page's own
+   thread, so an endless loop would freeze the tab with no way back. Every
+   challenge is solvable without one. */
+const BANNED = ['import', '__', 'open(', 'exec(', 'eval(', 'compile(',
+                'input(', 'exit(', 'quit(', 'globals(', 'locals(', 'while'];
+
+/* ============================================================== python == */
+const RUNNER_PY = `
+import ast, io, json, contextlib
+
+def run_attempt(setup, code):
+    """Run it the way the console does: a trailing expression still gives a value."""
+    source = setup + "\\n" + code + "\\n"
+    out = {'stdout': '', 'value': '', 'error': ''}
+    try:
+        tree = ast.parse(source)
+    except SyntaxError as e:
+        out['error'] = 'SyntaxError: %s (line %s)' % (e.msg, e.lineno)
+        return json.dumps(out)
+
+    body = list(tree.body)
+    tail = None
+    if body and isinstance(body[-1], ast.Expr):
+        tail = body.pop()
+
+    buf = io.StringIO()
+    space = {'__name__': '__main__'}
+    try:
+        with contextlib.redirect_stdout(buf):
+            exec(compile(ast.Module(body=body, type_ignores=[]), '<student>', 'exec'), space)
+            if tail is not None:
+                value = eval(compile(ast.Expression(tail.value), '<student>', 'eval'), space)
+                if value is not None:
+                    out['value'] = repr(value)
+    except Exception as e:
+        out['error'] = '%s: %s' % (type(e).__name__, e)
+    out['stdout'] = buf.getvalue()
+    return json.dumps(out)
+`;
+
+let pyodide = null, runAttempt = null;
+
+async function bootPython(){
+  const bar = $('loadfill'), msg = $('bootmsg');
+  let pct = 6;
+  bar.style.width = pct + '%';
+  const creep = setInterval(() => {          // pyodide gives no real progress
+    pct = Math.min(pct + 4, 88);
+    bar.style.width = pct + '%';
+  }, 700);
+  try{
+    msg.textContent = 'downloading Python (about 10 MB, once)…';
+    // indexURL must be spelled out - without it Pyodide looks for its standard
+    // library next to THIS page instead of next to the CDN script, and dies with
+    // "failed to get the Python codec of the filesystem encoding"
+    pyodide = await loadPyodide({indexURL: PYODIDE_URL});
+    msg.textContent = 'starting it up…';
+    pyodide.runPython(RUNNER_PY);
+    runAttempt = pyodide.globals.get('run_attempt');
+    clearInterval(creep);
+    bar.style.width = '100%';
+    msg.innerHTML = 'Python is running in this tab. <b style="color:var(--lime)">Ready.</b>';
+    $('startBtn').classList.add('show');
+  }catch(e){
+    clearInterval(creep);
+    bar.style.width = '100%';
+    bar.firstElementChild && 0;
+    msg.innerHTML = '<b style="color:var(--pink)">Could not load Python.</b><br>' +
+      'Check the internet connection and reload the page.<br>' +
+      '<span style="opacity:.7">' + esc(String(e)).slice(0, 160) + '</span>';
+  }
+}
+
+/* ============================================================= judging == */
+const NOISE = /\b(dict_values|dict_keys|dict_items|odict_\w+|KeysView|ValuesView|ItemsView)\b/g;
+const squash = s => String(s).replace(/\s+/g, '');
+
+/* The words and numbers that came out, ignoring how they were dressed up.
+   Sorted, so the order they came out in never costs a point. */
+function atoms(text){
+  const found = String(text).replace(NOISE, ' ').match(/[A-Za-z_]\w*|\d+\.?\d*/g) || [];
+  return found.map(w => w.toLowerCase()).sort().join('|');
+}
+
+function shown(stdout, value){
+  const parts = [];
+  if(stdout && stdout.trim()) parts.push(stdout.replace(/\s+$/, ''));
+  if(value) parts.push(value);
+  return parts.join('\n');
+}
+
+/* Returns {passed, output, reason}. The rule: the right VALUES have to come out,
+   using the command this exercise is about. print() and list() are their business. */
+function judge(q, code){
+  const flat = squash(code).toLowerCase();
+  if(!code.trim())        return {passed:false, output:'', reason:'there is nothing in the editor yet'};
+  if(code.length > MAX_CODE) return {passed:false, output:'', reason:'keep it under ' + MAX_CODE + ' characters'};
+  for(const bad of BANNED){
+    if(flat.includes(squash(bad).toLowerCase()))
+      return {passed:false, output:'',
+              reason:'"' + bad + '" is switched off here - this is solvable with the dict alone'};
+  }
+
+  let res;
+  try{ res = JSON.parse(runAttempt(q.setup, code)); }
+  catch(e){ return {passed:false, output:'', reason:'could not run that: ' + e}; }
+
+  const out = shown(res.stdout, res.value);
+  if(res.error) return {passed:false, output:out, reason:res.error};
+
+  const want = atoms(q.answer);
+  if(atoms(res.stdout) !== want && atoms(res.value) !== want){
+    if(!out.trim())
+      return {passed:false, output:out,
+              reason:'nothing came out - leave the answer on the last line, or put a print() around it'};
+    return {passed:false, output:out, reason:'those are not the right values yet'};
+  }
+
+  for(const needed of (q.require || [])){
+    if(Array.isArray(needed)){                        // two honest roads, either will do
+      if(!needed.some(one => flat.includes(squash(one).toLowerCase())))
+        return {passed:false, output:out,
+                reason:'right answer, wrong road - this one needs  ' + needed.join('  or  ')};
+    } else if(!flat.includes(squash(needed).toLowerCase())){
+      return {passed:false, output:out,
+              reason:'right answer, wrong road - this one has to go through  ' + needed};
+    }
+  }
+  for(const banned of (q.forbid || [])){
+    if(flat.includes(squash(banned).toLowerCase()))
+      return {passed:false, output:out,
+              reason:'no typing the answer by hand - "' + banned + '" has to come out of the dict'};
+  }
+  return {passed:true, output:out, reason:''};
+}
+
+const pointsFor = (elapsed, usedHint) => {
+  const fast = elapsed <= FAST_SECONDS;
+  return usedHint ? (fast ? 50 : 25) : (fast ? 100 : 50);
+};
+
+/* ================================================================ game == */
+let ORDER = [], idx = 0, score = 0;
+let result = [];                 // per position: {points, gave, hinted}
+let openedAt = 0, hintedNow = false, finished = false;
+const total = QUESTIONS.length;
+
+function shuffle(list){
+  const a = list.slice();
+  for(let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+/* question text is written one idea per line - keep those breaks */
+function nl(s){return esc(s).split('\n').join('<br>');}
+
+/* ---------------- python syntax colours ---------------- */
+const KW = /^(for|in|if|elif|else|while|print|return|def|not|and|or|is|True|False|None|break|continue|pass|del)$/;
+const FN = /^(list|dict|set|tuple|sorted|max|min|sum|len|str|int|float|reversed|enumerate|zip|round|abs|type)$/;
+function highlight(src){
+  const re = /(#[^\n]*)|([furbFURB]{0,2}'(?:\\.|[^'\\\n])*'|[furbFURB]{0,2}"(?:\\.|[^"\\\n])*")|(\b\d+\.?\d*\b)|([A-Za-z_]\w*)/g;
+  let out = '', last = 0, m;
+  while((m = re.exec(src)) !== null){
+    out += esc(src.slice(last, m.index));
+    if(m[1])      out += '<span class="c">' + esc(m[1]) + '</span>';
+    else if(m[2]) out += '<span class="s">' + esc(m[2]) + '</span>';
+    else if(m[3]) out += '<span class="n">' + esc(m[3]) + '</span>';
+    else {
+      const w = m[4];
+      out += '<span class="' + (KW.test(w) ? 'k' : (FN.test(w) ? 'f' : 'p')) + '">' + esc(w) + '</span>';
+    }
+    last = re.lastIndex;
+  }
+  return out + esc(src.slice(last)) + '\n';
+}
+function paintEditor(){
+  const src = $('code').value;
+  $('hl').innerHTML = highlight(src);
+  let g = '';
+  for(let i = 1; i <= Math.max(src.split('\n').length, 1); i++) g += i + '\n';
+  $('gutter').textContent = g;
+}
+
+/* ---------------- the bonus clock ---------------- */
+function tick(){
+  if(finished || !ORDER.length) return;
+  const left = Math.max(0, FAST_SECONDS - (Date.now() - openedAt) / 1000);
+  const warm = left > 0;
+  $('fill').style.width = Math.max(0, Math.min(100, (left / FAST_SECONDS) * 100)) + '%';
+  $('fill').classList.toggle('cold', !warm);
+  const worth = pointsFor(warm ? 0 : 999, hintedNow);
+  $('tlabel').textContent = warm
+      ? 'FULL SPEED BONUS · ' + left.toFixed(1) + 's LEFT'
+      : 'BONUS GONE — STILL WORTH POINTS';
+  $('tval').textContent = worth + ' pts' + (hintedNow ? '  (hint used)' : '');
+}
+setInterval(tick, 100);
+
+/* ---------------- the progress strip ---------------- */
+function drawStrip(){
+  $('strip').innerHTML = '';
+  ORDER.forEach((q, i) => {
+    const r = result[i];
+    const d = document.createElement('div');
+    const now = i === idx && !finished;
+    d.className = 'step' + (r ? (r.gave ? ' gave' : ' won') : now ? ' now' : ' locked');
+    const face = r ? (r.gave ? '—' : '✔') : (i + 1);
+    const sub  = r ? (r.gave ? 'shown' : '+' + r.points) : now ? esc(q.title) : '🔒';
+    d.innerHTML = face + '<span class="sub">' + sub + '</span>';
+    $('strip').appendChild(d);
+  });
+  $('doneCount').textContent = result.filter(Boolean).length + '/' + total;
+}
+
+/* ---------------- moving through the game ---------------- */
+function openQ(i){
+  idx = i; finished = false; hintedNow = false;
+  $('playing').style.display = '';
+  $('done').classList.remove('show');
+  const q = ORDER[i];
+  $('qnum').textContent = i + 1;
+  $('qtot').textContent = total;
+  $('qtitle').textContent = q.title;
+  $('setup').innerHTML = highlight(q.setup);
+  $('task').innerHTML = nl(q.task);
+  $('want').textContent = q.answer;
+  $('shows').textContent = q.shows;
+  const multi = (q.lines || 1) > 1;
+  $('shape').className = 'shape' + (multi ? ' multi' : '');
+  $('shape').innerHTML = (multi ? '⚠ <b>This one is not a one-liner.</b><br>' : '<b>Shape:</b> ')
+                       + nl(q.shape || 'one line');
+  $('res').className = 'res';
+  $('hintbox').className = 'hintbox';
+  $('answerbox').className = 'answerbox';
+  $('code').value = '';
+  paintEditor();
+  drawStrip();
+  $('hintBtn').disabled = false;
+  $('hintBtn').textContent = '💡 HINT — costs half';
+  $('giveupBtn').disabled = false;
+  $('runBtn').disabled = false;
+  $('runBtn').textContent = '▶ RUN';
+  openedAt = Date.now();
+  tick();
+  $('code').focus();
+}
+function goNext(){
+  if(idx + 1 < total) openQ(idx + 1); else showFinished();
+}
+function showFinished(){
+  finished = true;
+  $('playing').style.display = 'none';
+  $('done').classList.add('show');
+  const solvedN = result.filter(r => r && !r.gave).length;
+  const shownN  = result.filter(r => r && r.gave).length;
+  const hintsN  = result.filter(r => r && r.hinted).length;
+  $('doneTitle').textContent = '🏆 ALL ' + total + ' DONE';
+  $('finalScore').textContent = score;
+  $('finalMax').textContent = total * 100;
+  $('tSolved').textContent = solvedN;
+  $('tHints').textContent = hintsN;
+  $('tShown').textContent = shownN;
+  const pct = score / (total * 100);
+  $('finalWord').textContent =
+      pct === 1  ? 'A perfect run. Every challenge at full speed, no hints. Nothing left to teach you today.'
+    : pct >= 0.8 ? 'A strong run — you had the commands ready before you needed them.'
+    : pct >= 0.6 ? 'Every challenge done. The clock and the hints cost you a little, the dict did not.'
+    : pct >= 0.3 ? 'You got through all of them, and you saw every answer. That is how the next one sticks.'
+    :              'All the way to the end. Now you know what each of these commands is for.';
+  drawStrip();
+  confetti(); setTimeout(confetti, 400); setTimeout(confetti, 800);
+}
+
+/* ---------------- run ---------------- */
+function run(){
+  if(finished || result[idx]) return;
+  const code = $('code').value;
+  if(!code.trim()) return;
+  $('runBtn').disabled = true;
+  $('runBtn').textContent = '⏳ RUNNING…';
+
+  const q = ORDER[idx];
+  let r;
+  try{ r = judge(q, code); }
+  catch(e){ r = {passed:false, output:'', reason:'something went wrong running that: ' + e}; }
+  $('runBtn').textContent = '▶ RUN';
+
+  const box = $('res');
+  box.className = 'res show ' + (r.passed ? 'pass' : 'fail');
+
+  if(r.passed){
+    const seconds = (Date.now() - openedAt) / 1000;
+    const gained = pointsFor(seconds, hintedNow);
+    result[idx] = {points: gained, gave: false, hinted: hintedNow};
+    score += gained;
+    bumpScore();
+    confetti();
+    drawStrip();
+    box.innerHTML = '<span class="gain">+' + gained + '</span>' +
+      '<h4>✔ THAT IS IT — in ' + seconds.toFixed(1) + 's</h4>' +
+      '<pre class="got">' + esc(r.output) + '</pre>' +
+      '<div class="nextup">' +
+      (idx + 1 < total ? 'challenge ' + (idx + 2) + ' opening…' : 'that was the last one…') + '</div>';
+    $('hintBtn').disabled = true;
+    $('giveupBtn').disabled = true;
+    setTimeout(goNext, 1700);
+  } else {
+    $('runBtn').disabled = false;
+    box.innerHTML = '<h4>✖ NOT YET</h4><pre>' + esc(r.reason || '') + '</pre>' +
+      (r.output ? '<pre class="lab" style="letter-spacing:.2em;margin-top:10px">WHAT CAME OUT</pre><pre class="got">' + esc(r.output.replace(/\s+$/, '')) + '</pre>' : '') +
+      '<pre class="lab" style="letter-spacing:.2em;margin-top:10px">WE WANT THESE VALUES</pre><pre class="got">' + esc(q.answer) + '</pre>';
+    $('stage').classList.add('shake');
+    setTimeout(() => $('stage').classList.remove('shake'), 420);
+  }
+  tick();
+}
+
+function bumpScore(){
+  $('score').textContent = score;
+  $('score').classList.remove('bump');
+  void $('score').offsetWidth;
+  $('score').classList.add('bump');
+}
+
+function useHint(){
+  if(finished || result[idx]) return;
+  hintedNow = true;
+  $('hintbox').className = 'hintbox show';
+  $('hintbox').innerHTML = '💡 ' + nl(ORDER[idx].hint);
+  $('hintBtn').textContent = '💡 show the hint again';
+  tick();
+}
+
+/* ---------------- I don't know ---------------- */
+async function giveUp(){
+  if(finished || result[idx]) return;
+  const ok = await ask({
+    icon: '\u{1F937}', tone: 'violet',
+    title: 'Show you the answer?',
+    text: 'Challenge ' + (idx + 1) + ' of ' + total + '.\nYou will score 0 on this one and move straight to the next.',
+    ok: 'Show me the answer', cancel: 'Let me keep trying'});
+  if(!ok) return;
+  const q = ORDER[idx];
+  result[idx] = {points: 0, gave: true, hinted: hintedNow};
+  $('answerCode').textContent = q.solution;
+  $('answerWhy').innerHTML = '<b>Worth knowing:</b> ' + nl(q.trap);
+  $('answerbox').className = 'answerbox show';
+  $('res').className = 'res';
+  $('hintBtn').disabled = true;
+  $('giveupBtn').disabled = true;
+  $('runBtn').disabled = true;
+  drawStrip();
+  $('nextBtn').scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+/* ---------------- our own dialog ----------------
+   Same job as confirm(), but it belongs to the page. Returns a promise
+   that settles true/false. Enter says yes, Escape and the backdrop say no. */
+let askResolve = null;
+function ask(o){
+  return new Promise(resolve => {
+    askResolve = resolve;
+    $('mIcon').textContent  = o.icon || '?';
+    $('mTitle').textContent = o.title || '';
+    $('mText').innerHTML    = nl(o.text || '');
+    $('mOk').textContent     = o.ok || 'Yes';
+    $('mCancel').textContent = o.cancel || 'Cancel';
+    $('modal').className = 'modal show' + (o.tone ? ' ' + o.tone : '');
+    setTimeout(() => $('mOk').focus(), 60);
+  });
+}
+function closeAsk(answer){
+  if(!askResolve) return;
+  $('modal').className = 'modal';
+  const done = askResolve; askResolve = null;
+  done(answer);
+}
+$('mOk').onclick = () => closeAsk(true);
+$('mCancel').onclick = () => closeAsk(false);
+$('modal').addEventListener('click', e => { if(e.target === $('modal')) closeAsk(false); });
+document.addEventListener('keydown', e => {
+  if(!askResolve) return;
+  if(e.key === 'Escape'){ e.preventDefault(); closeAsk(false); }
+  else if(e.key === 'Enter'){ e.preventDefault(); closeAsk(true); }
+}, true);
+
+/* ---------------- new game ---------------- */
+async function newGame(askFirst){
+  if(askFirst && !(await ask({
+    icon: '\u27F2', tone: 'pink',
+    title: 'Start a brand new game?',
+    text: 'Your score goes back to 0.\nThe twenty challenges get reshuffled into a new order.',
+    ok: 'New game', cancel: 'Keep playing'}))) return;
+  ORDER = shuffle(QUESTIONS);
+  result = new Array(total).fill(null);
+  score = 0; finished = false;
+  $('score').textContent = '0';
+  openQ(0);
+}
+
+/* ---------------- sugar ---------------- */
+let toastT;
+function toast(msg){
+  $('toast').textContent = msg;
+  $('toast').classList.add('on');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => $('toast').classList.remove('on'), 3200);
+}
+function confetti(){
+  const colors = ['#22e0ff','#ff3ea5','#b8ff3d','#ffcc3d','#a06bff'];
+  for(let i = 0; i < 70; i++){
+    const d = document.createElement('div');
+    d.className = 'dot';
+    d.style.background = colors[i % colors.length];
+    d.style.left = (45 + Math.random() * 10) + 'vw';
+    d.style.top = '42vh';
+    document.body.appendChild(d);
+    const ang = Math.random() * Math.PI * 2, pow = 130 + Math.random() * 420;
+    d.animate([
+      {transform:'translate(0,0) rotate(0deg)', opacity:1},
+      {transform:'translate(' + Math.cos(ang) * pow + 'px,' +
+        (Math.sin(ang) * pow + 460) + 'px) rotate(' + (Math.random() * 900 - 450) + 'deg)', opacity:0}
+    ], {duration: 1100 + Math.random() * 900, easing:'cubic-bezier(.15,.7,.4,1)'})
+     .onfinish = () => d.remove();
+  }
+}
+
+/* ---------------- editor keys ---------------- */
+$('code').addEventListener('input', paintEditor);
+$('code').addEventListener('scroll', () => { $('hl').scrollTop = $('code').scrollTop; });
+$('code').addEventListener('keydown', e => {
+  if(e.key === 'Enter' && (e.ctrlKey || e.metaKey)){ e.preventDefault(); return run(); }
+  const el = e.target, s = el.selectionStart;
+  if(e.key === 'Tab'){
+    e.preventDefault();
+    el.value = el.value.slice(0, s) + '    ' + el.value.slice(el.selectionEnd);
+    el.selectionStart = el.selectionEnd = s + 4;
+    paintEditor();
+  }
+  if(e.key === 'Enter' && !e.ctrlKey && !e.metaKey){
+    const line = el.value.slice(0, s).split('\n').pop();
+    const pad = (line.match(/^\s*/) || [''])[0] + (line.replace(/\s+$/, '').endsWith(':') ? '    ' : '');
+    if(pad){
+      e.preventDefault();
+      el.value = el.value.slice(0, s) + '\n' + pad + el.value.slice(el.selectionEnd);
+      el.selectionStart = el.selectionEnd = s + 1 + pad.length;
+      paintEditor();
+    }
+  }
+});
+$('runBtn').onclick = run;
+$('hintBtn').onclick = useHint;
+$('giveupBtn').onclick = giveUp;
+$('nextBtn').onclick = goNext;
+$('restartBtn').onclick = () => newGame(true);
+$('againBtn').onclick = () => newGame(false);
+$('startBtn').onclick = () => {
+  $('boot').classList.add('hide');
+  newGame(false);
+};
+
+bootPython();
+</script>
+</body>
+</html>

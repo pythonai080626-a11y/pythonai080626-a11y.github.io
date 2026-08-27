@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dict Quiz - Teacher Console</title>
+<style>
+  :root{
+    --bg1:#071a12; --bg2:#0b2a1c; --card:#0f2e20; --line:#1e5c3c;
+    --green1:#22c55e; --green2:#4ade80; --mint:#bbf7d0;
+    --gold:#fbbf24; --red:#f87171; --text:#eafff3; --muted:#8fc9a8;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; color:var(--text); font-family:"Trebuchet MS","Segoe UI",sans-serif;
+    background:
+      radial-gradient(circle at 12% 8%, #10502f 0%, transparent 42%),
+      radial-gradient(circle at 88% 12%, #0d4d55 0%, transparent 40%),
+      radial-gradient(circle at 60% 95%, #2a4a12 0%, transparent 45%),
+      linear-gradient(160deg, var(--bg1), var(--bg2));
+    min-height:100vh; overflow-x:hidden;
+  }
+  body::before,body::after{
+    content:""; position:fixed; width:340px; height:340px; border-radius:50%;
+    filter:blur(70px); opacity:.28; z-index:-1; animation:float 9s ease-in-out infinite alternate;
+  }
+  body::before{background:#22c55e; top:-90px; left:-70px}
+  body::after{background:#38bdf8; bottom:-110px; right:-80px; animation-delay:1.6s}
+  @keyframes float{to{transform:translate(60px,50px) scale(1.15)}}
+  @keyframes rise{from{opacity:0; transform:translateY(16px)}to{opacity:1;transform:none}}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+  @keyframes shine{to{background-position:200% 0}}
+  @keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.06)}100%{transform:scale(1)}}
+
+  .wrap{max-width:1080px; margin:0 auto; padding:26px 20px 60px}
+  header{
+    display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:space-between;
+    background:linear-gradient(135deg,#103d28,#0d3348 90%);
+    border:1px solid var(--line); border-radius:18px; padding:22px 26px;
+    box-shadow:0 18px 40px rgba(0,0,0,.35); animation:rise .6s ease both;
+  }
+  h1{margin:0; font-size:1.75rem; letter-spacing:.5px}
+  h1 small{display:block; font-size:.8rem; font-weight:400; color:var(--muted); letter-spacing:2px; text-transform:uppercase; margin-top:4px}
+  .live{display:flex; align-items:center; gap:8px; font-size:.85rem; color:var(--mint)}
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--green1);box-shadow:0 0 12px var(--green1);animation:pulse 1.4s infinite}
+  .btn{
+    border:1px solid var(--line); background:#12402a; color:var(--mint); cursor:pointer;
+    border-radius:10px; padding:9px 16px; font-weight:700; font-size:.85rem; transition:.2s;
+  }
+  .btn:hover{background:#1a5c3b; transform:translateY(-2px)}
+  .btn.danger{border-color:#7f2b2b;background:#3a1414;color:#ffd0d0}
+  .btn.danger:hover{background:#5a1d1d}
+
+  .tiles{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin:20px 0}
+  .tile{
+    background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 18px;
+    animation:rise .6s ease both;
+  }
+  .tile b{display:block; font-size:2rem; color:var(--green2); line-height:1.1}
+  .tile span{font-size:.76rem; text-transform:uppercase; letter-spacing:.12em; color:var(--muted)}
+
+  .board{display:flex; flex-direction:column; gap:12px}
+  .row{
+    background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:14px 18px; animation:rise .5s ease both; transition:.25s;
+    display:grid; grid-template-columns:44px 1fr 120px; gap:14px; align-items:center;
+  }
+  .row:hover{transform:translateX(4px); border-color:var(--green1)}
+  .row.done{border-color:var(--gold); box-shadow:0 0 0 1px rgba(251,191,36,.3)}
+  .row.bump{animation:pop .5s ease}
+  .rank{
+    width:38px;height:38px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+    font-weight:800; background:#0b2418; border:1px solid var(--line); font-size:1.05rem;
+  }
+  .rank.m1{background:linear-gradient(140deg,#fbbf24,#b45309); color:#2b1a00; border-color:#fbbf24}
+  .rank.m2{background:linear-gradient(140deg,#e5e7eb,#94a3b8); color:#1f2937; border-color:#e5e7eb}
+  .rank.m3{background:linear-gradient(140deg,#f0a875,#a1571f); color:#2b1200; border-color:#f0a875}
+  .who{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:8px}
+  .who b{font-size:1.08rem}
+  .meta{font-size:.74rem; color:var(--muted)}
+  .track{
+    position:relative; height:22px; border-radius:999px; overflow:hidden;
+    background:#08251a; border:1px solid #1a4a32;
+  }
+  .fill{
+    position:absolute; inset:0 auto 0 0; border-radius:999px;
+    background:linear-gradient(90deg,#16a34a,#4ade80,#a3e635,#4ade80);
+    background-size:200% 100%; animation:shine 2.6s linear infinite;
+    width:0; transition:width .7s cubic-bezier(.2,.9,.2,1);
+    box-shadow:0 0 16px rgba(74,222,128,.45);
+  }
+  .fill.low{background:linear-gradient(90deg,#dc2626,#f87171,#fb923c,#f87171); background-size:200% 100%; box-shadow:0 0 16px rgba(248,113,113,.4)}
+  .fill.mid{background:linear-gradient(90deg,#d97706,#fbbf24,#fde68a,#fbbf24); background-size:200% 100%; box-shadow:0 0 16px rgba(251,191,36,.4)}
+  .ghost{position:absolute; inset:0 auto 0 0; border-radius:999px; background:rgba(255,255,255,.09); width:0; transition:width .7s ease}
+  .pct{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:.74rem; font-weight:800; text-shadow:0 1px 3px rgba(0,0,0,.7)}
+  .score{text-align:right}
+  .score b{font-size:1.5rem; color:var(--green2)}
+  .score span{display:block; font-size:.72rem; color:var(--muted)}
+  .flag{font-size:.7rem; padding:2px 8px; border-radius:999px; border:1px solid var(--line); color:var(--mint); background:#0d3322}
+  .flag.gold{border-color:var(--gold); color:var(--gold); background:#3a2c05}
+  .empty{
+    text-align:center; padding:60px 20px; color:var(--muted); border:2px dashed var(--line);
+    border-radius:16px; background:rgba(0,0,0,.15);
+  }
+  .empty b{display:block; font-size:1.2rem; color:var(--mint); margin-bottom:8px}
+  footer{text-align:center; color:var(--muted); font-size:.78rem; margin-top:26px}
+  @media(max-width:620px){ .row{grid-template-columns:38px 1fr; } .score{grid-column:2; text-align:left} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <h1>Dict Quiz - Teacher Console <span>&#128218;</span>
+        <small>lesson 16 &middot; dictionaries</small>
+      </h1>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <div class="live"><span class="dot"></span><span id="liveTxt">live</span></div>
+      <button class="btn" onclick="pull(true)">refresh</button>
+      <button class="btn danger" onclick="wipe()">reset board</button>
+    </div>
+  </header>
+
+  <div class="tiles">
+    <div class="tile"><b id="tStudents">0</b><span>students</span></div>
+    <div class="tile"><b id="tDone">0</b><span>finished</span></div>
+    <div class="tile"><b id="tAvg">0</b><span>class average</span></div>
+    <div class="tile"><b id="tBest">-</b><span>top score</span></div>
+  </div>
+
+  <div class="board" id="board"></div>
+
+  <div class="empty" id="empty">
+    <b>Nobody has signed in yet</b>
+    Start <code>server.py</code>, run <code>ngrok http 8000</code>, and give the students the link.
+  </div>
+
+  <footer>refreshes by itself every 2 seconds</footer>
+</div>
+
+<script>
+var TOTAL = 20;
+var seen = {};              // name -> last answered count, so we can "bump" a row
+
+function medal(i){ return i===0 ? 'm1' : i===1 ? 'm2' : i===2 ? 'm3' : ''; }
+
+function draw(data){
+  TOTAL = data.total || 20;
+  var students = data.students || {};
+  var names = Object.keys(students);
+
+  // sort: score desc, then how far they got, then name
+  names.sort(function(a,b){
+    var A = students[a], B = students[b];
+    return (B.score - A.score) || (B.answered - A.answered) || a.localeCompare(b);
+  });
+
+  document.getElementById('empty').style.display = names.length ? 'none' : 'block';
+
+  var done = 0, sum = 0, best = 0;
+  var html = '';
+  names.forEach(function(name, i){
+    var s = students[name];
+    if (s.done) done++;
+    sum += s.score;
+    if (s.score > best) best = s.score;
+
+    var pct    = TOTAL ? Math.round(s.score * 100 / TOTAL) : 0;
+    var seenP  = TOTAL ? Math.round(s.answered * 100 / TOTAL) : 0;
+    var tone   = pct >= 70 ? '' : (pct >= 40 ? 'mid' : 'low');
+    var bump   = (seen[name] !== undefined && seen[name] !== s.answered) ? ' bump' : '';
+    seen[name] = s.answered;
+
+    var wrongCount = Object.keys(s.wrong || {}).length;
+
+    html +=
+      '<div class="row' + (s.done ? ' done' : '') + bump + '" style="animation-delay:' + (i*0.04) + 's">' +
+        '<div class="rank ' + medal(i) + '">' + (i+1) + '</div>' +
+        '<div>' +
+          '<div class="who">' +
+            '<b>' + esc(name) + '</b>' +
+            (s.done ? '<span class="flag gold">finished &#127942;</span>'
+                    : '<span class="flag">question ' + Math.min(s.answered+1, TOTAL) + '/' + TOTAL + '</span>') +
+            '<span class="meta">' + s.answered + ' answered &middot; ' + wrongCount + ' wrong &middot; last ' + esc(s.last || '') + '</span>' +
+          '</div>' +
+          '<div class="track">' +
+            '<div class="ghost" style="width:' + seenP + '%"></div>' +
+            '<div class="fill ' + tone + '" style="width:' + pct + '%"></div>' +
+            '<div class="pct">' + s.score + ' / ' + TOTAL + '  (' + pct + '%)</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="score"><b>' + s.score + '</b><span>points</span></div>' +
+      '</div>';
+  });
+
+  document.getElementById('board').innerHTML = html;
+  document.getElementById('tStudents').textContent = names.length;
+  document.getElementById('tDone').textContent = done;
+  document.getElementById('tAvg').textContent = names.length ? (sum / names.length).toFixed(1) : '0';
+  document.getElementById('tBest').textContent = names.length ? (best + '/' + TOTAL) : '-';
+}
+
+function esc(t){
+  return String(t).replace(/[&<>"]/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];
+  });
+}
+
+function pull(){
+  fetch('/api/scores', {cache:'no-store', headers:{'ngrok-skip-browser-warning':'true'}})
+    .then(function(r){ return r.json(); })
+    .then(function(d){ draw(d); document.getElementById('liveTxt').textContent = 'live'; })
+    .catch(function(){ document.getElementById('liveTxt').textContent = 'offline'; });
+}
+
+function wipe(){
+  if (!confirm('Clear every score on the board?')) return;
+  fetch('/api/reset', {method:'POST', body:'{}',
+        headers:{'Content-Type':'application/json','ngrok-skip-browser-warning':'true'}})
+    .then(function(){ seen = {}; pull(); });
+}
+
+pull();
+setInterval(pull, 2000);
+</script>
+</body>
+</html>
