@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lesson 19 - Functions Into Files &amp; Tuples</title>
+  <style>
+    :root {
+      --bg-soft: #ffffff;
+      --green-1: #0f5a2e;
+      --green-2: #1f8f4e;
+      --green-3: #dbf6e5;
+      --mint: #e6fff2;
+      --text: #14281d;
+      --muted: #426654;
+      --border: #aadfbd;
+      --accent-a: #ddfbe7;
+      --accent-b: #fff4d8;
+      --code-bg: #0b2517;
+      --code-text: #d2ffe3;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Lucida Sans", "Segoe UI", sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 15% 10%, #e7fff0 0%, transparent 35%),
+                  radial-gradient(circle at 85% 18%, #fff5d6 0%, transparent 36%),
+                  linear-gradient(180deg, #f4fff6 0%, #ffffff 45%, #edfff4 100%);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    body::before, body::after {
+      content: "";
+      position: fixed;
+      width: 230px;
+      height: 230px;
+      z-index: -1;
+      border-radius: 999px;
+      filter: blur(2px);
+      opacity: 0.32;
+      animation: blobMove 8s ease-in-out infinite alternate;
+    }
+    body::before { background: #bff0d0; top: -30px; left: -40px; }
+    body::after { background: #ffe9a9; bottom: -40px; right: -40px; animation-delay: 1.4s; }
+
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 24px; }
+    .layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    /* a grid item defaults to min-width:auto and refuses to shrink below its
+       widest line — without this, one long console line stretches the panel */
+    .layout > main { min-width: 0; }
+    .card > * { max-width: 100%; }
+
+    .side-nav {
+      position: sticky;
+      top: 14px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 8px 22px rgba(18,102,55,0.1);
+      padding: 12px;
+    }
+    .side-title { margin: 0 0 8px; font-size: 0.9rem; color: var(--green-1); font-weight: 700; }
+    .topic-link {
+      display: block;
+      width: 100%;
+      text-align: left;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      padding: 8px 10px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.89rem;
+      text-transform: lowercase;
+      margin-bottom: 4px;
+      transition: all 0.2s ease;
+    }
+    .topic-link:hover { background: #f0fff4; color: var(--green-1); border-color: var(--border); }
+    .topic-link.active { background: #e8faee; color: var(--green-1); border-color: var(--green-2); font-weight: 700; }
+
+    .hero {
+      background: linear-gradient(135deg, var(--bg-soft) 0%, var(--accent-a) 55%, var(--accent-b) 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 12px 30px rgba(24,110,58,0.12);
+      margin-bottom: 22px;
+      animation: riseIn 0.75s ease both;
+    }
+
+    h1, h2, h3 { margin-top: 0; color: var(--green-1); }
+    h1 { font-size: 2rem; margin-bottom: 8px; }
+    code { color: var(--green-1); font-weight: 700; }
+
+    .tag {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      background: var(--green-3);
+      color: var(--green-1);
+      border: 1px solid var(--border);
+      margin-bottom: 10px;
+    }
+
+    .card {
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 16px;
+      box-shadow: 0 7px 22px rgba(18,102,55,0.08);
+      animation: riseIn 0.65s ease both;
+    }
+
+    .topic-panel { display: none; }
+    .topic-panel.active { display: block; }
+    .step-title { margin: 0 0 12px; font-size: 1.25rem; }
+    .side-divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+    .side-section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--green-2);
+      padding: 4px 4px 6px;
+    }
+    .nav-back {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--green-2);
+      background: #e9fbe8;
+      color: var(--green-1);
+      text-decoration: none;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      width: 100%;
+      text-align: center;
+    }
+    .nav-back:hover { background: #d8f7df; transform: translateY(-1px); }
+
+    .note {
+      background: var(--mint);
+      border-left: 4px solid var(--green-2);
+      padding: 10px 14px;
+      color: var(--muted);
+      margin: 12px 0;
+      border-radius: 6px;
+      font-size: 0.94rem;
+    }
+    .warn {
+      background: #fff6e2;
+      border-left: 4px solid #e0a800;
+      padding: 10px 14px;
+      color: #6b4e00;
+      margin: 12px 0;
+      border-radius: 6px;
+      font-size: 0.94rem;
+    }
+    .big-result { font-size: 1.1rem; margin: 18px 0 8px; color: var(--green-1); font-weight: 700; }
+
+    .code {
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 10px;
+      border: 1px solid #2f5a3d;
+      padding: 16px 18px;
+      overflow-x: auto;
+      margin: 10px 0 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95rem;
+      white-space: pre;
+      line-height: 1.7;
+    }
+    .code .cm { color: #6dbf8a; }
+    .code .fn { color: #ffa657; }
+    .code .kw { color: #79c0ff; }
+    .code .num { color: #d2a8ff; }
+    .code .str { color: #ffd580; }
+    .code .hl { background: rgba(125,231,135,0.16); border-radius: 4px; }
+    .code .bad { background: rgba(248,113,113,0.16); border-radius: 4px; }
+
+    .console {
+      background: #101418;
+      color: #e6edf3;
+      border-radius: 10px;
+      border: 1px solid #30363d;
+      padding: 12px 18px;
+      overflow-x: auto;
+      margin: 10px 0 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92rem;
+      white-space: pre;
+      line-height: 1.7;
+    }
+    .console .usr { color: #7ee787; font-weight: 700; }
+    .console .dim { color: #8b949e; }
+    .console .err { color: #ff9f9f; }
+
+    .ex-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .88rem;
+      margin: 10px 0 14px;
+    }
+    .ex-table th {
+      background: var(--green-3);
+      color: var(--green-1);
+      padding: 8px 12px;
+      text-align: left;
+      border: 1px solid var(--border);
+      font-size: .78rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+    .ex-table td { padding: 8px 12px; border: 1px solid var(--border); vertical-align: top; }
+    .ex-table tr:nth-child(even) td { background: #f4fff7; }
+    .task-box {
+      background: var(--mint);
+      border: 2px dashed var(--green-2);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin: 14px 0;
+    }
+    .task-box a {
+      color: var(--green-1);
+      font-weight: 800;
+      font-size: 1.02rem;
+      word-break: break-all;
+    }
+    .footer { text-align: center; color: var(--muted); font-size: 0.86rem; padding: 10px 0 16px; }
+
+    .task-list { padding-left: 22px; margin: 10px 0 0; }
+    .task-list li { margin-bottom: 10px; color: #1a3a2a; }
+    .task-list li strong { color: var(--green-1); }
+
+    .ex-title { display: flex; align-items: center; margin: 22px 0 8px; }
+    .ex-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--green-3); border: 2px solid var(--green-2);
+      color: var(--green-1); font-weight: 800; font-size: .88rem;
+      margin-right: 8px; flex-shrink: 0;
+    }
+    .ex-title h3 { margin: 0; font-size: 1.1rem; }
+
+    .kbd {
+      display: inline-block; padding: 2px 8px; border-radius: 6px;
+      background: #f0fff4; border: 1px solid var(--border);
+      border-bottom-width: 3px; font-family: Consolas, monospace;
+      font-size: .85rem; color: var(--green-1); font-weight: 700;
+    }
+
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 6px; }
+    .pill {
+      display: inline-block; padding: 4px 12px; border-radius: 999px;
+      background: #eafcef; border: 1px solid var(--border);
+      color: var(--green-1); font-weight: 700; font-size: .82rem;
+    }
+    .pill.now { background: #fff0c2; border-color: #e0a800; color: #6b4e00; }
+
+    .submission { background: var(--mint); border-color: var(--green-2); margin-top: 0; }
+    .submission a { color: var(--green-1); font-weight: 800; font-size: 1.05rem; word-break: break-all; }
+
+    /* ── Module toolbox ── */
+    .toolbox {
+      background: #f7fffb; border: 1px solid var(--border);
+      border-radius: 14px; padding: 16px 18px; margin: 14px 0;
+    }
+    .toolbox .tb-head {
+      display: flex; align-items: center; gap: 8px;
+      font-weight: 800; color: var(--green-1); margin-bottom: 10px;
+    }
+    .toolbox .tb-head .tb-ic {
+      width: 30px; height: 30px; border-radius: 9px; flex-shrink: 0;
+      background: linear-gradient(160deg, #2dd4bf, #0d9488);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 1rem;
+    }
+    .tool-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tool {
+      font-family: Consolas, monospace; font-size: .82rem; font-weight: 700;
+      background: #ffffff; border: 1px solid var(--border);
+      border-bottom-width: 3px; border-radius: 9px;
+      padding: 6px 11px; color: var(--green-1);
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .tool:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(18,102,55,0.16); }
+    .tool small { display: block; font-family: "Trebuchet MS", sans-serif; font-weight: 400; color: var(--muted); font-size: .72rem; }
+
+    /* ── before / after boxes ── */
+    .ba { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 12px 0 14px; }
+    .ba .bx {
+      font-family: Consolas, monospace; font-weight: 700; font-size: .95rem;
+      background: #ffffff; border: 1px solid var(--border);
+      border-bottom-width: 3px; border-radius: 10px; padding: 9px 13px; color: var(--green-1);
+      white-space: pre;
+    }
+    .ba .bx.old { background: #fff6e2; border-color: #e6c46a; color: #6b4e00; }
+    .ba .arw { font-weight: 800; color: var(--muted); }
+
+    /* ── side-by-side compare columns ── */
+    .vs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0 14px; }
+    .vs > div { min-width: 0; }
+    .vs .vs-head {
+      font-weight: 800; color: var(--green-1); font-size: .92rem;
+      padding: 6px 10px; border-radius: 8px; background: var(--green-3);
+      border: 1px solid var(--border); margin-bottom: 6px; text-align: center;
+    }
+    .vs .vs-head.bad { background: #fff6e2; border-color: #e6c46a; color: #6b4e00; }
+    .vs .code, .vs .console { margin: 0 0 8px; font-size: .88rem; }
+
+    /* ── key → value rows ── */
+    .kvbox {
+      background: #f5fff9; border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px 18px; margin: 12px 0 14px;
+    }
+    .kvrow { display: flex; align-items: stretch; margin-bottom: 6px; flex-wrap: wrap; }
+    .kvrow .kk, .kvrow .vv {
+      font-family: Consolas, monospace; font-weight: 800; font-size: .88rem;
+      padding: 6px 12px; border: 1px solid var(--border);
+    }
+    .kvrow .kk {
+      background: linear-gradient(160deg, #d6f8e4, #a9ecc6);
+      border-color: #7fd6a3; color: #08351d;
+      border-radius: 9px 0 0 9px; min-width: 130px;
+    }
+    .kvrow .ar {
+      display: flex; align-items: center; padding: 0 10px;
+      color: var(--muted); font-weight: 800; background: #ffffff;
+      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    }
+    .kvrow .vv { background: #ffffff; color: var(--green-1); border-radius: 0 9px 9px 0; border-left: none; }
+    .kvrow .vv.list { background: #fffaf0; color: #6b4e00; border-color: #e6c46a; }
+    .kvrow .vv.dict { background: #eef8ff; color: #1c4e80; border-color: #a9cdec; }
+    .kvrow .vv.set { background: #f7f0ff; color: #5b2a86; border-color: #cbb0e8; }
+    .kvbox-cap { font-family: Consolas, monospace; font-weight: 800; color: var(--green-1); margin-bottom: 8px; font-size: .88rem; }
+
+    /* ── figure blocks (the drawings) ── */
+    .fig {
+      background: #f5fff9; border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px; margin: 14px 0;
+      text-align: center;
+    }
+    .fig svg { width: 100%; height: auto; max-width: 620px; }
+    .fig .figcap {
+      font-size: .84rem; color: var(--muted); margin-top: 8px;
+      font-style: italic;
+    }
+
+    /* ── D&D item rack ── */
+    .rack { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 12px 0 6px; }
+    .slot {
+      width: 96px; padding: 10px 6px; border-radius: 12px; text-align: center;
+      background: linear-gradient(160deg, #ffffff, #eafcef);
+      border: 1px solid var(--border); border-bottom-width: 3px;
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .slot:hover { transform: translateY(-3px); box-shadow: 0 8px 16px rgba(18,102,55,0.18); }
+    .slot .ic { font-size: 1.9rem; line-height: 1.2; }
+    .slot .nm { font-family: Consolas, monospace; font-weight: 800; font-size: .78rem; color: var(--green-1); }
+    .slot.picked { background: linear-gradient(160deg, #fff6d9, #ffe9a9); border-color: #e0a800; }
+
+    /* ── attribute bars ── */
+    .stats { background: #f5fff9; border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; margin: 12px 0 14px; }
+    .stat { display: grid; grid-template-columns: 116px 1fr 34px; gap: 10px; align-items: center; margin-bottom: 7px; }
+    .stat .snm { font-family: Consolas, monospace; font-weight: 800; color: var(--green-1); font-size: .82rem; }
+    .stat .strack { height: 15px; border-radius: 8px; background: #e3efe8; border: 1px solid var(--border); overflow: hidden; }
+    .stat .sfill { height: 100%; background: linear-gradient(90deg, #a9ecc6, #4fc47f); }
+    .stat .sfill.hi { background: linear-gradient(90deg, #ffe1a8, #f0b429); }
+    .stat .sval { font-family: Consolas, monospace; font-weight: 800; color: var(--muted); font-size: .82rem; text-align: right; }
+
+    /* ── Hebrew / right-to-left panel ── */
+    .rtl { direction: rtl; text-align: right; }
+    .rtl .task-list { padding-left: 0; padding-right: 22px; }
+    .rtl .ex-table th, .rtl .ex-table td { text-align: right; }
+    .rtl .note, .rtl .warn { border-left: none; border-right: 4px solid var(--green-2); }
+    .rtl .warn { border-right-color: #e0a800; }
+    /* code and output stay English — always left-aligned, even on an RTL page */
+    .rtl .code, .rtl .console { direction: ltr; text-align: left; }
+
+    /* ── numbered build steps ── */
+    .steps { counter-reset: st; padding: 0; margin: 12px 0 0; list-style: none; }
+    .steps > li { position: relative; padding-left: 40px; margin-bottom: 18px; }
+    .steps > li::before {
+      counter-increment: st; content: counter(st);
+      position: absolute; left: 0; top: 0;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--green-3); border: 2px solid var(--green-2);
+      color: var(--green-1); font-weight: 800; font-size: .86rem;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .steps > li > .sh { font-weight: 800; color: var(--green-1); display: block; margin-bottom: 2px; }
+
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes blobMove {
+      from { transform: translate(0, 0) scale(1); }
+      to { transform: translate(24px, 18px) scale(1.06); }
+    }
+
+    @media (max-width: 760px) {
+      .wrap { padding: 14px; }
+      .layout { grid-template-columns: 1fr; }
+      .side-nav { position: static; }
+      h1 { font-size: 1.6rem; }
+      .code { font-size: 0.86rem; }
+      .ex-table { font-size: .8rem; }
+      .vs { grid-template-columns: 1fr; }
+      .kvrow .kk { min-width: 0; }
+      .stat { grid-template-columns: 92px 1fr 30px; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <span class="tag">Lesson 19 - August 31, 2026</span>
+    <h1>Functions Into Files — and the Tuple 🧰</h1>
+    <p>Two habits and one new type. First: stop writing a program from the top down and start writing it as a <strong>story</strong> — call the functions you wish you had, leave them empty with <code>pass</code>, and only then go and fill them in. Second: once those functions work, they do not have to live in the same file as the story. Move them to <code>students_lib.py</code>, <code>import</code> them back, and the main file becomes ten readable lines. And then the <strong>tuple</strong> — a list that locked its own door.</p>
+  </section>
+
+  <div class="layout">
+    <aside class="side-nav" aria-label="Topic navigation">
+      <div class="side-title">Lesson 19 topics</div>
+
+      <div class="side-section-label">1 · Design first</div>
+      <button class="topic-link active" data-target="topic-story">main as a story 📖</button>
+      <button class="topic-link" data-target="topic-pass">pass — the empty function</button>
+      <button class="topic-link" data-target="topic-fill">fill them in, one at a time</button>
+
+      <div class="side-section-label">2 · Your own module</div>
+      <button class="topic-link" data-target="topic-module">move the functions out 📦</button>
+      <button class="topic-link" data-target="topic-import">import them back</button>
+      <button class="topic-link" data-target="topic-story2">the whole program, as a story</button>
+
+      <div class="side-section-label">3 · Tuple</div>
+      <button class="topic-link" data-target="topic-tuple">a list that locked 🔒</button>
+      <button class="topic-link" data-target="topic-access">index &amp; slice</button>
+      <button class="topic-link" data-target="topic-methods">count · index · + · sorted</button>
+      <button class="topic-link" data-target="topic-tests">in · len · min · max · sum</button>
+      <button class="topic-link" data-target="topic-key">tuple as a dict key ⚠️</button>
+      <button class="topic-link" data-target="topic-loop">loop &amp; build a new tuple</button>
+
+      <hr class="side-divider">
+      <button class="topic-link" data-target="topic-github">github folder</button>
+      <button class="topic-link" data-target="topic-exercise">homework — 3 tuple functions ✍️</button>
+      <button class="topic-link" data-target="topic-homework-heb">שיעורי בית - עברית</button>
+
+      <div class="side-section-label">Navigation</div>
+      <a class="nav-back" href="../../index.html#lessons">Back to lessons</a>
+    </aside>
+
+    <main>
+
+      <!-- ═══ MAIN AS A STORY ═══ -->
+      <section class="card topic-panel active" id="topic-story">
+        <span class="tag">03_func_prog.py</span>
+        <h2 class="step-title">Write the Story First 📖</h2>
+        <p>Here is the way most people start a guessing game: open a file and type the first line that runs. Then the second. Half an hour later there are eighty lines, three of them are about drawing a message, four are about validating input, and none of it has a name.</p>
+        <p>Today we do it backwards. <strong>Write the story first</strong> — the main program, top to bottom, calling functions that <em>do not exist yet</em>. You are allowed to call anything you wish existed, because you are the one who will write it in a minute.</p>
+        <div class="code"><span class="fn">print</span>(<span class="str">'Welcome to the number guessing game!'</span>)
+
+random_number = <span class="fn">get_random_number</span>(<span class="num">1</span>, <span class="num">100</span>)
+guesses = <span class="num">0</span>
+
+<span class="kw">while</span> <span class="kw">True</span>:
+    guesses += <span class="num">1</span>
+
+    user_guess = <span class="fn">get_user_guess</span>(<span class="num">1</span>, <span class="num">100</span>)
+
+    <span class="kw">if</span> user_guess == random_number:
+        <span class="fn">print</span>(<span class="str">f'Congratulations! You guessed the number {random_number} in {guesses} guesses'</span>)
+        <span class="kw">break</span>
+
+    message = <span class="fn">get_game_message</span>(user_guess, random_number)
+
+    <span class="fn">print</span>(message)
+
+<span class="fn">print</span>(<span class="str">'Game over! see you again soon'</span>)</div>
+        <p>Read it out loud. <em>Get a random number. Ask the user to guess. If it matches, congratulate and stop. Otherwise work out the message and print it.</em> That is the whole game, and there is not one line of logic in it yet.</p>
+        <div class="note">
+          Notice what the story just did for you: it <strong>named</strong> the three hard parts and it <strong>decided their signatures</strong>. <code>get_game_message(user_guess, random_number)</code> takes two slots and returns text — you knew that before you wrote a single line inside it.
+        </div>
+        <div class="fig">
+          <svg viewBox="0 0 600 200" role="img" aria-label="The main story calls three functions that are still empty">
+            <text x="140" y="20" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#1f8f4e">the story (main)</text>
+            <rect x="24" y="30" width="232" height="150" rx="12" fill="#ffffff" stroke="#1f8f4e" stroke-width="2"/>
+            <text x="40" y="56" font-family="Consolas, monospace" font-size="12" fill="#08351d">random_number = get_random_number()</text>
+            <text x="40" y="94" font-family="Consolas, monospace" font-size="12" fill="#08351d">user_guess = get_user_guess()</text>
+            <text x="40" y="132" font-family="Consolas, monospace" font-size="12" fill="#08351d">message = get_game_message()</text>
+            <text x="40" y="166" font-family="Consolas, monospace" font-size="11" fill="#426654">print(message)</text>
+            <path d="M264 52 L330 52" fill="none" stroke="#426654" stroke-width="2.5"/>
+            <path d="M322 46 L332 52 L322 58" fill="none" stroke="#426654" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M264 90 L330 90" fill="none" stroke="#426654" stroke-width="2.5"/>
+            <path d="M322 84 L332 90 L322 96" fill="none" stroke="#426654" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M264 128 L330 128" fill="none" stroke="#426654" stroke-width="2.5"/>
+            <path d="M322 122 L332 128 L322 134" fill="none" stroke="#426654" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <text x="466" y="20" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#b07d00">still empty</text>
+            <rect x="340" y="34" width="236" height="36" rx="9" fill="#fff0c2" stroke="#e0a800" stroke-width="2"/>
+            <text x="356" y="57" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#6b4e00">def get_random_number(): pass</text>
+            <rect x="340" y="72" width="236" height="36" rx="9" fill="#fff0c2" stroke="#e0a800" stroke-width="2"/>
+            <text x="356" y="95" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#6b4e00">def get_user_guess(): pass</text>
+            <rect x="340" y="110" width="236" height="36" rx="9" fill="#fff0c2" stroke="#e0a800" stroke-width="2"/>
+            <text x="356" y="133" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#6b4e00">def get_game_message(): pass</text>
+            <text x="458" y="170" text-anchor="middle" font-family="Consolas, monospace" font-size="11" fill="#426654">three problems, each with a name</text>
+          </svg>
+          <div class="figcap">The story decides what you need. Only then do you go and build it.</div>
+        </div>
+      </section>
+
+      <!-- ═══ PASS ═══ -->
+      <section class="card topic-panel" id="topic-pass">
+        <span class="tag">03_func_prog.py</span>
+        <h2 class="step-title">A Function That Does Nothing — On Purpose 🪧</h2>
+        <p>Python will not accept an empty body. A <code>def</code> line with nothing under it is a <code>SyntaxError</code>. So you put <code>pass</code> there: a word that means <em>nothing to do here yet, move on</em>.</p>
+        <div class="code"><span class="kw">def</span> <span class="fn">get_random_number</span>():
+    <span class="kw">pass</span>
+
+<span class="kw">def</span> <span class="fn">get_user_guess</span>():
+    <span class="kw">pass</span>
+
+<span class="kw">def</span> <span class="fn">get_game_message</span>():
+    <span class="kw">pass</span></div>
+        <p>Three stubs at the top of the file, the story underneath, and the file <strong>opens</strong> — Python reads all three <code>def</code> lines happily. This is the whole trick: your program exists, in outline, before any of it works.</p>
+        <div class="warn">
+          <strong>It opens. It does not run.</strong> Run it now and you get exactly this:
+          <div class="code" style="margin-top:6px"><span class="cm">Welcome to the number guessing game!</span>
+<span class="cm">Traceback (most recent call last):</span>
+  <span class="cm">File "03_func_prog.py", line 20, in &lt;module&gt;</span>
+    <span class="cm">user_guess = get_user_guess(1, 100)</span>
+<span class="cm">TypeError: get_user_guess() takes 0 positional arguments but 2 were given</span></div>
+          That error is not a problem — it is a <strong>to-do list</strong>. The story called <code>get_user_guess(1, 100)</code> with two arguments, so the stub needs two slots. The story is telling the function what shape to be.
+        </div>
+        <table class="ex-table">
+          <thead><tr><th>What the story says</th><th>What the stub must become</th></tr></thead>
+          <tbody>
+            <tr><td><code>get_random_number(1, 100)</code></td><td>two slots, returns a number</td></tr>
+            <tr><td><code>get_user_guess(1, 100)</code></td><td>two slots, returns the guess</td></tr>
+            <tr><td><code>get_game_message(user_guess, random_number)</code></td><td>two slots, returns a string</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          <code>pass</code> is not a <code>return</code>. A stub with only <code>pass</code> hands back <code>None</code> — exactly the trap from last lesson. It is a placeholder, and it is meant to be replaced.
+        </div>
+      </section>
+
+      <!-- ═══ FILL THEM IN ═══ -->
+      <section class="card topic-panel" id="topic-fill">
+        <span class="tag">03_func_prog.py</span>
+        <h2 class="step-title">Now Fill Them In, One at a Time ✏️</h2>
+        <p>The story is fixed. Each stub is now a small, closed problem you can solve without thinking about the rest of the game.</p>
+
+        <div class="big-result">1 · get_random_number(low, high)</div>
+        <div class="code"><span class="kw">import</span> random
+
+<span class="kw">def</span> <span class="fn">get_random_number</span>(low, high):
+    <span class="str">'''
+    pick the secret number
+    :param low: smallest allowed
+    :param high: biggest allowed
+    :return: a random number between them
+    '''</span>
+    <span class="kw">return</span> random.<span class="fn">randint</span>(low, high)</div>
+
+        <div class="big-result">2 · get_user_guess(low, high)</div>
+        <p>This one owns the whole job of getting a <em>valid</em> guess. It does not give up until it has one — and the loop that used to clutter the main program lives in here now.</p>
+        <div class="code"><span class="kw">def</span> <span class="fn">get_user_guess</span>(low, high):
+    <span class="str">'''
+    ask until the player types a number in range
+    :param low: smallest allowed
+    :param high: biggest allowed
+    :return: the player's guess
+    '''</span>
+    <span class="kw">while</span> <span class="kw">True</span>:
+        guess = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">f'Guess a number between {low} and {high}: '</span>))
+        <span class="kw">if</span> low &lt;= guess &lt;= high:
+            <span class="kw">return</span> guess
+        <span class="fn">print</span>(<span class="str">'number not in range'</span>)</div>
+        <div class="note">
+          <code>return</code> inside the <code>while</code> is the exit. A good guess walks out of the loop <em>and</em> out of the function in one move — no <code>break</code>, no flag variable.
+        </div>
+
+        <div class="big-result">3 · get_game_message(user_guess, random_number)</div>
+        <div class="code"><span class="kw">def</span> <span class="fn">get_game_message</span>(user_guess, random_number):
+    <span class="str">'''
+    the hint after a wrong guess
+    :param user_guess: what the player said
+    :param random_number: the secret
+    :return: 'Too low!' or 'Too high!'
+    '''</span>
+    <span class="kw">if</span> user_guess &lt; random_number:
+        <span class="kw">return</span> <span class="str">'Too low!'</span>
+    <span class="kw">return</span> <span class="str">'Too high!'</span></div>
+        <div class="console"><span class="dim">Welcome to the number guessing game!</span>
+Guess a number between 1 and 100: <span class="usr">50</span>
+Too low!
+Guess a number between 1 and 100: <span class="usr">75</span>
+Too high!
+Guess a number between 1 and 100: <span class="usr">62</span>
+Congratulations! You guessed the number 62 in 3 guesses
+<span class="dim">Game over! see you again soon</span></div>
+        <div class="note">
+          Three functions, three docstrings, and a main program you can still read a month from now. The order matters: <strong>story → stubs → bodies</strong>. Never the other way round.
+        </div>
+      </section>
+
+      <!-- ═══ MOVE THE FUNCTIONS OUT ═══ -->
+      <section class="card topic-panel" id="topic-module">
+        <span class="tag">students_lib.py</span>
+        <h2 class="step-title">Move the Functions Into Their Own File 📦</h2>
+        <p>Once the functions work they stop being interesting. Nobody reading the program wants to scroll past forty lines of input validation to find out what the program <em>does</em>. So we take them out.</p>
+        <p>Make a second file next to the first one. Ours is called <code>students_lib.py</code> — a <strong>module</strong>. It holds functions and nothing else: no <code>print</code> at the bottom, no story, just definitions.</p>
+        <div class="code"><span class="cm"># students_lib.py</span>
+
+<span class="kw">def</span> <span class="fn">get_number_of_students</span>(min_stud=<span class="num">2</span>, max_stud=<span class="num">50</span>):
+    <span class="str">'''
+    returns the number of students in the list
+    :param min_stud:
+    :param max_stud:
+    :return: number of students
+    '''</span>
+    <span class="kw">while</span> <span class="kw">True</span>:
+        number = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">f"Enter a number between {min_stud} and {max_stud}: "</span>))
+        <span class="kw">if</span> min_stud &lt;= number &lt;= max_stud:
+            <span class="kw">return</span> number
+        <span class="fn">print</span>(<span class="str">'number not in range'</span>)
+
+<span class="kw">def</span> <span class="fn">get_student_names</span>(num_of_stud):
+    names = []
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(num_of_stud):
+        name = <span class="fn">input</span>(<span class="str">f"Enter the name of student {i + 1}#: "</span>)
+        names.<span class="fn">append</span>(name)
+    <span class="kw">return</span> names
+
+<span class="kw">def</span> <span class="fn">create_dict</span>(names, grades):
+    result = {}
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(names)):
+        result[names[i]] = grades[i]
+    <span class="kw">return</span> result
+
+<span class="kw">def</span> <span class="fn">get_max_name_grade</span>(students):
+    max_name = <span class="fn">max</span>(students, key=students.get)
+    <span class="kw">return</span> max_name, students[max_name]</div>
+        <div class="note">
+          <code>max(students, key=students.get)</code> walks the dictionary's <strong>keys</strong> but compares them by their <strong>values</strong> — so it hands back the name of the best student, not the grade. Then <code>students[max_name]</code> fetches the grade itself.
+        </div>
+        <div class="warn">
+          <strong>Two values out of one function.</strong> <code>return max_name, students[max_name]</code> returns <em>both</em> — and the thing that comes back is a <strong>tuple</strong>. That is the bridge to the second half of this lesson.
+        </div>
+      </section>
+
+      <!-- ═══ IMPORT ═══ -->
+      <section class="card topic-panel" id="topic-import">
+        <span class="tag">02_func_prog.py</span>
+        <h2 class="step-title">Import Them Back 🔌</h2>
+        <p>The functions are in another file now, so the main program has to go and fetch them. That is what <code>import</code> is for — the same word you already used for <code>random</code>, except this time the module is yours.</p>
+        <div class="code"><span class="kw">from</span> students_lib <span class="kw">import</span> *</div>
+        <p>Read it as: <em>from the file <code>students_lib.py</code>, bring in everything</em>. After that line, every function in that file can be called by its plain name, as if you had typed it here.</p>
+        <table class="ex-table">
+          <thead><tr><th>Way to import</th><th>How you call it</th><th>When</th></tr></thead>
+          <tbody>
+            <tr><td><code>from students_lib import *</code></td><td><code>get_student_names(5)</code></td><td>what we use today — short and readable</td></tr>
+            <tr><td><code>from students_lib import create_dict</code></td><td><code>create_dict(n, g)</code></td><td>when you only want one or two of them</td></tr>
+            <tr><td><code>import students_lib</code></td><td><code>students_lib.create_dict(n, g)</code></td><td>the safest — you can always see where it came from</td></tr>
+          </tbody>
+        </table>
+        <div class="fig">
+          <svg viewBox="0 0 600 180" role="img" aria-label="Two files: the library of functions and the main story that imports it">
+            <text x="150" y="20" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#b07d00">students_lib.py</text>
+            <rect x="30" y="30" width="240" height="132" rx="12" fill="#fff0c2" stroke="#e0a800" stroke-width="2"/>
+            <text x="48" y="56" font-family="Consolas, monospace" font-size="11" font-weight="700" fill="#6b4e00">def get_number_of_students()</text>
+            <text x="48" y="80" font-family="Consolas, monospace" font-size="11" font-weight="700" fill="#6b4e00">def get_student_names()</text>
+            <text x="48" y="104" font-family="Consolas, monospace" font-size="11" font-weight="700" fill="#6b4e00">def get_student_grades()</text>
+            <text x="48" y="128" font-family="Consolas, monospace" font-size="11" font-weight="700" fill="#6b4e00">def create_dict()</text>
+            <text x="48" y="152" font-family="Consolas, monospace" font-size="11" font-weight="700" fill="#6b4e00">def get_max_name_grade()</text>
+            <path d="M278 96 L322 96" fill="none" stroke="#426654" stroke-width="3"/>
+            <path d="M314 89 L324 96 L314 103" fill="none" stroke="#426654" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <text x="300" y="84" text-anchor="middle" font-family="Consolas, monospace" font-size="10" fill="#426654">import</text>
+            <text x="450" y="20" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#1f8f4e">02_func_prog.py</text>
+            <rect x="330" y="30" width="240" height="132" rx="12" fill="#ffffff" stroke="#1f8f4e" stroke-width="2"/>
+            <text x="346" y="56" font-family="Consolas, monospace" font-size="11" font-weight="700" fill="#0f5a2e">from students_lib import *</text>
+            <text x="346" y="86" font-family="Consolas, monospace" font-size="11" fill="#08351d">num = get_number_of_students()</text>
+            <text x="346" y="108" font-family="Consolas, monospace" font-size="11" fill="#08351d">names = get_student_names(num)</text>
+            <text x="346" y="130" font-family="Consolas, monospace" font-size="11" fill="#08351d">...</text>
+            <text x="450" y="154" text-anchor="middle" font-family="Consolas, monospace" font-size="10" fill="#426654">the story only</text>
+          </svg>
+          <div class="figcap">One file holds the tools. The other holds the story. Both stay short.</div>
+        </div>
+        <div class="warn">
+          <strong>Same folder.</strong> <code>students_lib.py</code> has to sit next to the file importing it, or Python answers <code>ModuleNotFoundError: No module named 'students_lib'</code>. And do not name your file <code>random.py</code> — Python would find yours instead of the real one.
+        </div>
+      </section>
+
+      <!-- ═══ THE WHOLE STORY ═══ -->
+      <section class="card topic-panel" id="topic-story2">
+        <span class="tag">02_func_prog.py</span>
+        <h2 class="step-title">The Whole Program, in Ten Lines 📜</h2>
+        <p>Here is the entire students program. Every hard part is behind a name, and what is left reads like a paragraph of English.</p>
+        <div class="code"><span class="kw">from</span> students_lib <span class="kw">import</span> *
+
+num_of_stud = <span class="fn">get_number_of_students</span>(min_stud=<span class="num">2</span>, max_stud=<span class="num">50</span>)
+
+list_of_names = <span class="fn">get_student_names</span>(num_of_stud)
+
+list_of_grades = <span class="fn">get_student_grades</span>(num_of_stud)
+
+dict_students = <span class="fn">create_dict</span>(list_of_names, list_of_grades)
+
+max_name, max_grade = <span class="fn">get_max_name_grade</span>(dict_students)
+
+<span class="fn">print</span>(<span class="str">f"max grade was {max_grade} and the student was {max_name}"</span>)</div>
+        <div class="console">Enter a number between 2 and 50: <span class="usr">3</span>
+Enter the name of student 1#: <span class="usr">dana</span>
+Enter the name of student 2#: <span class="usr">ori</span>
+Enter the name of student 3#: <span class="usr">gil</span>
+Enter a grades for student 1#: <span class="usr">91</span>
+Enter a grades for student 2#: <span class="usr">78</span>
+Enter a grades for student 3#: <span class="usr">95</span>
+max grade was 95 and the student was gil</div>
+        <p>Look at the second-to-last line again:</p>
+        <div class="code">max_name, max_grade = <span class="fn">get_max_name_grade</span>(dict_students)</div>
+        <p>The function returned <strong>two things at once</strong>, and two variables caught them. That pair travelling together is a <strong>tuple</strong>, and unpacking it into two names like this is one of the most common things tuples are used for in real Python.</p>
+        <div class="ba">
+          <div class="bx">return max_name, grade</div>
+          <div class="arw">→</div>
+          <div class="bx old">('gil', 95)</div>
+          <div class="arw">→</div>
+          <div class="bx">max_name, max_grade</div>
+        </div>
+      </section>
+
+      <!-- ═══ TUPLE ═══ -->
+      <section class="card topic-panel" id="topic-tuple">
+        <span class="tag">01_tuple.py</span>
+        <h2 class="step-title">The Tuple — a List That Locked Its Door 🔒</h2>
+        <p>You know four ways to hold several values already. Here is the fifth, and the last one of the set:</p>
+        <table class="ex-table">
+          <thead><tr><th>Type</th><th>Looks like</th><th>The rule</th></tr></thead>
+          <tbody>
+            <tr><td><code>list</code></td><td><code>[1, 2, 3]</code></td><td>ordered, duplicates fine, <strong>changeable</strong></td></tr>
+            <tr><td><code>set</code></td><td><code>{1, 2, 3}</code></td><td>no order, <strong>no duplicates</strong></td></tr>
+            <tr><td><code>dict</code></td><td><code>{'a': 1}</code></td><td>key → value</td></tr>
+            <tr><td><code>tuple</code></td><td><code>(1, 2, 3)</code></td><td>ordered, duplicates fine, <strong>cannot be changed</strong></td></tr>
+          </tbody>
+        </table>
+        <p>A tuple is a list that has been locked. Everything you can <em>read</em> from a list you can read from a tuple. Everything that would <em>change</em> it is gone.</p>
+        <div class="code">t1 = (<span class="str">'a'</span>, <span class="str">'b'</span>, <span class="str">'c'</span>)
+t2 = (<span class="str">'d'</span>, <span class="str">'e'</span>, <span class="str">'f'</span>)
+
+<span class="fn">print</span>(t1, t2)</div>
+        <div class="console">('a', 'b', 'c') ('d', 'e', 'f')</div>
+        <div class="warn">
+          <strong>Try to change one and Python stops you:</strong>
+          <div class="code" style="margin-top:6px">t[<span class="num">0</span>] = <span class="str">'z'</span>
+<span class="cm">TypeError: 'tuple' object does not support item assignment</span>
+
+t.<span class="fn">append</span>(<span class="str">'d'</span>)
+<span class="cm">AttributeError: 'tuple' object has no attribute 'append'</span></div>
+          No <code>append</code>, no <code>remove</code>, no <code>sort</code>, no <code>clear</code>. Those methods do not exist on a tuple, because all of them change things.
+        </div>
+        <div class="big-result">The comma is what makes it 🚨</div>
+        <p>Not the brackets. This catches everybody once:</p>
+        <div class="vs">
+          <div>
+            <div class="vs-head bad">not a tuple</div>
+            <div class="code">x = (<span class="num">42</span>)
+<span class="fn">print</span>(<span class="fn">type</span>(x))</div>
+            <div class="console">&lt;class 'int'&gt;</div>
+          </div>
+          <div>
+            <div class="vs-head">a tuple</div>
+            <div class="code">x = (<span class="num">42</span>,)
+<span class="fn">print</span>(<span class="fn">type</span>(x))</div>
+            <div class="console">&lt;class 'tuple'&gt;</div>
+          </div>
+        </div>
+        <div class="note">
+          And you can build one from anything you can loop over: <code>tuple([1, 2, 3])</code> → <code>(1, 2, 3)</code>, <code>tuple('abc')</code> → <code>('a', 'b', 'c')</code>.
+        </div>
+      </section>
+
+      <!-- ═══ ACCESS ═══ -->
+      <section class="card topic-panel" id="topic-access">
+        <span class="tag">01_tuple.py</span>
+        <h2 class="step-title">Index &amp; Slice — Exactly Like a List 🔢</h2>
+        <p>Reading is unchanged. Positions start at <code>0</code>, negatives count from the end, and a slice hands you a new tuple.</p>
+        <div class="code">t1 = (<span class="str">'a'</span>, <span class="str">'b'</span>, <span class="str">'c'</span>)
+t2 = (<span class="str">'d'</span>, <span class="str">'e'</span>, <span class="str">'f'</span>)
+
+<span class="fn">print</span>(t1[<span class="num">0</span>])
+<span class="fn">print</span>(t2[<span class="num">0</span>])
+<span class="fn">print</span>(t2[-<span class="num">1</span>])
+<span class="fn">print</span>(t2[::-<span class="num">1</span>])
+
+t3 = (<span class="num">0</span>, <span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>)
+<span class="cm"># Items at index 1, 2, 3</span>
+<span class="fn">print</span>(t3[<span class="num">1</span>:<span class="num">4</span>])</div>
+        <div class="console">a
+d
+f
+('f', 'e', 'd')
+(1, 2, 3)</div>
+        <div class="fig">
+          <svg viewBox="0 0 600 150" role="img" aria-label="A tuple with positive indexes on top and negative indexes underneath">
+            <text x="300" y="18" text-anchor="middle" font-family="Consolas, monospace" font-size="13" font-weight="700" fill="#0f5a2e">t3 = (0, 1, 2, 3, 4, 5)</text>
+            <rect x="60" y="52" width="76" height="44" rx="9" fill="#ffffff" stroke="#7fd6a3" stroke-width="2"/>
+            <text x="98" y="80" text-anchor="middle" font-family="Consolas, monospace" font-size="15" font-weight="800" fill="#08351d">0</text>
+            <rect x="140" y="52" width="76" height="44" rx="9" fill="#d6f8e4" stroke="#1f8f4e" stroke-width="2"/>
+            <text x="178" y="80" text-anchor="middle" font-family="Consolas, monospace" font-size="15" font-weight="800" fill="#08351d">1</text>
+            <rect x="220" y="52" width="76" height="44" rx="9" fill="#d6f8e4" stroke="#1f8f4e" stroke-width="2"/>
+            <text x="258" y="80" text-anchor="middle" font-family="Consolas, monospace" font-size="15" font-weight="800" fill="#08351d">2</text>
+            <rect x="300" y="52" width="76" height="44" rx="9" fill="#d6f8e4" stroke="#1f8f4e" stroke-width="2"/>
+            <text x="338" y="80" text-anchor="middle" font-family="Consolas, monospace" font-size="15" font-weight="800" fill="#08351d">3</text>
+            <rect x="380" y="52" width="76" height="44" rx="9" fill="#ffffff" stroke="#7fd6a3" stroke-width="2"/>
+            <text x="418" y="80" text-anchor="middle" font-family="Consolas, monospace" font-size="15" font-weight="800" fill="#08351d">4</text>
+            <rect x="460" y="52" width="76" height="44" rx="9" fill="#ffffff" stroke="#7fd6a3" stroke-width="2"/>
+            <text x="498" y="80" text-anchor="middle" font-family="Consolas, monospace" font-size="15" font-weight="800" fill="#08351d">5</text>
+            <text x="98" y="44" text-anchor="middle" font-family="Consolas, monospace" font-size="11" font-weight="700" fill="#1f8f4e">0</text>
+            <text x="178" y="44" text-anchor="middle" font-family="Consolas, monospace" font-size="11" font-weight="700" fill="#1f8f4e">1</text>
+            <text x="258" y="44" text-anchor="middle" font-family="Consolas, monospace" font-size="11" font-weight="700" fill="#1f8f4e">2</text>
+            <text x="338" y="44" text-anchor="middle" font-family="Consolas, monospace" font-size="11" font-weight="700" fill="#1f8f4e">3</text>
+            <text x="418" y="44" text-anchor="middle" font-family="Consolas, monospace" font-size="11" font-weight="700" fill="#1f8f4e">4</text>
+            <text x="498" y="44" text-anchor="middle" font-family="Consolas, monospace" font-size="11" font-weight="700" fill="#1f8f4e">5</text>
+            <text x="98" y="112" text-anchor="middle" font-family="Consolas, monospace" font-size="11" fill="#b07d00">-6</text>
+            <text x="178" y="112" text-anchor="middle" font-family="Consolas, monospace" font-size="11" fill="#b07d00">-5</text>
+            <text x="258" y="112" text-anchor="middle" font-family="Consolas, monospace" font-size="11" fill="#b07d00">-4</text>
+            <text x="338" y="112" text-anchor="middle" font-family="Consolas, monospace" font-size="11" fill="#b07d00">-3</text>
+            <text x="418" y="112" text-anchor="middle" font-family="Consolas, monospace" font-size="11" fill="#b07d00">-2</text>
+            <text x="498" y="112" text-anchor="middle" font-family="Consolas, monospace" font-size="11" fill="#b07d00">-1</text>
+            <text x="258" y="138" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#1f8f4e">t3[1:4] → (1, 2, 3)</text>
+            <text x="470" y="138" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#b07d00">t3[-1] → 5</text>
+          </svg>
+          <div class="figcap">The slice takes 1, 2 and 3 — it stops <em>before</em> 4. Same rule as lists and strings.</div>
+        </div>
+        <div class="note">
+          A slice of a tuple gives you a <strong>new tuple</strong>. Nothing was changed — the original is still sitting there untouched, which is the whole point.
+        </div>
+      </section>
+
+      <!-- ═══ METHODS ═══ -->
+      <section class="card topic-panel" id="topic-methods">
+        <span class="tag">01_tuple.py</span>
+        <h2 class="step-title">Two Methods, and Two Ways to Make a New One 🧮</h2>
+        <p>A list has about eleven methods. A tuple has <strong>two</strong> — and that is not a limitation, it is the promise: neither one changes anything.</p>
+        <div class="code">t = (<span class="num">1</span>, <span class="num">2</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">2</span>, <span class="num">4</span>, <span class="num">2</span>)
+n = t.<span class="fn">count</span>(<span class="num">2</span>)
+<span class="fn">print</span>(t, <span class="str">'t.count(2)='</span>, n)
+
+t = (<span class="str">'cat'</span>, <span class="str">'dog'</span>, <span class="str">'bird'</span>, <span class="str">'dog'</span>)
+<span class="fn">print</span>(t, <span class="str">'t.index("dog")='</span>, t.<span class="fn">index</span>(<span class="str">'dog'</span>))</div>
+        <div class="console">(1, 2, 2, 3, 2, 4, 2) t.count(2)= 4
+('cat', 'dog', 'bird', 'dog') t.index("dog")= 1</div>
+        <table class="ex-table">
+          <thead><tr><th>Method</th><th>Answers</th><th>Note</th></tr></thead>
+          <tbody>
+            <tr><td><code>t.count(x)</code></td><td>how many times <code>x</code> is in there</td><td><code>0</code> if it is not</td></tr>
+            <tr><td><code>t.index(x)</code></td><td>the position of the <strong>first</strong> <code>x</code></td><td><code>ValueError</code> if it is not there — check with <code>in</code> first</td></tr>
+          </tbody>
+        </table>
+
+        <div class="big-result">Making new tuples out of old ones</div>
+        <p>You cannot change a tuple. You can always build a new one.</p>
+        <div class="code">a = (<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>)
+b = (<span class="num">4</span>, <span class="num">6</span>, <span class="num">1</span>)
+result = a + b
+<span class="fn">print</span>(a, <span class="str">'+'</span>, b, <span class="str">'='</span>, result)
+
+<span class="fn">print</span>(<span class="fn">sorted</span>(b, reverse=<span class="kw">True</span>))
+<span class="fn">print</span>(<span class="fn">tuple</span>(<span class="fn">sorted</span>(b, reverse=<span class="kw">True</span>)))</div>
+        <div class="console">(1, 2, 3) + (4, 6, 1) = (1, 2, 3, 4, 6, 1)
+[6, 4, 1]
+(6, 4, 1)</div>
+        <div class="warn">
+          <strong>Watch the brackets on that middle line.</strong> <code>sorted()</code> always hands back a <strong>list</strong>, whatever you feed it — so <code>[6, 4, 1]</code>, with square brackets. Want a tuple back? Wrap it: <code>tuple(sorted(b, reverse=True))</code>.
+        </div>
+        <div class="note">
+          There is no <code>b.sort()</code> here, and there cannot be — <code>.sort()</code> rearranges the thing in place, and a tuple has no in-place. <code>sorted()</code> leaves the original alone and returns something new. That is exactly the distinction from last lesson.
+        </div>
+      </section>
+
+      <!-- ═══ TESTS ═══ -->
+      <section class="card topic-panel" id="topic-tests">
+        <span class="tag">01_tuple.py</span>
+        <h2 class="step-title">Asking Questions About a Tuple ❓</h2>
+        <p>The same words you used on lists and strings all work here, because none of them change anything.</p>
+        <div class="code">t = (<span class="str">'apple'</span>, <span class="str">'banana'</span>, <span class="str">'cherry'</span>)
+<span class="fn">print</span>(t, <span class="str">"banana in t?"</span>, <span class="str">'banana'</span> <span class="kw">in</span> t)
+<span class="fn">print</span>(t, <span class="str">"mango not in t?"</span>, <span class="str">'mango'</span> <span class="kw">not</span> <span class="kw">in</span> t)</div>
+        <div class="console">('apple', 'banana', 'cherry') banana in t? True
+('apple', 'banana', 'cherry') mango not in t? True</div>
+        <div class="code">t = (<span class="num">3</span>, <span class="num">1</span>, <span class="num">4</span>, <span class="num">1</span>, <span class="num">5</span>, <span class="num">9</span>)
+<span class="fn">print</span>(t, <span class="str">'len(t)'</span>, <span class="fn">len</span>(t))
+<span class="fn">print</span>(t, <span class="str">'min(t)'</span>, <span class="fn">min</span>(t))
+<span class="fn">print</span>(t, <span class="str">'max(t)'</span>, <span class="fn">max</span>(t))
+<span class="fn">print</span>(t, <span class="str">'sum(t)'</span>, <span class="fn">sum</span>(t))</div>
+        <div class="console">(3, 1, 4, 1, 5, 9) len(t) 6
+(3, 1, 4, 1, 5, 9) min(t) 1
+(3, 1, 4, 1, 5, 9) max(t) 9
+(3, 1, 4, 1, 5, 9) sum(t) 23</div>
+        <div class="stats">
+          <div class="stat"><span class="snm">len</span><span class="strack"><span class="sfill" style="width:60%"></span></span><span class="sval">6</span></div>
+          <div class="stat"><span class="snm">min</span><span class="strack"><span class="sfill" style="width:11%"></span></span><span class="sval">1</span></div>
+          <div class="stat"><span class="snm">max</span><span class="strack"><span class="sfill hi" style="width:100%"></span></span><span class="sval">9</span></div>
+          <div class="stat"><span class="snm">sum</span><span class="strack"><span class="sfill hi" style="width:100%"></span></span><span class="sval">23</span></div>
+        </div>
+        <div class="note">
+          <code>min</code>, <code>max</code> and <code>sum</code> want values that can be compared. On <code>('apple', 'banana')</code>, <code>min</code> still works — it compares alphabetically. On <code>sum</code> of strings it does not: <code>TypeError</code>.
+        </div>
+      </section>
+
+      <!-- ═══ DICT KEY ═══ -->
+      <section class="card topic-panel" id="topic-key">
+        <span class="tag">01_tuple.py</span>
+        <h2 class="step-title">Why the Lock Is Useful: a Tuple Can Be a Key 🔑</h2>
+        <p>A dictionary key has to be something that never changes — otherwise the dictionary would lose track of where it filed it. A list can change, so a list can never be a key. A tuple cannot, so it can.</p>
+        <div class="code">d = {(<span class="num">1</span>, <span class="num">2</span>): (<span class="str">'a'</span>, <span class="str">'b'</span>)}  <span class="cm"># tuple could be used as key in dict</span>
+
+<span class="fn">print</span>(d)
+<span class="fn">print</span>(d[ (<span class="num">1</span>,<span class="num">2</span>) ])</div>
+        <div class="console">{(1, 2): ('a', 'b')}
+('a', 'b')</div>
+        <div class="vs">
+          <div>
+            <div class="vs-head">tuple key — fine</div>
+            <div class="code">d = {(<span class="num">1</span>, <span class="num">2</span>): <span class="num">2</span>}</div>
+          </div>
+          <div>
+            <div class="vs-head bad">list key — never</div>
+            <div class="code">d = {[<span class="num">3</span>, <span class="num">4</span>]: <span class="num">2</span>}
+<span class="cm">TypeError: unhashable</span>
+<span class="cm">           type: 'list'</span></div>
+          </div>
+        </div>
+        <p>That is what real code uses tuple keys for: a coordinate, a date, a pair of names — anything where the key is naturally two or three values instead of one.</p>
+
+        <div class="big-result">The catch nobody expects ⚠️</div>
+        <p>The tuple is locked. What is <em>inside</em> it might not be.</p>
+        <div class="code">a = [<span class="num">1</span>, <span class="num">2</span>]
+tup = (a, <span class="num">12</span>)
+<span class="fn">print</span>(tup)
+
+a.<span class="fn">clear</span>()
+<span class="fn">print</span>(tup)</div>
+        <div class="console">([1, 2], 12)
+([], 12)</div>
+        <p>Nobody touched <code>tup</code>. The tuple still holds exactly the same two items it always held — the same list, and the number <code>12</code>. But that list emptied itself, and the tuple has no say in it.</p>
+        <div class="fig">
+          <svg viewBox="0 0 600 170" role="img" aria-label="A tuple holding a reference to a list; the list is emptied from outside">
+            <text x="150" y="20" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#1f8f4e">before a.clear()</text>
+            <rect x="34" y="32" width="228" height="76" rx="12" fill="#ffffff" stroke="#1f8f4e" stroke-width="2"/>
+            <text x="48" y="54" font-family="Consolas, monospace" font-size="11" font-weight="700" fill="#0f5a2e">tup</text>
+            <rect x="48" y="62" width="96" height="34" rx="8" fill="#fffaf0" stroke="#e6c46a" stroke-width="2"/>
+            <text x="96" y="84" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#6b4e00">[1, 2]</text>
+            <rect x="154" y="62" width="88" height="34" rx="8" fill="#d6f8e4" stroke="#7fd6a3" stroke-width="2"/>
+            <text x="198" y="84" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#08351d">12</text>
+            <text x="150" y="126" text-anchor="middle" font-family="Consolas, monospace" font-size="11" fill="#426654">a ──→ the same list</text>
+            <path d="M272 70 L318 70" fill="none" stroke="#426654" stroke-width="3"/>
+            <path d="M310 63 L320 70 L310 77" fill="none" stroke="#426654" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <text x="296" y="58" text-anchor="middle" font-family="Consolas, monospace" font-size="10" fill="#426654">a.clear()</text>
+            <text x="450" y="20" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#b07d00">after</text>
+            <rect x="336" y="32" width="228" height="76" rx="12" fill="#ffffff" stroke="#1f8f4e" stroke-width="2"/>
+            <text x="350" y="54" font-family="Consolas, monospace" font-size="11" font-weight="700" fill="#0f5a2e">tup</text>
+            <rect x="350" y="62" width="96" height="34" rx="8" fill="#fff0c2" stroke="#e0a800" stroke-width="2"/>
+            <text x="398" y="84" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#6b4e00">[]</text>
+            <rect x="456" y="62" width="88" height="34" rx="8" fill="#d6f8e4" stroke="#7fd6a3" stroke-width="2"/>
+            <text x="500" y="84" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#08351d">12</text>
+            <text x="450" y="126" text-anchor="middle" font-family="Consolas, monospace" font-size="11" fill="#426654">still the same two items</text>
+            <text x="300" y="156" text-anchor="middle" font-family="Consolas, monospace" font-size="11" font-weight="700" fill="#b07d00">the tuple is locked — the list inside it is not</text>
+          </svg>
+          <div class="figcap">The tuple promises <em>which</em> things it holds, not that those things never change.</div>
+        </div>
+        <div class="warn">
+          And that is why a tuple with a list inside it still cannot be a key:
+          <div class="code" style="margin-top:6px">tup = ([<span class="num">3</span>, <span class="num">4</span>], <span class="num">12</span>)
+d1 = {tup: <span class="num">2</span>}
+<span class="cm">TypeError: unhashable type: 'list'</span></div>
+          Python checks the whole way down. One changeable thing anywhere inside and the answer is no.
+        </div>
+      </section>
+
+      <!-- ═══ LOOP ═══ -->
+      <section class="card topic-panel" id="topic-loop">
+        <span class="tag">01_tuple.py</span>
+        <h2 class="step-title">Loop Over It, Build a New One 🔁</h2>
+        <p><code>for</code> does not change anything, so <code>for</code> works exactly as you would expect.</p>
+        <div class="code">t = (<span class="str">'apple'</span>, <span class="str">'banana'</span>, <span class="str">'cherry'</span>)
+<span class="kw">for</span> fruit <span class="kw">in</span> t:
+    <span class="fn">print</span>(fruit, end=<span class="str">" "</span>)
+<span class="fn">print</span>()</div>
+        <div class="console">apple banana cherry</div>
+
+        <div class="big-result">The pattern for the homework 🧩</div>
+        <p>Every one of tonight's tasks is the same shape, and here it is in full. You cannot grow a tuple, so you collect into a <strong>list</strong> and turn it into a tuple at the end.</p>
+        <div class="code"><span class="cm"># function that gets tuple return new tuple only from even numbers</span>
+<span class="kw">def</span> <span class="fn">get_even</span>(tup):
+    result = []                     <span class="cm"># 1. an empty LIST to collect in</span>
+    <span class="kw">for</span> num <span class="kw">in</span> tup:                <span class="cm"># 2. walk the tuple</span>
+        <span class="kw">if</span> num % <span class="num">2</span> == <span class="num">0</span>:            <span class="cm"># 3. is this one a keeper?</span>
+            result.<span class="fn">append</span>(num)      <span class="cm">#    yes - into the list</span>
+    result_tup = <span class="fn">tuple</span>(result)     <span class="cm"># 4. lock the list into a tuple</span>
+    <span class="kw">return</span> result_tup              <span class="cm"># 5. hand it back</span>
+
+input_fun = (<span class="num">1</span>, <span class="num">2</span>, <span class="num">4</span>, <span class="num">7</span>, <span class="num">9</span>, <span class="num">10</span>, <span class="num">14</span>)
+<span class="fn">print</span>(input_fun)
+<span class="fn">print</span>(<span class="fn">get_even</span>(input_fun))</div>
+        <div class="console">(1, 2, 4, 7, 9, 10, 14)
+(2, 4, 10, 14)</div>
+        <ol class="steps">
+          <li><span class="sh">Start with an empty list</span>You cannot <code>append</code> to a tuple, so the collecting happens in a list.</li>
+          <li><span class="sh">Loop over the tuple you were given</span>Reading it is always allowed.</li>
+          <li><span class="sh">Test each item, keep the ones you want</span>The loop and the collecting stay the same every time; only what happens inside changes.</li>
+          <li><span class="sh">tuple(result)</span>Lock the finished list.</li>
+          <li><span class="sh">return it</span>The original tuple is untouched — a brand new one comes back.</li>
+        </ol>
+        <div class="note">
+          Learn this shape once and all three of tonight&rsquo;s functions are the same five steps with a different middle.
+        </div>
+      </section>
+
+      <!-- ═══ GITHUB ═══ -->
+      <section class="card topic-panel" id="topic-github">
+        <span class="tag">GitHub</span>
+        <h2 class="step-title">Lesson 19 GitHub Folder</h2>
+        <p>All the code from today's lesson:</p>
+        <div class="task-box">
+          <strong>Lesson folder:</strong><br>
+          <a href="https://github.com/pythonai080626-a11y/31.08.2025" target="_blank" rel="noopener">
+            https://github.com/pythonai080626-a11y/31.08.2025
+          </a>
+        </div>
+        <table class="ex-table">
+          <thead><tr><th>File</th><th>What it shows</th></tr></thead>
+          <tbody>
+            <tr><td><code>01_tuple.py</code></td><td>where the tuple sits among <code>list</code> / <code>set</code> / <code>dict</code>; indexing, <code>[-1]</code>, <code>[::-1]</code> and slicing; <code>count</code> and <code>index</code>; <code>+</code> and <code>tuple(sorted(...))</code>; <code>in</code> / <code>not in</code>, <code>len</code> / <code>min</code> / <code>max</code> / <code>sum</code>; a tuple as a <code>dict</code> key and the mutable-list-inside trap; looping; and <code>get_even</code> — plus five more tuple tasks written as comments at the bottom</td></tr>
+            <tr><td><code>02_func_prog.py</code></td><td>the whole students program as a ten-line story, built entirely out of imported functions</td></tr>
+            <tr><td><code>students_lib.py</code></td><td>the module those functions were moved into — including <code>get_max_name_grade</code>, which returns two values at once</td></tr>
+            <tr><td><code>03_func_prog.py</code></td><td>the guessing game written story-first, with three <code>pass</code> stubs waiting to be filled in</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          Topic page for today: <a href="../../23_tuples/index.html">Tuples</a> &mdash; the new one. <a href="../../22_functions2/index.html">Functions 2</a> and <a href="../../16_lists/index.html">Lists</a> are both worth another look for the homework.
+        </div>
+      </section>
+
+      <!-- ═══ HOMEWORK EN ═══ -->
+      <section class="card topic-panel" id="topic-exercise">
+        <span class="tag">Homework</span>
+        <h2 class="step-title">Homework — Three Tuple Functions ✍️</h2>
+        <p>Three functions. Every one of them follows the shape from <code>get_even</code>: an empty <strong>list</strong> to collect in, a loop, <code>append</code>, then <code>tuple(...)</code> and <code>return</code>.</p>
+        <div class="warn">
+          <strong>Rules for all three:</strong>
+          <ol class="task-list" style="margin-top:6px">
+            <li>Every function gets a <strong>docstring</strong> with <code>:param</code> for each slot and <code>:return:</code> for the answer.</li>
+            <li><strong>Return a tuple, do not print.</strong> The <code>print</code> happens outside, on what came back.</li>
+            <li>Call each one at least twice with different values, and print what came back.</li>
+          </ol>
+        </div>
+
+        <div class="big-result">1 · reverse_tuple(tup) 🔄</div>
+        <p>Takes a tuple, returns a <strong>new tuple</strong> with the same items in the opposite order. The tuple you were given must come back untouched &mdash; you are building a second one.</p>
+        <div class="code"><span class="kw">def</span> <span class="fn">reverse_tuple</span>(tup):
+    <span class="cm"># docstring here</span>
+    <span class="cm"># empty list, walk the tuple backwards, append, tuple(...), return</span>
+
+<span class="fn">print</span>(<span class="fn">reverse_tuple</span>( (<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>) ))
+<span class="fn">print</span>(<span class="fn">reverse_tuple</span>( (<span class="str">'a'</span>, <span class="str">'b'</span>, <span class="str">'c'</span>) ))
+<span class="fn">print</span>(<span class="fn">reverse_tuple</span>( () ))</div>
+        <div class="console">(4, 3, 2, 1)
+('c', 'b', 'a')
+()</div>
+        <div class="note">
+          Two honest roads. Walk it backwards yourself with <code>for i in range(len(tup) - 1, -1, -1):</code> and <code>append</code> each <code>tup[i]</code> &mdash; or let the slice do it: <code>tup[::-1]</code> already hands back a reversed tuple. Try the loop first, then check yourself against the slice.
+        </div>
+
+        <div class="big-result">2 · random_tuple(length) 🎲</div>
+        <p>Takes a <strong>number</strong> &mdash; how long the tuple should be &mdash; and returns a tuple of that many random numbers between 1 and 100.</p>
+        <div class="code"><span class="kw">import</span> random
+
+<span class="kw">def</span> <span class="fn">random_tuple</span>(length):
+    <span class="cm"># docstring here</span>
+    <span class="cm"># loop 'length' times, append a random number each time</span>
+
+<span class="fn">print</span>(<span class="fn">random_tuple</span>(<span class="num">5</span>))
+<span class="fn">print</span>(<span class="fn">random_tuple</span>(<span class="num">3</span>))
+<span class="fn">print</span>(<span class="fn">len</span>(<span class="fn">random_tuple</span>(<span class="num">10</span>)))</div>
+        <div class="console">(42, 20, 51, 84, 7)
+(10, 69, 13)
+10</div>
+        <div class="warn">
+          <strong>Your numbers will be different every run &mdash; that is correct.</strong> The two things that must always be true: the tuple has exactly <code>length</code> items, and every one of them is between 1 and 100. Check the length with <code>len()</code>, not with your eyes.
+        </div>
+        <div class="note">
+          <code>random.randint(1, 100)</code> includes both ends, so 1 and 100 can both come up. This is the only task tonight where the input is a plain number instead of a tuple.
+        </div>
+
+        <div class="big-result">3 · flat_dict(d) 🫓</div>
+        <p>Takes a <strong>dictionary</strong> and returns one flat tuple: every key followed by its value, in order.</p>
+        <div class="ba">
+          <div class="bx old">{'a': 1, 'b': 2, 'c': 3}</div>
+          <div class="arw">→</div>
+          <div class="bx">('a', 1, 'b', 2, 'c', 3)</div>
+        </div>
+        <div class="code"><span class="kw">def</span> <span class="fn">flat_dict</span>(d):
+    <span class="cm"># docstring here</span>
+    <span class="cm"># for each key: append the key, then append the value</span>
+
+<span class="fn">print</span>(<span class="fn">flat_dict</span>( {<span class="str">'a'</span>: <span class="num">1</span>, <span class="str">'b'</span>: <span class="num">2</span>, <span class="str">'c'</span>: <span class="num">3</span>} ))
+<span class="fn">print</span>(<span class="fn">flat_dict</span>( {<span class="str">'name'</span>: <span class="str">'dana'</span>, <span class="str">'age'</span>: <span class="num">29</span>} ))
+<span class="fn">print</span>(<span class="fn">flat_dict</span>( {} ))</div>
+        <div class="console">('a', 1, 'b', 2, 'c', 3)
+('name', 'dana', 29)
+()</div>
+        <div class="note">
+          <code>for key in d:</code> walks the <strong>keys</strong>, and <code>d[key]</code> fetches the value &mdash; so it is <code>append</code> twice inside one loop. Notice the result mixes strings and numbers in one tuple: that is allowed, and it is why the answer is a tuple and not a dict any more.
+        </div>
+
+        <p><strong>Python only</strong>. Write it as a <code>.py</code> file in PyCharm and run with <span class="kbd">Shift</span> + <span class="kbd">F10</span>.</p>
+
+        <div class="big-result">Submission</div>
+        <div class="card submission">
+          <ol class="task-list">
+            <li><strong>Write the .py program</strong> in PyCharm.</li>
+            <li><strong>Upload to GitHub</strong> and send the link to:<br>
+              <a href="mailto:pythonai080626+hw19@gmail.com">pythonai080626+hw19@gmail.com</a>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ═══ HOMEWORK HE ═══ -->
+      <section class="card topic-panel rtl" id="topic-homework-heb" dir="rtl">
+        <span class="tag">שיעורי בית</span>
+        <h2 class="step-title">שיעורי בית — שלוש פונקציות על tuple ✍️</h2>
+        <p>שלוש פונקציות. כל אחת מהן בנויה בדיוק כמו <code dir="ltr">get_even</code>: <strong>רשימה</strong> ריקה לאסוף בתוכה, לולאה, <code dir="ltr">append</code>, ואז <code dir="ltr">tuple(...)</code> ו-<code dir="ltr">return</code>.</p>
+        <div class="warn">
+          <strong>כללים לשלוש הפונקציות:</strong>
+          <ol class="task-list" style="margin-top:6px">
+            <li>לכל פונקציה חייב להיות <strong>docstring</strong> עם <code dir="ltr">:param</code> לכל פרמטר ו-<code dir="ltr">:return:</code> לתשובה.</li>
+            <li><strong>להחזיר tuple, לא להדפיס.</strong> ה-<code dir="ltr">print</code> קורה בחוץ, על מה שחזר.</li>
+            <li>קראו לכל פונקציה לפחות פעמיים עם ערכים שונים, והדפיסו מה חזר.</li>
+          </ol>
+        </div>
+
+        <div class="big-result">1 · <span dir="ltr">reverse_tuple(tup)</span> 🔄</div>
+        <p>מקבלת tuple, ומחזירה <strong>tuple חדש</strong> עם אותם איברים בסדר הפוך. ה-tuple שקיבלתם חייב לחזור ללא שינוי — אתם בונים אחד שני.</p>
+        <div class="code" dir="ltr"><span class="kw">def</span> <span class="fn">reverse_tuple</span>(tup):
+    <span class="cm"># docstring here</span>
+    <span class="cm"># empty list, walk the tuple backwards, append, tuple(...), return</span>
+
+<span class="fn">print</span>(<span class="fn">reverse_tuple</span>( (<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>) ))
+<span class="fn">print</span>(<span class="fn">reverse_tuple</span>( (<span class="str">'a'</span>, <span class="str">'b'</span>, <span class="str">'c'</span>) ))
+<span class="fn">print</span>(<span class="fn">reverse_tuple</span>( () ))</div>
+        <div class="console" dir="ltr">(4, 3, 2, 1)
+('c', 'b', 'a')
+()</div>
+        <div class="note">
+          שתי דרכים נכונות. לרוץ אחורה בעצמכם עם <code dir="ltr">for i in range(len(tup) - 1, -1, -1):</code> ולעשות <code dir="ltr">append</code> לכל <code dir="ltr">tup[i]</code> — או לתת ל-slice לעשות את זה: <code dir="ltr">tup[::-1]</code> כבר מחזיר tuple הפוך. תעשו קודם עם הלולאה, ואז תבדקו את עצמכם מול ה-slice.
+        </div>
+
+        <div class="big-result">2 · <span dir="ltr">random_tuple(length)</span> 🎲</div>
+        <p>מקבלת <strong>מספר</strong> — באיזה אורך ה-tuple צריך להיות — ומחזירה tuple עם כמות כזאת של מספרים אקראיים בין 1 ל-100.</p>
+        <div class="code" dir="ltr"><span class="kw">import</span> random
+
+<span class="kw">def</span> <span class="fn">random_tuple</span>(length):
+    <span class="cm"># docstring here</span>
+    <span class="cm"># loop 'length' times, append a random number each time</span>
+
+<span class="fn">print</span>(<span class="fn">random_tuple</span>(<span class="num">5</span>))
+<span class="fn">print</span>(<span class="fn">random_tuple</span>(<span class="num">3</span>))
+<span class="fn">print</span>(<span class="fn">len</span>(<span class="fn">random_tuple</span>(<span class="num">10</span>)))</div>
+        <div class="console" dir="ltr">(42, 20, 51, 84, 7)
+(10, 69, 13)
+10</div>
+        <div class="warn">
+          <strong>המספרים שלכם יהיו שונים בכל הרצה — וזה נכון.</strong> שני דברים חייבים תמיד להתקיים: ב-tuple יש בדיוק <code dir="ltr">length</code> איברים, וכל אחד מהם בין 1 ל-100. תבדקו את האורך עם <code dir="ltr">len()</code>, לא בעיניים.
+        </div>
+        <div class="note">
+          <code dir="ltr">random.randint(1, 100)</code> כולל את שני הקצוות, כך שגם 1 וגם 100 יכולים לצאת. זו המשימה היחידה הערב שבה הקלט הוא מספר רגיל ולא tuple.
+        </div>
+
+        <div class="big-result">3 · <span dir="ltr">flat_dict(d)</span> 🫓</div>
+        <p>מקבלת <strong>מילון</strong>, ומחזירה tuple שטוח אחד: כל מפתח ואחריו הערך שלו, לפי הסדר.</p>
+        <div class="ba" dir="ltr">
+          <div class="bx old">{'a': 1, 'b': 2, 'c': 3}</div>
+          <div class="arw">→</div>
+          <div class="bx">('a', 1, 'b', 2, 'c', 3)</div>
+        </div>
+        <div class="code" dir="ltr"><span class="kw">def</span> <span class="fn">flat_dict</span>(d):
+    <span class="cm"># docstring here</span>
+    <span class="cm"># for each key: append the key, then append the value</span>
+
+<span class="fn">print</span>(<span class="fn">flat_dict</span>( {<span class="str">'a'</span>: <span class="num">1</span>, <span class="str">'b'</span>: <span class="num">2</span>, <span class="str">'c'</span>: <span class="num">3</span>} ))
+<span class="fn">print</span>(<span class="fn">flat_dict</span>( {<span class="str">'name'</span>: <span class="str">'dana'</span>, <span class="str">'age'</span>: <span class="num">29</span>} ))
+<span class="fn">print</span>(<span class="fn">flat_dict</span>( {} ))</div>
+        <div class="console" dir="ltr">('a', 1, 'b', 2, 'c', 3)
+('name', 'dana', 29)
+()</div>
+        <div class="note">
+          <code dir="ltr">for key in d:</code> רץ על <strong>המפתחות</strong>, ו-<code dir="ltr">d[key]</code> מביא את הערך — כלומר <code dir="ltr">append</code> פעמיים בתוך לולאה אחת. שימו לב שהתוצאה מערבבת מחרוזות ומספרים ב-tuple אחד: זה מותר, וזו בדיוק הסיבה שהתשובה היא tuple וכבר לא מילון.
+        </div>
+
+        <p><strong>פייתון בלבד</strong>. כתבו קובץ <code dir="ltr">.py</code> ב-PyCharm והריצו עם <span class="kbd">Shift</span> + <span class="kbd">F10</span>.</p>
+
+        <div class="big-result">הגשה</div>
+        <div class="card submission">
+          <ol class="task-list">
+            <li><strong>כתבו את התוכנית ב-<code dir="ltr">.py</code></strong> ב-PyCharm.</li>
+            <li><strong>העלו ל-GitHub</strong> ושלחו את הקישור אל:<br>
+              <a href="mailto:pythonai080626+hw19@gmail.com" dir="ltr">pythonai080626+hw19@gmail.com</a>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <div class="footer">Lesson 19 &middot; Story-first functions, your own module &amp; the tuple &middot; August 31, 2026</div>
+</div>
+
+<script>
+  const links = document.querySelectorAll('.topic-link');
+  const panels = document.querySelectorAll('.topic-panel');
+
+  function showTopic(id) {
+    panels.forEach(panel => panel.classList.toggle('active', panel.id === id));
+    links.forEach(link => link.classList.toggle('active', link.dataset.target === id));
+  }
+
+  links.forEach(link => {
+    link.addEventListener('click', () => {
+      showTopic(link.dataset.target);
+      location.hash = link.dataset.target;
+    });
+  });
+
+  const hash = location.hash.replace('#', '');
+  if (hash && document.getElementById(hash)) showTopic(hash);
+</script>
+</body>
+</html>
