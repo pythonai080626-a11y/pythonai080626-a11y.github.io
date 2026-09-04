@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lesson 20 - Try, Except, Finally</title>
+  <style>
+    :root {
+      --bg-soft: #ffffff;
+      --green-1: #0f5a2e;
+      --green-2: #1f8f4e;
+      --green-3: #dbf6e5;
+      --mint: #e6fff2;
+      --text: #14281d;
+      --muted: #426654;
+      --border: #aadfbd;
+      --accent-a: #ddfbe7;
+      --accent-b: #fff4d8;
+      --code-bg: #0b2517;
+      --code-text: #d2ffe3;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Lucida Sans", "Segoe UI", sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 15% 10%, #e7fff0 0%, transparent 35%),
+                  radial-gradient(circle at 85% 18%, #fff5d6 0%, transparent 36%),
+                  linear-gradient(180deg, #f4fff6 0%, #ffffff 45%, #edfff4 100%);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    body::before, body::after {
+      content: "";
+      position: fixed;
+      width: 230px;
+      height: 230px;
+      z-index: -1;
+      border-radius: 999px;
+      filter: blur(2px);
+      opacity: 0.32;
+      animation: blobMove 8s ease-in-out infinite alternate;
+    }
+    body::before { background: #bff0d0; top: -30px; left: -40px; }
+    body::after { background: #ffe9a9; bottom: -40px; right: -40px; animation-delay: 1.4s; }
+
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 24px; }
+    .layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    /* a grid item defaults to min-width:auto and refuses to shrink below its
+       widest line — without this, one long console line stretches the panel */
+    .layout > main { min-width: 0; }
+    .card > * { max-width: 100%; }
+
+    .side-nav {
+      position: sticky;
+      top: 14px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 8px 22px rgba(18,102,55,0.1);
+      padding: 12px;
+    }
+    .side-title { margin: 0 0 8px; font-size: 0.9rem; color: var(--green-1); font-weight: 700; }
+    .topic-link {
+      display: block;
+      width: 100%;
+      text-align: left;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      padding: 8px 10px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.89rem;
+      text-transform: lowercase;
+      margin-bottom: 4px;
+      transition: all 0.2s ease;
+    }
+    .topic-link:hover { background: #f0fff4; color: var(--green-1); border-color: var(--border); }
+    .topic-link.active { background: #e8faee; color: var(--green-1); border-color: var(--green-2); font-weight: 700; }
+
+    .hero {
+      background: linear-gradient(135deg, var(--bg-soft) 0%, var(--accent-a) 55%, var(--accent-b) 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 12px 30px rgba(24,110,58,0.12);
+      margin-bottom: 22px;
+      animation: riseIn 0.75s ease both;
+    }
+
+    h1, h2, h3 { margin-top: 0; color: var(--green-1); }
+    h1 { font-size: 2rem; margin-bottom: 8px; }
+    code { color: var(--green-1); font-weight: 700; }
+
+    .tag {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      background: var(--green-3);
+      color: var(--green-1);
+      border: 1px solid var(--border);
+      margin-bottom: 10px;
+    }
+
+    .card {
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 16px;
+      box-shadow: 0 7px 22px rgba(18,102,55,0.08);
+      animation: riseIn 0.65s ease both;
+    }
+
+    .topic-panel { display: none; }
+    .topic-panel.active { display: block; }
+    .step-title { margin: 0 0 12px; font-size: 1.25rem; }
+    .side-divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+    .side-section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--green-2);
+      padding: 4px 4px 6px;
+    }
+    .nav-back {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--green-2);
+      background: #e9fbe8;
+      color: var(--green-1);
+      text-decoration: none;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      width: 100%;
+      text-align: center;
+    }
+    .nav-back:hover { background: #d8f7df; transform: translateY(-1px); }
+
+    .note {
+      background: var(--mint);
+      border-left: 4px solid var(--green-2);
+      padding: 10px 14px;
+      color: var(--muted);
+      margin: 12px 0;
+      border-radius: 6px;
+      font-size: 0.94rem;
+    }
+    .warn {
+      background: #fff6e2;
+      border-left: 4px solid #e0a800;
+      padding: 10px 14px;
+      color: #6b4e00;
+      margin: 12px 0;
+      border-radius: 6px;
+      font-size: 0.94rem;
+    }
+    .big-result { font-size: 1.1rem; margin: 18px 0 8px; color: var(--green-1); font-weight: 700; }
+
+    .code {
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 10px;
+      border: 1px solid #2f5a3d;
+      padding: 16px 18px;
+      overflow-x: auto;
+      margin: 10px 0 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95rem;
+      white-space: pre;
+      line-height: 1.7;
+    }
+    .code .cm { color: #6dbf8a; }
+    .code .fn { color: #ffa657; }
+    .code .kw { color: #79c0ff; }
+    .code .num { color: #d2a8ff; }
+    .code .str { color: #ffd580; }
+    .code .hl { background: rgba(125,231,135,0.16); border-radius: 4px; }
+    .code .bad { background: rgba(248,113,113,0.16); border-radius: 4px; }
+
+    .console {
+      background: #101418;
+      color: #e6edf3;
+      border-radius: 10px;
+      border: 1px solid #30363d;
+      padding: 12px 18px;
+      overflow-x: auto;
+      margin: 10px 0 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92rem;
+      white-space: pre;
+      line-height: 1.7;
+    }
+    .console .usr { color: #7ee787; font-weight: 700; }
+    .console .dim { color: #8b949e; }
+    .console .err { color: #ff9f9f; }
+
+    .ex-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .88rem;
+      margin: 10px 0 14px;
+    }
+    .ex-table th {
+      background: var(--green-3);
+      color: var(--green-1);
+      padding: 8px 12px;
+      text-align: left;
+      border: 1px solid var(--border);
+      font-size: .78rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+    .ex-table td { padding: 8px 12px; border: 1px solid var(--border); vertical-align: top; }
+    .ex-table tr:nth-child(even) td { background: #f4fff7; }
+    .task-box {
+      background: var(--mint);
+      border: 2px dashed var(--green-2);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin: 14px 0;
+    }
+    .task-box a {
+      color: var(--green-1);
+      font-weight: 800;
+      font-size: 1.02rem;
+      word-break: break-all;
+    }
+    .footer { text-align: center; color: var(--muted); font-size: 0.86rem; padding: 10px 0 16px; }
+
+    .task-list { padding-left: 22px; margin: 10px 0 0; }
+    .task-list li { margin-bottom: 10px; color: #1a3a2a; }
+    .task-list li strong { color: var(--green-1); }
+
+    .ex-title { display: flex; align-items: center; margin: 22px 0 8px; }
+    .ex-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--green-3); border: 2px solid var(--green-2);
+      color: var(--green-1); font-weight: 800; font-size: .88rem;
+      margin-right: 8px; flex-shrink: 0;
+    }
+    .ex-title h3 { margin: 0; font-size: 1.1rem; }
+
+    .kbd {
+      display: inline-block; padding: 2px 8px; border-radius: 6px;
+      background: #f0fff4; border: 1px solid var(--border);
+      border-bottom-width: 3px; font-family: Consolas, monospace;
+      font-size: .85rem; color: var(--green-1); font-weight: 700;
+    }
+
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 6px; }
+    .pill {
+      display: inline-block; padding: 4px 12px; border-radius: 999px;
+      background: #eafcef; border: 1px solid var(--border);
+      color: var(--green-1); font-weight: 700; font-size: .82rem;
+    }
+    .pill.now { background: #fff0c2; border-color: #e0a800; color: #6b4e00; }
+
+    .submission { background: var(--mint); border-color: var(--green-2); margin-top: 0; }
+    .submission a { color: var(--green-1); font-weight: 800; font-size: 1.05rem; word-break: break-all; }
+
+    /* ── Module toolbox ── */
+    .toolbox {
+      background: #f7fffb; border: 1px solid var(--border);
+      border-radius: 14px; padding: 16px 18px; margin: 14px 0;
+    }
+    .toolbox .tb-head {
+      display: flex; align-items: center; gap: 8px;
+      font-weight: 800; color: var(--green-1); margin-bottom: 10px;
+    }
+    .toolbox .tb-head .tb-ic {
+      width: 30px; height: 30px; border-radius: 9px; flex-shrink: 0;
+      background: linear-gradient(160deg, #2dd4bf, #0d9488);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 1rem;
+    }
+    .tool-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tool {
+      font-family: Consolas, monospace; font-size: .82rem; font-weight: 700;
+      background: #ffffff; border: 1px solid var(--border);
+      border-bottom-width: 3px; border-radius: 9px;
+      padding: 6px 11px; color: var(--green-1);
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .tool:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(18,102,55,0.16); }
+    .tool small { display: block; font-family: "Trebuchet MS", sans-serif; font-weight: 400; color: var(--muted); font-size: .72rem; }
+
+    /* ── before / after boxes ── */
+    .ba { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 12px 0 14px; }
+    .ba .bx {
+      font-family: Consolas, monospace; font-weight: 700; font-size: .95rem;
+      background: #ffffff; border: 1px solid var(--border);
+      border-bottom-width: 3px; border-radius: 10px; padding: 9px 13px; color: var(--green-1);
+      white-space: pre;
+    }
+    .ba .bx.old { background: #fff6e2; border-color: #e6c46a; color: #6b4e00; }
+    .ba .arw { font-weight: 800; color: var(--muted); }
+
+    /* ── side-by-side compare columns ── */
+    .vs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0 14px; }
+    .vs > div { min-width: 0; }
+    .vs .vs-head {
+      font-weight: 800; color: var(--green-1); font-size: .92rem;
+      padding: 6px 10px; border-radius: 8px; background: var(--green-3);
+      border: 1px solid var(--border); margin-bottom: 6px; text-align: center;
+    }
+    .vs .vs-head.bad { background: #fff6e2; border-color: #e6c46a; color: #6b4e00; }
+    .vs .code, .vs .console { margin: 0 0 8px; font-size: .88rem; }
+
+    /* ── key → value rows ── */
+    .kvbox {
+      background: #f5fff9; border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px 18px; margin: 12px 0 14px;
+    }
+    .kvrow { display: flex; align-items: stretch; margin-bottom: 6px; flex-wrap: wrap; }
+    .kvrow .kk, .kvrow .vv {
+      font-family: Consolas, monospace; font-weight: 800; font-size: .88rem;
+      padding: 6px 12px; border: 1px solid var(--border);
+    }
+    .kvrow .kk {
+      background: linear-gradient(160deg, #d6f8e4, #a9ecc6);
+      border-color: #7fd6a3; color: #08351d;
+      border-radius: 9px 0 0 9px; min-width: 130px;
+    }
+    .kvrow .ar {
+      display: flex; align-items: center; padding: 0 10px;
+      color: var(--muted); font-weight: 800; background: #ffffff;
+      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    }
+    .kvrow .vv { background: #ffffff; color: var(--green-1); border-radius: 0 9px 9px 0; border-left: none; }
+    .kvrow .vv.list { background: #fffaf0; color: #6b4e00; border-color: #e6c46a; }
+    .kvrow .vv.dict { background: #eef8ff; color: #1c4e80; border-color: #a9cdec; }
+    .kvrow .vv.set { background: #f7f0ff; color: #5b2a86; border-color: #cbb0e8; }
+    .kvbox-cap { font-family: Consolas, monospace; font-weight: 800; color: var(--green-1); margin-bottom: 8px; font-size: .88rem; }
+
+    /* ── figure blocks (the drawings) ── */
+    .fig {
+      background: #f5fff9; border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px; margin: 14px 0;
+      text-align: center;
+    }
+    .fig svg { width: 100%; height: auto; max-width: 620px; }
+    .fig .figcap {
+      font-size: .84rem; color: var(--muted); margin-top: 8px;
+      font-style: italic;
+    }
+
+    /* ── D&D item rack ── */
+    .rack { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 12px 0 6px; }
+    .slot {
+      width: 96px; padding: 10px 6px; border-radius: 12px; text-align: center;
+      background: linear-gradient(160deg, #ffffff, #eafcef);
+      border: 1px solid var(--border); border-bottom-width: 3px;
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .slot:hover { transform: translateY(-3px); box-shadow: 0 8px 16px rgba(18,102,55,0.18); }
+    .slot .ic { font-size: 1.9rem; line-height: 1.2; }
+    .slot .nm { font-family: Consolas, monospace; font-weight: 800; font-size: .78rem; color: var(--green-1); }
+    .slot.picked { background: linear-gradient(160deg, #fff6d9, #ffe9a9); border-color: #e0a800; }
+
+    /* ── attribute bars ── */
+    .stats { background: #f5fff9; border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; margin: 12px 0 14px; }
+    .stat { display: grid; grid-template-columns: 116px 1fr 34px; gap: 10px; align-items: center; margin-bottom: 7px; }
+    .stat .snm { font-family: Consolas, monospace; font-weight: 800; color: var(--green-1); font-size: .82rem; }
+    .stat .strack { height: 15px; border-radius: 8px; background: #e3efe8; border: 1px solid var(--border); overflow: hidden; }
+    .stat .sfill { height: 100%; background: linear-gradient(90deg, #a9ecc6, #4fc47f); }
+    .stat .sfill.hi { background: linear-gradient(90deg, #ffe1a8, #f0b429); }
+    .stat .sval { font-family: Consolas, monospace; font-weight: 800; color: var(--muted); font-size: .82rem; text-align: right; }
+
+    /* ── Hebrew / right-to-left panel ── */
+    .rtl { direction: rtl; text-align: right; }
+    .rtl .task-list { padding-left: 0; padding-right: 22px; }
+    .rtl .ex-table th, .rtl .ex-table td { text-align: right; }
+    .rtl .note, .rtl .warn { border-left: none; border-right: 4px solid var(--green-2); }
+    .rtl .warn { border-right-color: #e0a800; }
+    /* code and output stay English — always left-aligned, even on an RTL page */
+    .rtl .code, .rtl .console { direction: ltr; text-align: left; }
+
+    /* ── numbered build steps ── */
+    .steps { counter-reset: st; padding: 0; margin: 12px 0 0; list-style: none; }
+    .steps > li { position: relative; padding-left: 40px; margin-bottom: 18px; }
+    .steps > li::before {
+      counter-increment: st; content: counter(st);
+      position: absolute; left: 0; top: 0;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--green-3); border: 2px solid var(--green-2);
+      color: var(--green-1); font-weight: 800; font-size: .86rem;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .steps > li > .sh { font-weight: 800; color: var(--green-1); display: block; margin-bottom: 2px; }
+
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes blobMove {
+      from { transform: translate(0, 0) scale(1); }
+      to { transform: translate(24px, 18px) scale(1.06); }
+    }
+
+    @media (max-width: 760px) {
+      .wrap { padding: 14px; }
+      .layout { grid-template-columns: 1fr; }
+      .side-nav { position: static; }
+      h1 { font-size: 1.6rem; }
+      .code { font-size: 0.86rem; }
+      .ex-table { font-size: .8rem; }
+      .vs { grid-template-columns: 1fr; }
+      .kvrow .kk { min-width: 0; }
+      .stat { grid-template-columns: 92px 1fr 30px; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <span class="tag">Lesson 20 - September 3, 2026</span>
+    <h1>When It Breaks — try, except, finally 🛟</h1>
+    <p>Until today a red traceback meant the program was over. Today it stops meaning that. An error is an <strong>object</strong> Python throws, it travels back up through every function that was waiting, and if nobody catches it the program dies. So we catch it: <code>try</code> holds the risky line, <code>except</code> is the net under it, <code>else</code> runs only when nothing broke, and <code>finally</code> runs whatever happens. And with <code>raise</code> you get to be the one who throws.</p>
+  </section>
+
+  <div class="layout">
+    <aside class="side-nav" aria-label="Topic navigation">
+      <div class="side-title">Lesson 20 topics</div>
+
+      <div class="side-section-label">1 · What an error is</div>
+      <button class="topic-link active" data-target="topic-crash">the red traceback 💥</button>
+      <button class="topic-link" data-target="topic-stack">it climbs back up the calls</button>
+      <button class="topic-link" data-target="topic-raise">raise — you throw it</button>
+
+      <div class="side-section-label">2 · Catching it</div>
+      <button class="topic-link" data-target="topic-try">try / except 🛟</button>
+      <button class="topic-link" data-target="topic-named">catch it by name · as e</button>
+      <button class="topic-link" data-target="topic-order">the order matters ⚠️</button>
+      <button class="topic-link" data-target="topic-multi">two errors, one except</button>
+
+      <div class="side-section-label">3 · The other two clauses</div>
+      <button class="topic-link" data-target="topic-else">else — only if nothing broke</button>
+      <button class="topic-link" data-target="topic-finally">finally — always runs 🧹</button>
+      <button class="topic-link" data-target="topic-where">where to catch it 🎯</button>
+
+      <hr class="side-divider">
+      <button class="topic-link" data-target="topic-github">github folder</button>
+      <button class="topic-link" data-target="topic-exercise">homework — 3 tasks ✍️</button>
+      <button class="topic-link" data-target="topic-homework-heb">שיעורי בית - עברית</button>
+
+      <div class="side-section-label">Navigation</div>
+      <a class="nav-back" href="../../index.html#lessons">Back to lessons</a>
+    </aside>
+
+    <main>
+
+      <!-- ═══ THE CRASH ═══ -->
+      <section class="card topic-panel active" id="topic-crash">
+        <span class="tag">01_errors.py</span>
+        <h2 class="step-title">The Red Wall of Text 💥</h2>
+        <p>You have seen this all year. You typed <code>abc</code> where a number was wanted, the program stopped, and the screen went red.</p>
+        <div class="code">x = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">'Enter a number? '</span>))
+<span class="fn">print</span>(x)</div>
+        <div class="console"><span class="dim">Enter a number? </span><span class="usr">abc</span>
+<span class="err">Traceback (most recent call last):</span>
+<span class="err">  File "01_errors.py", line 2, in &lt;module&gt;</span>
+<span class="err">    x = int(input('Enter a number? '))</span>
+<span class="err">ValueError: invalid literal for int() with base 10: 'abc'</span></div>
+        <p>Read the last line first. It has two halves, and both matter:</p>
+        <table class="ex-table">
+          <thead><tr><th>Half</th><th>What it is</th></tr></thead>
+          <tbody>
+            <tr><td><code>ValueError</code></td><td>the <strong>type</strong> of the error &mdash; its family name. This is what you will catch by name in a minute.</td></tr>
+            <tr><td><code>invalid literal for int()&hellip;</code></td><td>the <strong>message</strong> &mdash; the sentence explaining what went wrong this particular time.</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          An error is not a printout. It is an <strong>object</strong> that Python builds and throws, and the red text is only what gets printed when nobody catches it. Everything today is about catching it before it reaches the screen.
+        </div>
+        <div class="big-result">The families you already meet</div>
+        <table class="ex-table">
+          <thead><tr><th>Error</th><th>What you did</th></tr></thead>
+          <tbody>
+            <tr><td><code>ValueError</code></td><td><code>int('abc')</code> &mdash; the right type, a value it cannot use</td></tr>
+            <tr><td><code>ZeroDivisionError</code></td><td><code>10 / 0</code></td></tr>
+            <tr><td><code>TypeError</code></td><td><code>'no answer' ** 3</code> &mdash; the wrong type entirely</td></tr>
+            <tr><td><code>KeyError</code></td><td><code>{'a': 1}['b']</code> &mdash; a key that is not there</td></tr>
+            <tr><td><code>IndexError</code></td><td><code>[1, 2][9]</code> &mdash; past the end of the list</td></tr>
+            <tr><td><code>NameError</code></td><td>using a variable you never made</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          The full list, with an example of each, is on today's topic page: <a href="../../24_try_except/index.html">Try / Except</a>.
+        </div>
+      </section>
+
+      <!-- ═══ THE STACK ═══ -->
+      <section class="card topic-panel" id="topic-stack">
+        <span class="tag">01_errors.py</span>
+        <h2 class="step-title">It Climbs Back Up Through Every Call 🪜</h2>
+        <p>Four functions. <code>a</code> calls <code>b</code>, <code>b</code> calls <code>c</code>, <code>c</code> calls <code>d</code>, and only <code>d</code> does anything wrong.</p>
+        <div class="code"><span class="kw">def</span> <span class="fn">d</span>(a, b):
+    <span class="fn">print</span>(a / b)
+
+<span class="kw">def</span> <span class="fn">c</span>():
+    <span class="fn">print</span>(<span class="str">'c'</span>)
+    <span class="fn">d</span>(<span class="num">1</span>, <span class="num">0</span>)
+
+<span class="kw">def</span> <span class="fn">b</span>():
+    <span class="fn">print</span>(<span class="str">'b'</span>)
+    <span class="fn">print</span>(<span class="str">'c'</span>)
+    <span class="fn">c</span>()
+
+<span class="kw">def</span> <span class="fn">a</span>():
+    <span class="fn">b</span>()
+
+<span class="fn">a</span>()</div>
+        <div class="console">b
+c
+c
+<span class="err">Traceback (most recent call last):</span>
+<span class="err">  File "01_errors.py", line 41, in &lt;module&gt;</span>
+<span class="err">    a()</span>
+<span class="err">  File "01_errors.py", line 39, in a</span>
+<span class="err">    b()</span>
+<span class="err">  File "01_errors.py", line 36, in b</span>
+<span class="err">    c()</span>
+<span class="err">  File "01_errors.py", line 31, in c</span>
+<span class="err">    d(1, 0)</span>
+<span class="err">  File "01_errors.py", line 27, in d</span>
+<span class="err">    print (a/b)</span>
+<span class="err">ZeroDivisionError: division by zero</span></div>
+        <p>That is not five errors. It is <strong>one</strong> error and the road it travelled. Nobody in <code>d</code> caught it, so it was handed back to <code>c</code>; nobody there caught it either, so back to <code>b</code>, to <code>a</code>, and out of the program.</p>
+        <div class="fig">
+          <svg viewBox="0 0 600 210" role="img" aria-label="The error thrown in d travels back up through c, b and a and out of the program">
+            <text x="110" y="18" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#1f8f4e">the calls going down</text>
+            <rect x="30" y="30" width="160" height="30" rx="8" fill="#ffffff" stroke="#1f8f4e" stroke-width="2"/>
+            <text x="110" y="50" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#0f5a2e">a()</text>
+            <rect x="46" y="70" width="160" height="30" rx="8" fill="#ffffff" stroke="#1f8f4e" stroke-width="2"/>
+            <text x="126" y="90" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#0f5a2e">b()</text>
+            <rect x="62" y="110" width="160" height="30" rx="8" fill="#ffffff" stroke="#1f8f4e" stroke-width="2"/>
+            <text x="142" y="130" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#0f5a2e">c()</text>
+            <rect x="78" y="150" width="160" height="30" rx="8" fill="#ffe1e1" stroke="#d64545" stroke-width="2"/>
+            <text x="158" y="170" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#8a1f1f">d(1, 0)  ← 1/0 💥</text>
+            <path d="M300 168 L300 46" fill="none" stroke="#d64545" stroke-width="3"/>
+            <path d="M293 55 L300 44 L307 55" fill="none" stroke="#d64545" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <text x="392" y="80" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#8a1f1f">the error climbs back</text>
+            <text x="392" y="100" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#8a1f1f">up the same road</text>
+            <text x="392" y="128" text-anchor="middle" font-family="Consolas, monospace" font-size="11" fill="#426654">nobody caught it,</text>
+            <text x="392" y="146" text-anchor="middle" font-family="Consolas, monospace" font-size="11" fill="#426654">so the program stops</text>
+            <text x="392" y="46" text-anchor="middle" font-family="Consolas, monospace" font-size="11" font-weight="700" fill="#1f8f4e">out ✂️</text>
+          </svg>
+          <div class="figcap">Read a traceback bottom to top: the last line is what broke, the lines above are who asked for it.</div>
+        </div>
+        <div class="note">
+          This is the good news hiding in the bad news. Because the error travels <em>upwards</em>, you do not have to catch it where it happened &mdash; you can catch it anywhere along that road. Which is the whole question of the last topic today.
+        </div>
+      </section>
+
+      <!-- ═══ RAISE ═══ -->
+      <section class="card topic-panel" id="topic-raise">
+        <span class="tag">01_errors.py</span>
+        <h2 class="step-title">Two Ways an Error Starts 🎯</h2>
+        <p>So far Python has always been the one deciding. There is a second way, and it is a single word:</p>
+        <div class="ba">
+          <div class="bx old">1 · Python decides</div>
+          <div class="arw">vs</div>
+          <div class="bx">2 · <b>you</b> decide &mdash; raise</div>
+        </div>
+        <div class="code"><span class="kw">raise</span> <span class="fn">ZeroDivisionError</span>(<span class="str">"it was me!"</span>)
+<span class="kw">raise</span> <span class="fn">IndexError</span>(<span class="str">"ha ha ha"</span>)</div>
+        <div class="console"><span class="err">ZeroDivisionError: it was me!</span></div>
+        <p>Same red text, same behaviour &mdash; the only difference is who threw it. The string in the brackets becomes the <strong>message</strong>, so write one a human can act on.</p>
+
+        <div class="big-result">Where you will actually use it</div>
+        <p>A function that has not been written yet, but that you want to call from your story already &mdash; exactly the story-first habit from last lesson:</p>
+        <div class="code"><span class="kw">def</span> <span class="fn">predict_stock_price</span>(stock_name):
+    <span class="kw">raise</span> <span class="fn">NotImplementedError</span>(<span class="str">"not implemented yet"</span>)
+
+<span class="fn">print</span>(<span class="fn">predict_stock_price</span>(<span class="str">'Microsoft'</span>))</div>
+        <div class="console"><span class="err">NotImplementedError: not implemented yet</span></div>
+        <div class="note">
+          Compare that to <code>pass</code>. A stub with <code>pass</code> quietly hands back <code>None</code> and the bug shows up three functions later. A stub that <strong>raises</strong> says so loudly, on the spot, in a way you cannot walk past.
+        </div>
+        <div class="warn">
+          <strong>Refuse work you cannot do.</strong> When a function is handed something it has no honest answer for, raising is better than inventing one:
+          <div class="code" style="margin-top:6px"><span class="kw">def</span> <span class="fn">my_div</span>(a, b):
+    <span class="kw">if</span> b == <span class="num">0</span>:
+        <span class="kw">raise</span> <span class="fn">ZeroDivisionError</span>(<span class="str">"b is zero - cannot divide by it"</span>)
+    <span class="kw">return</span> a / b</div>
+          That is tonight's first homework task, and the rest of this lesson is about who catches it.
+        </div>
+      </section>
+
+      <!-- ═══ TRY / EXCEPT ═══ -->
+      <section class="card topic-panel" id="topic-try">
+        <span class="tag">02_errors.py</span>
+        <h2 class="step-title">try / except — the Net Under the Line 🛟</h2>
+        <p>Put the risky code inside <code>try</code>. Put what to do about it inside <code>except</code>. If nothing goes wrong the <code>except</code> block never runs at all.</p>
+        <div class="code"><span class="kw">try</span>:
+    number = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">"Enter a number: "</span>))
+    <span class="fn">print</span>(<span class="str">f"You entered: {number}"</span>)
+<span class="kw">except</span>:                          <span class="cm"># if error:</span>
+    <span class="fn">print</span>(<span class="str">'--- Error occurred ---'</span>)
+
+<span class="fn">print</span>(<span class="str">'Goodbye'</span>)</div>
+        <div class="vs">
+          <div>
+            <div class="vs-head">they type 12</div>
+            <div class="console"><span class="dim">Enter a number: </span><span class="usr">12</span>
+You entered: 12
+Goodbye</div>
+          </div>
+          <div>
+            <div class="vs-head bad">they type abc</div>
+            <div class="console"><span class="dim">Enter a number: </span><span class="usr">abc</span>
+--- Error occurred ---
+Goodbye</div>
+          </div>
+        </div>
+        <p>Look at the second column. There is no red, no traceback &mdash; and <strong><code>Goodbye</code> still printed</strong>. That last part is the whole point: the program did not die, it carried on to the next line.</p>
+        <div class="fig">
+          <svg viewBox="0 0 600 176" role="img" aria-label="Code flows into try; on an error it detours through except and both roads rejoin afterwards">
+            <rect x="24" y="20" width="150" height="44" rx="10" fill="#ffffff" stroke="#1f8f4e" stroke-width="2"/>
+            <text x="99" y="40" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#0f5a2e">try:</text>
+            <text x="99" y="56" text-anchor="middle" font-family="Consolas, monospace" font-size="10" fill="#426654">the risky line</text>
+            <path d="M180 30 L262 30" fill="none" stroke="#1f8f4e" stroke-width="2.5"/>
+            <path d="M254 24 L264 30 L254 36" fill="none" stroke="#1f8f4e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <text x="220" y="20" text-anchor="middle" font-family="Consolas, monospace" font-size="10" fill="#1f8f4e">all fine</text>
+            <path d="M99 70 L99 108 L262 108" fill="none" stroke="#d64545" stroke-width="2.5"/>
+            <path d="M254 102 L264 108 L254 114" fill="none" stroke="#d64545" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <text x="170" y="100" text-anchor="middle" font-family="Consolas, monospace" font-size="10" fill="#8a1f1f">error 💥</text>
+            <rect x="268" y="86" width="164" height="44" rx="10" fill="#ffe1e1" stroke="#d64545" stroke-width="2"/>
+            <text x="350" y="106" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#8a1f1f">except:</text>
+            <text x="350" y="122" text-anchor="middle" font-family="Consolas, monospace" font-size="10" fill="#8a1f1f">say something kind</text>
+            <path d="M268 30 L470 30 L470 140" fill="none" stroke="#1f8f4e" stroke-width="2.5"/>
+            <path d="M438 108 L470 108 L470 140" fill="none" stroke="#d64545" stroke-width="2.5"/>
+            <rect x="386" y="140" width="168" height="30" rx="9" fill="#d6f8e4" stroke="#1f8f4e" stroke-width="2"/>
+            <text x="470" y="160" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#08351d">print('Goodbye')</text>
+            <text x="546" y="106" text-anchor="middle" font-family="Consolas, monospace" font-size="10" fill="#426654">both roads</text>
+            <text x="546" y="122" text-anchor="middle" font-family="Consolas, monospace" font-size="10" fill="#426654">end up here</text>
+          </svg>
+          <div class="figcap">Either the try block finishes, or the except block does. Then the program carries on regardless.</div>
+        </div>
+        <div class="warn">
+          <strong>A bare <code>except:</code> is a beginner's tool, and today is the last day you use it.</strong> It swallows <em>everything</em> &mdash; including the typo in your own code &mdash; and tells you nothing about what went wrong. The next topic fixes that.
+        </div>
+      </section>
+
+      <!-- ═══ NAMED ═══ -->
+      <section class="card topic-panel" id="topic-named">
+        <span class="tag">02_errors.py</span>
+        <h2 class="step-title">Catch It By Name, and Hold It 🏷️</h2>
+        <p>One <code>try</code> can have several <code>except</code> blocks. Python runs the <strong>first one that matches</strong> the error's type, and ignores the rest. And <code>as e</code> hands you the error object itself, so you can print its message.</p>
+        <div class="code"><span class="kw">try</span>:
+    number1 = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">"Enter a number: "</span>))
+    number2 = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">"Enter a number: "</span>))
+    div1 = number1 / number2
+
+<span class="kw">except</span> <span class="fn">ValueError</span> <span class="kw">as</span> e:              <span class="cm"># if ValueError:</span>
+    <span class="fn">print</span>(<span class="str">f"The value you entered is not a number! \n{e}"</span>)
+
+<span class="kw">except</span> <span class="fn">ZeroDivisionError</span> <span class="kw">as</span> e:
+    <span class="fn">print</span>(<span class="str">f"You divided by Zero! \n{e}"</span>)
+
+<span class="kw">except</span> <span class="fn">Exception</span> <span class="kw">as</span> e:                <span class="cm"># if all other errors:</span>
+    <span class="fn">print</span>(<span class="str">f"Some error ... not sure ..."</span>)
+
+<span class="fn">print</span>(<span class="str">'Goodbye'</span>)</div>
+        <table class="ex-table">
+          <thead><tr><th>They type</th><th>Which block runs</th><th>What <code>e</code> holds</th></tr></thead>
+          <tbody>
+            <tr><td><code>12</code> then <code>4</code></td><td>none of them</td><td>&mdash;</td></tr>
+            <tr><td><code>abc</code></td><td><code>except ValueError</code></td><td><code>invalid literal for int() with base 10: 'abc'</code></td></tr>
+            <tr><td><code>12</code> then <code>0</code></td><td><code>except ZeroDivisionError</code></td><td><code>division by zero</code></td></tr>
+            <tr><td>anything else odd</td><td><code>except Exception</code></td><td>whatever it was</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          <code>as e</code> is just a variable name &mdash; <code>e</code> is the error object. <code>print(e)</code> gives you Python's own message, which is nearly always more useful than a sentence you invented.
+        </div>
+        <div class="big-result">Making it red on purpose 🎨</div>
+        <p>Those <code>\033[91m</code> and <code>\033[0m</code> in the lesson file are not python &mdash; they are codes the <em>terminal</em> understands. One switches the colour on, the other switches it back off.</p>
+        <div class="code"><span class="fn">print</span>(<span class="str">f"\033[91mYou divided by Zero! \n{e} \033[0m"</span>)</div>
+        <div class="console"><span class="err">You divided by Zero!</span>
+<span class="err">division by zero</span></div>
+        <div class="warn">
+          Always switch the colour back off with <code>\033[0m</code>. Forget it and <em>everything</em> printed afterwards stays red, including the parts that went fine.
+        </div>
+      </section>
+
+      <!-- ═══ ORDER ═══ -->
+      <section class="card topic-panel" id="topic-order">
+        <span class="tag">02_errors.py</span>
+        <h2 class="step-title">Narrow First, Wide Last ⚠️</h2>
+        <p><code>Exception</code> is the family that almost every error belongs to. <code>ValueError</code> <em>is</em> an <code>Exception</code>. <code>ZeroDivisionError</code> <em>is</em> an <code>Exception</code>. So an <code>except Exception</code> block will happily catch them too &mdash; and because Python takes the <strong>first</strong> block that matches, putting it at the top means nothing below it ever runs.</p>
+        <div class="vs">
+          <div>
+            <div class="vs-head bad">wrong — wide first</div>
+            <div class="code"><span class="kw">try</span>:
+    <span class="num">1</span> / <span class="num">0</span>
+<span class="kw">except</span> <span class="fn">Exception</span>:
+    <span class="fn">print</span>(<span class="str">'something broke'</span>)
+<span class="kw">except</span> <span class="fn">ZeroDivisionError</span>:
+    <span class="fn">print</span>(<span class="str">'divided by zero'</span>)</div>
+            <div class="console">something broke</div>
+          </div>
+          <div>
+            <div class="vs-head">right — narrow first</div>
+            <div class="code"><span class="kw">try</span>:
+    <span class="num">1</span> / <span class="num">0</span>
+<span class="kw">except</span> <span class="fn">ZeroDivisionError</span>:
+    <span class="fn">print</span>(<span class="str">'divided by zero'</span>)
+<span class="kw">except</span> <span class="fn">Exception</span>:
+    <span class="fn">print</span>(<span class="str">'something broke'</span>)</div>
+            <div class="console">divided by zero</div>
+          </div>
+        </div>
+        <p>The left-hand version is not an error &mdash; Python runs it happily. It is just <em>useless</em>: the specific block underneath is dead code that can never run.</p>
+        <div class="fig">
+          <svg viewBox="0 0 600 150" role="img" aria-label="Exception is the wide family that contains ValueError, ZeroDivisionError and TypeError">
+            <rect x="60" y="20" width="480" height="110" rx="14" fill="#fff6e2" stroke="#e0a800" stroke-width="2"/>
+            <text x="300" y="42" text-anchor="middle" font-family="Consolas, monospace" font-size="14" font-weight="800" fill="#6b4e00">Exception  — the wide net</text>
+            <rect x="86" y="58" width="130" height="52" rx="10" fill="#ffffff" stroke="#1f8f4e" stroke-width="2"/>
+            <text x="151" y="82" text-anchor="middle" font-family="Consolas, monospace" font-size="11" font-weight="700" fill="#0f5a2e">ValueError</text>
+            <text x="151" y="99" text-anchor="middle" font-family="Consolas, monospace" font-size="9" fill="#426654">int('abc')</text>
+            <rect x="230" y="58" width="150" height="52" rx="10" fill="#ffffff" stroke="#1f8f4e" stroke-width="2"/>
+            <text x="305" y="82" text-anchor="middle" font-family="Consolas, monospace" font-size="11" font-weight="700" fill="#0f5a2e">ZeroDivisionError</text>
+            <text x="305" y="99" text-anchor="middle" font-family="Consolas, monospace" font-size="9" fill="#426654">10 / 0</text>
+            <rect x="394" y="58" width="120" height="52" rx="10" fill="#ffffff" stroke="#1f8f4e" stroke-width="2"/>
+            <text x="454" y="82" text-anchor="middle" font-family="Consolas, monospace" font-size="11" font-weight="700" fill="#0f5a2e">TypeError</text>
+            <text x="454" y="99" text-anchor="middle" font-family="Consolas, monospace" font-size="9" fill="#426654">'a' ** 3</text>
+          </svg>
+          <div class="figcap">Catch the small boxes first. Keep <code>Exception</code> for last, as the net that catches whatever you did not think of.</div>
+        </div>
+        <div class="note">
+          Keeping a last <code>except Exception as e</code> is good practice &mdash; but <strong>print <code>e</code> inside it</strong>. An "oops, something went wrong" that hides the message is how a bug survives for a week.
+        </div>
+      </section>
+
+      <!-- ═══ MULTI ═══ -->
+      <section class="card topic-panel" id="topic-multi">
+        <span class="tag">05_errors.py</span>
+        <h2 class="step-title">Two Errors, One Block 🎣</h2>
+        <p>When two different errors deserve exactly the same response, you do not need two blocks. Put them in brackets, separated by a comma &mdash; a tuple, from last lesson.</p>
+        <div class="vs">
+          <div>
+            <div class="vs-head bad">the long way</div>
+            <div class="code"><span class="kw">try</span>:
+    data = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">"Enter: "</span>))
+
+<span class="kw">except</span> <span class="fn">ValueError</span> <span class="kw">as</span> e:
+    <span class="fn">print</span>(<span class="str">f"Input error: {e}"</span>)
+
+<span class="kw">except</span> <span class="fn">TypeError</span> <span class="kw">as</span> e:
+    <span class="fn">print</span>(<span class="str">f"Input error: {e}"</span>)</div>
+          </div>
+          <div>
+            <div class="vs-head">the shortcut</div>
+            <div class="code"><span class="kw">try</span>:
+    data = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">"Enter: "</span>))
+
+<span class="kw">except</span> (<span class="fn">ValueError</span>, <span class="fn">TypeError</span>) <span class="kw">as</span> e:
+    <span class="fn">print</span>(<span class="str">f"Input error: {e}"</span>)</div>
+          </div>
+        </div>
+        <div class="console"><span class="dim">Enter: </span><span class="usr">hello</span>
+Input error: invalid literal for int() with base 10: 'hello'</div>
+        <div class="warn">
+          <strong>The brackets are not optional.</strong> <code>except ValueError, TypeError:</code> without them is a <code>SyntaxError</code> in modern Python. It is one tuple, so it needs its brackets.
+        </div>
+        <div class="note">
+          Only group errors that genuinely deserve the same handling. Two errors sharing a block because you could not be bothered to write the second one is how you end up printing "input error" at somebody whose file was missing.
+        </div>
+      </section>
+
+      <!-- ═══ ELSE ═══ -->
+      <section class="card topic-panel" id="topic-else">
+        <span class="tag">04_errors.py</span>
+        <h2 class="step-title"><code>else</code> — Only If Nothing Broke ✅</h2>
+        <p>A third clause, and it does the opposite of <code>except</code>: it runs <strong>only when the try block finished without a single error</strong>.</p>
+        <div class="code"><span class="kw">try</span>:
+    number1 = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">"Enter a number: "</span>))
+    number2 = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">"Enter a number: "</span>))
+    div1 = number1 / number2
+
+<span class="kw">except</span> <span class="fn">ValueError</span> <span class="kw">as</span> e:
+    <span class="fn">print</span>(<span class="str">f"not a number! {e}"</span>)
+
+<span class="kw">except</span> <span class="fn">ZeroDivisionError</span> <span class="kw">as</span> e:
+    <span class="fn">print</span>(<span class="str">f"divided by zero! {e}"</span>)
+
+<span class="kw">else</span>:
+    <span class="fn">print</span>(<span class="str">'div successfully '</span>, div1)</div>
+        <div class="console"><span class="dim">Enter a number: </span><span class="usr">10</span>
+<span class="dim">Enter a number: </span><span class="usr">4</span>
+div successfully  2.5</div>
+        <p>You could have written that <code>print</code> as the last line inside <code>try</code> and it would behave the same. <code>else</code> is better for one reason: <strong>keep the try block as short as you can</strong>. Only the lines that might actually break belong in there. Anything in the try block is a line whose errors you are silently agreeing to catch &mdash; including ones you never meant to.</p>
+        <div class="ba">
+          <div class="bx old">try:  risky + the celebration</div>
+          <div class="arw">→</div>
+          <div class="bx">try:  risky only
+else: the celebration</div>
+        </div>
+        <div class="note">
+          <code>else</code> is optional and you will not use it every day. When you do, it is because you want a clean line between "the thing that might fail" and "what to do when it did not".
+        </div>
+      </section>
+
+      <!-- ═══ FINALLY ═══ -->
+      <section class="card topic-panel" id="topic-finally">
+        <span class="tag">04_errors.py</span>
+        <h2 class="step-title"><code>finally</code> — Runs No Matter What 🧹</h2>
+        <p>The fourth clause, and the stubborn one. <code>finally</code> runs when it worked. It runs when it broke. It runs when the error was caught, and it runs when it was <em>not</em>.</p>
+        <div class="code"><span class="kw">try</span>:
+    number1 = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">"Enter a number: "</span>))
+    number2 = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">"Enter a number: "</span>))
+    div1 = number1 / number2
+
+<span class="kw">except</span> <span class="fn">ValueError</span> <span class="kw">as</span> e:
+    <span class="fn">print</span>(<span class="str">f"The value you entered is not a number! {e}"</span>)
+
+<span class="kw">finally</span>:
+    <span class="fn">print</span>(<span class="str">'***** FINALLY BLOCK -- close file / connections *****'</span>)
+
+<span class="fn">print</span>(<span class="str">'Goodbye'</span>)</div>
+        <table class="ex-table">
+          <thead><tr><th>What happens</th><th>Which blocks run, in order</th></tr></thead>
+          <tbody>
+            <tr><td>no error at all</td><td><code>try</code> &rarr; <code>else</code> &rarr; <strong><code>finally</code></strong></td></tr>
+            <tr><td>an error you caught</td><td><code>try</code> &rarr; <code>except</code> &rarr; <strong><code>finally</code></strong></td></tr>
+            <tr><td>an error you did <em>not</em> catch</td><td><code>try</code> &rarr; <strong><code>finally</code></strong> &rarr; then the program still crashes</td></tr>
+            <tr><td>a <code>return</code> inside <code>try</code></td><td><code>try</code> &rarr; <strong><code>finally</code></strong> &rarr; only then does the value go back</td></tr>
+          </tbody>
+        </table>
+        <p>That third row is the one worth staring at. The second half of the lesson file has a <code>try</code> with <strong>no <code>except</code> at all</strong> &mdash; just <code>finally</code>:</p>
+        <div class="code"><span class="kw">try</span>:
+    number1 = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">"Enter a number: "</span>))
+    number2 = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">"Enter a number: "</span>))
+    div1 = number1 / number2
+<span class="kw">finally</span>:
+    <span class="fn">print</span>(<span class="str">'***** FINALLY BLOCK *****'</span>)</div>
+        <div class="console"><span class="dim">Enter a number: </span><span class="usr">5</span>
+<span class="dim">Enter a number: </span><span class="usr">0</span>
+***** FINALLY BLOCK *****
+<span class="err">Traceback (most recent call last):</span>
+<span class="err">  ...</span>
+<span class="err">ZeroDivisionError: division by zero</span></div>
+        <p>The cleanup happened, <em>then</em> the program crashed anyway. That is not a bug &mdash; that is the entire promise of <code>finally</code>. It is not there to handle the error; it is there to make sure the tidying up happens on the way out.</p>
+        <div class="fig">
+          <svg viewBox="0 0 600 190" role="img" aria-label="Both the success road and the error road pass through finally on the way out">
+            <rect x="30" y="24" width="140" height="38" rx="10" fill="#ffffff" stroke="#1f8f4e" stroke-width="2"/>
+            <text x="100" y="48" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#0f5a2e">try:</text>
+            <rect x="30" y="86" width="140" height="38" rx="10" fill="#d6f8e4" stroke="#1f8f4e" stroke-width="2"/>
+            <text x="100" y="110" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#08351d">else:</text>
+            <rect x="30" y="134" width="140" height="38" rx="10" fill="#ffe1e1" stroke="#d64545" stroke-width="2"/>
+            <text x="100" y="158" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#8a1f1f">except:</text>
+            <path d="M176 43 L250 43 L250 98" fill="none" stroke="#1f8f4e" stroke-width="2.5"/>
+            <path d="M176 105 L250 105" fill="none" stroke="#1f8f4e" stroke-width="2.5"/>
+            <path d="M176 153 L250 153 L250 112" fill="none" stroke="#d64545" stroke-width="2.5"/>
+            <path d="M244 112 L250 100 L256 112" fill="none" stroke="#426654" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="262" y="86" width="180" height="40" rx="11" fill="#fff0c2" stroke="#e0a800" stroke-width="3"/>
+            <text x="352" y="112" text-anchor="middle" font-family="Consolas, monospace" font-size="14" font-weight="800" fill="#6b4e00">finally:</text>
+            <path d="M448 106 L516 106" fill="none" stroke="#426654" stroke-width="2.5"/>
+            <path d="M508 100 L518 106 L508 112" fill="none" stroke="#426654" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <text x="556" y="102" text-anchor="middle" font-family="Consolas, monospace" font-size="11" font-weight="700" fill="#426654">out</text>
+            <text x="556" y="118" text-anchor="middle" font-family="Consolas, monospace" font-size="10" fill="#426654">(or crash)</text>
+            <text x="352" y="150" text-anchor="middle" font-family="Consolas, monospace" font-size="11" fill="#426654">every road goes through here</text>
+          </svg>
+          <div class="figcap">There is no way out of a try block that skips <code>finally</code>.</div>
+        </div>
+        <div class="note">
+          What actually goes in there: closing a file, closing a database connection, letting go of a lock, switching the terminal colour back. Things that would leave a mess behind if the program fell over mid-way.
+        </div>
+      </section>
+
+      <!-- ═══ WHERE TO CATCH ═══ -->
+      <section class="card topic-panel" id="topic-where">
+        <span class="tag">03_errors.py</span>
+        <h2 class="step-title">Where Should You Catch It? 🎯</h2>
+        <p>The error climbs back up through every call, so you get to choose the floor you catch it on. Here is the same function catching its own error &mdash; and quietly ruining the program that called it.</p>
+        <div class="code"><span class="kw">def</span> <span class="fn">my_div</span>(a, b):
+    <span class="kw">try</span>:
+        <span class="kw">return</span> a / b
+    <span class="kw">except</span> <span class="fn">ZeroDivisionError</span> <span class="kw">as</span> e:
+        <span class="kw">return</span> <span class="str">"no answer"</span>   <span class="cm"># why is this bad?</span>
+
+a = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">"Enter a number: "</span>))
+b = <span class="fn">int</span>(<span class="fn">input</span>(<span class="str">"Enter a number: "</span>))
+x = <span class="fn">my_div</span>(a, b)
+<span class="fn">print</span>(x ** <span class="num">3</span>)</div>
+        <div class="console"><span class="dim">Enter a number: </span><span class="usr">10</span>
+<span class="dim">Enter a number: </span><span class="usr">0</span>
+<span class="err">TypeError: unsupported operand type(s) for ** or pow(): 'str' and 'int'</span></div>
+        <div class="warn">
+          <strong>Look what it did.</strong> The function swallowed a perfectly clear <code>ZeroDivisionError</code> and handed back the <em>string</em> <code>"no answer"</code>. Four lines later the program blew up on <code>x ** 3</code> with a <code>TypeError</code> that has nothing to do with the real problem. The error got hidden, moved, and disguised.
+        </div>
+        <p>The function's job is to divide. It does not know whether the caller wants to print a message, ask again, or give up &mdash; so it should not decide. Let the error travel, and catch it where somebody actually knows what to do:</p>
+        <div class="vs">
+          <div>
+            <div class="vs-head bad">catching too deep</div>
+            <div class="code"><span class="kw">def</span> <span class="fn">my_div</span>(a, b):
+    <span class="kw">try</span>:
+        <span class="kw">return</span> a / b
+    <span class="kw">except</span> <span class="fn">ZeroDivisionError</span>:
+        <span class="kw">return</span> <span class="str">"no answer"</span>
+
+x = <span class="fn">my_div</span>(a, b)
+<span class="fn">print</span>(x ** <span class="num">3</span>)</div>
+            <div class="console"><span class="err">TypeError: ... 'str' and 'int'</span></div>
+          </div>
+          <div>
+            <div class="vs-head">catching where it means something</div>
+            <div class="code"><span class="kw">def</span> <span class="fn">my_div</span>(a, b):
+    <span class="kw">return</span> a / b
+
+<span class="kw">try</span>:
+    x = <span class="fn">my_div</span>(a, b)
+    <span class="fn">print</span>(x ** <span class="num">3</span>)
+<span class="kw">except</span> <span class="fn">ZeroDivisionError</span>:
+    <span class="fn">print</span>(<span class="str">'no answer'</span>)</div>
+            <div class="console">no answer</div>
+          </div>
+        </div>
+        <div class="note">
+          <strong>The rule of thumb:</strong> catch an error at the level that can actually <em>do</em> something about it. Deep inside a helper function you usually cannot &mdash; so let it travel. Up in the main story, where you can ask the user again or print a sensible message, you can.
+        </div>
+        <div class="warn">
+          And never, ever return a string like <code>"no answer"</code> where a number was promised. Whoever calls that function is going to do maths on it.
+        </div>
+      </section>
+
+      <!-- ═══ GITHUB ═══ -->
+      <section class="card topic-panel" id="topic-github">
+        <span class="tag">GitHub</span>
+        <h2 class="step-title">Lesson 20 GitHub Folder</h2>
+        <p>All the code from today's lesson:</p>
+        <div class="task-box">
+          <strong>Lesson folder:</strong><br>
+          <a href="https://github.com/pythonai080626-a11y/03.09.2026" target="_blank" rel="noopener">
+            https://github.com/pythonai080626-a11y/03.09.2026
+          </a>
+        </div>
+        <table class="ex-table">
+          <thead><tr><th>File</th><th>What it shows</th></tr></thead>
+          <tbody>
+            <tr><td><code>01_errors.py</code></td><td>the plain crash; <code>raise</code> with your own message; <code>NotImplementedError</code> as a loud stub; and <code>a → b → c → d</code> so you can watch one error climb back up four calls</td></tr>
+            <tr><td><code>02_errors.py</code></td><td>the bare <code>try / except</code>, then the real thing: <code>except ValueError as e</code>, <code>except ZeroDivisionError as e</code> and <code>except Exception as e</code> last &mdash; with the <code>\033[91m</code> colour codes</td></tr>
+            <tr><td><code>03_errors.py</code></td><td><code>my_div</code> catching its own error and returning <code>"no answer"</code> &mdash; and the <code>TypeError</code> that causes four lines later. The "why is this bad?" file.</td></tr>
+            <tr><td><code>04_errors.py</code></td><td><code>else</code>, then <code>finally</code>; and at the bottom a <code>try / finally</code> with no <code>except</code> at all, so the cleanup runs and the program crashes anyway</td></tr>
+            <tr><td><code>05_errors.py</code></td><td>two errors in one block: <code>except (ValueError, TypeError) as e</code></td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          Topic page for today: <a href="../../24_try_except/index.html">Try / Except</a> &mdash; the new one, with the full list of built-in errors and a live simulator. <a href="../../22_functions2/index.html">Functions 2</a> is worth another look for the <code>return</code> half of the last topic.
+        </div>
+      </section>
+
+      <!-- ═══ HOMEWORK EN ═══ -->
+      <section class="card topic-panel" id="topic-exercise">
+        <span class="tag">Homework</span>
+        <h2 class="step-title">Homework — Three Crashes to Catch ✍️</h2>
+        <p>Three lines that break, three different errors. Your job each time is the same: <strong>let it break first</strong>, read the red text, and only then wrap it in <code>try / except</code> so the program survives.</p>
+        <div class="warn">
+          <strong>Rules for all three:</strong>
+          <ol class="task-list" style="margin-top:6px">
+            <li><strong>Run it without the <code>try</code> first.</strong> You cannot catch an error by name until you have seen its name.</li>
+            <li><strong>Never a bare <code>except:</code></strong> &mdash; catch <code>KeyError</code>, <code>TypeError</code>, <code>ValueError</code> by name.</li>
+            <li>Print something a human can read. After the <code>except</code>, print <code>'Goodbye'</code> so you can prove the program did not die.</li>
+          </ol>
+        </div>
+
+        <div class="big-result">1 · A key that is not in the dictionary 🔑</div>
+        <p>Print a dictionary on screen, ask the user for a key, and print the value that goes with it.</p>
+        <p><strong>Use the square brackets &mdash; <code>prices[key]</code>. Do NOT use <code>.get()</code>.</strong> The whole point is that square brackets crash when the key is missing, and that is the crash you are going to catch. In the <code>except</code>, print <code>&lt;key&gt; not exist</code>.</p>
+        <div class="code">prices = {<span class="str">'apple'</span>: <span class="num">12</span>, <span class="str">'banana'</span>: <span class="num">7</span>, <span class="str">'cherry'</span>: <span class="num">25</span>}
+<span class="fn">print</span>(prices)
+
+key = <span class="fn">input</span>(<span class="str">"Which fruit? "</span>)
+<span class="cm"># try:     print prices[key]        &lt;-- square brackets, not .get()</span>
+<span class="cm"># except KeyError:  print(key, 'not exist')</span></div>
+        <div class="vs">
+          <div>
+            <div class="vs-head">a key that is there</div>
+            <div class="console">{'apple': 12, 'banana': 7, 'cherry': 25}
+<span class="dim">Which fruit? </span><span class="usr">banana</span>
+7
+Goodbye</div>
+          </div>
+          <div>
+            <div class="vs-head bad">a key that is not</div>
+            <div class="console">{'apple': 12, 'banana': 7, 'cherry': 25}
+<span class="dim">Which fruit? </span><span class="usr">mango</span>
+mango not exist
+Goodbye</div>
+          </div>
+        </div>
+        <div class="warn">
+          <strong>A trap in this one.</strong> <code>KeyError</code> is the one error whose message keeps its quotes:
+          <div class="code" style="margin-top:6px"><span class="kw">except</span> <span class="fn">KeyError</span> <span class="kw">as</span> e:
+    <span class="fn">print</span>(e)          <span class="cm"># prints  'mango'  - with the quotes!</span></div>
+          So build the sentence from your own <code>key</code> variable, not from <code>e</code>, or you will print <code>'mango' not exist</code>.
+        </div>
+
+        <div class="big-result">2 · Changing a tuple 🔒</div>
+        <p>Take a tuple, and try to change the item at index 0 to <code>99</code>. It will not work &mdash; that is exactly what lesson 19 was about. Catch the error instead of letting it kill the program, and print the tuple afterwards to prove it never changed.</p>
+        <div class="code">t = (<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>)
+
+<span class="cm"># try:     t[0] = 99</span>
+<span class="cm"># except TypeError as e:  print a message and print(e)</span>
+
+<span class="fn">print</span>(t)</div>
+        <div class="console">cannot change a tuple: 'tuple' object does not support item assignment
+(1, 2, 3)
+Goodbye</div>
+        <div class="note">
+          The error you are catching here is a <code>TypeError</code>, not a <code>ValueError</code>. Run it once without the <code>try</code> and the red text tells you which &mdash; that is the habit.
+        </div>
+
+        <div class="big-result">3 · Removing something that is not in the list 🍊</div>
+        <p>Here is the line. It raises a <code>ValueError</code>, because you cannot remove what was never there:</p>
+        <div class="code">fruits = [<span class="str">"apple"</span>, <span class="str">"banana"</span>]
+fruits.<span class="fn">remove</span>(<span class="str">"orange"</span>)   <span class="cm"># ValueError: list.remove(x): x not in list</span></div>
+        <p>Wrap it in <code>try / except ValueError</code>, print a message that says which fruit was missing, and print the list afterwards.</p>
+        <div class="code">fruits = [<span class="str">"apple"</span>, <span class="str">"banana"</span>]
+
+<span class="cm"># try:     fruits.remove("orange")</span>
+<span class="cm"># except ValueError as e:  say orange is not in the list, print(e)</span>
+
+<span class="fn">print</span>(fruits)</div>
+        <div class="console">orange is not in the list: list.remove(x): x not in list
+['apple', 'banana']
+Goodbye</div>
+        <div class="note">
+          <strong>Then make it not crash in the first place.</strong> Add the <code>if "orange" in fruits:</code> version underneath, as a comment or a second block. <code>try / except</code> is for what you could not have checked; a plain <code>in</code> test is better when you could.
+        </div>
+
+        <p><strong>Python only</strong>. Write it as a <code>.py</code> file in PyCharm and run with <span class="kbd">Shift</span> + <span class="kbd">F10</span>.</p>
+
+        <div class="big-result">Submission</div>
+        <div class="card submission">
+          <ol class="task-list">
+            <li><strong>Write the .py program</strong> in PyCharm.</li>
+            <li><strong>Upload to GitHub</strong> and send the link to:<br>
+              <a href="mailto:pythonai080626+hw20@gmail.com">pythonai080626+hw20@gmail.com</a>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ═══ HOMEWORK HE ═══ -->
+      <section class="card topic-panel rtl" id="topic-homework-heb" dir="rtl">
+        <span class="tag">שיעורי בית</span>
+        <h2 class="step-title">שיעורי בית — שלוש שגיאות לתפוס ✍️</h2>
+        <p>שלוש שורות שנשברות, שלוש שגיאות שונות. המשימה בכל אחת מהן זהה: <strong>קודם תנו לזה להישבר</strong>, תקראו את הטקסט האדום, ורק אז תעטפו ב-<code dir="ltr">try / except</code> כדי שהתוכנית תשרוד.</p>
+        <div class="warn">
+          <strong>כללים לשלוש המשימות:</strong>
+          <ol class="task-list" style="margin-top:6px">
+            <li><strong>קודם הריצו בלי ה-<code dir="ltr">try</code>.</strong> אי אפשר לתפוס שגיאה בשם שלה לפני שראיתם מה השם.</li>
+            <li><strong>אף פעם לא <code dir="ltr">except:</code> ריק</strong> — תפסו <code dir="ltr">KeyError</code>, <code dir="ltr">TypeError</code>, <code dir="ltr">ValueError</code> בשם.</li>
+            <li>הדפיסו משהו שבן אדם יכול להבין. אחרי ה-<code dir="ltr">except</code> הדפיסו <code dir="ltr">'Goodbye'</code>, כדי להוכיח שהתוכנית לא מתה.</li>
+          </ol>
+        </div>
+
+        <div class="big-result">1 · מפתח שלא נמצא במילון 🔑</div>
+        <p>הדפיסו מילון על המסך, בקשו מהמשתמש מפתח, והדפיסו את הערך ששייך לו.</p>
+        <p><strong>השתמשו בסוגריים המרובעים — <code dir="ltr">prices[key]</code>. אל תשתמשו ב-<code dir="ltr">.get()</code>.</strong> כל הרעיון הוא שסוגריים מרובעים קורסים כשהמפתח לא קיים, וזו בדיוק הקריסה שאתם הולכים לתפוס. ב-<code dir="ltr">except</code> הדפיסו <code dir="ltr">&lt;key&gt; not exist</code>.</p>
+        <div class="code" dir="ltr">prices = {<span class="str">'apple'</span>: <span class="num">12</span>, <span class="str">'banana'</span>: <span class="num">7</span>, <span class="str">'cherry'</span>: <span class="num">25</span>}
+<span class="fn">print</span>(prices)
+
+key = <span class="fn">input</span>(<span class="str">"Which fruit? "</span>)
+<span class="cm"># try:     print prices[key]        &lt;-- square brackets, not .get()</span>
+<span class="cm"># except KeyError:  print(key, 'not exist')</span></div>
+        <div class="vs">
+          <div>
+            <div class="vs-head">מפתח שקיים</div>
+            <div class="console" dir="ltr">{'apple': 12, 'banana': 7, 'cherry': 25}
+<span class="dim">Which fruit? </span><span class="usr">banana</span>
+7
+Goodbye</div>
+          </div>
+          <div>
+            <div class="vs-head bad">מפתח שלא קיים</div>
+            <div class="console" dir="ltr">{'apple': 12, 'banana': 7, 'cherry': 25}
+<span class="dim">Which fruit? </span><span class="usr">mango</span>
+mango not exist
+Goodbye</div>
+          </div>
+        </div>
+        <div class="warn">
+          <strong>יש כאן מלכודת.</strong> <code dir="ltr">KeyError</code> היא השגיאה היחידה שההודעה שלה שומרת על המרכאות:
+          <div class="code" style="margin-top:6px" dir="ltr"><span class="kw">except</span> <span class="fn">KeyError</span> <span class="kw">as</span> e:
+    <span class="fn">print</span>(e)          <span class="cm"># prints  'mango'  - with the quotes!</span></div>
+          לכן בנו את המשפט מתוך המשתנה <code dir="ltr">key</code> שלכם, ולא מתוך <code dir="ltr">e</code>, אחרת יודפס <code dir="ltr">'mango' not exist</code>.
+        </div>
+
+        <div class="big-result">2 · לשנות ערך ב-tuple 🔒</div>
+        <p>קחו tuple, ונסו לשנות את האיבר באינדקס 0 ל-<code dir="ltr">99</code>. זה לא יעבוד — בדיוק על זה היה שיעור 19. תפסו את השגיאה במקום לתת לה להרוג את התוכנית, והדפיסו את ה-tuple אחר כך כדי להוכיח שהוא לא השתנה.</p>
+        <div class="code" dir="ltr">t = (<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>)
+
+<span class="cm"># try:     t[0] = 99</span>
+<span class="cm"># except TypeError as e:  print a message and print(e)</span>
+
+<span class="fn">print</span>(t)</div>
+        <div class="console" dir="ltr">cannot change a tuple: 'tuple' object does not support item assignment
+(1, 2, 3)
+Goodbye</div>
+        <div class="note">
+          השגיאה שתופסים כאן היא <code dir="ltr">TypeError</code>, לא <code dir="ltr">ValueError</code>. הריצו פעם אחת בלי ה-<code dir="ltr">try</code> והטקסט האדום יגיד לכם איזו — זה ההרגל.
+        </div>
+
+        <div class="big-result">3 · למחוק משהו שלא נמצא ברשימה 🍊</div>
+        <p>הנה השורה. היא זורקת <code dir="ltr">ValueError</code>, כי אי אפשר למחוק משהו שמעולם לא היה שם:</p>
+        <div class="code" dir="ltr">fruits = [<span class="str">"apple"</span>, <span class="str">"banana"</span>]
+fruits.<span class="fn">remove</span>(<span class="str">"orange"</span>)   <span class="cm"># ValueError: list.remove(x): x not in list</span></div>
+        <p>עטפו ב-<code dir="ltr">try / except ValueError</code>, הדפיסו הודעה שאומרת איזה פרי חסר, והדפיסו את הרשימה אחר כך.</p>
+        <div class="code" dir="ltr">fruits = [<span class="str">"apple"</span>, <span class="str">"banana"</span>]
+
+<span class="cm"># try:     fruits.remove("orange")</span>
+<span class="cm"># except ValueError as e:  say orange is not in the list, print(e)</span>
+
+<span class="fn">print</span>(fruits)</div>
+        <div class="console" dir="ltr">orange is not in the list: list.remove(x): x not in list
+['apple', 'banana']
+Goodbye</div>
+        <div class="note">
+          <strong>ואז תגרמו לזה לא לקרוס מלכתחילה.</strong> הוסיפו מתחת גם את הגרסה עם <code dir="ltr">if "orange" in fruits:</code>, כהערה או כבלוק שני. <code dir="ltr">try / except</code> הוא למה שלא יכולתם לבדוק מראש; בדיקת <code dir="ltr">in</code> פשוטה עדיפה כשכן יכולתם.
+        </div>
+
+        <p><strong>פייתון בלבד</strong>. כתבו קובץ <code dir="ltr">.py</code> ב-PyCharm והריצו עם <span class="kbd">Shift</span> + <span class="kbd">F10</span>.</p>
+
+        <div class="big-result">הגשה</div>
+        <div class="card submission">
+          <ol class="task-list">
+            <li><strong>כתבו את התוכנית ב-<code dir="ltr">.py</code></strong> ב-PyCharm.</li>
+            <li><strong>העלו ל-GitHub</strong> ושלחו את הקישור אל:<br>
+              <a href="mailto:pythonai080626+hw20@gmail.com" dir="ltr">pythonai080626+hw20@gmail.com</a>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <div class="footer">Lesson 20 &middot; Errors, try / except / else / finally &amp; raise &middot; September 3, 2026</div>
+</div>
+
+<script>
+  const links = document.querySelectorAll('.topic-link');
+  const panels = document.querySelectorAll('.topic-panel');
+
+  function showTopic(id) {
+    panels.forEach(panel => panel.classList.toggle('active', panel.id === id));
+    links.forEach(link => link.classList.toggle('active', link.dataset.target === id));
+  }
+
+  links.forEach(link => {
+    link.addEventListener('click', () => {
+      showTopic(link.dataset.target);
+      location.hash = link.dataset.target;
+    });
+  });
+
+  const hash = location.hash.replace('#', '');
+  if (hash && document.getElementById(hash)) showTopic(hash);
+</script>
+</body>
+</html>

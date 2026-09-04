@@ -1179,6 +1179,55 @@
           </article>
         </a>
 
+        <!-- ── Try / Except Card ── -->
+        <a href="24_try_except/index.html" class="block group cursor-pointer" aria-label="Try and Except: catching errors so the program keeps running">
+          <article class="bg-white rounded-[24px] overflow-hidden clay-card h-full flex flex-col">
+            <!-- Illustration -->
+            <div class="h-52 relative overflow-hidden flex-shrink-0 bg-gradient-to-br from-[#1A1410] via-[#7F1D1D] to-[#B45309]">
+              <svg class="w-full h-full group-hover:scale-105 transition-transform duration-300" viewBox="0 0 320 208" fill="none" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
+                <circle cx="38" cy="34" r="46" fill="#ffffff" opacity="0.07"/>
+                <circle cx="284" cy="178" r="52" fill="#ffffff" opacity="0.07"/>
+                <!-- the risky line -->
+                <rect x="24" y="24" width="272" height="34" rx="10" fill="#FAF7F2" opacity="0.95"/>
+                <text x="160" y="46" text-anchor="middle" font-family="Consolas, monospace" font-size="13" font-weight="700" fill="#7F1D1D">try:  10 / 0</text>
+                <!-- the falling error -->
+                <path d="M160 62 L160 84" stroke="#F0C040" stroke-width="3" stroke-linecap="round"/>
+                <path d="M152 77 L160 86 L168 77" fill="none" stroke="#F0C040" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                <!-- the net catches it -->
+                <rect x="46" y="92" width="228" height="38" rx="11" fill="#166534" opacity="0.85"/>
+                <text x="160" y="116" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="800" fill="#ECFDF5">except ZeroDivisionError as e:</text>
+                <!-- caught, so the program walks on -->
+                <text x="160" y="150" text-anchor="middle" font-family="Consolas, monospace" font-size="11" font-weight="700" fill="#E8E0D0">caught  →  the program keeps running</text>
+                <!-- finally, the floor under everything -->
+                <rect x="46" y="160" width="228" height="26" rx="8" fill="#B45309" opacity="0.75"/>
+                <text x="160" y="178" text-anchor="middle" font-family="Consolas, monospace" font-size="11" font-weight="800" fill="#FFF7ED">finally:  always runs</text>
+              </svg>
+              <div class="absolute inset-0 bg-gradient-to-t from-[#1A1410]/70 via-transparent to-transparent pointer-events-none"></div>
+              <span class="absolute bottom-4 left-4 bg-white/90 text-[#7F1D1D] text-xs font-bold px-3 py-1 rounded-full">safety net</span>
+              <div class="absolute top-4 right-4 w-10 h-10 bg-[#7F1D1D] rounded-xl flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 17h.01"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/>
+                </svg>
+              </div>
+            </div>
+            <!-- Body -->
+            <div class="p-7 flex flex-col flex-1">
+              <h3 class="heading text-2xl font-bold text-[#134E4A] mb-2">Try / Except</h3>
+              <p class="text-[#134E4A]/65 leading-relaxed mb-6 flex-1">
+                A crash is not the end of the program &mdash; it is a choice. Wrap the risky line in <code class="bg-blue-50 px-1 rounded">try</code>, catch what goes wrong by name with <code class="bg-blue-50 px-1 rounded">except ValueError as e</code>, and the file keeps running instead of dying on a red traceback. <code class="bg-blue-50 px-1 rounded">else</code> runs only when nothing broke, <code class="bg-blue-50 px-1 rounded">finally</code> runs no matter what, and <code class="bg-blue-50 px-1 rounded">raise</code> lets you throw the error yourself.
+              </p>
+              <div class="flex items-center gap-2 text-[#7F1D1D] font-bold text-sm group-hover:gap-3 transition-all duration-200">
+                <span>Explore topic</span>
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+                </svg>
+              </div>
+            </div>
+          </article>
+        </a>
+
       </div>
     </div>
   </section>
@@ -1858,6 +1907,32 @@
                   <span class="text-xs font-semibold text-white bg-[#F97316] px-2 py-0.5 rounded-full">Done</span>
                 </div>
                 <p class="text-sm text-[#134E4A]/55">Monday &middot; August 31, 2026 &middot; Story-first functions, your own module &amp; the tuple</p>
+              </div>
+              <!-- Arrow -->
+              <svg class="w-5 h-5 text-[#F97316] flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+              </svg>
+            </div>
+          </a>
+
+          <!-- Lesson 20 -->
+          <a href="lessons/20_lesson/20-lesson.html" class="block group cursor-pointer" aria-label="Lesson 20, September 3 2026">
+            <div class="lesson-row bg-white rounded-[20px] p-5 flex items-center gap-5">
+              <!-- Badge -->
+              <div class="w-[70px] h-[70px] flex-shrink-0">
+                <div class="w-full h-full bg-[#FFF7ED] rounded-2xl clay-orange flex flex-col items-center justify-center">
+                  <span class="heading text-xs font-bold text-[#F97316] leading-none">SEP</span>
+                  <span class="heading text-2xl font-extrabold text-[#F97316] leading-tight">3</span>
+                  <span class="heading text-xs font-bold text-[#F97316]/60 leading-none">2026</span>
+                </div>
+              </div>
+              <!-- Info -->
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-0.5">
+                  <span class="heading text-lg font-bold text-[#134E4A]">Lesson 20</span>
+                  <span class="text-xs font-semibold text-white bg-[#F97316] px-2 py-0.5 rounded-full">Done</span>
+                </div>
+                <p class="text-sm text-[#134E4A]/55">Thursday &middot; September 3, 2026 &middot; Errors &mdash; try, except, else, finally &amp; raise</p>
               </div>
               <!-- Arrow -->
               <svg class="w-5 h-5 text-[#F97316] flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
