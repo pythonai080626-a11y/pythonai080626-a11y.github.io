@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lesson 21 - random.seed &amp; the Max-So-Far Pattern</title>
+  <style>
+    :root {
+      --bg-soft: #ffffff;
+      --green-1: #0f5a2e;
+      --green-2: #1f8f4e;
+      --green-3: #dbf6e5;
+      --mint: #e6fff2;
+      --text: #14281d;
+      --muted: #426654;
+      --border: #aadfbd;
+      --accent-a: #ddfbe7;
+      --accent-b: #fff4d8;
+      --code-bg: #0b2517;
+      --code-text: #d2ffe3;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Lucida Sans", "Segoe UI", sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 15% 10%, #e7fff0 0%, transparent 35%),
+                  radial-gradient(circle at 85% 18%, #fff5d6 0%, transparent 36%),
+                  linear-gradient(180deg, #f4fff6 0%, #ffffff 45%, #edfff4 100%);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    body::before, body::after {
+      content: "";
+      position: fixed;
+      width: 230px;
+      height: 230px;
+      z-index: -1;
+      border-radius: 999px;
+      filter: blur(2px);
+      opacity: 0.32;
+      animation: blobMove 8s ease-in-out infinite alternate;
+    }
+    body::before { background: #bff0d0; top: -30px; left: -40px; }
+    body::after { background: #ffe9a9; bottom: -40px; right: -40px; animation-delay: 1.4s; }
+
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 24px; }
+    .layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    /* a grid item defaults to min-width:auto and refuses to shrink below its
+       widest line — without this, one long console line stretches the panel */
+    .layout > main { min-width: 0; }
+    .card > * { max-width: 100%; }
+
+    .side-nav {
+      position: sticky;
+      top: 14px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 8px 22px rgba(18,102,55,0.1);
+      padding: 12px;
+    }
+    .side-title { margin: 0 0 8px; font-size: 0.9rem; color: var(--green-1); font-weight: 700; }
+    .topic-link {
+      display: block;
+      width: 100%;
+      text-align: left;
+      border: 1px solid transparent;
+      border-radius: 9px;
+      padding: 8px 10px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.89rem;
+      text-transform: lowercase;
+      margin-bottom: 4px;
+      transition: all 0.2s ease;
+    }
+    .topic-link:hover { background: #f0fff4; color: var(--green-1); border-color: var(--border); }
+    .topic-link.active { background: #e8faee; color: var(--green-1); border-color: var(--green-2); font-weight: 700; }
+
+    .hero {
+      background: linear-gradient(135deg, var(--bg-soft) 0%, var(--accent-a) 55%, var(--accent-b) 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 12px 30px rgba(24,110,58,0.12);
+      margin-bottom: 22px;
+      animation: riseIn 0.75s ease both;
+    }
+
+    h1, h2, h3 { margin-top: 0; color: var(--green-1); }
+    h1 { font-size: 2rem; margin-bottom: 8px; }
+    code { color: var(--green-1); font-weight: 700; }
+
+    .tag {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      background: var(--green-3);
+      color: var(--green-1);
+      border: 1px solid var(--border);
+      margin-bottom: 10px;
+    }
+
+    .card {
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      margin-bottom: 16px;
+      box-shadow: 0 7px 22px rgba(18,102,55,0.08);
+      animation: riseIn 0.65s ease both;
+    }
+
+    .topic-panel { display: none; }
+    .topic-panel.active { display: block; }
+    .step-title { margin: 0 0 12px; font-size: 1.25rem; }
+    .side-divider { border: none; border-top: 1px solid var(--border); margin: 10px 0; }
+    .side-section-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--green-2);
+      padding: 4px 4px 6px;
+    }
+    .nav-back {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--green-2);
+      background: #e9fbe8;
+      color: var(--green-1);
+      text-decoration: none;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      width: 100%;
+      text-align: center;
+    }
+    .nav-back:hover { background: #d8f7df; transform: translateY(-1px); }
+
+    .note {
+      background: var(--mint);
+      border-left: 4px solid var(--green-2);
+      padding: 10px 14px;
+      color: var(--muted);
+      margin: 12px 0;
+      border-radius: 6px;
+      font-size: 0.94rem;
+    }
+    .warn {
+      background: #fff6e2;
+      border-left: 4px solid #e0a800;
+      padding: 10px 14px;
+      color: #6b4e00;
+      margin: 12px 0;
+      border-radius: 6px;
+      font-size: 0.94rem;
+    }
+    .big-result { font-size: 1.1rem; margin: 18px 0 8px; color: var(--green-1); font-weight: 700; }
+
+    .code {
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 10px;
+      border: 1px solid #2f5a3d;
+      padding: 16px 18px;
+      overflow-x: auto;
+      margin: 10px 0 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.95rem;
+      white-space: pre;
+      line-height: 1.7;
+    }
+    .code .cm { color: #6dbf8a; }
+    .code .fn { color: #ffa657; }
+    .code .kw { color: #79c0ff; }
+    .code .num { color: #d2a8ff; }
+    .code .str { color: #ffd580; }
+    .code .hl { background: rgba(125,231,135,0.16); border-radius: 4px; }
+    .code .bad { background: rgba(248,113,113,0.16); border-radius: 4px; }
+
+    .console {
+      background: #101418;
+      color: #e6edf3;
+      border-radius: 10px;
+      border: 1px solid #30363d;
+      padding: 12px 18px;
+      overflow-x: auto;
+      margin: 10px 0 14px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.92rem;
+      white-space: pre;
+      line-height: 1.7;
+    }
+    .console .usr { color: #7ee787; font-weight: 700; }
+    .console .dim { color: #8b949e; }
+    .console .err { color: #ff9f9f; }
+
+    .ex-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .88rem;
+      margin: 10px 0 14px;
+    }
+    .ex-table th {
+      background: var(--green-3);
+      color: var(--green-1);
+      padding: 8px 12px;
+      text-align: left;
+      border: 1px solid var(--border);
+      font-size: .78rem;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+    .ex-table td { padding: 8px 12px; border: 1px solid var(--border); vertical-align: top; }
+    .ex-table tr:nth-child(even) td { background: #f4fff7; }
+    .task-box {
+      background: var(--mint);
+      border: 2px dashed var(--green-2);
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin: 14px 0;
+    }
+    .task-box a {
+      color: var(--green-1);
+      font-weight: 800;
+      font-size: 1.02rem;
+      word-break: break-all;
+    }
+    .footer { text-align: center; color: var(--muted); font-size: 0.86rem; padding: 10px 0 16px; }
+
+    .task-list { padding-left: 22px; margin: 10px 0 0; }
+    .task-list li { margin-bottom: 10px; color: #1a3a2a; }
+    .task-list li strong { color: var(--green-1); }
+
+    .ex-title { display: flex; align-items: center; margin: 22px 0 8px; }
+    .ex-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--green-3); border: 2px solid var(--green-2);
+      color: var(--green-1); font-weight: 800; font-size: .88rem;
+      margin-right: 8px; flex-shrink: 0;
+    }
+    .ex-title h3 { margin: 0; font-size: 1.1rem; }
+
+    .kbd {
+      display: inline-block; padding: 2px 8px; border-radius: 6px;
+      background: #f0fff4; border: 1px solid var(--border);
+      border-bottom-width: 3px; font-family: Consolas, monospace;
+      font-size: .85rem; color: var(--green-1); font-weight: 700;
+    }
+
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 6px; }
+    .pill {
+      display: inline-block; padding: 4px 12px; border-radius: 999px;
+      background: #eafcef; border: 1px solid var(--border);
+      color: var(--green-1); font-weight: 700; font-size: .82rem;
+    }
+    .pill.now { background: #fff0c2; border-color: #e0a800; color: #6b4e00; }
+
+    .submission { background: var(--mint); border-color: var(--green-2); margin-top: 0; }
+    .submission a { color: var(--green-1); font-weight: 800; font-size: 1.05rem; word-break: break-all; }
+
+    /* ── Module toolbox ── */
+    .toolbox {
+      background: #f7fffb; border: 1px solid var(--border);
+      border-radius: 14px; padding: 16px 18px; margin: 14px 0;
+    }
+    .toolbox .tb-head {
+      display: flex; align-items: center; gap: 8px;
+      font-weight: 800; color: var(--green-1); margin-bottom: 10px;
+    }
+    .toolbox .tb-head .tb-ic {
+      width: 30px; height: 30px; border-radius: 9px; flex-shrink: 0;
+      background: linear-gradient(160deg, #2dd4bf, #0d9488);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 1rem;
+    }
+    .tool-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .tool {
+      font-family: Consolas, monospace; font-size: .82rem; font-weight: 700;
+      background: #ffffff; border: 1px solid var(--border);
+      border-bottom-width: 3px; border-radius: 9px;
+      padding: 6px 11px; color: var(--green-1);
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .tool:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(18,102,55,0.16); }
+    .tool small { display: block; font-family: "Trebuchet MS", sans-serif; font-weight: 400; color: var(--muted); font-size: .72rem; }
+
+    /* ── before / after boxes ── */
+    .ba { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 12px 0 14px; }
+    .ba .bx {
+      font-family: Consolas, monospace; font-weight: 700; font-size: .95rem;
+      background: #ffffff; border: 1px solid var(--border);
+      border-bottom-width: 3px; border-radius: 10px; padding: 9px 13px; color: var(--green-1);
+      white-space: pre;
+    }
+    .ba .bx.old { background: #fff6e2; border-color: #e6c46a; color: #6b4e00; }
+    .ba .arw { font-weight: 800; color: var(--muted); }
+
+    /* ── side-by-side compare columns ── */
+    .vs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0 14px; }
+    .vs > div { min-width: 0; }
+    .vs .vs-head {
+      font-weight: 800; color: var(--green-1); font-size: .92rem;
+      padding: 6px 10px; border-radius: 8px; background: var(--green-3);
+      border: 1px solid var(--border); margin-bottom: 6px; text-align: center;
+    }
+    .vs .vs-head.bad { background: #fff6e2; border-color: #e6c46a; color: #6b4e00; }
+    .vs .code, .vs .console { margin: 0 0 8px; font-size: .88rem; }
+
+    /* ── key → value rows ── */
+    .kvbox {
+      background: #f5fff9; border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px 18px; margin: 12px 0 14px;
+    }
+    .kvrow { display: flex; align-items: stretch; margin-bottom: 6px; flex-wrap: wrap; }
+    .kvrow .kk, .kvrow .vv {
+      font-family: Consolas, monospace; font-weight: 800; font-size: .88rem;
+      padding: 6px 12px; border: 1px solid var(--border);
+    }
+    .kvrow .kk {
+      background: linear-gradient(160deg, #d6f8e4, #a9ecc6);
+      border-color: #7fd6a3; color: #08351d;
+      border-radius: 9px 0 0 9px; min-width: 130px;
+    }
+    .kvrow .ar {
+      display: flex; align-items: center; padding: 0 10px;
+      color: var(--muted); font-weight: 800; background: #ffffff;
+      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    }
+    .kvrow .vv { background: #ffffff; color: var(--green-1); border-radius: 0 9px 9px 0; border-left: none; }
+    .kvrow .vv.list { background: #fffaf0; color: #6b4e00; border-color: #e6c46a; }
+    .kvrow .vv.dict { background: #eef8ff; color: #1c4e80; border-color: #a9cdec; }
+    .kvrow .vv.set { background: #f7f0ff; color: #5b2a86; border-color: #cbb0e8; }
+    .kvbox-cap { font-family: Consolas, monospace; font-weight: 800; color: var(--green-1); margin-bottom: 8px; font-size: .88rem; }
+
+    /* ── figure blocks (the drawings) ── */
+    .fig {
+      background: #f5fff9; border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px; margin: 14px 0;
+      text-align: center;
+    }
+    .fig svg { width: 100%; height: auto; max-width: 620px; }
+    .fig .figcap {
+      font-size: .84rem; color: var(--muted); margin-top: 8px;
+      font-style: italic;
+    }
+
+    /* ── D&D item rack ── */
+    .rack { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 12px 0 6px; }
+    .slot {
+      width: 96px; padding: 10px 6px; border-radius: 12px; text-align: center;
+      background: linear-gradient(160deg, #ffffff, #eafcef);
+      border: 1px solid var(--border); border-bottom-width: 3px;
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .slot:hover { transform: translateY(-3px); box-shadow: 0 8px 16px rgba(18,102,55,0.18); }
+    .slot .ic { font-size: 1.9rem; line-height: 1.2; }
+    .slot .nm { font-family: Consolas, monospace; font-weight: 800; font-size: .78rem; color: var(--green-1); }
+    .slot.picked { background: linear-gradient(160deg, #fff6d9, #ffe9a9); border-color: #e0a800; }
+
+    /* ── attribute bars ── */
+    .stats { background: #f5fff9; border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; margin: 12px 0 14px; }
+    .stat { display: grid; grid-template-columns: 116px 1fr 34px; gap: 10px; align-items: center; margin-bottom: 7px; }
+    .stat .snm { font-family: Consolas, monospace; font-weight: 800; color: var(--green-1); font-size: .82rem; }
+    .stat .strack { height: 15px; border-radius: 8px; background: #e3efe8; border: 1px solid var(--border); overflow: hidden; }
+    .stat .sfill { height: 100%; background: linear-gradient(90deg, #a9ecc6, #4fc47f); }
+    .stat .sfill.hi { background: linear-gradient(90deg, #ffe1a8, #f0b429); }
+    .stat .sval { font-family: Consolas, monospace; font-weight: 800; color: var(--muted); font-size: .82rem; text-align: right; }
+
+    /* ── Hebrew / right-to-left panel ── */
+    .rtl { direction: rtl; text-align: right; }
+    .rtl .task-list { padding-left: 0; padding-right: 22px; }
+    .rtl .ex-table th, .rtl .ex-table td { text-align: right; }
+    .rtl .note, .rtl .warn { border-left: none; border-right: 4px solid var(--green-2); }
+    .rtl .warn { border-right-color: #e0a800; }
+    /* code and output stay English — always left-aligned, even on an RTL page */
+    .rtl .code, .rtl .console { direction: ltr; text-align: left; }
+
+    /* ── numbered build steps ── */
+    .steps { counter-reset: st; padding: 0; margin: 12px 0 0; list-style: none; }
+    .steps > li { position: relative; padding-left: 40px; margin-bottom: 18px; }
+    .steps > li::before {
+      counter-increment: st; content: counter(st);
+      position: absolute; left: 0; top: 0;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--green-3); border: 2px solid var(--green-2);
+      color: var(--green-1); font-weight: 800; font-size: .86rem;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .steps > li > .sh { font-weight: 800; color: var(--green-1); display: block; margin-bottom: 2px; }
+
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes blobMove {
+      from { transform: translate(0, 0) scale(1); }
+      to { transform: translate(24px, 18px) scale(1.06); }
+    }
+
+    @media (max-width: 760px) {
+      .wrap { padding: 14px; }
+      .layout { grid-template-columns: 1fr; }
+      .side-nav { position: static; }
+      h1 { font-size: 1.6rem; }
+      .code { font-size: 0.86rem; }
+      .ex-table { font-size: .8rem; }
+      .vs { grid-template-columns: 1fr; }
+      .kvrow .kk { min-width: 0; }
+      .stat { grid-template-columns: 92px 1fr 30px; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <section class="hero">
+    <span class="tag">Lesson 21 - September 7, 2026</span>
+    <h1>The Seed — Random You Can Repeat 🎲</h1>
+    <p>Random has been a coin toss until now: different every run, and nothing you could check. Today it gets a <strong>seed</strong>. Hand <code>random.seed(7)</code> the same number and you get the <em>same</em> "random" numbers back, every single time — which is what makes random testable. Then we use it: forty-two seeds, ten numbers each, and one question — <strong>which seed gives the biggest sum?</strong> That question needs a function, a loop, and the max-so-far pattern all working together.</p>
+  </section>
+
+  <div class="layout">
+    <aside class="side-nav" aria-label="Topic navigation">
+      <div class="side-title">Lesson 21 topics</div>
+
+      <div class="side-section-label">1 · The seed</div>
+      <button class="topic-link active" data-target="topic-noseed">random without a seed</button>
+      <button class="topic-link" data-target="topic-seed">random.seed() 🎲</button>
+      <button class="topic-link" data-target="topic-why">why anyone wants that</button>
+
+      <div class="side-section-label">2 · The question</div>
+      <button class="topic-link" data-target="topic-task">forty-two seeds, one winner</button>
+      <button class="topic-link" data-target="topic-func">the function does one seed</button>
+      <button class="topic-link" data-target="topic-max">the max-so-far pattern 🏆</button>
+      <button class="topic-link" data-target="topic-none">why it starts at None ⚠️</button>
+
+      <div class="side-section-label">3 · Making it general</div>
+      <button class="topic-link" data-target="topic-general">four slots instead of one</button>
+      <button class="topic-link" data-target="topic-whole">the whole program</button>
+
+      <hr class="side-divider">
+      <button class="topic-link" data-target="topic-github">github folder</button>
+
+      <div class="side-section-label">Navigation</div>
+      <a class="nav-back" href="../../index.html#lessons">Back to lessons</a>
+    </aside>
+
+    <main>
+
+      <!-- ═══ NO SEED ═══ -->
+      <section class="card topic-panel active" id="topic-noseed">
+        <span class="tag">01_random_ten.py</span>
+        <h2 class="step-title">Random, the Way You Know It 🎰</h2>
+        <p>You met <code>random</code> back in lesson 8. Run this twice and you get two different answers — that is the whole idea of it.</p>
+        <div class="code"><span class="kw">import</span> random
+
+<span class="fn">print</span>([random.<span class="fn">randint</span>(<span class="num">1</span>, <span class="num">100</span>) <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="num">5</span>)])
+<span class="fn">print</span>([random.<span class="fn">randint</span>(<span class="num">1</span>, <span class="num">100</span>) <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="num">5</span>)])</div>
+        <div class="console">[10, 69, 13, 47, 75]
+[8, 65, 28, 5, 12]</div>
+        <p>Run it again tomorrow and both lines will be different again. That is exactly what you want for a dice game — and exactly what you do <em>not</em> want when you are trying to find a bug, or compare two things fairly.</p>
+        <div class="warn">
+          <strong>The problem.</strong> Suppose your program crashes on one particular set of random numbers. You run it again to look closer &mdash; and the numbers are different, so the crash is gone. You cannot fix what you cannot reproduce.
+        </div>
+      </section>
+
+      <!-- ═══ SEED ═══ -->
+      <section class="card topic-panel" id="topic-seed">
+        <span class="tag">01_random_ten.py</span>
+        <h2 class="step-title"><code>random.seed()</code> — the Same Numbers Every Time 🎲</h2>
+        <p>One line changes everything. Give <code>random.seed()</code> a number first, and the numbers that follow are decided by it.</p>
+        <div class="code"><span class="kw">import</span> random
+
+random.<span class="fn">seed</span>(<span class="num">7</span>)
+<span class="fn">print</span>([random.<span class="fn">randint</span>(<span class="num">1</span>, <span class="num">100</span>) <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="num">5</span>)])
+
+random.<span class="fn">seed</span>(<span class="num">7</span>)
+<span class="fn">print</span>([random.<span class="fn">randint</span>(<span class="num">1</span>, <span class="num">100</span>) <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="num">5</span>)])
+
+random.<span class="fn">seed</span>(<span class="num">7</span>)
+<span class="fn">print</span>([random.<span class="fn">randint</span>(<span class="num">1</span>, <span class="num">100</span>) <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="num">5</span>)])</div>
+        <div class="console">[42, 20, 51, 84, 7]
+[42, 20, 51, 84, 7]
+[42, 20, 51, 84, 7]</div>
+        <p>Three identical lines. And you will get <strong>those same five numbers</strong> when you run it, on your machine, tomorrow.</p>
+        <div class="fig">
+          <svg viewBox="0 0 600 180" role="img" aria-label="The same seed always produces the same sequence of numbers">
+            <text x="300" y="18" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#1f8f4e">random.seed(7)</text>
+            <rect x="34" y="34" width="120" height="48" rx="11" fill="#fff0c2" stroke="#e0a800" stroke-width="2"/>
+            <text x="94" y="56" text-anchor="middle" font-family="Consolas, monospace" font-size="13" font-weight="800" fill="#6b4e00">seed 7</text>
+            <text x="94" y="72" text-anchor="middle" font-family="Consolas, monospace" font-size="10" fill="#6b4e00">the starting point</text>
+            <path d="M160 58 L214 58" fill="none" stroke="#426654" stroke-width="3"/>
+            <path d="M206 51 L216 58 L206 65" fill="none" stroke="#426654" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="222" y="34" width="344" height="48" rx="11" fill="#ffffff" stroke="#1f8f4e" stroke-width="2"/>
+            <text x="394" y="64" text-anchor="middle" font-family="Consolas, monospace" font-size="14" font-weight="700" fill="#0f5a2e">42, 20, 51, 84, 7, ...</text>
+            <text x="300" y="112" text-anchor="middle" font-family="Consolas, monospace" font-size="11" fill="#426654">every run · every day · same machine or another</text>
+            <rect x="34" y="126" width="120" height="34" rx="9" fill="#f5f5f5" stroke="#999" stroke-width="2"/>
+            <text x="94" y="148" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#555">no seed</text>
+            <path d="M160 143 L214 143" fill="none" stroke="#999" stroke-width="3"/>
+            <path d="M206 136 L216 143 L206 150" fill="none" stroke="#999" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="222" y="126" width="344" height="34" rx="9" fill="#f5f5f5" stroke="#999" stroke-width="2"/>
+            <text x="394" y="148" text-anchor="middle" font-family="Consolas, monospace" font-size="12" fill="#555">something different every single time</text>
+          </svg>
+          <div class="figcap">The seed is not the answer. It is the <em>starting point</em> the answers are worked out from.</div>
+        </div>
+        <div class="note">
+          It is still random in every way that matters &mdash; the numbers have no pattern you could guess, they are spread evenly, 42 is as likely as 43. It is just random that <strong>starts from a place you chose</strong>. The proper name for this is <em>pseudo-random</em>.
+        </div>
+      </section>
+
+      <!-- ═══ WHY ═══ -->
+      <section class="card topic-panel" id="topic-why">
+        <span class="tag">why it matters</span>
+        <h2 class="step-title">Why Would Anyone Want Repeatable Random? 🔍</h2>
+        <table class="ex-table">
+          <thead><tr><th>Situation</th><th>Why the seed saves you</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Chasing a bug</strong></td><td>The crash only happens on certain numbers. Fix the seed and the crash happens every time, so you can watch it.</td></tr>
+            <tr><td><strong>Comparing two things</strong></td><td>Two versions of a program, both handed <em>exactly</em> the same random data. Any difference is the program, not luck.</td></tr>
+            <tr><td><strong>Marking homework</strong></td><td>Everyone's program runs on the same numbers, so everyone should get the same answer.</td></tr>
+            <tr><td><strong>Today's question</strong></td><td>Seed 37 always gives the same ten numbers &mdash; so "which seed is best" has one true answer, not a different one each run.</td></tr>
+          </tbody>
+        </table>
+        <div class="warn">
+          <strong>And where you must NOT use it.</strong> Never seed anything to do with security &mdash; passwords, tokens, a shuffled deck in a real card game. If the seed is guessable, so is everything that came out of it. For that there is <code>secrets</code>, not <code>random</code>.
+        </div>
+      </section>
+
+      <!-- ═══ THE TASK ═══ -->
+      <section class="card topic-panel" id="topic-task">
+        <span class="tag">01_random_ten.py</span>
+        <h2 class="step-title">Forty-Two Seeds, One Winner 🏁</h2>
+        <p>Here is the question written at the top of today's file:</p>
+        <div class="task-box" style="border-style:solid">
+          <strong>Try every seed from 1 to 42.</strong><br>
+          For each one, generate <strong>10 random numbers between 1 and 100</strong> and add them up.<br>
+          Which seed gave the <strong>highest sum</strong>? Print the seed and the sum.
+        </div>
+        <div class="code"><span class="cm">#  seed-1: [5, 7, 20, 90, ...] --&gt; sum 217 ==&gt; seed1: 217</span>
+<span class="cm">#  seed-2: [4, 6, 53, 88, ...] --&gt; sum 201 ==&gt; seed2: 201</span></div>
+        <p>Before writing anything, notice the shape of it. There are <strong>two loops here, one inside the other</strong>, and they are doing completely different jobs:</p>
+        <table class="ex-table">
+          <thead><tr><th>Loop</th><th>Runs</th><th>Its job</th></tr></thead>
+          <tbody>
+            <tr><td><strong>outer</strong></td><td>42 times, once per seed</td><td>try each seed and keep the best one so far</td></tr>
+            <tr><td><strong>inner</strong></td><td>10 times, inside one seed</td><td>add up ten random numbers</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          Which is exactly the moment to reach for a <strong>function</strong>. Give the inner loop a name, and the outer loop becomes four readable lines. That is last week's habit, and this is what it is for.
+        </div>
+      </section>
+
+      <!-- ═══ THE FUNCTION ═══ -->
+      <section class="card topic-panel" id="topic-func">
+        <span class="tag">01_random_ten.py</span>
+        <h2 class="step-title">The Function Handles One Seed 🔧</h2>
+        <p>One slot in, one number out. It knows nothing about the 42, and it does not need to.</p>
+        <div class="code"><span class="kw">import</span> random
+
+<span class="kw">def</span> <span class="fn">calc_sum_10</span>(seed):
+    <span class="str">'''
+    get a seed for random.seed
+    sum 10 numbers
+    return the sum
+    :param seed:
+    :return: sum of 10 numbers between 1-100
+    '''</span>
+    random.<span class="fn">seed</span>(seed)          <span class="cm"># create random engine</span>
+    sum_10 = <span class="num">0</span>
+    <span class="cm"># sum 10 random numbers</span>
+    <span class="kw">for</span> j <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">10</span> + <span class="num">1</span>):
+        random_number = random.<span class="fn">randint</span>(<span class="num">1</span>, <span class="num">100</span>)
+        sum_10 += random_number
+    <span class="kw">return</span> sum_10</div>
+        <div class="console"><span class="dim">&gt;&gt;&gt; calc_sum_10(1)</span>
+528
+<span class="dim">&gt;&gt;&gt; calc_sum_10(1)</span>
+528
+<span class="dim">&gt;&gt;&gt; calc_sum_10(37)</span>
+674</div>
+        <p>Call it twice with the same seed and you get the same answer twice. <strong>That is the seed doing its job</strong> &mdash; without it, this function would be useless for comparing anything.</p>
+        <table class="ex-table">
+          <thead><tr><th>Line</th><th>What it is doing</th></tr></thead>
+          <tbody>
+            <tr><td><code>random.seed(seed)</code></td><td>set the starting point &mdash; <strong>first</strong>, before any number is drawn</td></tr>
+            <tr><td><code>sum_10 = 0</code></td><td>the running total, starting empty</td></tr>
+            <tr><td><code>for j in range(1, 10 + 1)</code></td><td>ten times. <code>10 + 1</code> is written that way on purpose: the 10 is the count you can see</td></tr>
+            <tr><td><code>sum_10 += random_number</code></td><td>the accumulator pattern &mdash; add onto what is already there</td></tr>
+            <tr><td><code>return sum_10</code></td><td>hand it back. No <code>print</code> in here</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          <code>sum_10 += random_number</code> is short for <code>sum_10 = sum_10 + random_number</code>. Two ways to write the same thing; the short one is what you will see in real code.
+        </div>
+      </section>
+
+      <!-- ═══ MAX ═══ -->
+      <section class="card topic-panel" id="topic-max">
+        <span class="tag">01_random_ten.py</span>
+        <h2 class="step-title">The Max-So-Far Pattern 🏆</h2>
+        <p>The outer loop has one job: go through all 42 and remember the best. You cannot use <code>max()</code> here, because you need to know <em>which seed</em> it was, not just how big it got. So you keep <strong>two</strong> variables and update them together.</p>
+        <div class="code">max_sum = <span class="kw">None</span>
+max_sum_seed = <span class="kw">None</span>
+
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">42</span> + <span class="num">1</span>):
+    sum_10_numbers = <span class="fn">calc_sum_10</span>(i)
+    <span class="kw">if</span> max_sum <span class="kw">is</span> <span class="kw">None</span> <span class="kw">or</span> sum_10_numbers &gt; max_sum:
+        max_sum = sum_10_numbers
+        max_sum_seed = i
+
+    <span class="fn">print</span>(<span class="str">f"seed-{i}: sum {sum_10_numbers}"</span>)
+
+<span class="fn">print</span>(<span class="str">f"max_sum: {max_sum} max_sum_seed: {max_sum_seed}"</span>)</div>
+        <ol class="steps">
+          <li><span class="sh">Two empty boxes before the loop</span>The best sum so far, and the seed it came from. They must be created <em>outside</em> the loop, or they would be wiped clean on every turn.</li>
+          <li><span class="sh">Work out this seed's sum</span>One call. All the work is behind the name.</li>
+          <li><span class="sh">Is it better than the best so far?</span>If yes, both boxes are updated <strong>together</strong>. Updating one without the other is the classic bug here &mdash; you end up reporting the right number next to the wrong seed.</li>
+          <li><span class="sh">After the loop, announce the winner</span>Outside the loop, not inside. Inside, it would print 42 times.</li>
+        </ol>
+        <div class="fig">
+          <svg viewBox="0 0 600 176" role="img" aria-label="The best-so-far pair being updated as the loop walks through the seeds">
+            <text x="300" y="18" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#1f8f4e">walking through the seeds</text>
+            <rect x="24" y="34" width="86" height="42" rx="9" fill="#ffffff" stroke="#7fd6a3" stroke-width="2"/>
+            <text x="67" y="52" text-anchor="middle" font-family="Consolas, monospace" font-size="11" fill="#08351d">seed 1</text>
+            <text x="67" y="68" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#08351d">528</text>
+            <rect x="118" y="34" width="86" height="42" rx="9" fill="#ffffff" stroke="#7fd6a3" stroke-width="2"/>
+            <text x="161" y="52" text-anchor="middle" font-family="Consolas, monospace" font-size="11" fill="#08351d">seed 2</text>
+            <text x="161" y="68" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#08351d">432</text>
+            <rect x="212" y="34" width="86" height="42" rx="9" fill="#ffffff" stroke="#7fd6a3" stroke-width="2"/>
+            <text x="255" y="52" text-anchor="middle" font-family="Consolas, monospace" font-size="11" fill="#08351d">seed 3</text>
+            <text x="255" y="68" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#08351d">546</text>
+            <text x="330" y="60" text-anchor="middle" font-family="Consolas, monospace" font-size="14" fill="#426654">· · ·</text>
+            <rect x="360" y="34" width="96" height="42" rx="9" fill="#fff0c2" stroke="#e0a800" stroke-width="3"/>
+            <text x="408" y="52" text-anchor="middle" font-family="Consolas, monospace" font-size="11" fill="#6b4e00">seed 37</text>
+            <text x="408" y="68" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="800" fill="#6b4e00">674</text>
+            <text x="500" y="60" text-anchor="middle" font-family="Consolas, monospace" font-size="14" fill="#426654">· · ·</text>
+            <rect x="150" y="104" width="300" height="52" rx="12" fill="#d6f8e4" stroke="#1f8f4e" stroke-width="2"/>
+            <text x="300" y="126" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#08351d">max_sum = 674</text>
+            <text x="300" y="145" text-anchor="middle" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#08351d">max_sum_seed = 37</text>
+            <path d="M408 82 L360 100" fill="none" stroke="#e0a800" stroke-width="2.5"/>
+            <path d="M370 92 L357 102 L372 104" fill="none" stroke="#e0a800" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div class="figcap">The pair moves together, or the answer is nonsense.</div>
+        </div>
+      </section>
+
+      <!-- ═══ NONE ═══ -->
+      <section class="card topic-panel" id="topic-none">
+        <span class="tag">01_random_ten.py</span>
+        <h2 class="step-title">Why It Starts at <code>None</code>, Not 0 ⚠️</h2>
+        <p>Look at that <code>if</code> again. It has two halves, and the first one is doing real work:</p>
+        <div class="code"><span class="kw">if</span> max_sum <span class="kw">is</span> <span class="kw">None</span> <span class="kw">or</span> sum_10_numbers &gt; max_sum:</div>
+        <p>On the very first turn there is nothing to compare against. <code>None</code> means <em>"I have not seen anything yet"</em>, and that first half makes the first seed win automatically, whatever it scored.</p>
+        <div class="warn">
+          <strong>Why not just start at 0?</strong> Here it happens to work, because sums of positive numbers are always above 0. Change the data and it quietly breaks:
+          <div class="code" style="margin-top:6px">numbers = [-<span class="num">5</span>, -<span class="num">3</span>, -<span class="num">9</span>]
+
+best = <span class="num">0</span>                       <span class="cm"># looks harmless</span>
+<span class="kw">for</span> v <span class="kw">in</span> numbers:
+    <span class="kw">if</span> v &gt; best:
+        best = v
+<span class="fn">print</span>(best)</div>
+          <div class="console">0</div>
+          <strong>0 was never in the list.</strong> The program answered with a number that does not exist in the data, and did not complain once.
+        </div>
+        <div class="vs">
+          <div>
+            <div class="vs-head">start at None</div>
+            <div class="code">best = <span class="kw">None</span>
+<span class="kw">for</span> v <span class="kw">in</span> numbers:
+    <span class="kw">if</span> best <span class="kw">is</span> <span class="kw">None</span> <span class="kw">or</span> v &gt; best:
+        best = v</div>
+            <div class="console">-3</div>
+          </div>
+          <div>
+            <div class="vs-head bad">start at 0</div>
+            <div class="code">best = <span class="num">0</span>
+<span class="kw">for</span> v <span class="kw">in</span> numbers:
+    <span class="kw">if</span> v &gt; best:
+        best = v</div>
+            <div class="console">0</div>
+          </div>
+        </div>
+        <div class="note">
+          <code>is None</code>, not <code>== None</code>. Both work, but <code>is</code> is the one Python people write &mdash; it asks "is this the actual None object", which is exactly the question.
+        </div>
+      </section>
+
+      <!-- ═══ GENERAL ═══ -->
+      <section class="card topic-panel" id="topic-general">
+        <span class="tag">01_random_ten.py</span>
+        <h2 class="step-title">Task 2 — Four Slots Instead of One 🔩</h2>
+        <p>The second job in today's file: the same function, but stop hard-coding the 10, the 1 and the 100.</p>
+        <div class="task-box" style="border-style:solid">
+          Make a function that gets a <strong>seed</strong>, <strong>how many</strong> numbers to draw,
+          a <strong>min_range</strong> and a <strong>max_range</strong> &mdash; and returns the sum.<br>
+          Then write a <code>for</code> loop that calls it.
+        </div>
+        <div class="code"><span class="kw">def</span> <span class="fn">calc_sum</span>(seed, how_many, min_range, max_range):
+    <span class="str">'''
+    add up some random numbers, from a known starting point
+    :param seed: the starting point for random
+    :param how_many: how many numbers to draw
+    :param min_range: smallest number allowed
+    :param max_range: biggest number allowed
+    :return: the sum of them
+    '''</span>
+    random.<span class="fn">seed</span>(seed)
+    total = <span class="num">0</span>
+    <span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(how_many):
+        total += random.<span class="fn">randint</span>(min_range, max_range)
+    <span class="kw">return</span> total</div>
+        <div class="code"><span class="fn">print</span>(<span class="fn">calc_sum</span>(<span class="num">1</span>, <span class="num">10</span>, <span class="num">1</span>, <span class="num">100</span>))
+<span class="fn">print</span>(<span class="fn">calc_sum</span>(<span class="num">37</span>, <span class="num">10</span>, <span class="num">1</span>, <span class="num">100</span>))
+<span class="fn">print</span>(<span class="fn">calc_sum</span>(<span class="num">1</span>, <span class="num">5</span>, <span class="num">1</span>, <span class="num">6</span>))       <span class="cm"># five dice rolls</span></div>
+        <div class="console">528
+674
+12</div>
+        <p>Same function, three completely different jobs. The first two lines are the old <code>calc_sum_10</code>; the third one is rolling dice, which the old version could never have done.</p>
+        <div class="ba">
+          <div class="bx old">calc_sum_10(seed)
+10, 1 and 100 baked in</div>
+          <div class="arw">→</div>
+          <div class="bx">calc_sum(seed, how_many,
+         min_range, max_range)</div>
+        </div>
+        <div class="note">
+          This is the same lesson as the tax function two weeks ago: a number written inside the body is a decision you took away from whoever calls it. A <strong>parameter</strong> hands the decision back.
+        </div>
+        <div class="warn">
+          <code>range(how_many)</code> counts <code>0, 1, 2 …</code> and <code>range(1, how_many + 1)</code> counts <code>1, 2, 3 …</code>. Both go round exactly <code>how_many</code> times, and here the counter is never used &mdash; so either is fine. When you genuinely do not use it, Python people write it as <code>_</code>.
+        </div>
+      </section>
+
+      <!-- ═══ WHOLE ═══ -->
+      <section class="card topic-panel" id="topic-whole">
+        <span class="tag">01_random_ten.py</span>
+        <h2 class="step-title">The Whole Thing, Running 🏃</h2>
+        <div class="code"><span class="kw">import</span> random
+
+<span class="kw">def</span> <span class="fn">calc_sum_10</span>(seed):
+    random.<span class="fn">seed</span>(seed)
+    sum_10 = <span class="num">0</span>
+    <span class="kw">for</span> j <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">10</span> + <span class="num">1</span>):
+        random_number = random.<span class="fn">randint</span>(<span class="num">1</span>, <span class="num">100</span>)
+        sum_10 += random_number
+    <span class="kw">return</span> sum_10
+
+max_sum = <span class="kw">None</span>
+max_sum_seed = <span class="kw">None</span>
+
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">42</span> + <span class="num">1</span>):
+    sum_10_numbers = <span class="fn">calc_sum_10</span>(i)
+    <span class="kw">if</span> max_sum <span class="kw">is</span> <span class="kw">None</span> <span class="kw">or</span> sum_10_numbers &gt; max_sum:
+        max_sum = sum_10_numbers
+        max_sum_seed = i
+
+    <span class="fn">print</span>(<span class="str">f"seed-{i}: sum {sum_10_numbers}"</span>)
+
+<span class="fn">print</span>(<span class="str">f"max_sum: {max_sum} max_sum_seed: {max_sum_seed}"</span>)</div>
+        <div class="console">seed-1: sum 528
+seed-2: sum 432
+seed-3: sum 546
+seed-4: sum 334
+seed-5: sum 654
+seed-6: sum 466
+seed-7: sum 418
+seed-8: sum 327
+<span class="dim">...</span>
+seed-40: sum 557
+seed-41: sum 501
+seed-42: sum 420
+max_sum: 674 max_sum_seed: 37</div>
+        <div class="note">
+          <strong>Seed 37 wins, with 674.</strong> And here is the proof that the whole lesson worked: <em>you will get 37 and 674 too</em>. Run it on your machine, right now &mdash; same answer. Without <code>random.seed()</code> the winner would be a different seed every single time you ran it, and the question would have no answer at all.
+        </div>
+      </section>
+
+      <!-- ═══ GITHUB ═══ -->
+      <section class="card topic-panel" id="topic-github">
+        <span class="tag">GitHub</span>
+        <h2 class="step-title">Lesson 21 GitHub Folder</h2>
+        <p>All the code from today's lesson:</p>
+        <div class="task-box">
+          <strong>Lesson folder:</strong><br>
+          <a href="https://github.com/pythonai080626-a11y/07.09.2026" target="_blank" rel="noopener">
+            https://github.com/pythonai080626-a11y/07.09.2026
+          </a>
+        </div>
+        <table class="ex-table">
+          <thead><tr><th>File</th><th>What is in it</th></tr></thead>
+          <tbody>
+            <tr><td><code>01_random_ten.py</code></td><td><strong>Written in class.</strong> <code>random.seed()</code>; <code>calc_sum_10(seed)</code> with its docstring; the 1&ndash;42 loop with the max-so-far pair starting at <code>None</code>; and the second task written as comments at the top &mdash; the general <code>calc_sum(seed, how_many, min_range, max_range)</code></td></tr>
+            <tr><td><code>02_input_int.py</code></td><td>Empty in the repo &mdash; the name is the plan: reading a whole number from the user without the program ever falling over</td></tr>
+            <tr><td><code>03_elections.py</code></td><td>Empty in the repo &mdash; counting votes and finding the winner</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          Worth another look: the <a href="../../08_random/index.html">Random</a> page for <code>randint</code>, and <a href="../../22_functions2/index.html">Functions 2</a> for the parameters that turned <code>calc_sum_10</code> into <code>calc_sum</code>.
+        </div>
+      </section>
+
+      <!-- ═══ HOMEWORK EN ═══ -->
+
+    </main>
+  </div>
+
+  <div class="footer">Lesson 21 &middot; random.seed, the max-so-far pattern &amp; a function with four slots &middot; September 7, 2026</div>
+</div>
+
+<script>
+  const links = document.querySelectorAll('.topic-link');
+  const panels = document.querySelectorAll('.topic-panel');
+
+  function showTopic(id) {
+    panels.forEach(panel => panel.classList.toggle('active', panel.id === id));
+    links.forEach(link => link.classList.toggle('active', link.dataset.target === id));
+  }
+
+  links.forEach(link => {
+    link.addEventListener('click', () => {
+      showTopic(link.dataset.target);
+      location.hash = link.dataset.target;
+    });
+  });
+
+  const hash = location.hash.replace('#', '');
+  if (hash && document.getElementById(hash)) showTopic(hash);
+</script>
+</body>
+</html>
