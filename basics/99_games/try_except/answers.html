@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Try / Except Quiz &mdash; Answer Key</title>
+<style>
+:root{
+  --bg:#120708; --panel:#24100f; --panel2:#2e1614; --line:#6b2b28;
+  --ink:#fff0ec; --dim:#e0a396;
+  --red:#f87171; --lime:#b8ff3d; --amber:#ffcc3d;
+  --mono:ui-monospace,"Cascadia Code","JetBrains Mono",Consolas,"Courier New",monospace;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; color:var(--ink); font-family:"Trebuchet MS","Segoe UI",sans-serif;
+  background:
+    radial-gradient(circle at 12% 6%, #7f1d1d 0%, transparent 42%),
+    radial-gradient(circle at 88% 8%, #b45309 0%, transparent 40%),
+    linear-gradient(160deg,#120708,#24100f);
+  min-height:100vh; line-height:1.6;
+}
+.wrap{max-width:900px; margin:0 auto; padding:26px 18px 70px}
+
+header.top{
+  background:linear-gradient(135deg,#7f1d1d,#7c3f10 90%);
+  border:1px solid var(--line); border-radius:18px; padding:22px 26px;
+  box-shadow:0 18px 40px rgba(0,0,0,.45);
+  display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:space-between;
+}
+h1{margin:0; font-size:1.6rem}
+h1 small{display:block; font-size:.72rem; font-weight:400; color:var(--dim);
+  letter-spacing:.2em; text-transform:uppercase; margin-top:5px}
+.btn{
+  border:1px solid var(--line); background:var(--panel2); color:var(--ink); cursor:pointer;
+  border-radius:11px; padding:11px 20px; font-weight:800; font-size:.86rem;
+  font-family:inherit; transition:.18s;
+}
+.btn:hover{background:#5a2320; transform:translateY(-2px)}
+
+/* ---------- the answer grid ---------- */
+.key{
+  background:var(--panel); border:1px solid var(--line); border-radius:16px;
+  padding:18px 20px; margin:20px 0;
+}
+.key h2{margin:0 0 4px; font-size:.74rem; letter-spacing:.24em;
+  text-transform:uppercase; color:var(--dim); font-weight:800}
+.key .sub{font-size:.78rem; color:var(--dim); margin:0 0 14px}
+.grid{display:flex; flex-wrap:wrap; gap:8px}
+.gcell{
+  width:52px; text-decoration:none; border-radius:10px; padding:7px 0;
+  background:var(--panel2); border:1px solid var(--line); text-align:center;
+  transition:.15s;
+}
+.gcell:hover{transform:translateY(-3px); border-color:var(--lime)}
+.gcell b{display:block; font-family:var(--mono); font-size:.68rem; color:var(--dim); font-weight:700}
+.gcell span{display:block; font-family:var(--mono); font-size:1.05rem;
+  font-weight:800; color:var(--lime); text-transform:uppercase}
+
+/* ---------- one question ---------- */
+.card{
+  background:var(--panel); border:1px solid var(--line); border-radius:16px;
+  padding:20px 22px; margin-bottom:14px;
+}
+.chead{display:flex; align-items:baseline; gap:9px; margin-bottom:12px}
+.chead .num{font-family:var(--mono); font-size:1.5rem; font-weight:800; color:var(--red)}
+.chead .of{font-size:.7rem; letter-spacing:.2em; text-transform:uppercase; color:var(--dim)}
+
+/* the code lines and the hebrew question line each pick their own direction */
+.qtext{
+  background:#170908; border:1px solid var(--line); border-left:3px solid var(--red);
+  border-radius:11px; padding:14px 16px; margin:0 0 14px; overflow-x:auto;
+}
+.qtext .ql{
+  white-space:pre-wrap; word-break:break-word;
+  font-family:var(--mono); font-size:14px; line-height:1.7; color:#fff;
+}
+.qtext .ql[dir="rtl"]{
+  font-family:"Trebuchet MS","Segoe UI",sans-serif;
+  font-size:15.5px; color:var(--amber); font-weight:700;
+}
+
+.opts{list-style:none; margin:0; padding:0; display:grid; gap:8px}
+.opt{
+  display:flex; align-items:center; gap:12px;
+  background:var(--panel2); border:1px solid var(--line); border-radius:11px;
+  padding:11px 14px; font-family:var(--mono); font-size:13.5px; color:var(--dim);
+}
+.opt .ltr{
+  width:26px; height:26px; flex-shrink:0; border-radius:8px;
+  display:flex; align-items:center; justify-content:center;
+  background:#170908; border:1px solid var(--line); font-weight:800; font-size:.8rem;
+}
+.opt .txt{white-space:pre-wrap; word-break:break-word}
+.opt.good{
+  border-color:var(--lime); background:rgba(184,255,61,.12); color:var(--lime); font-weight:700;
+}
+.opt.good .ltr{border-color:var(--lime); color:var(--lime)}
+.check{
+  margin-left:auto; flex-shrink:0; font-family:"Trebuchet MS",sans-serif;
+  font-size:.64rem; letter-spacing:.16em; text-transform:uppercase; font-weight:800;
+  color:#0b1400; background:var(--lime); border-radius:999px; padding:3px 10px;
+}
+.why{
+  margin:13px 0 0; padding-top:11px; border-top:1px solid var(--line);
+  font-size:.95rem; color:var(--amber);
+}
+
+footer{text-align:center; color:var(--dim); font-size:.78rem; margin-top:30px}
+
+/* ---------- hidden-answer mode, for using it as a worksheet ---------- */
+body.hide .opt.good{
+  border-color:var(--line); background:var(--panel2); color:var(--dim); font-weight:400;
+}
+body.hide .opt.good .ltr{border-color:var(--line); color:var(--dim)}
+body.hide .check{display:none}
+body.hide .why{display:none}
+body.hide .gcell span{color:transparent; background:var(--line);
+  border-radius:5px; margin:2px 8px; height:1.05rem}
+
+/* ---------- printing ---------- */
+@media print{
+  :root{--ink:#111; --dim:#555; --line:#bbb; --panel:#fff; --panel2:#fafafa}
+  body{background:#fff; color:#111}
+  .wrap{max-width:none; padding:0}
+  header.top{background:#fff; box-shadow:none; border-color:#bbb; color:#111}
+  h1 small{color:#555}
+  .btn, .noprint{display:none !important}
+  .card{break-inside:avoid; page-break-inside:avoid; border-color:#bbb}
+  .qtext{background:#f6f6f6; border-left-color:#999}
+  .qtext .ql{color:#111}
+  .qtext .ql[dir="rtl"]{color:#7a4a00}
+  .opt{background:#fff; color:#333}
+  .opt.good{background:#eaffd0; color:#1a3a00; border-color:#5a9e00}
+  .check{background:#5a9e00; color:#fff}
+  .why{color:#654}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <h1>Try / Except Quiz &mdash; Answer Key
+      <small>lesson 20 &middot; 15 questions &middot; every answer marked</small>
+    </h1>
+    <div style="display:flex;gap:9px;flex-wrap:wrap">
+      <button class="btn" id="toggle">hide the answers</button>
+      <button class="btn" onclick="window.print()">print</button>
+    </div>
+  </header>
+
+  <section class="key noprint">
+    <h2>All 15 answers at a glance</h2>
+    <p class="sub">Click a number to jump to that question. Spread: a 4 · b 3 · c 4 · d 4.</p>
+    <div class="grid"><a class="gcell" href="#q1"><b>1</b><span>d</span></a><a class="gcell" href="#q2"><b>2</b><span>c</span></a><a class="gcell" href="#q3"><b>3</b><span>d</span></a><a class="gcell" href="#q4"><b>4</b><span>a</span></a><a class="gcell" href="#q5"><b>5</b><span>c</span></a><a class="gcell" href="#q6"><b>6</b><span>c</span></a><a class="gcell" href="#q7"><b>7</b><span>c</span></a><a class="gcell" href="#q8"><b>8</b><span>a</span></a><a class="gcell" href="#q9"><b>9</b><span>b</span></a><a class="gcell" href="#q10"><b>10</b><span>b</span></a><a class="gcell" href="#q11"><b>11</b><span>a</span></a><a class="gcell" href="#q12"><b>12</b><span>d</span></a><a class="gcell" href="#q13"><b>13</b><span>b</span></a><a class="gcell" href="#q14"><b>14</b><span>a</span></a><a class="gcell" href="#q15"><b>15</b><span>d</span></a></div>
+  </section>
+
+    <article class="card" id="q1">
+      <header class="chead">
+        <span class="num">01</span>
+        <span class="of">of 15</span>
+      </header>
+      <div class="qtext"><div class="ql" dir="auto">x = int(input('Enter a number? '))</div><div class="ql" dir="auto">print(x)</div><div class="ql" dir="auto">&nbsp;</div><div class="ql" dir="auto">המשתמש הקליד 10</div><div class="ql" dir="auto">מה יקרה?</div></div>
+      <ol class="opts">
+        <li class="opt"><span class="ltr">a</span><span class="txt">x is the string '10'</span></li>
+        <li class="opt"><span class="ltr">b</span><span class="txt">ValueError - input() always gives text</span></li>
+        <li class="opt"><span class="ltr">c</span><span class="txt">x is None until you print it</span></li>
+        <li class="opt good"><span class="ltr">d</span><span class="txt">x is the number 10, and the program carries on</span><span class="check">correct</span></li>
+      </ol>
+      <p class="why" dir="auto">input מחזיר תמיד מחרוזת, ו-int() הופך אותה למספר. '10' זה טקסט, 10 זה מספר.</p>
+    </article>
+    <article class="card" id="q2">
+      <header class="chead">
+        <span class="num">02</span>
+        <span class="of">of 15</span>
+      </header>
+      <div class="qtext"><div class="ql" dir="auto">print(10 / 0)</div><div class="ql" dir="auto">&nbsp;</div><div class="ql" dir="auto">איזו שגיאה תיזרק?</div></div>
+      <ol class="opts">
+        <li class="opt"><span class="ltr">a</span><span class="txt">ValueError</span></li>
+        <li class="opt"><span class="ltr">b</span><span class="txt">TypeError</span></li>
+        <li class="opt good"><span class="ltr">c</span><span class="txt">ZeroDivisionError</span><span class="check">correct</span></li>
+        <li class="opt"><span class="ltr">d</span><span class="txt">ArithmeticError: cannot divide</span></li>
+      </ol>
+      <p class="why" dir="auto">חלוקה באפס. יש לה סוג שגיאה משלה, וזה השם שבו תופסים אותה.</p>
+    </article>
+    <article class="card" id="q3">
+      <header class="chead">
+        <span class="num">03</span>
+        <span class="of">of 15</span>
+      </header>
+      <div class="qtext"><div class="ql" dir="auto">prices = {'apple': 12}</div><div class="ql" dir="auto">print(prices['mango'])</div><div class="ql" dir="auto">&nbsp;</div><div class="ql" dir="auto">מה קורה?</div></div>
+      <ol class="opts">
+        <li class="opt"><span class="ltr">a</span><span class="txt">It prints None</span></li>
+        <li class="opt"><span class="ltr">b</span><span class="txt">IndexError: out of range</span></li>
+        <li class="opt"><span class="ltr">c</span><span class="txt">It prints nothing</span></li>
+        <li class="opt good"><span class="ltr">d</span><span class="txt">KeyError: 'mango'</span><span class="check">correct</span></li>
+      </ol>
+      <p class="why" dir="auto">סוגריים מרובעים קורסים על מפתח שלא קיים. בדיוק מזה .get() מגן.</p>
+    </article>
+    <article class="card" id="q4">
+      <header class="chead">
+        <span class="num">04</span>
+        <span class="of">of 15</span>
+      </header>
+      <div class="qtext"><div class="ql" dir="auto">fruits = ['apple', 'banana']</div><div class="ql" dir="auto">fruits.remove('orange')</div><div class="ql" dir="auto">&nbsp;</div><div class="ql" dir="auto">מה קורה?</div></div>
+      <ol class="opts">
+        <li class="opt good"><span class="ltr">a</span><span class="txt">ValueError: list.remove(x): x not in list</span><span class="check">correct</span></li>
+        <li class="opt"><span class="ltr">b</span><span class="txt">KeyError: 'orange'</span></li>
+        <li class="opt"><span class="ltr">c</span><span class="txt">Nothing - the list is left alone</span></li>
+        <li class="opt"><span class="ltr">d</span><span class="txt">IndexError: list index out of range</span></li>
+      </ol>
+      <p class="why" dir="auto">אי אפשר למחוק משהו שלא היה שם. בדקו עם 'orange' in fruits, או תפסו את ה-ValueError.</p>
+    </article>
+    <article class="card" id="q5">
+      <header class="chead">
+        <span class="num">05</span>
+        <span class="of">of 15</span>
+      </header>
+      <div class="qtext"><div class="ql" dir="auto">def my_div(a, b):</div><div class="ql" dir="auto">    if b == 0:</div><div class="ql" dir="auto">        raise ZeroDivisionError('b is zero')</div><div class="ql" dir="auto">    return a / b</div><div class="ql" dir="auto">&nbsp;</div><div class="ql" dir="auto">מי זרק את השגיאה?</div></div>
+      <ol class="opts">
+        <li class="opt"><span class="ltr">a</span><span class="txt">Python did, because b was zero</span></li>
+        <li class="opt"><span class="ltr">b</span><span class="txt">Nobody - raise only prints a warning</span></li>
+        <li class="opt good"><span class="ltr">c</span><span class="txt">You did - raise throws an error on purpose</span><span class="check">correct</span></li>
+        <li class="opt"><span class="ltr">d</span><span class="txt">SyntaxError - you cannot raise a built-in error</span></li>
+      </ol>
+      <p class="why" dir="auto">שתי דרכים שבהן שגיאה מתחילה: פייתון מחליט, או שאתם מחליטים עם raise. המחרוזת בסוגריים היא ההודעה.</p>
+    </article>
+    <article class="card" id="q6">
+      <header class="chead">
+        <span class="num">06</span>
+        <span class="of">of 15</span>
+      </header>
+      <div class="qtext"><div class="ql" dir="auto">print('5' + 3)</div><div class="ql" dir="auto">&nbsp;</div><div class="ql" dir="auto">מה יקרה?</div></div>
+      <ol class="opts">
+        <li class="opt"><span class="ltr">a</span><span class="txt">53</span></li>
+        <li class="opt"><span class="ltr">b</span><span class="txt">8</span></li>
+        <li class="opt good"><span class="ltr">c</span><span class="txt">TypeError: can only concatenate str (not "int") to str</span><span class="check">correct</span></li>
+        <li class="opt"><span class="ltr">d</span><span class="txt">ValueError: cannot add</span></li>
+      </ol>
+      <p class="why" dir="auto">טיפוס לא נכון לגמרי, ולכן TypeError. ValueError היא הטיפוס הנכון עם ערך שאי אפשר להשתמש בו.</p>
+    </article>
+    <article class="card" id="q7">
+      <header class="chead">
+        <span class="num">07</span>
+        <span class="of">of 15</span>
+      </header>
+      <div class="qtext"><div class="ql" dir="auto">try:</div><div class="ql" dir="auto">    number = int(input('Enter: '))</div><div class="ql" dir="auto">except ValueError:</div><div class="ql" dir="auto">    print('not a number')</div><div class="ql" dir="auto">&nbsp;</div><div class="ql" dir="auto">print('Goodbye')</div><div class="ql" dir="auto">&nbsp;</div><div class="ql" dir="auto">המשתמש הקליד abc</div><div class="ql" dir="auto">מה יופיע על המסך?</div></div>
+      <ol class="opts">
+        <li class="opt"><span class="ltr">a</span><span class="txt">not a number   (and nothing else)</span></li>
+        <li class="opt"><span class="ltr">b</span><span class="txt">a red traceback, and Goodbye never prints</span></li>
+        <li class="opt good"><span class="ltr">c</span><span class="txt">not a number
+Goodbye</span><span class="check">correct</span></li>
+        <li class="opt"><span class="ltr">d</span><span class="txt">Goodbye   (and nothing else)</span></li>
+      </ol>
+      <p class="why" dir="auto">זו כל הנקודה: התוכנית לא מתה, ולכן היא המשיכה לשורה הבאה.</p>
+    </article>
+    <article class="card" id="q8">
+      <header class="chead">
+        <span class="num">08</span>
+        <span class="of">of 15</span>
+      </header>
+      <div class="qtext"><div class="ql" dir="auto">try:</div><div class="ql" dir="auto">    number = int('12')</div><div class="ql" dir="auto">    print('got it')</div><div class="ql" dir="auto">except ValueError:</div><div class="ql" dir="auto">    print('not a number')</div><div class="ql" dir="auto">&nbsp;</div><div class="ql" dir="auto">מה יודפס?</div></div>
+      <ol class="opts">
+        <li class="opt good"><span class="ltr">a</span><span class="txt">got it</span><span class="check">correct</span></li>
+        <li class="opt"><span class="ltr">b</span><span class="txt">got it
+not a number</span></li>
+        <li class="opt"><span class="ltr">c</span><span class="txt">not a number</span></li>
+        <li class="opt"><span class="ltr">d</span><span class="txt">nothing at all</span></li>
+      </ol>
+      <p class="why" dir="auto">שום דבר לא נשבר, ולכן בלוק ה-except לא רץ בכלל. הוא רשת, לא שלב.</p>
+    </article>
+    <article class="card" id="q9">
+      <header class="chead">
+        <span class="num">09</span>
+        <span class="of">of 15</span>
+      </header>
+      <div class="qtext"><div class="ql" dir="auto">try:</div><div class="ql" dir="auto">    1 / 0</div><div class="ql" dir="auto">except Exception:</div><div class="ql" dir="auto">    print('something broke')</div><div class="ql" dir="auto">except ZeroDivisionError:</div><div class="ql" dir="auto">    print('divided by zero')</div><div class="ql" dir="auto">&nbsp;</div><div class="ql" dir="auto">מה יודפס?</div></div>
+      <ol class="opts">
+        <li class="opt"><span class="ltr">a</span><span class="txt">divided by zero</span></li>
+        <li class="opt good"><span class="ltr">b</span><span class="txt">something broke</span><span class="check">correct</span></li>
+        <li class="opt"><span class="ltr">c</span><span class="txt">both lines print</span></li>
+        <li class="opt"><span class="ltr">d</span><span class="txt">SyntaxError - Exception must come last</span></li>
+      </ol>
+      <p class="why" dir="auto">פייתון לוקח את הבלוק הראשון שמתאים. Exception מתאים להכל, ולכן השורה מתחתיו לא תרוץ לעולם.</p>
+    </article>
+    <article class="card" id="q10">
+      <header class="chead">
+        <span class="num">10</span>
+        <span class="of">of 15</span>
+      </header>
+      <div class="qtext"><div class="ql" dir="auto">except ValueError:</div><div class="ql" dir="auto">    print('bad input')</div><div class="ql" dir="auto">except TypeError:</div><div class="ql" dir="auto">    print('bad input')</div><div class="ql" dir="auto">&nbsp;</div><div class="ql" dir="auto">שתי השגיאות מקבלות אותה תגובה בדיוק</div><div class="ql" dir="auto">איזו שורה תופסת את שתיהן בבלוק אחד?</div></div>
+      <ol class="opts">
+        <li class="opt"><span class="ltr">a</span><span class="txt">except ValueError, TypeError as e:</span></li>
+        <li class="opt good"><span class="ltr">b</span><span class="txt">except (ValueError, TypeError) as e:</span><span class="check">correct</span></li>
+        <li class="opt"><span class="ltr">c</span><span class="txt">except ValueError and TypeError as e:</span></li>
+        <li class="opt"><span class="ltr">d</span><span class="txt">except [ValueError, TypeError] as e:</span></li>
+      </ol>
+      <p class="why" dir="auto">זה tuple, ולכן צריך סוגריים. בלעדיהם זו SyntaxError בפייתון מודרני.</p>
+    </article>
+    <article class="card" id="q11">
+      <header class="chead">
+        <span class="num">11</span>
+        <span class="of">of 15</span>
+      </header>
+      <div class="qtext"><div class="ql" dir="auto">try:</div><div class="ql" dir="auto">    x = 10 / 2</div><div class="ql" dir="auto">except ZeroDivisionError:</div><div class="ql" dir="auto">    print('broke')</div><div class="ql" dir="auto">else:</div><div class="ql" dir="auto">    print('fine')</div><div class="ql" dir="auto">&nbsp;</div><div class="ql" dir="auto">מתי רץ הבלוק else?</div></div>
+      <ol class="opts">
+        <li class="opt good"><span class="ltr">a</span><span class="txt">Only when the try block finished with NO error</span><span class="check">correct</span></li>
+        <li class="opt"><span class="ltr">b</span><span class="txt">Only when an error was caught</span></li>
+        <li class="opt"><span class="ltr">c</span><span class="txt">Always, error or not</span></li>
+        <li class="opt"><span class="ltr">d</span><span class="txt">Only when no except block matched</span></li>
+      </ol>
+      <p class="why" dir="auto">else הוא ההפך מ-except. הוא מאפשר להשאיר בתוך ה-try רק את השורות שעלולות להישבר.</p>
+    </article>
+    <article class="card" id="q12">
+      <header class="chead">
+        <span class="num">12</span>
+        <span class="of">of 15</span>
+      </header>
+      <div class="qtext"><div class="ql" dir="auto">try:</div><div class="ql" dir="auto">    print('A')</div><div class="ql" dir="auto">    1 / 0</div><div class="ql" dir="auto">except ZeroDivisionError:</div><div class="ql" dir="auto">    print('B')</div><div class="ql" dir="auto">else:</div><div class="ql" dir="auto">    print('C')</div><div class="ql" dir="auto">finally:</div><div class="ql" dir="auto">    print('D')</div><div class="ql" dir="auto">&nbsp;</div><div class="ql" dir="auto">מה יודפס, ובאיזה סדר?</div></div>
+      <ol class="opts">
+        <li class="opt"><span class="ltr">a</span><span class="txt">A B C D</span></li>
+        <li class="opt"><span class="ltr">b</span><span class="txt">A C D</span></li>
+        <li class="opt"><span class="ltr">c</span><span class="txt">A B</span></li>
+        <li class="opt good"><span class="ltr">d</span><span class="txt">A B D</span><span class="check">correct</span></li>
+      </ol>
+      <p class="why" dir="auto">השגיאה קרתה, ולכן except רץ ו-else לא. finally רץ בכל מקרה.</p>
+    </article>
+    <article class="card" id="q13">
+      <header class="chead">
+        <span class="num">13</span>
+        <span class="of">of 15</span>
+      </header>
+      <div class="qtext"><div class="ql" dir="auto">try:</div><div class="ql" dir="auto">    print('A')</div><div class="ql" dir="auto">except ZeroDivisionError:</div><div class="ql" dir="auto">    print('B')</div><div class="ql" dir="auto">else:</div><div class="ql" dir="auto">    print('C')</div><div class="ql" dir="auto">finally:</div><div class="ql" dir="auto">    print('D')</div><div class="ql" dir="auto">&nbsp;</div><div class="ql" dir="auto">הפעם אין שגיאה</div><div class="ql" dir="auto">מה יודפס?</div></div>
+      <ol class="opts">
+        <li class="opt"><span class="ltr">a</span><span class="txt">A B D</span></li>
+        <li class="opt good"><span class="ltr">b</span><span class="txt">A C D</span><span class="check">correct</span></li>
+        <li class="opt"><span class="ltr">c</span><span class="txt">A C</span></li>
+        <li class="opt"><span class="ltr">d</span><span class="txt">A D</span></li>
+      </ol>
+      <p class="why" dir="auto">אין שגיאה, ולכן else רץ ו-except מדולג. finally עדיין רץ - הוא תמיד רץ.</p>
+    </article>
+    <article class="card" id="q14">
+      <header class="chead">
+        <span class="num">14</span>
+        <span class="of">of 15</span>
+      </header>
+      <div class="qtext"><div class="ql" dir="auto">try:</div><div class="ql" dir="auto">    1 / 0</div><div class="ql" dir="auto">finally:</div><div class="ql" dir="auto">    print('cleaning up')</div><div class="ql" dir="auto">&nbsp;</div><div class="ql" dir="auto">אין except בכלל</div><div class="ql" dir="auto">מה קורה?</div></div>
+      <ol class="opts">
+        <li class="opt good"><span class="ltr">a</span><span class="txt">'cleaning up' prints, then the program crashes with ZeroDivisionError</span><span class="check">correct</span></li>
+        <li class="opt"><span class="ltr">b</span><span class="txt">The program crashes and 'cleaning up' never prints</span></li>
+        <li class="opt"><span class="ltr">c</span><span class="txt">'cleaning up' prints and the error is quietly swallowed</span></li>
+        <li class="opt"><span class="ltr">d</span><span class="txt">SyntaxError - a try must have an except</span></li>
+      </ol>
+      <p class="why" dir="auto">finally לא נועד לטפל בשגיאה. הוא נועד לוודא שהניקיון קורה בדרך החוצה.</p>
+    </article>
+    <article class="card" id="q15">
+      <header class="chead">
+        <span class="num">15</span>
+        <span class="of">of 15</span>
+      </header>
+      <div class="qtext"><div class="ql" dir="auto">def my_div(a, b):</div><div class="ql" dir="auto">    try:</div><div class="ql" dir="auto">        return a / b</div><div class="ql" dir="auto">    except ZeroDivisionError:</div><div class="ql" dir="auto">        return 'no answer'</div><div class="ql" dir="auto">&nbsp;</div><div class="ql" dir="auto">x = my_div(10, 0)</div><div class="ql" dir="auto">print(x ** 3)</div><div class="ql" dir="auto">&nbsp;</div><div class="ql" dir="auto">מה קורה?</div></div>
+      <ol class="opts">
+        <li class="opt"><span class="ltr">a</span><span class="txt">It prints 'no answer'</span></li>
+        <li class="opt"><span class="ltr">b</span><span class="txt">It prints 0</span></li>
+        <li class="opt"><span class="ltr">c</span><span class="txt">ZeroDivisionError: division by zero</span></li>
+        <li class="opt good"><span class="ltr">d</span><span class="txt">TypeError - x is the string 'no answer', and you cannot cube a string</span><span class="check">correct</span></li>
+      </ol>
+      <p class="why" dir="auto">הפונקציה תפסה את השגיאה עמוק מדי והחזירה מחרוזת. הבעיה האמיתית צפה שוב מאוחר יותר, בתחפושת.</p>
+    </article>
+
+  <footer>
+    Generated from <code>questions.py</code> &mdash; the same file the game runs on,
+    so this page and the quiz can never disagree.
+  </footer>
+</div>
+
+<script>
+  var btn = document.getElementById('toggle');
+  btn.addEventListener('click', function(){
+    document.body.classList.toggle('hide');
+    btn.textContent = document.body.classList.contains('hide')
+      ? 'show the answers' : 'hide the answers';
+  });
+</script>
+</body>
+</html>

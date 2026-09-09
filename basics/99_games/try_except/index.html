@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Try / Except Quiz</title>
+<style>
+:root{
+  --bg:#120708; --panel:#24100f; --panel2:#2e1614; --line:#6b2b28;
+  --ink:#fff0ec; --dim:#e0a396;
+  --violet:#f87171; --pink:#ff3ea5; --lime:#b8ff3d; --amber:#ffcc3d; --cyan:#22e0ff;
+  --mono:ui-monospace,"Cascadia Code","JetBrains Mono",Consolas,"Courier New",monospace;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; color:var(--ink); font-family:"Trebuchet MS","Segoe UI",sans-serif;
+  background:
+    radial-gradient(circle at 12% 8%, #7f1d1d 0%, transparent 42%),
+    radial-gradient(circle at 88% 10%, #b45309 0%, transparent 40%),
+    radial-gradient(circle at 55% 96%, #4c1d1d 0%, transparent 45%),
+    linear-gradient(160deg,#120708,#24100f);
+  min-height:100vh; overflow-x:hidden;
+}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes pop{0%{transform:scale(.96)}55%{transform:scale(1.03)}100%{transform:scale(1)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes shine{to{background-position:200% 0}}
+
+.wrap{max-width:1120px; margin:0 auto; padding:22px 18px 60px}
+.top{
+  display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:space-between;
+  background:linear-gradient(135deg,#7f1d1d,#7c3f10 90%);
+  border:1px solid var(--line); border-radius:18px; padding:18px 24px;
+  box-shadow:0 18px 40px rgba(0,0,0,.4); animation:rise .6s ease both;
+}
+.logo{font-size:1.5rem; font-weight:800; letter-spacing:.5px; margin:0}
+.logo small{display:block; font-size:.72rem; font-weight:400; color:var(--dim);
+  letter-spacing:.2em; text-transform:uppercase; margin-top:4px}
+.whoami{display:flex; align-items:center; gap:9px; font-size:.9rem}
+.whoami .pet{font-size:1.5rem}
+.pts{font-size:1.6rem; font-weight:800; color:var(--lime)}
+
+.grid{display:grid; grid-template-columns:1fr 300px; gap:18px; margin-top:18px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.card{
+  background:var(--panel); border:1px solid var(--line); border-radius:16px;
+  padding:22px 24px; animation:rise .5s ease both;
+}
+h3{margin:0 0 14px; font-size:.74rem; letter-spacing:.24em; text-transform:uppercase; color:var(--dim)}
+
+/* ---------- progress strip ---------- */
+.strip{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px}
+.pip{
+  width:30px; height:30px; border-radius:9px; display:flex; align-items:center;
+  justify-content:center; font-size:.76rem; font-weight:800; font-family:var(--mono);
+  background:#1c0b0a; border:1px solid var(--line); color:var(--dim);
+}
+.pip.now{border-color:var(--amber); color:var(--amber); box-shadow:0 0 0 2px rgba(255,204,61,.18)}
+.pip.ok{background:rgba(184,255,61,.15); border-color:var(--lime); color:var(--lime)}
+.pip.no{background:rgba(255,62,165,.13); border-color:var(--pink); color:var(--pink)}
+
+/* ---------- the clock ---------- */
+.timer{margin-bottom:18px}
+.trow{display:flex; justify-content:space-between; font-size:.74rem; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--dim); margin-bottom:6px}
+.tval{font-family:var(--mono); font-weight:800; color:var(--lime)}
+.tval.mid{color:var(--amber)} .tval.low{color:var(--pink); animation:pulse 1s infinite}
+.track{height:9px; border-radius:999px; background:#1c0b0a; border:1px solid var(--line); overflow:hidden}
+.fill{height:100%; width:100%; border-radius:999px; background:linear-gradient(90deg,#b91c1c,#f87171,#b8ff3d);
+  transition:width .35s linear}
+.fill.mid{background:linear-gradient(90deg,#b45309,#ffcc3d)}
+.fill.low{background:linear-gradient(90deg,#9f1239,#ff3ea5)}
+
+/* ---------- the question ---------- */
+.qhead{font-size:.78rem; color:var(--dim); letter-spacing:.1em; margin:0 0 14px;
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+.qhead b{color:var(--ink); font-size:1rem}
+.kind{font-size:10px; letter-spacing:.2em; font-weight:800; padding:4px 10px; border-radius:999px;
+  border:1px solid var(--line); color:var(--violet)}
+.kind.type{color:var(--amber); border-color:var(--amber); background:rgba(255,204,61,.1)}
+.qtext{
+  background:#170908; border:1px solid var(--line); border-left:3px solid var(--violet);
+  border-radius:12px; padding:16px 18px; margin:0 0 18px; color:#fff;
+}
+.qtext .ql{
+  white-space:pre-wrap; word-break:break-word;
+  font-family:var(--mono); font-size:15px; line-height:1.7;
+}
+.qtext .ql[dir="rtl"]{
+  font-family:"Trebuchet MS","Segoe UI",sans-serif; font-size:16px; color:var(--amber);
+}
+.opts{display:grid; gap:10px}
+.opt{
+  display:flex; align-items:center; gap:12px; text-align:left; width:100%;
+  background:var(--panel2); border:1px solid var(--line); border-radius:12px;
+  padding:13px 16px; color:var(--ink); cursor:pointer; font-size:15px;
+  font-family:var(--mono); transition:.15s;
+}
+.opt:hover:not(:disabled){transform:translateX(4px); border-color:var(--violet)}
+.opt:disabled{cursor:default}
+.opt .ltr{
+  width:28px; height:28px; flex-shrink:0; border-radius:8px; display:flex;
+  align-items:center; justify-content:center; font-weight:800; font-size:.85rem;
+  background:#170908; border:1px solid var(--line);
+}
+.opt.a .ltr{color:var(--cyan)} .opt.b .ltr{color:var(--pink)}
+.opt.c .ltr{color:var(--amber)} .opt.d .ltr{color:var(--lime)}
+.opt.right{border-color:var(--lime); background:rgba(184,255,61,.14); animation:pop .35s}
+.opt.wrong{border-color:var(--pink); background:rgba(255,62,165,.14)}
+.opt.dimmed{opacity:.42}
+
+/* ---------- the typed question ---------- */
+.typerow{display:flex; gap:10px; flex-wrap:wrap}
+#typeIn{
+  flex:1; min-width:220px; background:#170908; border:1px solid var(--line);
+  border-radius:12px; padding:14px 16px; color:var(--lime); font-family:var(--mono);
+  font-size:17px; outline:none;
+}
+#typeIn:focus{border-color:var(--amber)}
+#typeIn:disabled{opacity:.6}
+
+.btn{
+  border:1px solid var(--line); background:var(--panel2); color:var(--ink); cursor:pointer;
+  border-radius:12px; padding:13px 22px; font-weight:800; font-size:.9rem; transition:.18s;
+  font-family:inherit;
+}
+.btn:hover:not(:disabled){transform:translateY(-2px); border-color:var(--violet)}
+.btn:disabled{opacity:.45; cursor:default; transform:none}
+.btn.go{background:linear-gradient(135deg,#b91c1c,#f87171); border-color:#f87171; color:#fff}
+.btn.next{background:linear-gradient(135deg,#3f6212,#84cc16); border-color:#b8ff3d; color:#0b1400}
+
+/* ---------- the verdict ---------- */
+.verdict{display:none; margin-top:18px; border-radius:14px; padding:16px 18px;
+  border:1px solid var(--line); animation:rise .3s}
+.verdict.show{display:block}
+.verdict.ok{border-color:var(--lime); background:rgba(184,255,61,.09)}
+.verdict.no{border-color:var(--pink); background:rgba(255,62,165,.09)}
+.verdict.out{border-color:var(--amber); background:rgba(255,204,61,.09)}
+.vtitle{font-size:1.05rem; font-weight:800; margin:0 0 8px}
+.verdict.ok .vtitle{color:var(--lime)} .verdict.no .vtitle{color:var(--pink)}
+.verdict.out .vtitle{color:var(--amber)}
+.vline{font-size:.92rem; color:var(--dim); margin:5px 0; line-height:1.6}
+.vline b{color:var(--ink); font-family:var(--mono)}
+.vwhy{margin-top:10px; padding-top:10px; border-top:1px solid var(--line);
+  font-size:.92rem; color:var(--amber); line-height:1.6}
+
+/* ---------- leaderboard ---------- */
+.lb{display:flex; flex-direction:column; gap:9px; max-height:64vh; overflow-y:auto}
+.lbrow{
+  display:grid; grid-template-columns:26px 26px 1fr auto; gap:9px; align-items:center;
+  background:var(--panel2); border:1px solid var(--line); border-radius:11px;
+  padding:9px 11px; font-size:.86rem; transition:.2s;
+}
+.lbrow.me{border-color:var(--amber); box-shadow:0 0 0 1px rgba(255,204,61,.3)}
+.lbrow .rk{font-family:var(--mono); font-weight:800; color:var(--dim); font-size:.76rem}
+.lbrow .rk.m1{color:#fbbf24} .lbrow .rk.m2{color:#e5e7eb} .lbrow .rk.m3{color:#f0a875}
+.lbrow .pet{font-size:1.1rem}
+.lbrow .nm{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.lbrow .nm small{display:block; color:var(--dim); font-size:.7rem}
+.lbrow .sc{font-family:var(--mono); font-weight:800; color:var(--lime)}
+.empty{color:var(--dim); font-size:.84rem; text-align:center; padding:24px 8px}
+
+/* ---------- the finish ---------- */
+.done{display:none; text-align:center; padding:24px 10px}
+.done.show{display:block; animation:rise .5s}
+.done .big{font-size:4rem; font-weight:800; color:var(--lime); line-height:1;
+  font-family:var(--mono)}
+.done .of{color:var(--dim); margin:6px 0 14px}
+.done .word{font-size:1.05rem; margin-bottom:20px}
+.review{margin-top:22px; text-align:left}
+.rvrow{display:flex; gap:10px; align-items:center; background:var(--panel2);
+  border:1px solid var(--line); border-radius:10px; padding:9px 12px; margin-bottom:7px;
+  font-size:.86rem; font-family:var(--mono)}
+.rvrow .n{color:var(--dim); min-width:34px}
+.rvrow .you{color:var(--pink)} .rvrow .good{color:var(--lime); margin-left:auto}
+
+/* ---------- the gate ---------- */
+.gate{position:fixed; inset:0; background:rgba(11,6,20,.96); backdrop-filter:blur(6px);
+  display:flex; align-items:center; justify-content:center; z-index:50; padding:20px}
+.gate.off{display:none}
+.gatecard{max-width:520px; width:100%; text-align:center}
+.gatecard p{color:var(--dim); line-height:1.8; margin:14px 0 22px}
+#nameIn{
+  width:100%; background:#170908; border:1px solid var(--line); border-radius:12px;
+  padding:15px 18px; color:var(--ink); font-family:var(--mono); font-size:18px;
+  text-align:center; outline:none;
+}
+#nameIn:focus{border-color:var(--violet)}
+.toast{position:fixed; left:50%; bottom:26px; transform:translate(-50%,26px);
+  background:var(--panel2); border:1px solid var(--violet); border-radius:12px;
+  padding:12px 20px; opacity:0; transition:.3s; z-index:60; font-size:.9rem}
+.toast.on{opacity:1; transform:translate(-50%,0)}
+.dot{position:fixed; width:9px; height:9px; border-radius:2px; z-index:70; pointer-events:none}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="top">
+    <h1 class="logo">TRY&nbsp;/&nbsp;EXCEPT&nbsp;QUIZ<small id="sub">lesson 20 · 20 questions · 80 seconds each</small></h1>
+    <div class="whoami">
+      <span class="pet" id="myPet">🦊</span>
+      <div>
+        <div id="myName">&mdash;</div>
+        <div style="font-size:.72rem;color:var(--dim)" id="myRank">&mdash;</div>
+      </div>
+      <div style="margin-left:14px;text-align:right">
+        <div class="pts" id="myScore">0</div>
+        <div style="font-size:.68rem;color:var(--dim);letter-spacing:.14em">POINTS</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div>
+      <div class="card" id="playing">
+        <div class="strip" id="strip"></div>
+
+        <div class="timer">
+          <div class="trow"><span>TIME LEFT</span><span class="tval" id="tval">80s</span></div>
+          <div class="track"><div class="fill" id="fill"></div></div>
+        </div>
+
+        <p class="qhead">
+          <span>QUESTION <b id="qnum">1</b> OF <b id="qtot">20</b></span>
+          <span class="kind" id="kind">PICK ONE</span>
+        </p>
+
+        <div class="qtext" id="qtext">&mdash;</div>
+
+        <div class="opts" id="opts"></div>
+
+        <div class="typerow" id="typerow" style="display:none">
+          <input id="typeIn" spellcheck="false" autocomplete="off" placeholder="type python">
+          <button class="btn go" id="sendBtn">ANSWER</button>
+        </div>
+
+        <div class="verdict" id="verdict">
+          <p class="vtitle" id="vtitle">&mdash;</p>
+          <div id="vbody"></div>
+          <div class="vwhy" id="vwhy" dir="auto">&mdash;</div>
+          <button class="btn next" id="nextBtn" style="margin-top:16px">NEXT QUESTION &rarr;</button>
+        </div>
+      </div>
+
+      <div class="card done" id="done">
+        <div class="big"><span id="finalScore">0</span></div>
+        <div class="of">out of <span id="finalMax">20</span></div>
+        <p class="word" id="finalWord">&mdash;</p>
+        <div class="review" id="review"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>The class</h3>
+      <div class="lb" id="lb"><div class="empty">nobody has joined yet.</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="gate" id="gate">
+  <div class="card gatecard">
+    <h1 class="logo" style="font-size:30px">TRY&nbsp;/&nbsp;EXCEPT&nbsp;QUIZ<small>20 questions · 80 seconds each</small></h1>
+    <p>Twenty questions about <b>errors</b> &mdash; and how to survive them.<br>
+       <b>try</b>, <b>except</b>, <b>else</b>, <b>finally</b> and <b>raise</b>.<br>
+       When the 80 seconds run out the question is gone &mdash; so read fast.</p>
+    <input id="nameIn" maxlength="20" placeholder="your name, then press Enter" autofocus>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const API = location.origin;
+
+let me = '', QS = [], cur = 1, total = 20, seconds = 80;
+let right = {}, answers = {}, deadline = 0, finished = false, locked = false;
+
+const qOf = n => QS.find(x => x.q === n) || {};
+
+async function post(path, body){
+  const r = await fetch(API + path, {
+    method:'POST',
+    headers:{'Content-Type':'application/json','ngrok-skip-browser-warning':'1'},
+    body: JSON.stringify(body || {})
+  });
+  return r.json();
+}
+async function get(path){
+  const r = await fetch(API + path, {headers:{'ngrok-skip-browser-warning':'1'}});
+  return r.json();
+}
+function esc(t){
+  return String(t == null ? '' : t).replace(/[&<>"]/g,
+    c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+
+/* One line at a time, each choosing its own direction: the python stays
+   left-to-right, the hebrew question goes right-to-left. */
+function qLines(text){
+  return String(text == null ? '' : text).split('\n')
+    .map(line => '<div class="ql" dir="auto">' + (esc(line) || '&nbsp;') + '</div>')
+    .join('');
+}
+
+const PETS = {fox:'🦊',panda:'🐼',owl:'🦉',octopus:'🐙',unicorn:'🦄',turtle:'🐢',lion:'🦁',
+  bee:'🐝',trex:'🦖',whale:'🐳',butterfly:'🦋',penguin:'🐧',koala:'🐨',dolphin:'🐬',
+  horse:'🐴',parrot:'🦜',frog:'🐸',crab:'🦀',shark:'🦈',tiger:'🐯'};
+const petOf = k => PETS[k] || '🦊';
+
+let toastT;
+function toast(msg){
+  $('toast').textContent = msg;
+  $('toast').classList.add('on');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => $('toast').classList.remove('on'), 3000);
+}
+
+function confetti(){
+  const colors = ['#f87171','#ff3ea5','#b8ff3d','#ffcc3d','#22e0ff'];
+  for(let i = 0; i < 70; i++){
+    const d = document.createElement('div');
+    d.className = 'dot';
+    d.style.background = colors[i % colors.length];
+    d.style.left = (45 + Math.random() * 10) + 'vw';
+    d.style.top = '40vh';
+    document.body.appendChild(d);
+    const ang = Math.random() * Math.PI * 2, pow = 130 + Math.random() * 420;
+    d.animate([
+      {transform:'translate(0,0) rotate(0deg)', opacity:1},
+      {transform:'translate(' + Math.cos(ang)*pow + 'px,' + (Math.sin(ang)*pow + 460) +
+        'px) rotate(' + (Math.random()*900 - 450) + 'deg)', opacity:0}
+    ], {duration: 1100 + Math.random()*900, easing:'cubic-bezier(.15,.7,.4,1)'})
+     .onfinish = () => d.remove();
+  }
+}
+
+/* ---------------- the strip ---------------- */
+function drawStrip(){
+  $('strip').innerHTML = QS.map(q => {
+    let cls = 'pip';
+    if(right[q.q] === true) cls += ' ok';
+    else if(right[q.q] === false) cls += ' no';
+    if(q.q === cur && !finished) cls += ' now';
+    return '<div class="' + cls + '">' + q.q + '</div>';
+  }).join('');
+}
+
+/* ---------------- the clock ---------------- */
+let tick = null;
+function startClock(left){
+  deadline = Date.now() + left * 1000;
+  clearInterval(tick);
+  tick = setInterval(paintClock, 200);
+  paintClock();
+}
+function paintClock(){
+  if(locked || finished){ return; }
+  const left = Math.max(0, (deadline - Date.now()) / 1000);
+  const pct = Math.max(0, Math.min(100, left / seconds * 100));
+  const tone = pct > 50 ? '' : (pct > 20 ? 'mid' : 'low');
+  $('tval').textContent = Math.ceil(left) + 's';
+  $('tval').className = 'tval ' + tone;
+  $('fill').style.width = pct + '%';
+  $('fill').className = 'fill ' + tone;
+  if(left <= 0){
+    clearInterval(tick);
+    send(null);                       // out of time
+  }
+}
+
+/* ---------------- one question ---------------- */
+async function openQ(n){
+  cur = n; locked = false;
+  $('playing').style.display = '';
+  $('done').classList.remove('show');
+  const q = qOf(n);
+
+  $('qnum').textContent = n;
+  $('qtot').textContent = total;
+  $('kind').textContent = q.kind === 'type' ? 'TYPE IT' : 'PICK ONE';
+  $('kind').className = 'kind ' + (q.kind === 'type' ? 'type' : '');
+  $('qtext').innerHTML = qLines(q.text);
+
+  $('verdict').className = 'verdict';
+
+  if(q.kind === 'type'){
+    $('opts').innerHTML = '';
+    $('typerow').style.display = 'flex';
+    $('typeIn').value = '';
+    $('typeIn').disabled = false;
+    $('typeIn').placeholder = q.placeholder || 'type python';
+    $('sendBtn').disabled = false;
+    setTimeout(() => $('typeIn').focus(), 60);
+  } else {
+    $('typerow').style.display = 'none';
+    $('opts').innerHTML = ['a','b','c','d'].map(L =>
+      '<button class="opt ' + L + '" data-pick="' + L + '">' +
+        '<span class="ltr">' + L + '</span>' +
+        '<span>' + esc((q.options || {})[L]) + '</span>' +
+      '</button>').join('');
+    document.querySelectorAll('.opt').forEach(b => {
+      b.onclick = () => send(b.dataset.pick);
+    });
+  }
+
+  drawStrip();
+  const r = await post('/api/open', {name: me, q: n});
+  startClock(r.left != null ? r.left : seconds);
+}
+
+/* ---------------- answering ---------------- */
+async function send(chosen){
+  if(locked) return;
+  locked = true;
+  clearInterval(tick);
+
+  document.querySelectorAll('.opt').forEach(b => b.disabled = true);
+  $('typeIn').disabled = true;
+  $('sendBtn').disabled = true;
+
+  const r = await post('/api/answer', {name: me, q: cur, chosen: chosen});
+  right[cur] = r.right;
+  answers[cur] = chosen == null ? '' : chosen;
+  $('myScore').textContent = r.score;
+
+  // colour the options
+  const q = qOf(cur);
+  if(q.kind !== 'type'){
+    const goodLetter = (r.answer || '').trim().charAt(0);
+    document.querySelectorAll('.opt').forEach(b => {
+      const L = b.dataset.pick;
+      if(L === goodLetter) b.classList.add('right');
+      else if(L === chosen) b.classList.add('wrong');
+      else b.classList.add('dimmed');
+    });
+  }
+
+  const v = $('verdict');
+  let body = '';
+  if(r.timeout){
+    v.className = 'verdict out show';
+    $('vtitle').textContent = '⏰  Time is up';
+    body += '<p class="vline">The ' + seconds + ' seconds ran out - no point for this one.</p>';
+  } else if(r.right){
+    v.className = 'verdict ok show';
+    $('vtitle').textContent = '✅  Correct!  +1 point';
+  } else {
+    v.className = 'verdict no show';
+    $('vtitle').textContent = '❌  Not this time';
+    if(chosen) body += '<p class="vline">you said <b>' + esc(chosen) + '</b></p>';
+  }
+  if(r.message) body += '<p class="vline">' + esc(r.message) + '</p>';
+  if(!r.right) body += '<p class="vline">right answer <b>' + esc(r.answer) + '</b></p>';
+  $('vbody').innerHTML = body;
+  $('vwhy').textContent = r.why || '';
+
+  $('nextBtn').textContent = cur >= total ? 'SEE MY SCORE →' : 'NEXT QUESTION →';
+  drawStrip();
+  pullBoard();
+}
+
+function next(){
+  if(cur >= total){ return finish(); }
+  openQ(cur + 1);
+}
+
+/* ---------------- the end ---------------- */
+async function finish(){
+  finished = true;
+  clearInterval(tick);
+  $('playing').style.display = 'none';
+  $('done').classList.add('show');
+
+  const score = Object.values(right).filter(Boolean).length;
+  const pct = score / total;
+  $('finalScore').textContent = score;
+  $('finalMax').textContent = total;
+  $('finalWord').textContent =
+      pct === 1  ? 'A perfect 20 out of 20. Nothing is going to crash on you.'
+    : pct >= 0.8 ? 'Caught the lot. You can read a traceback now.'
+    : pct >= 0.6 ? 'Solid. A couple of them slipped through the net, that is all.'
+    : pct >= 0.4 ? 'You know the idea - go over else and finally again.'
+    :              'Open the try/except page once more and run the examples yourself.';
+
+  const wrong = QS.filter(q => right[q.q] === false);
+  $('review').innerHTML = wrong.length
+    ? '<h3>worth another look</h3>' + wrong.map(q =>
+        '<div class="rvrow"><span class="n">Q' + q.q + '</span>' +
+        '<span class="you">' + (answers[q.q] ? esc(answers[q.q]) : 'no answer') + '</span>' +
+        '</div>').join('')
+    : '';
+  if(pct === 1) confetti();
+  pullBoard();
+}
+
+/* ---------------- the leaderboard ---------------- */
+async function pullBoard(){
+  let d;
+  try { d = await get('/api/state'); } catch(e){ return; }
+  const students = d.students || {};
+  const names = Object.keys(students).sort((a, b) => {
+    const A = students[a], B = students[b];
+    return (B.score - A.score)
+        || (Object.keys(B.right || {}).length - Object.keys(A.right || {}).length)
+        || a.localeCompare(b);
+  });
+  $('lb').innerHTML = names.length ? names.map((n, i) => {
+    const s = students[n];
+    const done = Object.keys(s.right || {}).length;
+    const medal = i === 0 ? 'm1' : i === 1 ? 'm2' : i === 2 ? 'm3' : '';
+    return '<div class="lbrow' + (n === me ? ' me' : '') + '">' +
+      '<span class="rk ' + medal + '">' + (i + 1) + '</span>' +
+      '<span class="pet">' + petOf(s.pet) + '</span>' +
+      '<span class="nm">' + esc(n) +
+        '<small>' + (s.done ? 'finished 🏆' : 'question ' + Math.min(done + 1, d.total)) + '</small>' +
+      '</span>' +
+      '<span class="sc">' + s.score + '</span>' +
+    '</div>';
+  }).join('') : '<div class="empty">nobody has joined yet.</div>';
+
+  const mine = names.indexOf(me);
+  if(mine >= 0) $('myRank').textContent = 'rank ' + (mine + 1) + ' of ' + names.length;
+}
+
+/* ---------------- joining ---------------- */
+async function join(name){
+  const r = await post('/api/join', {name: name});
+  if(!r.ok) return toast('could not join');
+  me = r.student.name;
+  QS = r.questions;
+  total = r.total;
+  seconds = r.seconds;
+  right = {};
+  answers = r.student.answers || {};
+  Object.keys(r.student.right || {}).forEach(k => { right[+k] = r.student.right[k]; });
+
+  $('sub').textContent = 'lesson 20 · ' + total + ' questions · ' + seconds + ' seconds each';
+  $('myName').textContent = me;
+  $('myPet').textContent = petOf(r.student.pet);
+  $('myScore').textContent = r.student.score;
+  $('gate').classList.add('off');
+
+  const answered = Object.keys(right).length;
+  if(answered >= total){ finished = true; finish(); }
+  else {
+    // carry on from the first question they have not answered
+    let n = 1;
+    while(right[n] !== undefined && n <= total) n++;
+    openQ(n);
+  }
+  pullBoard();
+}
+
+$('nameIn').addEventListener('keydown', e => {
+  if(e.key === 'Enter'){
+    const v = e.target.value.trim();
+    if(v) join(v); else toast('a name, please');
+  }
+});
+$('typeIn').addEventListener('keydown', e => {
+  if(e.key === 'Enter' && !locked) send($('typeIn').value);
+});
+$('sendBtn').onclick = () => { if(!locked) send($('typeIn').value); };
+$('nextBtn').onclick = next;
+
+setInterval(() => { if(me) pullBoard(); }, 3000);
+pullBoard();
+</script>
+</body>
+</html>

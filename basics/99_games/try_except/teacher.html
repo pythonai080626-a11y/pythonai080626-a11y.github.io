@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Try / Except Quiz - Teacher Panel</title>
+<style>
+:root{
+  --bg:#120708; --panel:#24100f; --panel2:#2e1614; --line:#6b2b28;
+  --ink:#fff0ec; --dim:#e0a396;
+  --violet:#f87171; --pink:#ff3ea5; --lime:#b8ff3d; --amber:#ffcc3d; --cyan:#22e0ff;
+  --mono:ui-monospace,"Cascadia Code","JetBrains Mono",Consolas,"Courier New",monospace;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; color:var(--ink); font-family:"Trebuchet MS","Segoe UI",sans-serif;
+  background:
+    radial-gradient(circle at 12% 8%, #7f1d1d 0%, transparent 42%),
+    radial-gradient(circle at 88% 10%, #b45309 0%, transparent 40%),
+    linear-gradient(160deg,#120708,#24100f);
+  min-height:100vh;
+}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+.wrap{max-width:1240px; margin:0 auto; padding:22px 18px 60px}
+header{
+  display:flex; flex-wrap:wrap; gap:14px; align-items:center; justify-content:space-between;
+  background:linear-gradient(135deg,#7f1d1d,#7c3f10 90%);
+  border:1px solid var(--line); border-radius:18px; padding:20px 24px;
+  box-shadow:0 18px 40px rgba(0,0,0,.4); animation:rise .6s ease both;
+}
+h1{margin:0; font-size:1.5rem}
+h1 small{display:block; font-size:.72rem; font-weight:400; color:var(--dim);
+  letter-spacing:.2em; text-transform:uppercase; margin-top:4px}
+.live{display:flex; align-items:center; gap:8px; font-size:.84rem; color:var(--lime)}
+.live .d{width:9px;height:9px;border-radius:50%;background:var(--lime);
+  box-shadow:0 0 10px var(--lime); animation:pulse 1.4s infinite}
+.btn{
+  border:1px solid var(--line); background:var(--panel2); color:var(--ink); cursor:pointer;
+  border-radius:10px; padding:9px 16px; font-weight:700; font-size:.84rem; transition:.18s;
+  font-family:inherit;
+}
+.btn:hover{background:#5a2320; transform:translateY(-2px)}
+.btn.danger{border-color:#7f2b4b; background:#3a1424; color:#ffd0e0}
+.btn.danger:hover{background:#5a1d36}
+.btn.tiny{padding:5px 11px; font-size:.74rem; border-radius:8px}
+.btn.fix{border-color:var(--lime); color:var(--lime); background:rgba(184,255,61,.1)}
+.btn.fix:hover{background:rgba(184,255,61,.2)}
+
+.tabs{display:flex; gap:8px; margin:20px 0 16px; flex-wrap:wrap}
+.tab{
+  border:1px solid var(--line); background:var(--panel); color:var(--dim); cursor:pointer;
+  border-radius:11px; padding:10px 20px; font-weight:800; font-size:.86rem; font-family:inherit;
+}
+.tab.on{background:var(--panel2); color:var(--ink); border-color:var(--violet)}
+.pane{display:none} .pane.on{display:block}
+
+.tiles{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin-bottom:18px}
+.tile{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px 16px}
+.tile b{display:block; font-size:1.9rem; color:var(--lime); line-height:1.1; font-family:var(--mono)}
+.tile span{font-size:.7rem; text-transform:uppercase; letter-spacing:.14em; color:var(--dim)}
+
+/* ---------- players ---------- */
+.board{display:flex; flex-direction:column; gap:12px}
+.row{
+  background:var(--panel); border:1px solid var(--line); border-radius:14px;
+  padding:14px 18px; animation:rise .4s ease both;
+}
+.row.done{border-color:var(--amber)}
+.rhead{display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:11px}
+.rhead .pet{font-size:1.5rem}
+.rhead .nm{font-size:1.05rem; font-weight:800}
+.rhead .sc{margin-left:auto; font-family:var(--mono); font-weight:800; font-size:1.3rem; color:var(--lime)}
+.flag{font-size:.7rem; padding:3px 10px; border-radius:999px; border:1px solid var(--line);
+  color:var(--cyan); background:#0d2733}
+.flag.gold{border-color:var(--amber); color:var(--amber); background:#33260a}
+.meta{font-size:.72rem; color:var(--dim)}
+.pips{display:flex; flex-wrap:wrap; gap:5px}
+.pip{
+  width:28px; height:28px; border-radius:8px; display:flex; align-items:center;
+  justify-content:center; font-size:.72rem; font-weight:800; font-family:var(--mono);
+  background:#1c0b0a; border:1px solid var(--line); color:var(--dim); cursor:pointer;
+  transition:.15s; position:relative;
+}
+.pip:hover{transform:translateY(-2px); border-color:var(--violet)}
+.pip.ok{background:rgba(184,255,61,.15); border-color:var(--lime); color:var(--lime)}
+.pip.no{background:rgba(255,62,165,.14); border-color:var(--pink); color:var(--pink)}
+.pip.now{border-color:var(--amber); color:var(--amber); box-shadow:0 0 0 2px rgba(255,204,61,.2)}
+
+/* ---------- the answer key ---------- */
+.qcard{background:var(--panel); border:1px solid var(--line); border-radius:14px;
+  padding:18px 20px; margin-bottom:12px}
+.qcard .n{font-family:var(--mono); font-size:.74rem; letter-spacing:.18em; color:var(--dim);
+  display:flex; align-items:center; gap:10px; margin-bottom:10px}
+.qcard .kind{font-size:9px; letter-spacing:.18em; font-weight:800; padding:3px 9px;
+  border-radius:999px; border:1px solid var(--line); color:var(--violet)}
+.qcard .kind.type{color:var(--amber); border-color:var(--amber)}
+.qtext{background:#170908; border:1px solid var(--line); border-left:3px solid var(--violet);
+  border-radius:10px; padding:12px 15px; margin-bottom:12px}
+.qtext .ql{white-space:pre-wrap; word-break:break-word;
+  font-family:var(--mono); font-size:13.5px; line-height:1.65}
+.qtext .ql[dir="rtl"]{font-family:"Trebuchet MS","Segoe UI",sans-serif;
+  font-size:14.5px; color:var(--amber)}
+.olist{display:grid; gap:6px; margin-bottom:11px}
+.oline{font-family:var(--mono); font-size:13px; padding:7px 12px; border-radius:9px;
+  background:var(--panel2); border:1px solid var(--line); color:var(--dim)}
+.oline.good{border-color:var(--lime); color:var(--lime); background:rgba(184,255,61,.1); font-weight:700}
+.why{font-size:.88rem; color:var(--amber); line-height:1.6;
+  border-top:1px solid var(--line); padding-top:10px}
+.stat{font-size:.74rem; color:var(--dim); margin-top:10px; font-family:var(--mono)}
+.stat b.hi{color:var(--pink)}
+.accepted{margin-top:11px; padding-top:10px; border-top:1px solid var(--line)}
+.accepted .tag{display:inline-block; font-family:var(--mono); font-size:12px;
+  background:rgba(184,255,61,.12); border:1px solid var(--lime); color:var(--lime);
+  border-radius:8px; padding:3px 10px; margin:0 6px 6px 0}
+.arow{display:flex; gap:8px; flex-wrap:wrap; margin-top:9px}
+.arow input{
+  flex:1; min-width:180px; background:#170908; border:1px solid var(--line);
+  border-radius:9px; padding:9px 13px; color:var(--lime); font-family:var(--mono);
+  font-size:14px; outline:none;
+}
+.arow input:focus{border-color:var(--amber)}
+
+.empty{text-align:center; padding:50px 20px; color:var(--dim);
+  border:2px dashed var(--line); border-radius:16px}
+.empty b{display:block; font-size:1.1rem; color:var(--ink); margin-bottom:8px}
+.hint{font-size:.78rem; color:var(--dim); margin:0 0 14px; line-height:1.7}
+.hint code{background:var(--panel2); padding:2px 7px; border-radius:6px; color:var(--cyan)}
+footer{text-align:center; color:var(--dim); font-size:.76rem; margin-top:26px}
+.toast{position:fixed; left:50%; bottom:26px; transform:translate(-50%,26px);
+  background:var(--panel2); border:1px solid var(--lime); border-radius:12px;
+  padding:12px 20px; opacity:0; transition:.3s; z-index:60; font-size:.9rem}
+.toast.on{opacity:1; transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Try / Except Quiz &mdash; Teacher Panel 🛟
+      <small id="sub">lesson 20 &middot; 20 questions &middot; 80 seconds each</small>
+    </h1>
+    <div style="display:flex;gap:10px;align-items:center">
+      <div class="live"><span class="d"></span><span id="liveTxt">live</span></div>
+      <button class="btn" onclick="pull()">refresh</button>
+      <button class="btn danger" onclick="wipe()">reset board</button>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab on" data-pane="pane-players">the class</button>
+    <button class="tab" data-pane="pane-key">all 20 questions &amp; answers</button>
+  </div>
+
+  <!-- ═══════════ THE CLASS ═══════════ -->
+  <div class="pane on" id="pane-players">
+    <div class="tiles">
+      <div class="tile"><b id="tPlayers">0</b><span>players</span></div>
+      <div class="tile"><b id="tDone">0</b><span>finished</span></div>
+      <div class="tile"><b id="tAvg">0</b><span>class average</span></div>
+      <div class="tile"><b id="tBest">-</b><span>top score</span></div>
+      <div class="tile"><b id="tPace">-</b><span>avg seconds / answer</span></div>
+    </div>
+
+    <p class="hint">
+      Every square is one question: <b style="color:var(--lime)">green</b> right,
+      <b style="color:var(--pink)">pink</b> wrong, <b style="color:var(--amber)">amber</b>
+      the one they are on right now. <b>Click a pink square to give that player the point</b>
+      &mdash; for when the wording tripped them up and you want it back.
+    </p>
+
+    <div class="board" id="board"></div>
+    <div class="empty" id="empty">
+      <b>Nobody has joined yet</b>
+      Send them the student link and they will show up here as they type their names.
+    </div>
+  </div>
+
+  <!-- ═══════════ THE ANSWER KEY ═══════════ -->
+  <div class="pane" id="pane-key">
+    <p class="hint">
+      The full key, plus how the class did on each one. The percentage under each
+      question tells you which one to go back over with the class.
+    </p>
+    <div id="key"></div>
+  </div>
+
+  <footer>refreshes by itself every 15 seconds &mdash; hit <b>refresh</b> for it right now</footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const API = location.origin;
+let STATE = {students:{}, total:20, seconds:80, accepted:{}};
+let KEY = [];
+
+async function post(path, body){
+  const r = await fetch(API + path, {
+    method:'POST',
+    headers:{'Content-Type':'application/json','ngrok-skip-browser-warning':'1'},
+    body: JSON.stringify(body || {})
+  });
+  return r.json();
+}
+async function get(path){
+  const r = await fetch(API + path, {headers:{'ngrok-skip-browser-warning':'1'}});
+  return r.json();
+}
+function esc(t){
+  return String(t == null ? '' : t).replace(/[&<>"]/g,
+    c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+
+// one line at a time, each picking its own direction
+function qLines(text){
+  return String(text == null ? '' : text).split('\n')
+    .map(function(line){
+      return '<div class="ql" dir="auto">' + (esc(line) || '&nbsp;') + '</div>';
+    }).join('');
+}
+let toastT;
+function toast(msg){
+  $('toast').textContent = msg;
+  $('toast').classList.add('on');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => $('toast').classList.remove('on'), 3000);
+}
+
+const PETS = {fox:'🦊',panda:'🐼',owl:'🦉',octopus:'🐙',unicorn:'🦄',turtle:'🐢',lion:'🦁',
+  bee:'🐝',trex:'🦖',whale:'🐳',butterfly:'🦋',penguin:'🐧',koala:'🐨',dolphin:'🐬',
+  horse:'🐴',parrot:'🦜',frog:'🐸',crab:'🦀',shark:'🦈',tiger:'🐯'};
+const petOf = k => PETS[k] || '🦊';
+
+/* ---------------- tabs ---------------- */
+document.querySelectorAll('.tab').forEach(t => {
+  t.onclick = () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x === t));
+    document.querySelectorAll('.pane').forEach(p =>
+      p.classList.toggle('on', p.id === t.dataset.pane));
+  };
+});
+
+/* ---------------- the class ---------------- */
+function drawPlayers(){
+  const students = STATE.students || {};
+  const total = STATE.total || 20;
+  const names = Object.keys(students).sort((a, b) => {
+    const A = students[a], B = students[b];
+    return (B.score - A.score)
+        || (Object.keys(B.right||{}).length - Object.keys(A.right||{}).length)
+        || a.localeCompare(b);
+  });
+
+  $('empty').style.display = names.length ? 'none' : 'block';
+
+  let done = 0, sum = 0, best = 0, secs = 0, ans = 0;
+  $('board').innerHTML = names.map((name, i) => {
+    const s = students[name];
+    if(s.done) done++;
+    sum += s.score;
+    if(s.score > best) best = s.score;
+    Object.keys(s.seconds || {}).forEach(k => { secs += s.seconds[k]; ans++; });
+
+    const answered = Object.keys(s.right || {}).length;
+    let pips = '';
+    for(let q = 1; q <= total; q++){
+      const state = (s.right || {})[q];
+      let cls = 'pip';
+      if(state === true) cls += ' ok';
+      else if(state === false) cls += ' no';
+      else if(q === s.q) cls += ' now';
+      const said = (s.answers || {})[q];
+      const secOf = (s.seconds || {})[q];
+      const tip = 'Q' + q + (said ? '  said: ' + said : '')
+                + (secOf != null ? '  (' + secOf + 's)' : '')
+                + (state === false ? '  - click to give the point' : '');
+      pips += '<div class="' + cls + '" title="' + esc(tip) + '"' +
+              (state === false ? ' onclick="fix(\'' + encodeURIComponent(name) + '\',' + q + ')"' : '') +
+              '>' + q + '</div>';
+    }
+
+    const mySecs = Object.values(s.seconds || {});
+    const avg = mySecs.length ? (mySecs.reduce((a, b) => a + b, 0) / mySecs.length).toFixed(1) : '-';
+    const stalled = mySecs.filter(v => v >= STATE.seconds - 1).length;
+
+    return '<div class="row' + (s.done ? ' done' : '') + '">' +
+      '<div class="rhead">' +
+        '<span class="pet">' + petOf(s.pet) + '</span>' +
+        '<span class="nm">' + (i < 3 ? ['🥇','🥈','🥉'][i] + ' ' : '') + esc(name) + '</span>' +
+        (s.done ? '<span class="flag gold">finished 🏆</span>'
+                : '<span class="flag">on question ' + (s.q || 1) + '</span>') +
+        '<span class="meta">' + answered + '/' + total + ' answered &middot; ' +
+          avg + 's avg' + (stalled ? ' &middot; ' + stalled + ' ran the clock out' : '') +
+          ' &middot; last ' + esc(s.last || '') + '</span>' +
+        '<button class="btn tiny" onclick="restart(\'' + encodeURIComponent(name) + '\')">start over</button>' +
+        '<span class="sc">' + s.score + '</span>' +
+      '</div>' +
+      '<div class="pips">' + pips + '</div>' +
+    '</div>';
+  }).join('');
+
+  $('tPlayers').textContent = names.length;
+  $('tDone').textContent = done;
+  $('tAvg').textContent = names.length ? (sum / names.length).toFixed(1) : '0';
+  $('tBest').textContent = names.length ? (best + '/' + total) : '-';
+  $('tPace').textContent = ans ? (secs / ans).toFixed(1) + 's' : '-';
+}
+
+/* ---------------- the answer key ---------------- */
+function drawKey(){
+  const students = STATE.students || {};
+  $('key').innerHTML = KEY.map(q => {
+    // how did the class do on this one?
+    let asked = 0, got = 0;
+    Object.keys(students).forEach(n => {
+      const st = (students[n].right || {})[q.q];
+      if(st !== undefined){ asked++; if(st) got++; }
+    });
+    const pct = asked ? Math.round(got * 100 / asked) : null;
+
+    let opts = '';
+    if(q.kind === 'type'){
+      opts = '<div class="olist"><div class="oline good">' + esc(q.expect) +
+             '</div></div>';
+    } else {
+      opts = '<div class="olist">' + ['a','b','c','d'].map(L =>
+        '<div class="oline' + (L === q.correct ? ' good' : '') + '">' +
+        L + ')  ' + esc(q.options[L]) + '</div>').join('') + '</div>';
+    }
+
+    // every question in this quiz is multiple choice, so there is
+    // no typed answer to bless - the class tab has the FIX button
+    const blessed = '';
+
+    return '<div class="qcard">' +
+      '<div class="n">QUESTION ' + q.q +
+        '<span class="kind' + (q.kind === 'type' ? ' type' : '') + '">' +
+        (q.kind === 'type' ? 'TYPE IT' : 'PICK ONE') + '</span></div>' +
+      '<div class="qtext">' + qLines(q.text) + '</div>' +
+      opts +
+      '<div class="why" dir="auto">' + esc(q.why) + '</div>' +
+      '<div class="stat">' + (asked
+        ? asked + ' answered &middot; <b class="' + (pct < 50 ? 'hi' : '') + '">' +
+          pct + '% got it right</b>'
+        : 'nobody has reached this one yet') + '</div>' +
+      blessed +
+    '</div>';
+  }).join('');
+}
+
+/* ---------------- the teacher's buttons ---------------- */
+async function fix(encName, q){
+  const name = decodeURIComponent(encName);
+  if(!confirm('Give ' + name + ' the point for question ' + q + '?')) return;
+  const r = await post('/api/override', {name: name, q: q});
+  if(r.ok){ toast(r.already ? 'they already had that one' : name + ' now has ' + r.score); pull(); }
+  else toast(r.error || 'could not do that');
+}
+
+async function accept(q){
+  const el = $('acc' + q);
+  const text = (el.value || '').trim();
+  if(!text) return toast('type the answer you want to accept');
+  const r = await post('/api/accept', {q: q, text: text});
+  if(r.ok){ el.value = ''; toast('question ' + q + ' now also accepts  ' + text); pull(); }
+  else toast(r.error || 'could not accept that');
+}
+
+async function restart(encName){
+  const name = decodeURIComponent(encName);
+  if(!confirm('Wipe ' + name + "'s score and start them from question 1?")) return;
+  await post('/api/restart', {name: name});
+  toast(name + ' starts over');
+  pull();
+}
+
+async function wipe(){
+  if(!confirm('Clear every score on the board?')) return;
+  await post('/api/reset', {});
+  pull();
+}
+
+/* ---------------- polling ---------------- */
+async function pull(){
+  try {
+    STATE = await get('/api/state');
+    const key = await get('/api/answers');
+    KEY = key.questions || [];
+    $('sub').textContent = 'lesson 20 · ' + STATE.total + ' questions · '
+                         + STATE.seconds + ' seconds each';
+    $('liveTxt').textContent = 'updated ' + new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+    drawPlayers();
+    drawKey();
+  } catch(e){
+    $('liveTxt').textContent = 'offline';
+  }
+}
+
+pull();
+setInterval(pull, 15000);
+</script>
+</body>
+</html>
