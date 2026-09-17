@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="color-scheme" content="dark" />
+<meta name="description" content="פרויקט גמר - בנו יחד משחק איקס עיגול אמיתי בפייתון, שלב אחרי שלב." />
+<title>איקס עיגול - פרויקט גמר</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='42' fill='none' stroke='%2322d3ee' stroke-width='12'/></svg>" />
+
+<style>
+:root{
+  --accent:      #8b5cf6;
+  --accent-2:    #6366f1;
+  --accent-soft: rgba(139,92,246,.16);
+  --x-color:  #22d3ee; --x-glow:#67e8f9;
+  --o-color:  #f472b6; --o-glow:#f9a8d4;
+  --bg-0: #05060d; --bg-1: #0a0b18;
+  --glass: rgba(255,255,255,.045); --glass-2: rgba(255,255,255,.08);
+  --stroke: rgba(255,255,255,.10); --stroke-2: rgba(255,255,255,.18);
+  --text: #f2f4ff; --muted: rgba(232,236,255,.62); --muted-2: rgba(232,236,255,.40);
+  --good: #4ade80; --bad: #fb7185;
+  --radius: 18px; --radius-lg: 26px; --radius-xl: 30px;
+  --shadow: 0 18px 46px -14px rgba(0,0,0,.70);
+  --ease: cubic-bezier(.22,1,.36,1);
+  --font-ui: 'Outfit', system-ui, sans-serif;
+  --font-display: 'Space Grotesk', 'Outfit', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+}
+*, *::before, *::after{ box-sizing:border-box }
+*{ margin:0 }
+body{
+  min-height:100dvh; font-family:var(--font-ui); color:var(--text); background:var(--bg-0);
+  line-height:1.65; overflow-x:hidden; -webkit-font-smoothing:antialiased;
+}
+::selection{ background:var(--accent); color:#fff }
+[dir="rtl"]{ direction:rtl }
+
+/* ---------------------------------------------------------------- ambient */
+.ambient{ position:fixed; inset:0; z-index:-3; overflow:hidden; background:var(--bg-0) }
+.ambient__gradient{
+  position:absolute; inset:-35%;
+  background:
+    radial-gradient(45% 45% at 22% 26%, color-mix(in srgb, var(--accent) 36%, transparent) 0%, transparent 62%),
+    radial-gradient(42% 42% at 78% 22%, color-mix(in srgb, var(--x-color) 28%, transparent) 0%, transparent 60%),
+    radial-gradient(48% 48% at 68% 86%, color-mix(in srgb, var(--o-color) 28%, transparent) 0%, transparent 62%),
+    linear-gradient(160deg, var(--bg-1), var(--bg-0));
+  filter:blur(30px) saturate(125%); opacity:.85;
+  animation:meshDrift 26s var(--ease) infinite alternate;
+}
+.ambient__grid{
+  position:absolute; inset:0;
+  background-image:
+    linear-gradient(to right, var(--stroke) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--stroke) 1px, transparent 1px);
+  background-size:64px 64px;
+  mask-image:radial-gradient(circle at 50% 30%, #000 0%, transparent 74%);
+  opacity:.4; animation:gridPan 60s linear infinite;
+}
+.blob{ position:absolute; border-radius:50%; filter:blur(70px); opacity:.32; will-change:transform }
+.blob--1{ width:44vmax; height:44vmax; top:-16%; left:-12%; background:radial-gradient(circle at 30% 30%, var(--accent), transparent 68%); animation:blobA 22s ease-in-out infinite }
+.blob--2{ width:38vmax; height:38vmax; bottom:-18%; right:-10%; background:radial-gradient(circle at 60% 40%, var(--o-color), transparent 68%); animation:blobB 27s ease-in-out infinite }
+@keyframes meshDrift{ 0%{transform:translate3d(0,0,0) scale(1)} 50%{transform:translate3d(2.5%,-2%,0) scale(1.06)} 100%{transform:translate3d(-2%,2.5%,0) scale(1.02)} }
+@keyframes gridPan{ to{ background-position:64px 64px } }
+@keyframes blobA{ 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(9vw,5vh) scale(1.12)} 66%{transform:translate(-5vw,9vh) scale(.94)} }
+@keyframes blobB{ 0%,100%{transform:translate(0,0) scale(1)} 40%{transform:translate(-10vw,-6vh) scale(1.15)} 70%{transform:translate(4vw,-10vh) scale(.9)} }
+
+.glass{
+  background:var(--glass); border:1px solid var(--stroke);
+  backdrop-filter:blur(22px) saturate(160%); -webkit-backdrop-filter:blur(22px) saturate(160%);
+  box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.08);
+}
+
+/* --------------------------------------------------------------- topbar */
+.topbar{
+  position:sticky; top:12px; z-index:20; margin:12px 16px 0; max-width:1180px; margin-inline:auto;
+  display:flex; align-items:center; justify-content:space-between; gap:1rem;
+  padding:.65rem 1rem; border-radius:var(--radius-lg);
+}
+.topbar a{ color:var(--muted); text-decoration:none; font-size:.85rem; font-weight:600; display:flex; align-items:center; gap:.4rem }
+.topbar a:hover{ color:var(--text) }
+.topbar .brand{ display:flex; flex-direction:column; line-height:1.15 }
+.topbar .brand strong{ font-family:var(--font-display); font-size:.86rem; letter-spacing:.04em; color:var(--text) }
+.topbar .brand small{ font-size:.66rem; letter-spacing:.02em; color:var(--muted-2) }
+
+/* ---------------------------------------------------------------- layout */
+.wizard{
+  max-width:1180px; margin:22px auto 60px; padding:0 16px;
+  display:grid; grid-template-columns:1fr 300px; gap:22px; align-items:start;
+}
+@media (max-width: 880px){ .wizard{ grid-template-columns:1fr } }
+
+/* content = LEFT column (first in source order) */
+.content{ min-width:0 }
+/* nav = RIGHT column (second in source order) */
+.nav-panel{ position:sticky; top:90px }
+
+.hero{ padding:6px 4px 26px }
+.eyebrow{
+  display:inline-flex; align-items:center; gap:.4rem; margin-bottom:1rem;
+  padding:.32rem .8rem; font-size:.72rem; font-weight:600; letter-spacing:.04em;
+  border-radius:99px; color:var(--accent); background:var(--accent-soft);
+  border:1px solid color-mix(in srgb, var(--accent) 32%, transparent);
+}
+.display{
+  font-family:var(--font-display); font-size:clamp(1.8rem,4vw,2.5rem); font-weight:700;
+  line-height:1.15; letter-spacing:-.01em; margin-bottom:.6rem;
+}
+.display em{
+  font-style:normal;
+  background:linear-gradient(100deg, var(--x-color), var(--accent) 55%, var(--o-color));
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+/* ---------------------------------------------------------- step panel */
+.step-panel{
+  position:relative; padding:1.8rem 1.9rem; border-radius:var(--radius-xl);
+  min-height:420px; display:flex; flex-direction:column;
+}
+.step-panel::before{
+  content:''; position:absolute; inset:0; border-radius:inherit; padding:1px;
+  background:linear-gradient(130deg, var(--step-c1, var(--accent)), transparent 40%, transparent 60%, var(--step-c2, var(--o-color)));
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor; mask-composite:exclude; opacity:.55; pointer-events:none;
+}
+.step-panel[data-track="x"]{ --step-c1:var(--x-color); --step-c2:var(--accent) }
+.step-panel[data-track="o"]{ --step-c1:var(--o-color); --step-c2:var(--accent) }
+.step-panel[data-track="loop"]{ --step-c1:var(--accent); --step-c2:var(--accent-2) }
+.step-panel[data-track="end"]{ --step-c1:var(--x-color); --step-c2:var(--o-color) }
+
+.step-head{ display:flex; align-items:center; gap:.7rem; margin-bottom:.9rem; flex-wrap:wrap }
+.step-badge{
+  font-family:var(--font-mono); font-size:.7rem; font-weight:700; letter-spacing:.06em;
+  padding:.3rem .65rem; border-radius:8px; color:var(--bg-0);
+  background:linear-gradient(100deg, var(--step-c1, var(--accent)), var(--step-c2, var(--o-color)));
+}
+.step-panel h2{ font-family:var(--font-display); font-size:1.4rem; font-weight:700 }
+
+.step-text{ color:var(--muted); font-size:1rem; line-height:1.85; margin-bottom:1.3rem; animation:fadeIn .5s var(--ease) both }
+@keyframes fadeIn{ from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none} }
+
+/* ------------------------------------------------------------- mini board */
+.demo-wrap{ margin:0 0 1.3rem; display:flex; flex-direction:column; align-items:center; gap:.7rem }
+.mini-board{
+  display:grid; grid-template-columns:repeat(3,64px); grid-template-rows:repeat(3,64px); gap:6px;
+  padding:8px; background:#070a14; border:1px solid var(--stroke); border-radius:16px;
+}
+.mb-cell{
+  position:relative; display:grid; place-items:center; border-radius:10px;
+  background:var(--glass); font-family:var(--font-display); font-size:1.8rem; font-weight:700;
+  transition:background .25s var(--ease);
+}
+.mb-cell.mark-x{ color:var(--x-color); text-shadow:0 0 14px var(--x-glow) }
+.mb-cell.mark-o{ color:var(--o-color); text-shadow:0 0 14px var(--o-glow) }
+.mb-cell.is-shaking{ animation:mbShake .38s ease }
+.mb-cell.is-win{ background:color-mix(in srgb, var(--step-c1, var(--accent)) 30%, transparent) }
+@keyframes mbShake{ 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+.mb-pop{ animation:mbPop .35s var(--ease) both }
+@keyframes mbPop{ from{ transform:scale(.3); opacity:0 } to{ transform:scale(1); opacity:1 } }
+
+.mb-msg{
+  min-height:1.6em; font-size:.88rem; font-weight:600; padding:.4rem .9rem; border-radius:10px;
+  opacity:0; transform:translateY(-4px); transition:opacity .25s var(--ease), transform .25s var(--ease);
+}
+.mb-msg.show{ opacity:1; transform:none }
+.mb-msg.bad{ color:var(--bad); background:rgba(251,113,133,.1); border:1px solid rgba(251,113,133,.3) }
+.mb-msg.good{ color:var(--good); background:rgba(74,222,128,.1); border:1px solid rgba(74,222,128,.3) }
+.mb-msg.warn{ color:#fbbf24; background:rgba(251,191,36,.1); border:1px solid rgba(251,191,36,.3) }
+.mb-replay{
+  display:inline-flex; align-items:center; gap:.35rem; font-size:.74rem; color:var(--muted-2);
+  padding:.35rem .7rem; border-radius:8px; border:1px solid var(--stroke); cursor:pointer; background:none;
+}
+.mb-replay:hover{ color:var(--text); border-color:var(--stroke-2) }
+.mb-replay svg{ width:13px; height:13px }
+
+/* -------------------------------------------------------------------- code */
+.code-row{ margin-top:auto; padding-top:.4rem }
+.hint-btn{
+  display:inline-flex; align-items:center; gap:.5rem; padding:.7rem 1.2rem;
+  font-size:.86rem; font-weight:700; border-radius:12px; cursor:pointer;
+  color:var(--bg-0); border:0;
+  background:linear-gradient(100deg, #fbbf24, #f59e0b);
+  box-shadow:0 10px 24px -10px #f59e0b;
+}
+.hint-btn:hover{ filter:brightness(1.06) }
+.hint-btn svg{ width:17px; height:17px }
+
+.code-panel{
+  position:relative; margin-top:1rem; padding:1rem 1.15rem; border-radius:14px;
+  background:#070a14; border:1px solid var(--stroke);
+  font-family:var(--font-mono); font-size:.83rem; line-height:1.65; color:var(--text); direction:ltr; text-align:left;
+  white-space:pre-wrap; word-break:break-word; overflow-x:auto; display:none;
+}
+.code-panel.shown{ display:block; animation:fadeIn .4s var(--ease) both }
+.code-panel::before{
+  content:'PYTHON'; position:absolute; top:.55rem; left:.85rem; font-size:.6rem; font-weight:700;
+  letter-spacing:.12em; color:var(--muted-2);
+}
+.k{ color:#ff79c6 } .s{ color:#a3e635 } .n{ color:#fbbf24 } .c{ color:#5a6494; font-style:italic } .f{ color:var(--x-color) } .p{ color:#c9d2ff }
+
+/* ------------------------------------------------------------- controls */
+.wizard-controls{ display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-top:1.1rem }
+.wc-btn{
+  display:inline-flex; align-items:center; gap:.5rem; padding:.75rem 1.3rem;
+  font-size:.9rem; font-weight:700; border-radius:12px; cursor:pointer; color:var(--text);
+  border:1px solid var(--stroke-2); background:var(--glass);
+}
+.wc-btn:hover:not(:disabled){ background:var(--glass-2); transform:translateY(-1px) }
+.wc-btn:disabled{ opacity:.35; cursor:not-allowed }
+.wc-btn.wc-next{ color:#fff; border:0; background:linear-gradient(100deg, var(--x-color), var(--accent), var(--o-color)); background-size:220% 220%; animation:gradShift 7s ease infinite }
+@keyframes gradShift{ 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+.wc-counter{ font-family:var(--font-mono); font-size:.8rem; color:var(--muted-2) }
+
+/* ----------------------------------------------------------- nav sidebar */
+.nav-panel .step-list{ list-style:none; padding:1.1rem; border-radius:var(--radius-lg); display:flex; flex-direction:column; gap:.3rem }
+.nav-panel .nl{
+  display:flex; align-items:center; gap:.6rem; padding:.55rem .7rem; border-radius:10px;
+  cursor:pointer; border:1px solid transparent; color:var(--muted); font-size:.83rem; text-align:right;
+}
+.nav-panel .nl:hover{ background:var(--glass-2); color:var(--text) }
+.nav-panel .nl.is-active{ background:var(--glass-2); border-color:var(--stroke-2); color:var(--text); font-weight:700 }
+.nl-dot{ width:8px; height:8px; border-radius:50%; flex:0 0 auto; background:var(--stroke-2) }
+.nav-panel .nl.is-done .nl-dot{ background:var(--good) }
+.nav-panel .nl.is-active .nl-dot{ background:var(--step-c1, var(--accent)); box-shadow:0 0 0 3px color-mix(in srgb, var(--step-c1, var(--accent)) 30%, transparent) }
+.nl-num{ font-family:var(--font-mono); font-size:.7rem; color:var(--muted-2); min-width:2.6em }
+.nav-title{ font-size:.7rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted-2); padding:0 .7rem .6rem }
+
+.finale{ text-align:center; padding:30px 0 10px }
+.finale h2{ font-family:var(--font-display); font-size:1.5rem; margin-bottom:.6rem }
+.finale p{ color:var(--muted); max-width:55ch; margin:0 auto 1.4rem }
+.submit-box{
+  max-width:420px; margin:0 auto 1.6rem; padding:1.1rem 1.3rem; border-radius:16px;
+  background:var(--glass-2); border:1px solid var(--stroke-2);
+}
+.submit-label{ color:var(--muted); font-size:.88rem; margin-bottom:.7rem }
+.submit-email{
+  font-family:var(--font-mono); font-size:.95rem; font-weight:600; color:var(--x-color);
+  background:#070a14; border:1px solid var(--stroke); border-radius:10px;
+  padding:.7rem 1rem; word-break:break-all; text-align:center;
+}
+.btn-back{
+  display:inline-flex; align-items:center; gap:.5rem; padding:.8rem 1.4rem; text-decoration:none;
+  font-size:.9rem; font-weight:700; border-radius:14px; color:#fff;
+  background:linear-gradient(115deg, var(--x-color), var(--accent), var(--o-color));
+}
+footer.page-foot{ text-align:center; font-size:.7rem; letter-spacing:.04em; color:var(--muted-2); padding:20px 0 30px }
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important }
+}
+</style>
+</head>
+<body dir="rtl">
+
+<div class="ambient" aria-hidden="true">
+  <div class="ambient__gradient"></div>
+  <div class="ambient__grid"></div>
+  <div class="blob blob--1"></div>
+  <div class="blob blob--2"></div>
+</div>
+
+<header class="topbar glass" dir="rtl">
+  <a href="../index.html#lessons">חזרה לשיעורים &larr;</a>
+  <span class="brand">
+    <strong>פרויקט גמר</strong>
+    <small>בונים לבד, שלב אחרי שלב</small>
+  </span>
+</header>
+
+<div class="wizard" dir="rtl">
+
+  <!-- ===================== LEFT = content ===================== -->
+  <div class="content">
+
+    <div class="hero">
+      <span class="eyebrow">&#127918; פרויקט גמר</span>
+      <h1 class="display">בונים <em>איקס עיגול</em><br>מאפס</h1>
+    </div>
+
+    <section class="step-panel glass" id="stepPanel">
+      <div class="step-head">
+        <span class="step-badge" id="stepBadge">שלב 1</span>
+        <h2 id="stepTitle">יצירת הלוח</h2>
+      </div>
+      <p class="step-text" id="stepText"></p>
+
+      <div class="demo-wrap" id="demoWrap" hidden>
+        <div class="mini-board" id="miniBoard"></div>
+        <div class="mb-msg" id="miniMsg"></div>
+        <button class="mb-replay" id="replayBtn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          נגן שוב
+        </button>
+      </div>
+
+      <div class="code-row" id="codeRow" hidden>
+        <button class="hint-btn" id="hintBtn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5.75.75 1.23 1.5 1.41 2.5"/></svg>
+          רמז
+        </button>
+        <pre class="code-panel" id="codePanel"></pre>
+      </div>
+    </section>
+
+    <div class="wizard-controls">
+      <button class="wc-btn" id="prevBtn" type="button">&rarr; הקודם</button>
+      <span class="wc-counter" id="wcCounter">1 / 10</span>
+      <button class="wc-btn wc-next" id="nextBtn" type="button">הבא &larr;</button>
+    </div>
+
+    <section class="finale" id="finale" hidden>
+      <h2>זהו, זה כל המשחק.</h2>
+      <p>עשרה שלבים, בלי קיצורים: רשימה של רשימות, לולאה אחת שרצה עד שמישהו מנצח, קלט שבודקים לפני שסומכים עליו, ושלוש פונקציות קטנות שעושות את העבודה החוזרת. עכשיו פתחו עורך קוד ותבנו את זה באמת &mdash; ואז נסו להוסיף טבלת ניקוד, או יריב מחשב.</p>
+      <div class="submit-box">
+        <p class="submit-label">כשהפרויקט מוכן ורץ אצלכם, שלחו את קובץ הקוד למייל הבא להגשה:</p>
+        <div class="submit-email" dir="ltr">pythonai080626+tictactoe@gmail.com</div>
+      </div>
+      <a class="btn-back" href="../index.html#lessons">חזרה לשיעורים &larr;</a>
+    </section>
+  </div>
+
+  <!-- ===================== RIGHT = navigation ===================== -->
+  <aside class="nav-panel">
+    <div class="glass" style="border-radius:var(--radius-lg)">
+      <div class="nav-title">כל השלבים</div>
+      <ol class="step-list" id="stepList" dir="rtl"></ol>
+    </div>
+  </aside>
+
+</div>
+
+<footer class="page-foot">נבנה עם HTML · CSS · JS רגילים &middot; אותה שפה חזותית כמו סימולטור האיקס עיגול</footer>
+
+<script>
+/* ============================================================ step data
+   Every 'text' string is plain Hebrew, nothing else - no code, no English
+   words, no symbols mixed in. All code lives only in 'code' (a fully
+   isolated, always-LTR <pre> block), gated behind the Hint button except
+   for step 0 (creating the board), which is just syntax, not a solution.
+   'demo' names which mini-board animation to run for this step, or null
+   when the step has nothing visual to demonstrate. */
+const STEPS = [
+  {
+    badge: 'שלב 1', title: 'יצירת הלוח', track: 'loop',
+    text: 'לוח של איקס עיגול הוא רשת של שלוש על שלוש. הדרך הטבעית לשמור רשת בפייתון היא רשימה של רשימות - רשימה עם שלוש שורות, וכל שורה היא בעצמה רשימה עם שלושה עמודים. כל משבצת מתחילה ריקה.',
+    code: 'board = [\n    [" ", " ", " "],\n    [" ", " ", " "],\n    [" ", " ", " "],\n]\n\ndef print_board(board):\n    for row in board:\n        print(" | ".join(row))\n        print("-" * 9)',
+    demo: 'createBoard',
+  },
+  {
+    badge: 'שלב 2', title: 'הלולאה הראשית', track: 'loop',
+    text: 'המשחק לא יודע מראש כמה תורות ייקח, אז לולאה עם מספר סיבובים קבוע לא מתאימה כאן. השתמשו בלולאה שרצה כל עוד לא נאמר לה לעצור, ועצרו אותה רק כשמישהו ניצח או שהלוח התמלא. כל שאר השלבים בפרויקט הזה קורים בתוך הלולאה הזאת.',
+    code: 'while True:\n    # תור לשחקן X (שלבים 2.1 - 2.3)\n    # תור לשחקן O (שלבים 3.1 - 3.3)\n    pass',
+    demo: null,
+  },
+  {
+    badge: 'שלב 2.1', title: 'תור לשחקן X - קלט ותקינות', track: 'x',
+    text: 'בקשו מספר משבצת בין 1 ל-9: שורה עליונה 1, 2, 3, שורה אמצעית 4, 5, 6, ושורה תחתונה 7, 8, 9. אל תסמכו על הקלט בעיוורון - שחקן אמיתי בסוף יקליד אותיות, מספר מחוץ לטווח, או משבצת שכבר תפוסה. המשיכו לשאול, בלולאה קטנה משלה, עד שהקלט באמת שמיש.',
+    code: 'while True:\n    move = input("בחרו משבצת (1-9): ")\n\n    if not move.isdigit() or int(move) not in range(1, 10):\n        print("צריך מספר שלם בין 1 ל-9")\n        continue\n\n    cell = int(move) - 1\n    row, col = cell // 3, cell % 3\n\n    if board[row][col] != " ":\n        print("המשבצת הזאת כבר תפוסה")\n        continue\n\n    break',
+    demo: 'inputX',
+  },
+  {
+    badge: 'שלב 2.2', title: 'הנחת האיקס', track: 'x',
+    text: 'השורה והעמודה כבר עברו בדיקה בשלב הקודם והובטח שהן ריקות - אז החלק הזה פשוט להפליא. כתבו את הסימן ישירות ללוח, ואז הדפיסו את הלוח כדי ששני השחקנים יראו מה קרה.',
+    code: 'board[row][col] = "X"\nprint_board(board)',
+    demo: 'placeX',
+  },
+  {
+    badge: 'שלב 2.3', title: 'בדיקה אם X ניצח', track: 'x',
+    text: 'ניצחון הוא שלושה סימנים זהים ברצף - בשורה, בעמודה, או באלכסון. שמונה רצפים אפשריים בסך הכל. בנו את כל הרצפים, ובדקו אם אחד מהם הוא בדיוק שלושה איקסים. אם כן, הודיעו על הניצחון ועצרו את הלולאה.',
+    code: 'def check_winner(board, mark):\n    lines = []\n    for i in range(3):\n        lines.append(board[i])\n        lines.append([board[0][i], board[1][i], board[2][i]])\n    lines.append([board[0][0], board[1][1], board[2][2]])\n    lines.append([board[0][2], board[1][1], board[2][0]])\n    return [mark, mark, mark] in lines\n\n\nif check_winner(board, "X"):\n    print("שחקן X ניצח!")\n    break',
+    demo: 'winX',
+  },
+  {
+    badge: 'שלב 2.4', title: 'בדיקה אם יש תיקו', track: 'x',
+    text: 'אם אף אחד עוד לא ניצח, יכול להיות שכל תשע המשבצות כבר מלאות ואין יותר מהלכים אפשריים - זה תיקו. עברו על כל שורות הלוח ובדקו אם נשארה בהן ולו משבצת ריקה אחת. אם לא נשארה אף אחת, הודיעו על תיקו ועצרו את הלולאה. הבדיקה הזאת קורית כאן, מיד אחרי הבדיקה של X, כי X תמיד לוקח את המהלך האחרון האפשרי בלוח.',
+    code: 'def is_board_full(board):\n    for row in board:\n        if " " in row:\n            return False\n    return True\n\n\nif is_board_full(board):\n    print("תיקו!")\n    break',
+    demo: 'tieCheck',
+  },
+  {
+    badge: 'שלב 3.1', title: 'תור לשחקן O - קלט ותקינות', track: 'o',
+    text: 'בדיוק אותה בעיה כמו בשלב 2.1, בשביל השחקן השני - אז בדיוק אותו פתרון. זה הסימן הראשון שחלק מהלוגיקה הזאת רוצה להפוך לפונקציה משלה במקום להיכתב פעמיים, שווה לשים לב אליו גם אם הפרויקט הזה משאיר אותה מוטמעת בשביל הבהירות.',
+    code: 'while True:\n    move = input("בחרו משבצת (1-9): ")\n\n    if not move.isdigit() or int(move) not in range(1, 10):\n        print("צריך מספר שלם בין 1 ל-9")\n        continue\n\n    cell = int(move) - 1\n    row, col = cell // 3, cell % 3\n\n    if board[row][col] != " ":\n        print("המשבצת הזאת כבר תפוסה")\n        continue\n\n    break',
+    demo: 'inputO',
+  },
+  {
+    badge: 'שלב 3.2', title: 'הנחת העיגול', track: 'o',
+    text: 'אותו מהלך בדיוק כמו בשלב 2.2, הפעם עם עיגול. הלוח לא אכפת לו מי משחק - הוא רק שומר איזה סימן שנותנים לו.',
+    code: 'board[row][col] = "O"\nprint_board(board)',
+    demo: 'placeO',
+  },
+  {
+    badge: 'שלב 3.3', title: 'בדיקה אם O ניצח', track: 'o',
+    text: 'השתמשו שוב באותה פונקציית הבדיקה מסעיף 2.3, רק ששואלים הפעם על עיגול. אין צורך בבדיקת תיקו כאן: X תמיד ממלא את המשבצת הריקה האחרונה, אז לוח מלא יכול לקרות רק מיד אחרי המהלך של X, אף פעם לא אחרי של O.',
+    code: 'if check_winner(board, "O"):\n    print("שחקן O ניצח!")\n    break',
+    demo: 'winO',
+  },
+  {
+    badge: 'אחרי הלולאה', title: 'לשחק שוב?', track: 'end',
+    text: 'הלולאה הראשית עדיין רצה - היא נעצרת רק בניצחון או בתיקו. ברגע שהיא נעצרת, שאלו את השאלה שחשובה: לשחק שוב? אם כן, נקו את הלוח בחזרה לתשע משבצות ריקות ותנו ללולאה להתחיל מחדש מההתחלה. אם לא, תגידו להתראות ותנו לתוכנית להסתיים בטבעיות.',
+    code: '# ...אחרי שלולאת while True נעצרה...\n\nagain = input("לשחק שוב? (y/n): ")\n\nif again.lower() == "y":\n    board = [[" ", " ", " "] for _ in range(3)]\n    # חוזרים לתחילת שלב 2, עם לוח נקי\nelse:\n    print("תודה ששיחקתם!")',
+    demo: 'clearBoard',
+  },
+];
+
+/* ---------------------------------------------------------- nav sidebar */
+const stepListEl = document.getElementById('stepList');
+STEPS.forEach((s, i) => {
+  const li = document.createElement('li');
+  li.className = 'nl';
+  li.dataset.i = i;
+  li.innerHTML = '<span class="nl-dot"></span><span class="nl-num">' + s.badge + '</span><span>' + s.title + '</span>';
+  li.addEventListener('click', () => goToStep(i));
+  stepListEl.appendChild(li);
+});
+
+/* ---------------------------------------------------- syntax highlighter */
+const KW = /^(for|in|if|elif|else|while|print|return|def|not|and|or|is|True|False|None|break|continue|pass)$/;
+const FN = /^(list|dict|set|tuple|sorted|max|min|sum|len|str|int|float|range|isdigit|split|join|append|lower)$/;
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function highlight(src){
+  const re = /(#[^\n]*)|("(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*')|(\b\d+\.?\d*\b)|([A-Za-z_]\w*)/g;
+  let out = '', last = 0, m;
+  while((m = re.exec(src)) !== null){
+    out += esc(src.slice(last, m.index));
+    if(m[1]) out += '<span class="c">' + esc(m[1]) + '</span>';
+    else if(m[2]) out += '<span class="s">' + esc(m[2]) + '</span>';
+    else if(m[3]) out += '<span class="n">' + esc(m[3]) + '</span>';
+    else {
+      const w = m[4];
+      out += '<span class="' + (KW.test(w) ? 'k' : (FN.test(w) ? 'f' : 'p')) + '">' + esc(w) + '</span>';
+    }
+    last = re.lastIndex;
+  }
+  return out + esc(src.slice(last));
+}
+/* --------------------------------------------------------- mini-board fx */
+function wait(ms){ return new Promise(r => setTimeout(r, ms)); }
+function buildMiniBoard(){
+  const el = document.getElementById('miniBoard');
+  el.innerHTML = '';
+  for(let i = 0; i < 9; i++){
+    const c = document.createElement('div');
+    c.className = 'mb-cell';
+    c.dataset.i = i;
+    el.appendChild(c);
+  }
+  return el;
+}
+function mbClear(boardEl){
+  [...boardEl.children].forEach(c => { c.textContent = ''; c.className = 'mb-cell'; });
+}
+function mbSet(boardEl, idx, mark){
+  const c = boardEl.children[idx];
+  c.textContent = mark;
+  c.className = 'mb-cell mark-' + mark.toLowerCase() + ' mb-pop';
+}
+function mbShakeCell(boardEl, idx){
+  const c = boardEl.children[idx];
+  c.classList.remove('is-shaking'); void c.offsetWidth; c.classList.add('is-shaking');
+}
+function mbWinLine(boardEl, idxs){
+  idxs.forEach(i => boardEl.children[i].classList.add('is-win'));
+}
+function mbMsg(text, kind){
+  const m = document.getElementById('miniMsg');
+  m.textContent = text;
+  m.className = 'mb-msg show ' + (kind || '');
+}
+function mbMsgHide(){
+  document.getElementById('miniMsg').className = 'mb-msg';
+}
+
+/* Each demo gets a fresh, empty board and drives it with small delays -
+   this is the animated "what happens here" preview for steps where an
+   action can actually be drawn. */
+const DEMOS = {
+  createBoard: async (board) => {
+    mbClear(board);
+    for(let i = 0; i < 9; i++){
+      await wait(70);
+      board.children[i].classList.add('mb-pop');
+    }
+    mbMsg('לוח ריק, מוכן להתחלה', 'good');
+  },
+  inputX: (board) => inputDemo(board, 'X'),
+  inputO: (board) => inputDemo(board, 'O'),
+  placeX: (board) => placeDemo(board, 'X'),
+  placeO: (board) => placeDemo(board, 'O'),
+  winX: (board) => winDemo(board, 'X'),
+  winO: (board) => winDemo(board, 'O'),
+  tieCheck: (board) => tieDemo(board),
+  clearBoard: async (board) => {
+    mbClear(board);
+    ['X','O','X','O','X','O','O','X','X'].forEach((m, i) => board.children[i] && (board.children[i].textContent = m, board.children[i].className = 'mb-cell mark-' + m.toLowerCase()));
+    mbMsg('סיבוב הסתיים', 'good');
+    await wait(1100);
+    mbMsg('מנקים את הלוח לסיבוב חדש...', 'bad');
+    await wait(500);
+    [...board.children].forEach(c => c.classList.add('is-shaking'));
+    await wait(420);
+    mbClear(board);
+    mbMsg('לוח נקי - מתחילים מחדש', 'good');
+  },
+};
+
+async function inputDemo(board, mark){
+  mbClear(board); mbMsgHide();
+  const preset = [mark, '', '', '', '', '', '', '', ''];
+  preset.forEach((m, i) => { if(m){ board.children[i].textContent = m; board.children[i].className = 'mb-cell mark-' + m.toLowerCase(); } });
+  await wait(500);
+
+  // 1. out-of-range attempt
+  mbMsg('קלט: "12" - מחוץ לטווח', 'bad');
+  await wait(1400);
+
+  // 2. occupied-square attempt
+  mbShakeCell(board, 0);
+  mbMsg('קלט: "1" - המשבצת כבר תפוסה', 'bad');
+  await wait(1500);
+
+  // 3. valid attempt -> accepted and placed
+  mbMsg('קלט: "5" - תקין!', 'good');
+  await wait(650);
+  mbSet(board, 4, mark);
+}
+
+async function placeDemo(board, mark){
+  mbClear(board); mbMsgHide();
+  const other = mark === 'X' ? 'O' : 'X';
+  mbSet(board, 0, other);
+  await wait(300);
+  mbSet(board, 4, mark === 'X' ? 'O' : 'X');
+  await wait(500);
+  mbMsg('המשבצת הנבחרת ריקה ותקינה', 'good');
+  await wait(700);
+  mbSet(board, 2, mark);
+  await wait(150);
+  mbMsg('הסימן הונח על הלוח', 'good');
+}
+
+async function winDemo(board, mark){
+  mbClear(board); mbMsgHide();
+  const line = [0, 1, 2];
+  for(const i of line){ mbSet(board, i, mark); await wait(320); }
+  await wait(350);
+  mbWinLine(board, line);
+  mbMsg((mark === 'X' ? 'שחקן X' : 'שחקן O') + ' ניצח!', 'good');
+}
+
+async function tieDemo(board){
+  mbClear(board); mbMsgHide();
+  const pattern = ['X', 'O', 'X', 'X', 'O', 'O', 'O', 'X', 'X'];
+  for(let i = 0; i < 9; i++){ mbSet(board, i, pattern[i]); await wait(150); }
+  await wait(400);
+  mbMsg('כל המשבצות מלאות ואף אחד לא ניצח - תיקו!', 'warn');
+}
+
+/* -------------------------------------------------------------- wizard */
+let current = 0;
+const hintShown = new Set();
+
+function goToStep(i){
+  current = Math.max(0, Math.min(STEPS.length - 1, i));
+  render();
+}
+
+function render(){
+  const s = STEPS[current];
+  const panel = document.getElementById('stepPanel');
+  panel.setAttribute('data-track', s.track);
+
+  document.getElementById('stepBadge').textContent = s.badge;
+  document.getElementById('stepTitle').textContent = s.title;
+  const textEl = document.getElementById('stepText');
+  textEl.style.animation = 'none'; void textEl.offsetWidth; textEl.style.animation = '';
+  textEl.textContent = s.text;
+
+  // code panel - only step 1 (board creation) ever has one, hidden behind a hint button
+  const codeRow = document.getElementById('codeRow');
+  const codeEl = document.getElementById('codePanel');
+  const hintBtn = document.getElementById('hintBtn');
+  codeEl.classList.remove('shown');
+  codeEl.innerHTML = '';
+  if(current === 0){
+    codeRow.hidden = false;
+    if(hintShown.has(current)){
+      hintBtn.hidden = true;
+      codeEl.classList.add('shown');
+      codeEl.innerHTML = highlight(s.code);
+    } else {
+      hintBtn.hidden = false;
+    }
+  } else {
+    codeRow.hidden = true;
+  }
+
+  // demo (only when the step has a drawable action)
+  const demoWrap = document.getElementById('demoWrap');
+  if(s.demo){
+    demoWrap.hidden = false;
+    buildMiniBoard();
+    runDemo();
+  } else {
+    demoWrap.hidden = true;
+  }
+
+  // nav list state
+  document.querySelectorAll('.nl').forEach((li, i) => {
+    li.classList.toggle('is-active', i === current);
+    li.classList.toggle('is-done', i < current);
+  });
+  document.getElementById('wcCounter').textContent = (current + 1) + ' / ' + STEPS.length;
+  document.getElementById('prevBtn').disabled = current === 0;
+  const nextBtn = document.getElementById('nextBtn');
+  const isLast = current === STEPS.length - 1;
+  nextBtn.textContent = isLast ? 'סיימתי' : 'הבא ←';
+  document.getElementById('finale').hidden = !isLast;
+
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function runDemo(){
+  const s = STEPS[current];
+  if(!s.demo) return;
+  const board = document.getElementById('miniBoard');
+  DEMOS[s.demo](board);
+}
+
+document.getElementById('hintBtn').addEventListener('click', () => {
+  hintShown.add(current);
+  const s = STEPS[current];
+  document.getElementById('hintBtn').hidden = true;
+  const codeEl = document.getElementById('codePanel');
+  codeEl.classList.add('shown');
+  codeEl.innerHTML = highlight(s.code);
+});
+document.getElementById('replayBtn').addEventListener('click', runDemo);
+document.getElementById('prevBtn').addEventListener('click', () => goToStep(current - 1));
+document.getElementById('nextBtn').addEventListener('click', () => {
+  if(current === STEPS.length - 1){
+    document.getElementById('finale').scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+  goToStep(current + 1);
+});
+
+render();
+</script>
+</body>
+</html>
