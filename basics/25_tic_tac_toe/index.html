@@ -16,9 +16,10 @@
 :root{
   --accent:      #8b5cf6;
   --accent-2:    #6366f1;
-  --accent-soft: rgba(139,92,246,.16);
   --x-color:  #22d3ee; --x-glow:#67e8f9;
+  --x-lite:   #a5f3fc; --x-mid:#22d3ee; --x-dark:#0369a1; --x-shade:#082f49; --x-edge: rgba(224,252,255,.55);
   --o-color:  #f472b6; --o-glow:#f9a8d4;
+  --o-lite:   #fbcfe8; --o-mid:#f472b6; --o-dark:#9d174d; --o-shade:#4c0519; --o-edge: rgba(255,235,247,.55);
   --bg-0: #05060d; --bg-1: #0a0b18;
   --glass: rgba(255,255,255,.045); --glass-2: rgba(255,255,255,.08);
   --stroke: rgba(255,255,255,.10); --stroke-2: rgba(255,255,255,.18);
@@ -33,12 +34,14 @@
 }
 *, *::before, *::after{ box-sizing:border-box }
 *{ margin:0 }
+html{ overflow-x:hidden }
 body{
   min-height:100dvh; font-family:var(--font-ui); color:var(--text); background:var(--bg-0);
   line-height:1.65; overflow-x:hidden; -webkit-font-smoothing:antialiased;
 }
 ::selection{ background:var(--accent); color:#fff }
 [dir="rtl"]{ direction:rtl }
+[hidden]{ display:none !important }
 
 /* ---------------------------------------------------------------- ambient */
 .ambient{ position:fixed; inset:0; z-index:-3; overflow:hidden; background:var(--bg-0) }
@@ -89,23 +92,21 @@ body{
 
 /* ---------------------------------------------------------------- layout */
 .wizard{
-  max-width:1180px; margin:22px auto 60px; padding:0 16px;
+  max-width:1180px; margin:14px auto 28px; padding:0 16px;
   display:grid; grid-template-columns:1fr 300px; gap:22px; align-items:start;
 }
 @media (max-width: 880px){ .wizard{ grid-template-columns:1fr } }
+/* while the intro screen is showing, the nav column is hidden but a
+   grid-template still reserves its track - collapse to one column so the
+   intro card centers on the full width instead of being squeezed aside */
+.wizard.is-intro{ grid-template-columns:1fr }
 
 /* content = LEFT column (first in source order) */
 .content{ min-width:0 }
 /* nav = RIGHT column (second in source order) */
 .nav-panel{ position:sticky; top:90px }
 
-.hero{ padding:6px 4px 26px }
-.eyebrow{
-  display:inline-flex; align-items:center; gap:.4rem; margin-bottom:1rem;
-  padding:.32rem .8rem; font-size:.72rem; font-weight:600; letter-spacing:.04em;
-  border-radius:99px; color:var(--accent); background:var(--accent-soft);
-  border:1px solid color-mix(in srgb, var(--accent) 32%, transparent);
-}
+.hero{ padding:0 4px 18px }
 .display{
   font-family:var(--font-display); font-size:clamp(1.8rem,4vw,2.5rem); font-weight:700;
   line-height:1.15; letter-spacing:-.01em; margin-bottom:.6rem;
@@ -115,11 +116,62 @@ body{
   background:linear-gradient(100deg, var(--x-color), var(--accent) 55%, var(--o-color));
   -webkit-background-clip:text; background-clip:text; color:transparent;
 }
+
+/* --------------------------------------------------------- intro screen */
+.intro-screen{
+  position:relative; overflow:hidden; border-radius:var(--radius-xl);
+  min-height:0; max-width:640px; margin:0 auto; padding:1.5rem 1.5rem 1.8rem; text-align:center;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.4rem;
+}
+
+/* hero starship scene - ported from basics/99_games/12_XO/styles_claude.css */
+.hero__art{ width:100%; max-width:300px; min-width:0; height:auto; color:var(--text); overflow:hidden; display:block }
+.hero__orbits{ animation:spinSlow 44s linear infinite; transform-origin:260px 245px }
+.hero__plate{ animation:heroFloatY 7s ease-in-out infinite; transform-origin:260px 250px }
+.hero__streak{ stroke-dasharray:240; stroke-dashoffset:240; animation:heroDrawLine 2.6s var(--ease) 1s infinite }
+.hero__ship--x{ animation:heroShipX 8s ease-in-out infinite; transform-origin:134px 154px }
+.hero__ship--o{ animation:heroShipO 9.5s ease-in-out infinite; transform-origin:385px 289px }
+.hero__float--c{ animation:heroFloatY 5.5s ease-in-out infinite reverse }
+.ship-thruster{ animation:shipThrust 1.6s ease-in-out infinite; transform-box:fill-box; transform-origin:center }
+.ship-trail{ animation:shipTrail 1.6s ease-in-out infinite }
+.ship-beacon{ animation:shipBeacon 2.2s ease-in-out infinite }
+.ship-seams{ animation:shipRingSpin 14s linear infinite; transform-origin:50px 50px }
+@keyframes spinSlow{ to{ transform:rotate(360deg) } }
+@keyframes heroFloatY{ 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(-13px) } }
+@keyframes heroDrawLine{ 0%{ stroke-dashoffset:240 } 45%,100%{ stroke-dashoffset:0 } }
+@keyframes heroShipX{ 0%,100%{ transform:translate(0,0) rotate(-3deg) } 50%{ transform:translate(10px,-16px) rotate(4deg) } }
+@keyframes heroShipO{ 0%,100%{ transform:translate(0,0) rotate(3deg) } 50%{ transform:translate(-12px,-13px) rotate(-4deg) } }
+@keyframes shipThrust{ 0%,100%{ opacity:.55; transform:scale(.86) } 50%{ opacity:1; transform:scale(1.18) } }
+@keyframes shipTrail{ 0%,100%{ opacity:.35; stroke-width:2 } 50%{ opacity:.9; stroke-width:4 } }
+@keyframes shipBeacon{ 0%,100%{ opacity:.3 } 50%{ opacity:1 } }
+@keyframes shipRingSpin{ to{ transform:rotate(360deg) } }
+
+.intro-title{
+  position:relative; font-family:var(--font-display); font-size:clamp(1.7rem,4vw,2.3rem); font-weight:700;
+  line-height:1.25; letter-spacing:-.01em; max-width:20ch;
+}
+.intro-title em{
+  font-style:normal;
+  background:linear-gradient(100deg, var(--x-color), var(--accent) 55%, var(--o-color));
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+.intro-sub{ position:relative; color:var(--muted); font-size:.95rem; max-width:42ch; line-height:1.75 }
+.intro-start-btn{
+  position:relative; margin-top:.6rem; padding:.9rem 1.8rem; font-size:.95rem; font-weight:700;
+  border-radius:14px; border:0; cursor:pointer; color:#fff; font-family:var(--font-ui);
+  background:linear-gradient(115deg, var(--x-color), var(--accent), var(--o-color));
+  background-size:220% 220%; animation:gradShift 7s ease infinite;
+  box-shadow:0 20px 44px -18px color-mix(in srgb, var(--accent) 60%, transparent);
+}
+.intro-start-btn:hover{ filter:brightness(1.06) }
+@keyframes gradShift{ 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+
 /* ---------------------------------------------------------- step panel */
 .step-panel{
-  position:relative; padding:1.8rem 1.9rem; border-radius:var(--radius-xl);
-  min-height:420px; display:flex; flex-direction:column;
+  position:relative; padding:1.4rem 4.2rem 1.6rem; border-radius:var(--radius-xl);
+  min-height:0; display:flex; flex-direction:column;
 }
+@media (max-width: 560px){ .step-panel{ padding:1.8rem 2.8rem } }
 .step-panel::before{
   content:''; position:absolute; inset:0; border-radius:inherit; padding:1px;
   background:linear-gradient(130deg, var(--step-c1, var(--accent)), transparent 40%, transparent 60%, var(--step-c2, var(--o-color)));
@@ -139,18 +191,18 @@ body{
 }
 .step-panel h2{ font-family:var(--font-display); font-size:1.4rem; font-weight:700 }
 
-.step-text{ color:var(--muted); font-size:1rem; line-height:1.85; margin-bottom:1.3rem; animation:fadeIn .5s var(--ease) both }
+.step-text{ color:var(--muted); font-size:1rem; line-height:1.75; margin-bottom:1rem; animation:fadeIn .5s var(--ease) both }
 @keyframes fadeIn{ from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none} }
 
 /* ------------------------------------------------------------- mini board */
-.demo-wrap{ margin:0 0 1.3rem; display:flex; flex-direction:column; align-items:center; gap:.7rem }
+.demo-wrap{ margin:0 0 1rem; display:flex; flex-direction:column; align-items:center; gap:.55rem }
 .mini-board{
-  display:grid; grid-template-columns:repeat(3,64px); grid-template-rows:repeat(3,64px); gap:6px;
-  padding:8px; background:#070a14; border:1px solid var(--stroke); border-radius:16px;
+  display:grid; grid-template-columns:repeat(3,52px); grid-template-rows:repeat(3,52px); gap:5px;
+  padding:6px; background:#070a14; border:1px solid var(--stroke); border-radius:14px;
 }
 .mb-cell{
-  position:relative; display:grid; place-items:center; border-radius:10px;
-  background:var(--glass); font-family:var(--font-display); font-size:1.8rem; font-weight:700;
+  position:relative; display:grid; place-items:center; border-radius:9px;
+  background:var(--glass); font-family:var(--font-display); font-size:1.5rem; font-weight:700;
   transition:background .25s var(--ease);
 }
 .mb-cell.mark-x{ color:var(--x-color); text-shadow:0 0 14px var(--x-glow) }
@@ -176,8 +228,25 @@ body{
 .mb-replay:hover{ color:var(--text); border-color:var(--stroke-2) }
 .mb-replay svg{ width:13px; height:13px }
 
+.loop-icon-wrap{
+  display:flex; align-items:center; justify-content:center;
+  margin:0 0 1.3rem; padding:1.6rem 0;
+}
+.loop-icon{
+  width:64px; height:64px; color:var(--step-c1, var(--accent));
+  filter:drop-shadow(0 0 14px color-mix(in srgb, var(--step-c1, var(--accent)) 55%, transparent));
+  animation:loopSpin 2.6s linear infinite;
+}
+@keyframes loopSpin{ to{ transform:rotate(360deg) } }
+
+.step-remark{
+  margin:0 0 1.3rem; padding:.8rem 1rem; border-radius:12px;
+  background:var(--glass-2); border:1px dashed var(--stroke-2);
+  color:var(--muted-2); font-size:.84rem; line-height:1.7;
+}
+
 /* -------------------------------------------------------------------- code */
-.code-row{ margin-top:auto; padding-top:.4rem }
+.code-row{ margin-top:.3rem }
 .hint-btn{
   display:inline-flex; align-items:center; gap:.5rem; padding:.7rem 1.2rem;
   font-size:.86rem; font-weight:700; border-radius:12px; cursor:pointer;
@@ -202,17 +271,24 @@ body{
 .k{ color:#ff79c6 } .s{ color:#a3e635 } .n{ color:#fbbf24 } .c{ color:#5a6494; font-style:italic } .f{ color:var(--x-color) } .p{ color:#c9d2ff }
 
 /* ------------------------------------------------------------- controls */
-.wizard-controls{ display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-top:1.1rem }
-.wc-btn{
-  display:inline-flex; align-items:center; gap:.5rem; padding:.75rem 1.3rem;
-  font-size:.9rem; font-weight:700; border-radius:12px; cursor:pointer; color:var(--text);
-  border:1px solid var(--stroke-2); background:var(--glass);
+.panel-nav{
+  position:absolute; top:50%; transform:translateY(-50%); z-index:6;
+  width:40px; height:40px; border-radius:50%; padding:0;
+  display:flex; align-items:center; justify-content:center;
+  color:var(--text); border:1px solid var(--stroke-2); background:var(--glass-2);
+  backdrop-filter:blur(10px); cursor:pointer;
+  transition:background .2s var(--ease), transform .2s var(--ease), opacity .2s var(--ease);
 }
-.wc-btn:hover:not(:disabled){ background:var(--glass-2); transform:translateY(-1px) }
-.wc-btn:disabled{ opacity:.35; cursor:not-allowed }
-.wc-btn.wc-next{ color:#fff; border:0; background:linear-gradient(100deg, var(--x-color), var(--accent), var(--o-color)); background-size:220% 220%; animation:gradShift 7s ease infinite }
-@keyframes gradShift{ 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
-.wc-counter{ font-family:var(--font-mono); font-size:.8rem; color:var(--muted-2) }
+.panel-nav:hover:not(:disabled){ background:var(--glass); transform:translateY(-50%) scale(1.08) }
+.panel-nav:disabled{ opacity:.25; cursor:not-allowed }
+.panel-nav svg{ width:14px; height:14px; fill:currentColor }
+.panel-nav--prev{ right:14px }
+.panel-nav--next{ left:14px }
+@media (max-width: 560px){
+  .panel-nav{ width:34px; height:34px }
+  .panel-nav--prev{ right:6px }
+  .panel-nav--next{ left:6px }
+}
 
 /* ----------------------------------------------------------- nav sidebar */
 .nav-panel .step-list{ list-style:none; padding:1.1rem; border-radius:var(--radius-lg); display:flex; flex-direction:column; gap:.3rem }
@@ -228,9 +304,7 @@ body{
 .nl-num{ font-family:var(--font-mono); font-size:.7rem; color:var(--muted-2); min-width:2.6em }
 .nav-title{ font-size:.7rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted-2); padding:0 .7rem .6rem }
 
-.finale{ text-align:center; padding:30px 0 10px }
-.finale h2{ font-family:var(--font-display); font-size:1.5rem; margin-bottom:.6rem }
-.finale p{ color:var(--muted); max-width:55ch; margin:0 auto 1.4rem }
+.summary-extra{ text-align:center; padding-top:.6rem; margin-top:auto }
 .submit-box{
   max-width:420px; margin:0 auto 1.6rem; padding:1.1rem 1.3rem; border-radius:16px;
   background:var(--glass-2); border:1px solid var(--stroke-2);
@@ -243,10 +317,39 @@ body{
 }
 .btn-back{
   display:inline-flex; align-items:center; gap:.5rem; padding:.8rem 1.4rem; text-decoration:none;
-  font-size:.9rem; font-weight:700; border-radius:14px; color:#fff;
+  font-size:.9rem; font-weight:700; border-radius:14px; color:#fff; border:0; cursor:pointer;
+  font-family:var(--font-ui);
   background:linear-gradient(115deg, var(--x-color), var(--accent), var(--o-color));
 }
-footer.page-foot{ text-align:center; font-size:.7rem; letter-spacing:.04em; color:var(--muted-2); padding:20px 0 30px }
+.sample-code-wrap{ max-width:520px; margin:1.2rem auto 0; text-align:right }
+.sample-code-note{ color:var(--muted-2); font-size:.82rem; line-height:1.7; margin-bottom:.4rem }
+
+/* --------------------------------------------------------- alert (sweetalert-style) */
+.alert-demo-wrap{ display:flex; justify-content:center; margin:0 0 1.3rem }
+.alert-card{
+  width:100%; max-width:340px; text-align:center; padding:1.6rem 1.4rem;
+  border-radius:20px; background:#0b0e1a; border:1px solid var(--stroke-2);
+  box-shadow:0 24px 60px -20px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.06);
+  animation:alertPop .35s var(--ease) both;
+}
+@keyframes alertPop{ from{ transform:scale(.92); opacity:0 } to{ transform:scale(1); opacity:1 } }
+.alert-icon{ font-size:2.6rem; line-height:1; margin-bottom:.7rem }
+.alert-title{ font-family:var(--font-display); font-size:1.15rem; font-weight:700; margin-bottom:.5rem }
+.alert-sub{ color:var(--muted); font-size:.86rem; line-height:1.6; margin-bottom:1.3rem }
+.alert-actions{ display:flex; gap:.6rem; justify-content:center; flex-wrap:wrap }
+.alert-btn{
+  padding:.65rem 1.2rem; font-size:.85rem; font-weight:700; border-radius:12px; cursor:pointer;
+  font-family:var(--font-ui);
+}
+.alert-btn--yes{
+  border:0; color:#fff; background:linear-gradient(100deg, var(--x-color), var(--accent));
+  box-shadow:0 10px 24px -10px color-mix(in srgb, var(--x-color) 60%, transparent);
+}
+.alert-btn--no{
+  border:1px solid var(--stroke-2); color:var(--muted); background:transparent;
+}
+.alert-btn--no:hover{ color:var(--text); border-color:var(--stroke) }
+.alert-demo-wrap .mb-replay{ margin:0 auto }
 
 @media (prefers-reduced-motion: reduce){
   *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important }
@@ -255,6 +358,157 @@ footer.page-foot{ text-align:center; font-size:.7rem; letter-spacing:.04em; colo
 </head>
 <body dir="rtl">
 
+<!-- Ship sprite - ported from basics/99_games/12_XO/index_claude.html (materials + the
+     two starship symbols only; hidden with position/size, not display:none, since some
+     browsers refuse to resolve gradient/filter refs inside a display:none tree). -->
+<svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+  <defs>
+    <linearGradient id="mxHull" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%"   stop-color="var(--x-lite)"/>
+      <stop offset="45%"  stop-color="var(--x-mid)"/>
+      <stop offset="100%" stop-color="var(--x-dark)"/>
+    </linearGradient>
+    <linearGradient id="mxHullFlip" x1="1" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="var(--x-mid)"/>
+      <stop offset="100%" stop-color="var(--x-dark)"/>
+    </linearGradient>
+    <radialGradient id="mxCore" cx=".35" cy=".3" r=".8">
+      <stop offset="0%"   stop-color="#ffffff" stop-opacity=".95"/>
+      <stop offset="35%"  stop-color="var(--x-lite)"/>
+      <stop offset="100%" stop-color="var(--x-dark)"/>
+    </radialGradient>
+    <radialGradient id="mxThruster" cx=".5" cy=".5" r=".5">
+      <stop offset="0%"   stop-color="#ffffff"/>
+      <stop offset="35%"  stop-color="var(--x-glow)"/>
+      <stop offset="100%" stop-color="var(--x-glow)" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="moHull" x1="0" y1="0" x2=".9" y2="1">
+      <stop offset="0%"   stop-color="var(--o-lite)"/>
+      <stop offset="45%"  stop-color="var(--o-mid)"/>
+      <stop offset="100%" stop-color="var(--o-dark)"/>
+    </linearGradient>
+    <radialGradient id="moCore" cx=".35" cy=".3" r=".8">
+      <stop offset="0%"   stop-color="#ffffff" stop-opacity=".95"/>
+      <stop offset="35%"  stop-color="var(--o-lite)"/>
+      <stop offset="100%" stop-color="var(--o-dark)"/>
+    </radialGradient>
+    <radialGradient id="moThruster" cx=".5" cy=".5" r=".5">
+      <stop offset="0%"   stop-color="#ffffff"/>
+      <stop offset="35%"  stop-color="var(--o-glow)"/>
+      <stop offset="100%" stop-color="var(--o-glow)" stop-opacity="0"/>
+    </radialGradient>
+
+    <linearGradient id="mCanopy" x1="0" y1="0" x2=".6" y2="1">
+      <stop offset="0%"   stop-color="#ffffff" stop-opacity=".95"/>
+      <stop offset="55%"  stop-color="#cfe9ff" stop-opacity=".55"/>
+      <stop offset="100%" stop-color="#5b7bb5" stop-opacity=".35"/>
+    </linearGradient>
+    <linearGradient id="mGloss" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%"   stop-color="#ffffff" stop-opacity=".55"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="mSoft" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="3.2"/>
+    </filter>
+    <filter id="mSoftSm" x="-80%" y="-80%" width="260%" height="260%">
+      <feGaussianBlur stdDeviation="1.6"/>
+    </filter>
+  </defs>
+
+  <symbol id="ship-x" viewBox="0 0 100 100">
+    <ellipse class="ship-shadow" cx="50" cy="79" rx="27" ry="6.5" fill="#000" opacity=".38" filter="url(#mSoft)"/>
+    <g class="ship-body">
+      <g transform="translate(0,4.5)" opacity=".85">
+        <g fill="var(--x-shade)">
+          <path d="M47 43 L23 9 L9 23 L43 47 Z"/>
+          <path d="M47 43 L23 9 L9 23 L43 47 Z" transform="rotate(90 50 50)"/>
+          <path d="M47 43 L23 9 L9 23 L43 47 Z" transform="rotate(180 50 50)"/>
+          <path d="M47 43 L23 9 L9 23 L43 47 Z" transform="rotate(270 50 50)"/>
+          <circle cx="50" cy="50" r="14.5"/>
+        </g>
+      </g>
+      <g class="ship-wings">
+        <g>
+          <path d="M47 43 L23 9 L9 23 L43 47 Z" fill="url(#mxHull)" stroke="var(--x-edge)" stroke-width="1.2" stroke-linejoin="round"/>
+          <path d="M45.5 41.5 L23.5 11" stroke="#fff" stroke-opacity=".55" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+          <path d="M38 36 L20 18" stroke="#000" stroke-opacity=".22" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+          <ellipse cx="16" cy="16" rx="8.6" ry="4.6" transform="rotate(-45 16 16)" fill="url(#mxHullFlip)" stroke="var(--x-edge)" stroke-width="1"/>
+          <ellipse cx="14" cy="14" rx="7" ry="2" transform="rotate(-45 14 14)" fill="url(#mGloss)"/>
+          <circle class="ship-thruster" cx="9.5" cy="9.5" r="7" fill="url(#mxThruster)"/>
+          <path class="ship-trail" d="M9.5 9.5 L1 1" stroke="var(--x-glow)" stroke-width="3" stroke-linecap="round" opacity=".8"/>
+        </g>
+        <g transform="rotate(90 50 50)">
+          <path d="M47 43 L23 9 L9 23 L43 47 Z" fill="url(#mxHull)" stroke="var(--x-edge)" stroke-width="1.2" stroke-linejoin="round"/>
+          <path d="M45.5 41.5 L23.5 11" stroke="#fff" stroke-opacity=".38" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+          <ellipse cx="16" cy="16" rx="8.6" ry="4.6" transform="rotate(-45 16 16)" fill="url(#mxHullFlip)" stroke="var(--x-edge)" stroke-width="1"/>
+          <circle class="ship-thruster" cx="9.5" cy="9.5" r="7" fill="url(#mxThruster)"/>
+          <path class="ship-trail" d="M9.5 9.5 L1 1" stroke="var(--x-glow)" stroke-width="3" stroke-linecap="round" opacity=".8"/>
+        </g>
+        <g transform="rotate(180 50 50)">
+          <path d="M47 43 L23 9 L9 23 L43 47 Z" fill="url(#mxHull)" stroke="var(--x-edge)" stroke-width="1.2" stroke-linejoin="round"/>
+          <path d="M45.5 41.5 L23.5 11" stroke="#fff" stroke-opacity=".22" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+          <ellipse cx="16" cy="16" rx="8.6" ry="4.6" transform="rotate(-45 16 16)" fill="url(#mxHullFlip)" stroke="var(--x-edge)" stroke-width="1"/>
+          <circle class="ship-thruster" cx="9.5" cy="9.5" r="7" fill="url(#mxThruster)"/>
+          <path class="ship-trail" d="M9.5 9.5 L1 1" stroke="var(--x-glow)" stroke-width="3" stroke-linecap="round" opacity=".8"/>
+        </g>
+        <g transform="rotate(270 50 50)">
+          <path d="M47 43 L23 9 L9 23 L43 47 Z" fill="url(#mxHull)" stroke="var(--x-edge)" stroke-width="1.2" stroke-linejoin="round"/>
+          <path d="M45.5 41.5 L23.5 11" stroke="#fff" stroke-opacity=".38" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+          <ellipse cx="16" cy="16" rx="8.6" ry="4.6" transform="rotate(-45 16 16)" fill="url(#mxHullFlip)" stroke="var(--x-edge)" stroke-width="1"/>
+          <circle class="ship-thruster" cx="9.5" cy="9.5" r="7" fill="url(#mxThruster)"/>
+          <path class="ship-trail" d="M9.5 9.5 L1 1" stroke="var(--x-glow)" stroke-width="3" stroke-linecap="round" opacity=".8"/>
+        </g>
+      </g>
+      <circle cx="50" cy="50" r="14.5" fill="url(#mxCore)" stroke="var(--x-edge)" stroke-width="1.4"/>
+      <circle cx="50" cy="50" r="10.5" fill="none" stroke="#000" stroke-opacity=".18" stroke-width="1.2"/>
+      <path d="M39 44 A14.5 14.5 0 0 1 60 39" fill="none" stroke="#fff" stroke-opacity=".65" stroke-width="2" stroke-linecap="round"/>
+      <ellipse cx="50" cy="47.5" rx="7.4" ry="5.6" fill="url(#mCanopy)"/>
+      <ellipse cx="47.8" cy="45.6" rx="3" ry="1.7" fill="#fff" opacity=".8"/>
+      <circle class="ship-beacon" cx="50" cy="57" r="1.9" fill="var(--x-glow)"/>
+    </g>
+  </symbol>
+
+  <symbol id="ship-o" viewBox="0 0 100 100">
+    <ellipse class="ship-shadow" cx="50" cy="80" rx="26" ry="6" fill="#000" opacity=".38" filter="url(#mSoft)"/>
+    <g class="ship-body">
+      <g transform="translate(0,4.5)" opacity=".85">
+        <circle cx="50" cy="50" r="32" fill="none" stroke="var(--o-shade)" stroke-width="13"/>
+        <circle cx="50" cy="50" r="10.5" fill="var(--o-shade)"/>
+      </g>
+      <circle cx="50" cy="50" r="32" fill="none" stroke="url(#moHull)" stroke-width="13"/>
+      <circle class="ship-seams" cx="50" cy="50" r="32" fill="none" stroke="#000" stroke-opacity=".2" stroke-width="13"
+              stroke-dasharray="1.6 23.5" stroke-dashoffset="6"/>
+      <circle cx="50" cy="50" r="38" fill="none" stroke="var(--o-edge)" stroke-width="1.4" opacity=".9"/>
+      <circle cx="50" cy="50" r="26" fill="none" stroke="var(--o-edge)" stroke-width="1.2" opacity=".65"/>
+      <path d="M22 34 A32 32 0 0 1 62 19" fill="none" stroke="#fff" stroke-opacity=".6" stroke-width="3.2" stroke-linecap="round"/>
+      <path d="M78 66 A32 32 0 0 1 42 81" fill="none" stroke="#000" stroke-opacity=".22" stroke-width="3" stroke-linecap="round"/>
+      <g stroke="url(#moHull)" stroke-width="5.2" stroke-linecap="round">
+        <path d="M31 31 L43 43"/><path d="M69 31 L57 43"/>
+        <path d="M31 69 L43 57"/><path d="M69 69 L57 57"/>
+      </g>
+      <g stroke="#fff" stroke-opacity=".35" stroke-width="1.4" stroke-linecap="round">
+        <path d="M31.5 29.5 L43 41"/><path d="M68.5 29.5 L57.5 40.5"/>
+      </g>
+      <circle cx="50" cy="50" r="11" fill="url(#moCore)" stroke="var(--o-edge)" stroke-width="1.4"/>
+      <circle cx="50" cy="50" r="7.6" fill="none" stroke="#000" stroke-opacity=".18" stroke-width="1.1"/>
+      <ellipse cx="50" cy="47.6" rx="5.6" ry="4.2" fill="url(#mCanopy)"/>
+      <ellipse cx="48.4" cy="46.2" rx="2.2" ry="1.3" fill="#fff" opacity=".85"/>
+      <g>
+        <ellipse cx="26" cy="72" rx="6.6" ry="4.4" transform="rotate(45 26 72)" fill="url(#moHull)" stroke="var(--o-edge)" stroke-width="1"/>
+        <circle class="ship-thruster" cx="22" cy="76" r="6.5" fill="url(#moThruster)"/>
+        <path class="ship-trail" d="M22 76 L14 84" stroke="var(--o-glow)" stroke-width="2.8" stroke-linecap="round" opacity=".8"/>
+      </g>
+      <g>
+        <ellipse cx="74" cy="72" rx="6.6" ry="4.4" transform="rotate(-45 74 72)" fill="url(#moHull)" stroke="var(--o-edge)" stroke-width="1"/>
+        <circle class="ship-thruster" cx="78" cy="76" r="6.5" fill="url(#moThruster)"/>
+        <path class="ship-trail" d="M78 76 L86 84" stroke="var(--o-glow)" stroke-width="2.8" stroke-linecap="round" opacity=".8"/>
+      </g>
+      <circle class="ship-beacon" cx="50" cy="18" r="2.1" fill="var(--o-glow)"/>
+    </g>
+  </symbol>
+</svg>
+
 <div class="ambient" aria-hidden="true">
   <div class="ambient__gradient"></div>
   <div class="ambient__grid"></div>
@@ -262,7 +516,7 @@ footer.page-foot{ text-align:center; font-size:.7rem; letter-spacing:.04em; colo
   <div class="blob blob--2"></div>
 </div>
 
-<header class="topbar glass" dir="rtl">
+<header class="topbar glass" dir="rtl" id="topbar" hidden>
   <a href="../index.html#lessons">חזרה לשיעורים &larr;</a>
   <span class="brand">
     <strong>פרויקט גמר</strong>
@@ -270,17 +524,77 @@ footer.page-foot{ text-align:center; font-size:.7rem; letter-spacing:.04em; colo
   </span>
 </header>
 
-<div class="wizard" dir="rtl">
+<div class="wizard is-intro" id="wizard" dir="rtl">
 
   <!-- ===================== LEFT = content ===================== -->
   <div class="content">
 
-    <div class="hero">
-      <span class="eyebrow">&#127918; פרויקט גמר</span>
-      <h1 class="display">בונים <em>איקס עיגול</em><br>מאפס</h1>
+    <section class="intro-screen glass" id="introScreen">
+      <!-- Hero illustration - ported as-is from basics/99_games/12_XO/index_claude.html -->
+      <svg class="hero__art" viewBox="0 0 520 460" role="img" aria-label="שתי חלליות - מיירט X בעל ארבעה כנפיים וסיירת O בצורת טבעת - עומדות זו מול זו מעל רשת זכוכית מרחפת">
+        <defs>
+          <linearGradient id="hgBoard" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="var(--accent)" stop-opacity=".30"/>
+            <stop offset="100%" stop-color="var(--o-color)" stop-opacity=".10"/>
+          </linearGradient>
+          <linearGradient id="hgPlate" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#fff" stop-opacity=".16"/>
+            <stop offset="100%" stop-color="#fff" stop-opacity=".03"/>
+          </linearGradient>
+          <filter id="hgBlur" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="18"/>
+          </filter>
+        </defs>
+
+        <ellipse cx="260" cy="250" rx="155" ry="125" fill="url(#hgBoard)" filter="url(#hgBlur)"/>
+
+        <g class="hero__orbits" fill="none" stroke="currentColor" opacity=".18">
+          <ellipse cx="260" cy="245" rx="220" ry="84" stroke-width="1.5"/>
+          <ellipse cx="260" cy="245" rx="172" ry="152" stroke-width="1.5" stroke-dasharray="4 10"/>
+        </g>
+
+        <g class="hero__plate">
+          <g transform="translate(260 250) scale(1 .58) rotate(45) translate(-110 -110)">
+            <rect x="0" y="0" width="220" height="220" rx="26" fill="url(#hgPlate)" stroke="rgba(255,255,255,.22)" stroke-width="2"/>
+            <g stroke="rgba(255,255,255,.20)" stroke-width="2.5" stroke-linecap="round">
+              <path d="M73 14 V206"/><path d="M147 14 V206"/>
+              <path d="M14 73 H206"/><path d="M14 147 H206"/>
+            </g>
+          </g>
+          <path d="M150 218 L370 282" stroke="var(--accent)" stroke-width="5" stroke-linecap="round" opacity=".8" class="hero__streak"/>
+        </g>
+
+        <g class="hero__ship hero__ship--x">
+          <svg x="46" y="66" width="176" height="176" viewBox="0 0 100 100"><use href="#ship-x"/></svg>
+        </g>
+        <g class="hero__ship hero__ship--o">
+          <svg x="292" y="196" width="186" height="186" viewBox="0 0 100 100"><use href="#ship-o"/></svg>
+        </g>
+
+        <g class="hero__float--c">
+          <circle cx="430" cy="112" r="7" fill="var(--accent)" opacity=".7"/>
+          <circle cx="98"  cy="336" r="6" fill="var(--o-color)" opacity=".6"/>
+          <circle cx="264" cy="418" r="5" fill="var(--x-color)" opacity=".6"/>
+        </g>
+      </svg>
+
+      <h1 class="intro-title">ברוכים הבאים למשחק<br><em>איקס עיגול</em></h1>
+      <p class="intro-sub">בעוד רגע נבנה יחד, שלב אחרי שלב, משחק איקס עיגול אמיתי</p>
+      <button class="intro-start-btn" id="introStartBtn" type="button">בואו נתחיל &larr;</button>
+    </section>
+
+    <div class="hero" id="hero" hidden>
+      <h1 class="display">בונים <em>איקס עיגול</em> מאפס</h1>
     </div>
 
-    <section class="step-panel glass" id="stepPanel">
+    <section class="step-panel glass" id="stepPanel" hidden>
+      <button class="panel-nav panel-nav--prev" id="prevBtn" type="button" aria-label="השלב הקודם">
+        <svg viewBox="0 0 16 16"><polygon points="4,2 4,14 13,8"/></svg>
+      </button>
+      <button class="panel-nav panel-nav--next" id="nextBtn" type="button" aria-label="השלב הבא">
+        <svg viewBox="0 0 16 16"><polygon points="12,2 12,14 3,8"/></svg>
+      </button>
+
       <div class="step-head">
         <span class="step-badge" id="stepBadge">שלב 1</span>
         <h2 id="stepTitle">יצירת הלוח</h2>
@@ -290,11 +604,29 @@ footer.page-foot{ text-align:center; font-size:.7rem; letter-spacing:.04em; colo
       <div class="demo-wrap" id="demoWrap" hidden>
         <div class="mini-board" id="miniBoard"></div>
         <div class="mb-msg" id="miniMsg"></div>
-        <button class="mb-replay" id="replayBtn" type="button">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-          נגן שוב
-        </button>
       </div>
+
+      <div class="loop-icon-wrap" id="loopIconWrap" hidden>
+        <svg class="loop-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+      </div>
+
+      <div class="alert-demo-wrap" id="alertDemoWrap" hidden>
+        <div class="alert-card">
+          <div class="alert-icon" id="alertIcon">&#128257;</div>
+          <h3 class="alert-title" id="alertTitle">לשחק שוב?</h3>
+          <p class="alert-sub" id="alertSub">הסיבוב נגמר. לפתוח לוח חדש ולשחק סיבוב נוסף?</p>
+          <div class="alert-actions" id="alertActions">
+            <button class="alert-btn alert-btn--yes" id="alertYesBtn" type="button">כן, שחקו שוב</button>
+            <button class="alert-btn alert-btn--no" id="alertNoBtn" type="button">לא, תודה</button>
+          </div>
+          <button class="mb-replay" id="alertResetBtn" type="button" hidden>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            נסו שוב
+          </button>
+        </div>
+      </div>
+
+      <p class="step-remark" id="stepRemark" hidden></p>
 
       <div class="code-row" id="codeRow" hidden>
         <button class="hint-btn" id="hintBtn" type="button">
@@ -303,27 +635,23 @@ footer.page-foot{ text-align:center; font-size:.7rem; letter-spacing:.04em; colo
         </button>
         <pre class="code-panel" id="codePanel"></pre>
       </div>
-    </section>
 
-    <div class="wizard-controls">
-      <button class="wc-btn" id="prevBtn" type="button">&rarr; הקודם</button>
-      <span class="wc-counter" id="wcCounter">1 / 10</span>
-      <button class="wc-btn wc-next" id="nextBtn" type="button">הבא &larr;</button>
-    </div>
-
-    <section class="finale" id="finale" hidden>
-      <h2>זהו, זה כל המשחק.</h2>
-      <p>עשרה שלבים, בלי קיצורים: רשימה של רשימות, לולאה אחת שרצה עד שמישהו מנצח, קלט שבודקים לפני שסומכים עליו, ושלוש פונקציות קטנות שעושות את העבודה החוזרת. עכשיו פתחו עורך קוד ותבנו את זה באמת &mdash; ואז נסו להוסיף טבלת ניקוד, או יריב מחשב.</p>
-      <div class="submit-box">
-        <p class="submit-label">כשהפרויקט מוכן ורץ אצלכם, שלחו את קובץ הקוד למייל הבא להגשה:</p>
-        <div class="submit-email" dir="ltr">pythonai080626+tictactoe@gmail.com</div>
+      <div class="summary-extra" id="summaryExtra" hidden>
+        <div class="submit-box">
+          <p class="submit-label">כשהפרויקט מוכן ורץ אצלכם, שלחו את קובץ הקוד למייל הבא להגשה:</p>
+          <div class="submit-email" dir="ltr">pythonai080626+tictactoe@gmail.com</div>
+        </div>
+        <button class="btn-back" id="sampleCodeBtn" type="button">קוד לדוגמה</button>
+        <div class="sample-code-wrap" id="sampleCodeWrap" hidden>
+          <p class="sample-code-note">כך אפשר לחבר את כל השלבים לתוכנית אחת: כל שלב הופך לפונקציה משלו, ולמטה נשאר רק סדר הקריאות והערכים שעוברים ביניהן - בלי המימוש הפנימי של אף פונקציה.</p>
+          <pre class="code-panel shown" id="sampleCodePanel"></pre>
+        </div>
       </div>
-      <a class="btn-back" href="../index.html#lessons">חזרה לשיעורים &larr;</a>
     </section>
   </div>
 
   <!-- ===================== RIGHT = navigation ===================== -->
-  <aside class="nav-panel">
+  <aside class="nav-panel" id="navPanel" hidden>
     <div class="glass" style="border-radius:var(--radius-lg)">
       <div class="nav-title">כל השלבים</div>
       <ol class="step-list" id="stepList" dir="rtl"></ol>
@@ -331,8 +659,6 @@ footer.page-foot{ text-align:center; font-size:.7rem; letter-spacing:.04em; colo
   </aside>
 
 </div>
-
-<footer class="page-foot">נבנה עם HTML · CSS · JS רגילים &middot; אותה שפה חזותית כמו סימולטור האיקס עיגול</footer>
 
 <script>
 /* ============================================================ step data
@@ -354,6 +680,7 @@ const STEPS = [
     text: 'המשחק לא יודע מראש כמה תורות ייקח, אז לולאה עם מספר סיבובים קבוע לא מתאימה כאן. השתמשו בלולאה שרצה כל עוד לא נאמר לה לעצור, ועצרו אותה רק כשמישהו ניצח או שהלוח התמלא. כל שאר השלבים בפרויקט הזה קורים בתוך הלולאה הזאת.',
     code: 'while True:\n    # תור לשחקן X (שלבים 2.1 - 2.3)\n    # תור לשחקן O (שלבים 3.1 - 3.3)\n    pass',
     demo: null,
+    loopIcon: true,
   },
   {
     badge: 'שלב 2.1', title: 'תור לשחקן X - קלט ותקינות', track: 'x',
@@ -381,7 +708,8 @@ const STEPS = [
   },
   {
     badge: 'שלב 3.1', title: 'תור לשחקן O - קלט ותקינות', track: 'o',
-    text: 'בדיוק אותה בעיה כמו בשלב 2.1, בשביל השחקן השני - אז בדיוק אותו פתרון. זה הסימן הראשון שחלק מהלוגיקה הזאת רוצה להפוך לפונקציה משלה במקום להיכתב פעמיים, שווה לשים לב אליו גם אם הפרויקט הזה משאיר אותה מוטמעת בשביל הבהירות.',
+    text: 'בקשו מספר משבצת בין 1 ל-9: שורה עליונה 1, 2, 3, שורה אמצעית 4, 5, 6, ושורה תחתונה 7, 8, 9. אל תסמכו על הקלט בעיוורון - שחקן אמיתי בסוף יקליד אותיות, מספר מחוץ לטווח, או משבצת שכבר תפוסה. המשיכו לשאול, בלולאה קטנה משלה, עד שהקלט באמת שמיש.',
+    remark: 'שימו לב: הקוד כאן זהה לחלוטין לקוד שכתבתם בשלב 2.1 עבור השחקן הראשון. במקום להעתיק אותו פעם נוספת, שווה לעטוף אותו בפונקציה אחת שמקבלת את שם השחקן ומחזירה את המשבצת שנבחרה, ולקרוא לה פעמיים - פעם עבור X ופעם עבור O. כך נמנעים מכפילות קוד.',
     code: 'while True:\n    move = input("בחרו משבצת (1-9): ")\n\n    if not move.isdigit() or int(move) not in range(1, 10):\n        print("צריך מספר שלם בין 1 ל-9")\n        continue\n\n    cell = int(move) - 1\n    row, col = cell // 3, cell % 3\n\n    if board[row][col] != " ":\n        print("המשבצת הזאת כבר תפוסה")\n        continue\n\n    break',
     demo: 'inputO',
   },
@@ -398,12 +726,92 @@ const STEPS = [
     demo: 'winO',
   },
   {
+    badge: 'שלב 3.4', title: 'חוזרים לתחילת הלולאה', track: 'loop',
+    text: 'אם הגעתם עד לכאן בלי לעצור - אף אחד עדיין לא ניצח וגם לא נוצר תיקו. אין כאן שום פעולה חדשה לכתוב: פשוט מגיעים לסוף גוף הלולאה, והיא חוזרת לתחילתה מעצמה. התוכנית קופצת בחזרה לשלב 2.1, ותור חדש של שחקן X מתחיל, על אותו לוח בדיוק.',
+    code: '# הגעתם לסוף גוף הלולאה בלי לעצור באף "break"\n# אז while True פשוט מתחיל סיבוב נוסף - חזרה לשלב 2.1',
+    demo: null,
+    loopIcon: true,
+  },
+  {
     badge: 'אחרי הלולאה', title: 'לשחק שוב?', track: 'end',
     text: 'הלולאה הראשית עדיין רצה - היא נעצרת רק בניצחון או בתיקו. ברגע שהיא נעצרת, שאלו את השאלה שחשובה: לשחק שוב? אם כן, נקו את הלוח בחזרה לתשע משבצות ריקות ותנו ללולאה להתחיל מחדש מההתחלה. אם לא, תגידו להתראות ותנו לתוכנית להסתיים בטבעיות.',
     code: '# ...אחרי שלולאת while True נעצרה...\n\nagain = input("לשחק שוב? (y/n): ")\n\nif again.lower() == "y":\n    board = [[" ", " ", " "] for _ in range(3)]\n    # חוזרים לתחילת שלב 2, עם לוח נקי\nelse:\n    print("תודה ששיחקתם!")',
-    demo: 'clearBoard',
+    demo: null,
+    alertDemo: true,
+  },
+  {
+    badge: 'סיכום', title: 'זהו, זה כל המשחק', track: 'end',
+    text: 'אחד עשר שלבים, בלי קיצורים: רשימה של רשימות, לולאה אחת שרצה עד שמישהו מנצח, קלט שבודקים לפני שסומכים עליו, ושלוש פונקציות קטנות שעושות את העבודה החוזרת. עכשיו פתחו עורך קוד ותבנו את זה באמת - ואז נסו להוסיף טבלת ניקוד, או יריב מחשב.',
+    code: null,
+    demo: null,
+    isSummary: true,
   },
 ];
+
+/* Full-program skeleton for the summary step's "sample code" reveal: every
+   step becomes its own function, called with the right parameters and
+   handing values back where needed (init_board -> board, get_move ->
+   row/col, check_winner/is_board_full/ask_play_again -> True/False) -
+   only the call order is shown, never the function bodies. Verified
+   separately by swapping in real implementations for each stub and running
+   the whole thing end-to-end (win / tie-then-replay scenarios) to confirm
+   the orchestration itself is correct. */
+const SAMPLE_CODE = [
+  'def init_board():',
+  '    ...  # builds a fresh 3x3 board of empty squares, returns it',
+  '',
+  '',
+  'def print_board(board):',
+  '    ...  # prints the board, row by row',
+  '',
+  '',
+  'def get_move(board, mark):',
+  '    ...  # asks the player for a square (1-9), validates it, returns (row, col)',
+  '',
+  '',
+  'def check_winner(board, mark):',
+  '    ...  # returns True if mark has three in a row, column, or diagonal',
+  '',
+  '',
+  'def is_board_full(board):',
+  '    ...  # returns True if every square is already taken',
+  '',
+  '',
+  'def ask_play_again():',
+  '    ...  # asks "play again?", returns True or False',
+  '',
+  '',
+  'def play_round():',
+  '    board = init_board()',
+  '    print_board(board)',
+  '',
+  '    while True:',
+  '        row, col = get_move(board, "X")',
+  '        board[row][col] = "X"',
+  '        print_board(board)',
+  '',
+  '        if check_winner(board, "X"):',
+  '            print("שחקן X ניצח!")',
+  '            break',
+  '        if is_board_full(board):',
+  '            print("תיקו!")',
+  '            break',
+  '',
+  '        row, col = get_move(board, "O")',
+  '        board[row][col] = "O"',
+  '        print_board(board)',
+  '',
+  '        if check_winner(board, "O"):',
+  '            print("שחקן O ניצח!")',
+  '            break',
+  '',
+  '',
+  'while True:',
+  '    play_round()',
+  '    if not ask_play_again():',
+  '        print("תודה ששיחקתם!")',
+  '        break',
+].join('\n');
 
 /* ---------------------------------------------------------- nav sidebar */
 const stepListEl = document.getElementById('stepList');
@@ -475,86 +883,109 @@ function mbMsgHide(){
 
 /* Each demo gets a fresh, empty board and drives it with small delays -
    this is the animated "what happens here" preview for steps where an
-   action can actually be drawn. */
+   action can actually be drawn. Every demo receives the token that was
+   current when it started, and checks isCurrent(token) after each await
+   so that switching steps (or replaying) cuts it off instead of letting
+   a stale animation keep mutating the newly-built board. */
+let demoToken = 0;
+function isCurrent(token){ return token === demoToken; }
+
 const DEMOS = {
-  createBoard: async (board) => {
+  createBoard: async (board, token) => {
     mbClear(board);
     for(let i = 0; i < 9; i++){
       await wait(70);
+      if(!isCurrent(token)) return;
       board.children[i].classList.add('mb-pop');
     }
+    if(!isCurrent(token)) return;
     mbMsg('לוח ריק, מוכן להתחלה', 'good');
   },
-  inputX: (board) => inputDemo(board, 'X'),
-  inputO: (board) => inputDemo(board, 'O'),
-  placeX: (board) => placeDemo(board, 'X'),
-  placeO: (board) => placeDemo(board, 'O'),
-  winX: (board) => winDemo(board, 'X'),
-  winO: (board) => winDemo(board, 'O'),
-  tieCheck: (board) => tieDemo(board),
-  clearBoard: async (board) => {
-    mbClear(board);
-    ['X','O','X','O','X','O','O','X','X'].forEach((m, i) => board.children[i] && (board.children[i].textContent = m, board.children[i].className = 'mb-cell mark-' + m.toLowerCase()));
-    mbMsg('סיבוב הסתיים', 'good');
-    await wait(1100);
-    mbMsg('מנקים את הלוח לסיבוב חדש...', 'bad');
-    await wait(500);
-    [...board.children].forEach(c => c.classList.add('is-shaking'));
-    await wait(420);
-    mbClear(board);
-    mbMsg('לוח נקי - מתחילים מחדש', 'good');
-  },
+  inputX: (board, token) => inputDemo(board, 'X', token),
+  inputO: (board, token) => inputDemo(board, 'O', token),
+  placeX: (board, token) => placeDemo(board, 'X', token),
+  placeO: (board, token) => placeDemo(board, 'O', token),
+  winX: (board, token) => winDemo(board, 'X', token),
+  winO: (board, token) => winDemo(board, 'O', token),
+  tieCheck: (board, token) => tieDemo(board, token),
 };
 
-async function inputDemo(board, mark){
+async function inputDemo(board, mark, token){
   mbClear(board); mbMsgHide();
   const preset = [mark, '', '', '', '', '', '', '', ''];
   preset.forEach((m, i) => { if(m){ board.children[i].textContent = m; board.children[i].className = 'mb-cell mark-' + m.toLowerCase(); } });
   await wait(500);
+  if(!isCurrent(token)) return;
 
   // 1. out-of-range attempt
   mbMsg('קלט: "12" - מחוץ לטווח', 'bad');
   await wait(1400);
+  if(!isCurrent(token)) return;
 
   // 2. occupied-square attempt
   mbShakeCell(board, 0);
   mbMsg('קלט: "1" - המשבצת כבר תפוסה', 'bad');
   await wait(1500);
+  if(!isCurrent(token)) return;
 
   // 3. valid attempt -> accepted and placed
   mbMsg('קלט: "5" - תקין!', 'good');
   await wait(650);
+  if(!isCurrent(token)) return;
   mbSet(board, 4, mark);
 }
 
-async function placeDemo(board, mark){
+async function placeDemo(board, mark, token){
   mbClear(board); mbMsgHide();
   const other = mark === 'X' ? 'O' : 'X';
   mbSet(board, 0, other);
   await wait(300);
+  if(!isCurrent(token)) return;
   mbSet(board, 4, mark === 'X' ? 'O' : 'X');
   await wait(500);
+  if(!isCurrent(token)) return;
   mbMsg('המשבצת הנבחרת ריקה ותקינה', 'good');
   await wait(700);
+  if(!isCurrent(token)) return;
   mbSet(board, 2, mark);
   await wait(150);
+  if(!isCurrent(token)) return;
   mbMsg('הסימן הונח על הלוח', 'good');
 }
 
-async function winDemo(board, mark){
-  mbClear(board); mbMsgHide();
-  const line = [0, 1, 2];
-  for(const i of line){ mbSet(board, i, mark); await wait(320); }
-  await wait(350);
-  mbWinLine(board, line);
-  mbMsg((mark === 'X' ? 'שחקן X' : 'שחקן O') + ' ניצח!', 'good');
+async function winDemo(board, mark, token){
+  const player = mark === 'X' ? 'שחקן X' : 'שחקן O';
+  const patterns = [
+    { cells: [0, 1, 2], label: 'שורה' },
+    { cells: [0, 3, 6], label: 'עמודה' },
+    { cells: [0, 4, 8], label: 'אלכסון' },
+  ];
+  for(const { cells, label } of patterns){
+    mbClear(board); mbMsgHide();
+    for(const i of cells){
+      mbSet(board, i, mark);
+      await wait(260);
+      if(!isCurrent(token)) return;
+    }
+    await wait(300);
+    if(!isCurrent(token)) return;
+    mbWinLine(board, cells);
+    mbMsg(player + ' ניצח - ' + label + '!', 'good');
+    await wait(1150);
+    if(!isCurrent(token)) return;
+  }
 }
 
-async function tieDemo(board){
+async function tieDemo(board, token){
   mbClear(board); mbMsgHide();
   const pattern = ['X', 'O', 'X', 'X', 'O', 'O', 'O', 'X', 'X'];
-  for(let i = 0; i < 9; i++){ mbSet(board, i, pattern[i]); await wait(150); }
+  for(let i = 0; i < 9; i++){
+    mbSet(board, i, pattern[i]);
+    await wait(150);
+    if(!isCurrent(token)) return;
+  }
   await wait(400);
+  if(!isCurrent(token)) return;
   mbMsg('כל המשבצות מלאות ואף אחד לא ניצח - תיקו!', 'warn');
 }
 
@@ -605,6 +1036,26 @@ function render(){
     runDemo();
   } else {
     demoWrap.hidden = true;
+    demoToken++; // invalidate whatever animation was running for the previous step
+  }
+
+  // loop-back icon: a static "no drawable action" step still gets a visual, just not a board
+  document.getElementById('loopIconWrap').hidden = !s.loopIcon;
+
+  // sweetalert-style yes/no dialog demonstrating the "play again?" prompt
+  document.getElementById('alertDemoWrap').hidden = !s.alertDemo;
+  if(s.alertDemo) resetAlertDemo();
+
+  // final summary step: submission info instead of any board/code
+  document.getElementById('summaryExtra').hidden = !s.isSummary;
+
+  // optional remark shown under the board
+  const remarkEl = document.getElementById('stepRemark');
+  if(s.remark){
+    remarkEl.hidden = false;
+    remarkEl.textContent = s.remark;
+  } else {
+    remarkEl.hidden = true;
   }
 
   // nav list state
@@ -612,21 +1063,24 @@ function render(){
     li.classList.toggle('is-active', i === current);
     li.classList.toggle('is-done', i < current);
   });
-  document.getElementById('wcCounter').textContent = (current + 1) + ' / ' + STEPS.length;
   document.getElementById('prevBtn').disabled = current === 0;
-  const nextBtn = document.getElementById('nextBtn');
-  const isLast = current === STEPS.length - 1;
-  nextBtn.textContent = isLast ? 'סיימתי' : 'הבא ←';
-  document.getElementById('finale').hidden = !isLast;
+  document.getElementById('nextBtn').disabled = current === STEPS.length - 1;
+}
 
-  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+function resetAlertDemo(){
+  document.getElementById('alertIcon').textContent = '\u{1F501}';
+  document.getElementById('alertTitle').textContent = 'לשחק שוב?';
+  document.getElementById('alertSub').textContent = 'הסיבוב נגמר. לפתוח לוח חדש ולשחק סיבוב נוסף?';
+  document.getElementById('alertActions').hidden = false;
+  document.getElementById('alertResetBtn').hidden = true;
 }
 
 function runDemo(){
   const s = STEPS[current];
   if(!s.demo) return;
+  const token = ++demoToken; // invalidate any animation still running (previous step or a prior replay)
   const board = document.getElementById('miniBoard');
-  DEMOS[s.demo](board);
+  DEMOS[s.demo](board, token);
 }
 
 document.getElementById('hintBtn').addEventListener('click', () => {
@@ -637,17 +1091,44 @@ document.getElementById('hintBtn').addEventListener('click', () => {
   codeEl.classList.add('shown');
   codeEl.innerHTML = highlight(s.code);
 });
-document.getElementById('replayBtn').addEventListener('click', runDemo);
+document.getElementById('alertYesBtn').addEventListener('click', () => {
+  document.getElementById('alertIcon').textContent = '\u{2705}';
+  document.getElementById('alertTitle').textContent = 'מאפסים את הלוח...';
+  document.getElementById('alertSub').textContent = 'הלוח התרוקן חזרה לתשע משבצות ריקות, ותור חדש של שחקן X מתחיל.';
+  document.getElementById('alertActions').hidden = true;
+  document.getElementById('alertResetBtn').hidden = false;
+});
+document.getElementById('alertNoBtn').addEventListener('click', () => {
+  document.getElementById('alertIcon').textContent = '\u{1F44B}';
+  document.getElementById('alertTitle').textContent = 'תודה ששיחקתם!';
+  document.getElementById('alertSub').textContent = 'התוכנית מדפיסה הודעת פרידה ומסתיימת כאן בצורה נקייה.';
+  document.getElementById('alertActions').hidden = true;
+  document.getElementById('alertResetBtn').hidden = false;
+});
+document.getElementById('alertResetBtn').addEventListener('click', resetAlertDemo);
+document.getElementById('sampleCodeBtn').addEventListener('click', () => {
+  document.getElementById('sampleCodeBtn').hidden = true;
+  document.getElementById('sampleCodeWrap').hidden = false;
+  document.getElementById('sampleCodePanel').innerHTML = highlight(SAMPLE_CODE);
+});
 document.getElementById('prevBtn').addEventListener('click', () => goToStep(current - 1));
 document.getElementById('nextBtn').addEventListener('click', () => {
-  if(current === STEPS.length - 1){
-    document.getElementById('finale').scrollIntoView({ behavior: 'smooth' });
-    return;
-  }
+  if(current === STEPS.length - 1) return;
   goToStep(current + 1);
 });
 
-render();
+/* The intro screen only ever shows once, on load. Starting the wizard
+   swaps it out for good - there is no path back to it, only the normal
+   step navigation (Prev/Next and the nav list) from here on. */
+document.getElementById('introStartBtn').addEventListener('click', () => {
+  document.getElementById('introScreen').hidden = true;
+  document.getElementById('wizard').classList.remove('is-intro');
+  document.getElementById('topbar').hidden = false;
+  document.getElementById('hero').hidden = false;
+  document.getElementById('stepPanel').hidden = false;
+  document.getElementById('navPanel').hidden = false;
+  render();
+}, { once: true });
 </script>
 </body>
 </html>
