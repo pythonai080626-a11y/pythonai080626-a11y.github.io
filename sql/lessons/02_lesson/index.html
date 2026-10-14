@@ -3,33 +3,55 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SQL Lesson 2 — Data Types &amp; Constraints</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='white'/><text x='32' y='45' text-anchor='middle' font-family='Arial, sans-serif' font-size='42' font-weight='700' fill='%232dd4bf'>db</text></svg>">
+  <title>SQLite Homework Walkthrough — 20 Commands</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='white'/><text x='32' y='45' text-anchor='middle' font-family='Arial, sans-serif' font-size='42' font-weight='700' fill='%23facc15'>db</text></svg>">
   <style>
     :root {
-      --bg-soft:   #ffffff;
-      --teal-1:    #0e5a52;
-      --teal-2:    #1a9e8f;
-      --teal-3:    #d2f6f2;
-      --mint:      #e6fffc;
-      --text:      #0f2622;
-      --muted:     #3d7a72;
-      --border:    #9adcd4;
-      --code-bg:   #07201d;
-      --code-text: #cef9f3;
-      --accent-a:  #d9fdf7;
-      --accent-b:  #e8fff8;
+      --bg-soft: #ffffff;
+      --green-1: #0f5a2e;
+      --green-2: #1f8f4e;
+      --green-3: #dbf6e5;
+      --mint: #e6fff2;
+      --text: #14281d;
+      --muted: #426654;
+      --border: #aadfbd;
+      --code-bg: #0b2517;
+      --code-text: #d2ffe3;
+      --accent-a: #ddfbe7;
+      --accent-b: #f2ffe6;
     }
 
-    * { box-sizing: border-box; }
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scrollbar-color: var(--green-2) var(--green-3);
+      scrollbar-width: thin;
+    }
+    ::-webkit-scrollbar {
+      width: 11px;
+      height: 11px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--green-3);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--green-2);
+      border-radius: 10px;
+      border: 2px solid var(--green-3);
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--green-1);
+    }
 
     body {
       margin: 0;
       font-family: "Trebuchet MS", "Lucida Sans", "Segoe UI", sans-serif;
       color: var(--text);
-      background: radial-gradient(circle at 15% 10%, #ddfff8 0%, transparent 35%),
-                  radial-gradient(circle at 85% 18%, #e8fff3 0%, transparent 36%),
-                  linear-gradient(180deg, #f0fffb 0%, #ffffff 45%, #e8fff9 100%);
+      background: radial-gradient(circle at 15% 10%, #e7fff0 0%, transparent 35%),
+                  radial-gradient(circle at 85% 18%, #f6ffe8 0%, transparent 36%),
+                  linear-gradient(180deg, #f4fff6 0%, #ffffff 45%, #edfff4 100%);
       line-height: 1.6;
       overflow-x: hidden;
     }
@@ -38,15 +60,27 @@
     body::after {
       content: "";
       position: fixed;
-      width: 240px; height: 240px;
+      width: 240px;
+      height: 240px;
       z-index: -1;
       border-radius: 999px;
       filter: blur(2px);
       opacity: 0.35;
       animation: blobMove 8s ease-in-out infinite alternate;
     }
-    body::before { background: #9ef5eb; top: -30px; left: -40px; }
-    body::after  { background: #b8ffe0; bottom: -40px; right: -40px; animation-delay: 1.4s; }
+
+    body::before {
+      background: #bff0d0;
+      top: -30px;
+      left: -40px;
+    }
+
+    body::after {
+      background: #dfffc8;
+      bottom: -40px;
+      right: -40px;
+      animation-delay: 1.4s;
+    }
 
     .wrap {
       max-width: 1080px;
@@ -61,21 +95,22 @@
       align-items: start;
     }
 
-    /* ── Sidebar ── */
     .side-nav {
       position: sticky;
       top: 14px;
       background: #ffffff;
       border: 1px solid var(--border);
       border-radius: 14px;
-      box-shadow: 0 8px 22px rgba(14, 90, 82, 0.1);
+      box-shadow: 0 8px 22px rgba(18, 102, 55, 0.1);
       padding: 12px;
+      max-height: calc(100vh - 28px);
+      overflow-y: auto;
     }
 
     .side-title {
       margin: 0 0 8px;
       font-size: 0.9rem;
-      color: var(--teal-1);
+      color: var(--green-1);
       font-weight: 700;
     }
 
@@ -94,16 +129,142 @@
       margin-bottom: 6px;
       transition: all 0.2s ease;
     }
+
     .topic-link:hover {
-      background: #f0fffb;
-      color: var(--teal-1);
+      background: #f0fff4;
+      color: var(--green-1);
       border-color: var(--border);
     }
+
     .topic-link.active {
-      background: #d8faf5;
-      color: var(--teal-1);
-      border-color: var(--teal-2);
+      background: #e8faee;
+      color: var(--green-1);
+      border-color: var(--green-2);
       font-weight: 700;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, var(--bg-soft) 0%, var(--accent-a) 55%, var(--accent-b) 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 12px 30px rgba(24, 110, 58, 0.12);
+      margin-bottom: 22px;
+      animation: riseIn 0.75s ease both;
+    }
+
+    h1, h2, h3 {
+      margin-top: 0;
+      color: var(--green-1);
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 8px;
+      letter-spacing: 0.2px;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      background: var(--green-3);
+      color: var(--green-1);
+      border: 1px solid var(--border);
+      margin-bottom: 10px;
+    }
+
+    .card {
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 16px;
+      box-shadow: 0 7px 22px rgba(18, 102, 55, 0.08);
+      animation: riseIn 0.65s ease both;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .topic-panel {
+      display: none;
+    }
+
+    .topic-panel.active {
+      display: block;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 13px 28px rgba(18, 102, 55, 0.15);
+    }
+
+    .step-title {
+      margin: 0 0 8px;
+      color: var(--green-1);
+      font-size: 1.15rem;
+    }
+
+    .code {
+      background: var(--code-bg);
+      color: var(--code-text);
+      border-radius: 10px;
+      border: 1px solid #2f5a3d;
+      padding: 14px;
+      overflow-x: auto;
+      margin: 10px 0 12px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.94rem;
+      white-space: pre;
+    }
+
+    .note {
+      background: var(--mint);
+      border-left: 4px solid var(--green-2);
+      padding: 10px 12px;
+      color: var(--muted);
+      margin: 8px 0 10px;
+      border-radius: 6px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      font-size: 0.93rem;
+    }
+
+    th, td {
+      border-bottom: 1px solid #e6f6ea;
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #e9fbe8;
+      color: #1a5f2e;
+    }
+
+    .result-title {
+      margin: 12px 0 6px;
+      color: var(--green-1);
+      font-size: 0.96rem;
+      font-weight: 700;
+    }
+
+    .big-result {
+      font-size: 1.1rem;
+      margin: 14px 0 6px;
+      color: var(--green-1);
+      font-weight: 800;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
     }
 
     .side-divider {
@@ -117,290 +278,18 @@
       font-weight: 700;
       letter-spacing: .1em;
       text-transform: uppercase;
-      color: var(--teal-2);
+      color: var(--green-2);
       padding: 4px 4px 6px;
     }
 
-    /* ── Hero ── */
-    .hero {
-      background: linear-gradient(135deg, var(--bg-soft) 0%, var(--accent-a) 55%, var(--accent-b) 100%);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 28px;
-      box-shadow: 0 12px 30px rgba(14, 110, 100, 0.12);
-      margin-bottom: 22px;
-      animation: riseIn 0.75s ease both;
-    }
-
-    h1, h2, h3 { margin-top: 0; color: var(--teal-1); }
-    h1 { font-size: 2rem; margin-bottom: 8px; letter-spacing: 0.2px; }
-
-    .tag {
-      display: inline-block;
-      padding: 5px 10px;
-      border-radius: 999px;
-      font-size: 0.82rem;
-      background: var(--teal-3);
-      color: var(--teal-1);
-      border: 1px solid var(--border);
-      margin-bottom: 10px;
-    }
-
-    /* ── Cards ── */
-    .card {
-      background: var(--bg-soft);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 18px;
-      margin-bottom: 16px;
-      box-shadow: 0 7px 22px rgba(14, 90, 82, 0.08);
-      animation: riseIn 0.65s ease both;
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
-    }
-    .card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 13px 28px rgba(14, 90, 82, 0.15);
-    }
-
-    .topic-panel { display: none; }
-    .topic-panel.active { display: block; }
-
-    .step-title { margin: 0 0 8px; color: var(--teal-1); font-size: 1.15rem; }
-
-    /* ── Code blocks ── */
-    .code {
-      background: var(--code-bg);
-      color: var(--code-text);
-      border-radius: 10px;
-      border: 1px solid #1e5c54;
-      padding: 14px;
-      overflow-x: auto;
-      margin: 10px 0 12px;
-      font-family: Consolas, "Courier New", monospace;
-      font-size: 0.94rem;
-      white-space: pre;
-    }
-    .code .k  { color: #5eead4; font-weight: 700; }
-    .code .t  { color: #c084fc; }
-    .code .c  { color: #6b7280; font-style: italic; }
-    .code .s  { color: #6ee7b7; }
-    .code .n  { color: #fb923c; }
-    .code .co { color: #f87171; }
-    .code .ok { color: #4ade80; }
-
-    /* ── Note / callout ── */
-    .note {
-      background: var(--mint);
-      border-left: 4px solid var(--teal-2);
-      padding: 10px 12px;
-      color: var(--muted);
-      margin: 8px 0 10px;
-      border-radius: 6px;
-      font-size: 0.9rem;
-    }
-
-    /* ── Tables ── */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: #fff;
-      border-radius: 10px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-      font-size: 0.93rem;
-      margin: 10px 0;
-    }
-    th, td { border-bottom: 1px solid #ccf0eb; padding: 10px; text-align: left; vertical-align: top; }
-    th { background: #d2faf5; color: #0b4b44; }
-    tr:last-child td { border-bottom: none; }
-
-    /* ── Result heading ── */
-    .result-title { margin: 12px 0 6px; color: var(--teal-1); font-size: 0.96rem; font-weight: 700; }
-    .big-result   { font-size: 1.5rem; margin: 8px 0 10px; color: var(--teal-1); font-weight: 800; }
-
-    /* ── Exercise card — matches 02_data_const_co design ── */
-    .exercise-card {
-      border: 1px solid #f5d68b;
-      background: linear-gradient(140deg, #fffdf7 0%, #fff9eb 100%);
-      border-radius: 14px;
-      padding: 18px;
-      margin-bottom: 20px;
-    }
-    .exercise-head {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 10px;
-    }
-    .exercise-q {
-      width: 52px; height: 52px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      font-size: 1.9rem;
-      font-weight: 800;
-      color: #92400e;
-      background: radial-gradient(circle at 30% 30%, #fde68a 0%, #fbbf24 100%);
-      border: 2px solid #f59e0b;
-      box-shadow: 0 6px 14px rgba(245,158,11,.25);
-      flex-shrink: 0;
-    }
-    .exercise-head h2 { margin: 0 0 4px; color: var(--teal-1); font-size: 1.1rem; }
-    .exercise-sub  { color: #7c2d12; font-weight: 700; font-size: .95rem; margin: 0; }
-    .exercise-steps {
-      margin: 8px 0 10px;
-      padding-left: 18px;
-    }
-    .exercise-steps li { color: #374151; margin-bottom: 5px; }
-    .exercise-table-wrap {
-      margin-top: 10px;
-      border: 1px solid #f5d68b;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 6px 16px rgba(245,158,11,.12);
-    }
-    .exercise-table-title {
-      background: #fff3d1;
-      color: #92400e;
-      padding: 7px 12px;
-      font-weight: 800;
-      font-size: .8rem;
-      letter-spacing: .04em;
-      text-transform: uppercase;
-      border-bottom: 1px solid #f5d68b;
-    }
-    .exercise-table {
-      width: 100%;
-      border-collapse: collapse;
-      background: #ffffff;
-    }
-    .exercise-table th,
-    .exercise-table td { padding: 9px 10px; border-bottom: 1px solid #fef3c7; text-align: left; }
-    .exercise-table th  { background: #fffbeb; color: #78350f; font-size: .82rem; }
-    .exercise-table tr:last-child td { border-bottom: none; }
-    .exercise-note {
-      background: #fffbeb;
-      border-left: 4px solid #f59e0b;
-      padding: 10px 12px;
-      color: #92400e;
-      font-size: .87rem;
-      border-radius: 4px;
-      margin-top: 12px;
-      line-height: 1.7;
-    }
-
-    /* ── divider between Q and A ── */
-    .qa-divider {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin: 20px 0 16px;
-      font-size: .75rem;
-      font-weight: 700;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      color: var(--teal-2);
-    }
-    .qa-divider::before, .qa-divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--border);
-    }
-
-    /* ── Exercise solution card ── */
-    .solution-card {
-      background: linear-gradient(135deg, #ffffff 0%, #d9fdf7 100%);
-      border: 2px solid var(--teal-2);
-      border-radius: 16px;
-      padding: 20px;
-      margin-bottom: 16px;
-      animation: riseIn 0.7s ease both;
-    }
-    .solution-head {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      margin-bottom: 14px;
-    }
-    .solution-badge {
-      width: 42px; height: 42px;
-      border-radius: 10px;
-      background: var(--teal-2);
-      color: #fff;
-      font-weight: 900;
-      font-size: 1.1rem;
-      display: grid;
-      place-items: center;
-      flex-shrink: 0;
-    }
-
-    /* ── Bottom nav ── */
-    .nav-back {
-      display: inline-block;
-      margin-top: 10px;
-      padding: 10px 16px;
-      border-radius: 10px;
-      border: 1px solid var(--teal-2);
-      background: #d8faf5;
-      color: var(--teal-1);
-      text-decoration: none;
-      font-weight: 700;
-      transition: all 0.2s ease;
-      width: 100%;
-      text-align: center;
-    }
-    .nav-back:hover { background: #bff5ec; transform: translateY(-1px); }
-
-    .footer { text-align: center; color: var(--muted); font-size: 0.86rem; padding: 10px 0 16px; }
-
-    /* ── quick list ── */
-    ul.simple { padding-left: 20px; color: var(--muted); font-size: .9rem; }
-    ul.simple li { margin-bottom: 6px; }
-
-    /* ── badges inside content ── */
-    .badge {
-      display: inline-block;
-      padding: 2px 9px;
-      border-radius: 6px;
-      font-size: .78rem;
-      font-weight: 700;
-    }
-    .badge-null    { background: #374151; color: #9ca3af; }
-    .badge-int     { background: #1e3a5f; color: #60a5fa; }
-    .badge-real    { background: #1a3e2e; color: #34d399; }
-    .badge-text    { background: #3b2a59; color: #c084fc; }
-    .badge-blob    { background: #3d2b15; color: #fb923c; }
-
-    /* ── two-col ── */
-    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
-    .card.good { border-color: #68d391; background: #f0fff4; }
-    .card.bad  { border-color: #fc8181; background: #fff5f5; }
-    .card.good h4 { color: #276749; }
-    .card.bad  h4 { color: #9b2c2c; }
-
-    .homework {
-      background: linear-gradient(135deg, #ffffff 0%, #dcfbf4 100%);
-      border: 2px solid var(--teal-2);
-      border-radius: 16px;
-      padding: 20px;
-      margin-top: 22px;
-      animation: riseIn 0.8s ease both;
-    }
-    .homework h2 { margin-bottom: 10px; }
-    .homework ol {
-      margin-top: 8px;
-      padding-left: 20px;
-    }
-
     .hw-card {
-      background: linear-gradient(135deg, #ffffff 0%, #dcfbf4 100%);
-      border: 2px solid var(--teal-2);
+      background: linear-gradient(135deg, #ffffff 0%, #e5fcea 100%);
+      border: 2px solid var(--green-2);
       border-radius: 16px;
       padding: 20px;
       margin-bottom: 18px;
     }
-    .hw-card h3 { color: var(--teal-1); margin-bottom: 8px; }
+    .hw-card h3 { color: var(--green-1); margin-bottom: 8px; }
     .hw-card ol { margin-top: 8px; padding-left: 20px; }
     .hw-card li { margin-bottom: 6px; color: #374151; }
     .hw-badge {
@@ -411,400 +300,659 @@
       font-weight: 800;
       letter-spacing: .08em;
       text-transform: uppercase;
-      background: var(--teal-3);
-      color: var(--teal-1);
+      background: var(--green-3);
+      color: var(--green-1);
       border: 1px solid var(--border);
       margin-bottom: 10px;
     }
 
-    /* ── Animation delays for nth cards ── */
-    .card:nth-of-type(1) { animation-delay: 0.05s; }
-    .card:nth-of-type(2) { animation-delay: 0.10s; }
-    .card:nth-of-type(3) { animation-delay: 0.15s; }
-    .card:nth-of-type(4) { animation-delay: 0.20s; }
-    .card:nth-of-type(5) { animation-delay: 0.25s; }
-    .card:nth-of-type(6) { animation-delay: 0.30s; }
-    .card:nth-of-type(7) { animation-delay: 0.35s; }
+    .nav-back {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--green-2);
+      background: #e9fbe8;
+      color: var(--green-1);
+      text-decoration: none;
+      font-weight: 700;
+      transition: all 0.2s ease;
+      width: 100%;
+      text-align: center;
+    }
+
+    .nav-back:hover {
+      background: #d8f7df;
+      transform: translateY(-1px);
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.86rem;
+      padding: 10px 0 16px;
+    }
+
+    .src-note {
+      font-size: .82rem;
+      color: var(--muted);
+    }
+
+    .rtl {
+      direction: rtl;
+      text-align: right;
+    }
+    .note.rtl {
+      border-left: none;
+      border-right: 4px solid var(--green-2);
+    }
 
     @keyframes riseIn {
-      from { opacity: 0; transform: translateY(12px); }
-      to   { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
+
     @keyframes blobMove {
-      from { transform: translate(0, 0) scale(1); }
-      to   { transform: translate(24px, 18px) scale(1.06); }
+      from {
+        transform: translate(0, 0) scale(1);
+      }
+      to {
+        transform: translate(24px, 18px) scale(1.06);
+      }
     }
 
     @media (max-width: 760px) {
-      .wrap { padding: 14px; }
-      .layout { grid-template-columns: 1fr; }
-      .side-nav { position: static; }
-      h1 { font-size: 1.6rem; }
-      .code { font-size: 0.86rem; }
-      .two-col { grid-template-columns: 1fr; }
+      .wrap {
+        padding: 14px;
+      }
+
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .side-nav {
+        position: static;
+        max-height: none;
+      }
+
+      h1 {
+        font-size: 1.6rem;
+      }
+
+      .code {
+        font-size: 0.86rem;
+      }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
-
-    <!-- Hero -->
     <section class="hero">
-      <span class="tag">Lesson 2 — Apr 15, 2026</span>
-      <h1>Data Types &amp; Constraints</h1>
-      <p>This page covers everything from class — SQLite storage classes, BOOLEAN / DATE / DATETIME, and all five constraints — with exercise solutions</p>
+      <span class="tag">SQLite Homework — October 12, 2026</span>
+      <h1>SQLite Homework Walkthrough</h1>
+      <p>Twenty commands from <code>sqlitehw.pdf</code>, run for real against a live <strong>shopping</strong> table (plus two small tables along the way, <strong>books</strong> and <strong>prices</strong>). Each step shows the exact SQL, the table it produced, and what the command actually did.</p>
     </section>
 
     <div class="layout">
-
-      <!-- Sidebar -->
       <aside class="side-nav" aria-label="Topic navigation">
-        <h2 class="side-title">Exercise Solutions</h2>
-        <button class="topic-link active" data-target="t-sol-1">1) Storage Classes</button>
-        <button class="topic-link" data-target="t-sol-2">2) Bool / Date / Datetime</button>
-        <button class="topic-link" data-target="t-sol-3">3) Constraints</button>
+        <h2 class="side-title">20 Commands</h2>
+        <button class="topic-link active" data-target="topic-1">1) Create &amp; drop table</button>
+        <button class="topic-link" data-target="topic-2">2) Rename table</button>
+        <button class="topic-link" data-target="topic-3">3) Insert rows</button>
+        <button class="topic-link" data-target="topic-4">4) Display table</button>
+        <button class="topic-link" data-target="topic-5">5) Select columns</button>
+        <button class="topic-link" data-target="topic-6">6) WHERE filters</button>
+        <button class="topic-link" data-target="topic-7">7) Delete a row</button>
+        <button class="topic-link" data-target="topic-8">8) Update rows</button>
+        <button class="topic-link" data-target="topic-9">9) Add a column</button>
+        <button class="topic-link" data-target="topic-10">10) Update new column</button>
+        <button class="topic-link" data-target="topic-11">11) AND &amp; BETWEEN</button>
+        <button class="topic-link" data-target="topic-12">12) ORDER BY</button>
+        <button class="topic-link" data-target="topic-13">13) New table + delete all</button>
+        <button class="topic-link" data-target="topic-14">14) Aggregate functions</button>
+        <button class="topic-link" data-target="topic-15">15) Insert + GROUP BY</button>
+        <button class="topic-link" data-target="topic-16">16) Column alias</button>
+        <button class="topic-link" data-target="topic-17">17) GROUP BY ... HAVING</button>
+        <button class="topic-link" data-target="topic-18">18) New table + JOIN</button>
+        <button class="topic-link" data-target="topic-19">19) Computed column in a JOIN</button>
+        <button class="topic-link" data-target="topic-20">20) JOIN + subquery (MAX)</button>
         <hr class="side-divider">
         <div class="side-section-label">Homework</div>
-        <button class="topic-link" data-target="t-sol-4">Exercise</button>
-
+        <button class="topic-link" data-target="topic-21">Exercise</button>
         <a class="nav-back" href="../../index.html">← back to sql module</a>
       </aside>
 
       <main>
 
-        <!-- ══════════ SOLUTION 1 ══════════ -->
-        <section class="topic-panel active" id="t-sol-1">
+    <!-- 1 -->
+    <section class="card topic-panel active" id="topic-1">
+      <h2 class="step-title">1) Create &amp; Drop Table</h2>
+      <div class="code">CREATE TABLE shopping (id INTEGER PRIMARY KEY, name TEXT, amount INTEGER);
 
-          <!-- Question -->
-          <div class="exercise-card">
-            <div class="exercise-head">
-              <div class="exercise-q">?</div>
-              <div>
-                <h2>Exercise</h2>
-                <p class="exercise-sub">Create one table that uses all 5 storage classes</p>
-              </div>
-            </div>
-            <ol class="exercise-steps">
-              <li>Create a table named <strong>student_scores</strong> with the same columns as the sample below</li>
-              <li>Insert all 3 rows</li>
-              <li>Find all students with score &lt; 90</li>
-            </ol>
-            <div class="exercise-table-wrap">
-              <div class="exercise-table-title">Rows to insert</div>
-              <table class="exercise-table">
-                <thead>
-                  <tr><th>id (INTEGER)</th><th>score (REAL)</th><th>name (TEXT)</th><th>avatar (BLOB)</th><th>note (TEXT NOT NULL)</th></tr>
-                </thead>
-                <tbody>
-                  <tr><td>1</td><td>91.5</td><td>Dana</td><td>X'0102'</td><td>excellent</td></tr>
-                  <tr><td>2</td><td>76.0</td><td>Omar</td><td>X'0304'</td><td>needs practice</td></tr>
-                  <tr><td>3</td><td>88.0</td><td>Noa</td><td>X'0506'</td><td>good</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+DROP TABLE shopping</div>
+      <div class="big-result rtl">התוצאה אחרי <code dir="ltr">CREATE TABLE</code>:</div>
+      <table>
+        <thead><tr><th>id</th><th>name</th><th>amount</th></tr></thead>
+        <tbody><tr><td colspan="3"><em class="rtl" style="display:block">(0 שורות — הטבלה קיימת, אבל ריקה)</em></td></tr></tbody>
+      </table>
+      <p class="note rtl"><code dir="ltr">CREATE TABLE</code> מגדירה את מבנה הטבלה: שלוש עמודות, כאשר <code dir="ltr">id</code> הוא המפתח הראשי. <code dir="ltr">DROP TABLE</code> היא הפעולה ההפוכה — היא מוחקת את הטבלה ואת כל מה שבתוכה, כולל המבנה עצמו. היא מוצגת כאן בשביל התחביר בלבד, אבל היא לא באמת מורצת בסיור הזה — אנחנו משאירים את <code dir="ltr">shopping</code> בחיים לכל שלב שבא אחריה.</p>
+    </section>
 
-          <div class="qa-divider">Solution</div>
+    <!-- 2 -->
+    <section class="card topic-panel" id="topic-2">
+      <h2 class="step-title">2) Rename a Table</h2>
+      <div class="code">ALTER TABLE shopping RENAME TO shopp;
+ALTER TABLE shopp RENAME TO shopping;</div>
+      <div class="big-result rtl">תוצאה:</div>
+      <table>
+        <thead><tr><th>id</th><th>name</th><th>amount</th></tr></thead>
+        <tbody><tr><td colspan="3"><em class="rtl" style="display:block">(0 שורות — עדיין ריקה, ועדיין נקראת <code dir="ltr">shopping</code>)</em></td></tr></tbody>
+      </table>
+      <p class="note rtl"><code dir="ltr">ALTER TABLE ... RENAME TO</code> משנה את שם הטבלה בלי לגעת בנתונים שבתוכה. כאן היא משנה שם פעמיים ברצף — ל-<code dir="ltr">shopp</code> וחזרה מיד ל-<code dir="ltr">shopping</code> — כך שאחרי שתי השורות הטבלה נמצאת בדיוק באותו מקום שבו התחילה, רק כדי להראות שהתחביר עובד בשני הכיוונים.</p>
+    </section>
 
-          <div class="solution-card">
-            <div class="solution-head">
-              <div class="solution-badge">1</div>
-              <div>
-                <h2 style="margin:0">Solution — Storage Classes</h2>
-              </div>
-            </div>
+    <!-- 3 -->
+    <section class="card topic-panel" id="topic-3">
+      <h2 class="step-title">3) Insert Rows</h2>
+      <div class="code">INSERT INTO shopping VALUES (1, 'Avokado', 5);
+INSERT INTO shopping VALUES (2, 'Milk', 2);
+INSERT INTO shopping VALUES (3, 'Bread', 3);
+INSERT INTO shopping VALUES (4, 'Chocolate', 8);
+INSERT INTO shopping VALUES (5, 'Bamba', 5);
+INSERT INTO shopping VALUES (6, 'Orange', 10);</div>
+      <div class="big-result rtl">תוצאה:</div>
+      <table>
+        <thead><tr><th>id</th><th>name</th><th>amount</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Avokado</td><td>5</td></tr>
+          <tr><td>2</td><td>Milk</td><td>2</td></tr>
+          <tr><td>3</td><td>Bread</td><td>3</td></tr>
+          <tr><td>4</td><td>Chocolate</td><td>8</td></tr>
+          <tr><td>5</td><td>Bamba</td><td>5</td></tr>
+          <tr><td>6</td><td>Orange</td><td>10</td></tr>
+        </tbody>
+      </table>
+      <p class="note rtl">שש פקודות <code dir="ltr">INSERT INTO ... VALUES</code> נפרדות, שורה אחת בכל פקודה. כל ערך מסודר לפי סדר העמודות מתוך <code dir="ltr">CREATE TABLE</code>: <code dir="ltr">id</code>, <code dir="ltr">name</code>, <code dir="ltr">amount</code>.</p>
+    </section>
 
-            <h3>Step 1 — Create table with all 5 storage classes</h3>
-            <div class="code"><span class="k">CREATE TABLE</span> student_scores (
-  id     <span class="t">INTEGER</span>,
-  score  <span class="t">REAL</span>,
-  name   <span class="t">TEXT</span>,
-  avatar <span class="t">BLOB</span>,
-  note   <span class="t">TEXT</span> <span class="k">NOT NULL</span>
-);</div>
+    <!-- 4 -->
+    <section class="card topic-panel" id="topic-4">
+      <h2 class="step-title">4) Display the Table</h2>
+      <div class="code">SELECT * FROM shopping;</div>
+      <div class="big-result rtl">תוצאה:</div>
+      <table>
+        <thead><tr><th>id</th><th>name</th><th>amount</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Avokado</td><td>5</td></tr>
+          <tr><td>2</td><td>Milk</td><td>2</td></tr>
+          <tr><td>3</td><td>Bread</td><td>3</td></tr>
+          <tr><td>4</td><td>Chocolate</td><td>8</td></tr>
+          <tr><td>5</td><td>Bamba</td><td>5</td></tr>
+          <tr><td>6</td><td>Orange</td><td>10</td></tr>
+        </tbody>
+      </table>
+      <p class="note rtl"><code dir="ltr">*</code> פירושו "כל העמודות". זו הדרך הפשוטה ביותר לראות את כל מה שנמצא כרגע בטבלת <code dir="ltr">shopping</code>.</p>
+    </section>
 
-            <h3>Step 2 — Insert all 3 rows</h3>
-            <div class="code"><span class="k">INSERT INTO</span> student_scores (id, score, name, avatar, note)
-<span class="k">VALUES</span>
-  (<span class="n">1</span>, <span class="n">91.5</span>, <span class="s">'Dana'</span>, X<span class="s">'0102'</span>, <span class="s">'excellent'</span>),
-  (<span class="n">2</span>, <span class="n">76.0</span>, <span class="s">'Omar'</span>, X<span class="s">'0304'</span>, <span class="s">'needs practice'</span>),
-  (<span class="n">3</span>, <span class="n">88.0</span>, <span class="s">'Noa'</span>,  X<span class="s">'0506'</span>, <span class="s">'good'</span>);</div>
+    <!-- 5 -->
+    <section class="card topic-panel" id="topic-5">
+      <h2 class="step-title">5) SELECT Specific Columns</h2>
+      <div class="code">SELECT id, name FROM shopping;</div>
+      <div class="big-result rtl">תוצאה:</div>
+      <table>
+        <thead><tr><th>id</th><th>name</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Avokado</td></tr>
+          <tr><td>2</td><td>Milk</td></tr>
+          <tr><td>3</td><td>Bread</td></tr>
+          <tr><td>4</td><td>Chocolate</td></tr>
+          <tr><td>5</td><td>Bamba</td></tr>
+          <tr><td>6</td><td>Orange</td></tr>
+        </tbody>
+      </table>
+      <p class="note rtl">כשקוראים לעמודות בשמן במקום להשתמש ב-<code dir="ltr">*</code>, מקבלים בחזרה רק את מה שביקשתם — כאן רק <code dir="ltr">id</code> ו-<code dir="ltr">name</code>, כאשר <code dir="ltr">amount</code> נשאר בחוץ לגמרי.</p>
+    </section>
 
-            <h3>Step 3 — Find all students with score &lt; 90</h3>
-            <div class="code"><span class="k">SELECT</span> id, score, name, note
-<span class="k">FROM</span>   student_scores
-<span class="k">WHERE</span>  score &lt; <span class="n">90</span>;</div>
+    <!-- 6 -->
+    <section class="card topic-panel" id="topic-6">
+      <h2 class="step-title">6) Filtering with WHERE</h2>
 
-            <div class="big-result">Result:</div>
-            <table>
-              <thead><tr><th>id</th><th>score</th><th>name</th><th>note</th></tr></thead>
-              <tbody>
-                <tr><td>2</td><td>76.0</td><td>Omar</td><td>needs practice</td></tr>
-                <tr><td>3</td><td>88.0</td><td>Noa</td><td>good</td></tr>
-              </tbody>
-            </table>
-            <p class="note">Dana (91.5) is excluded because 91.5 is not less than 90</p>
-          </div>
-        </section>
+      <div class="result-title">SELECT * FROM shopping WHERE amount &gt; 5;</div>
+      <div class="code">SELECT * FROM shopping WHERE amount > 5;</div>
+      <table>
+        <thead><tr><th>id</th><th>name</th><th>amount</th></tr></thead>
+        <tbody>
+          <tr><td>4</td><td>Chocolate</td><td>8</td></tr>
+          <tr><td>6</td><td>Orange</td><td>10</td></tr>
+        </tbody>
+      </table>
 
-        <!-- ══════════ SOLUTION 2 ══════════ -->
-        <section class="topic-panel" id="t-sol-2">
+      <div class="result-title">SELECT * FROM shopping WHERE amount = 2;</div>
+      <div class="code">SELECT * FROM shopping WHERE amount = 2;</div>
+      <table>
+        <thead><tr><th>id</th><th>name</th><th>amount</th></tr></thead>
+        <tbody><tr><td>2</td><td>Milk</td><td>2</td></tr></tbody>
+      </table>
 
-          <!-- Question -->
-          <div class="exercise-card">
-            <div class="exercise-head">
-              <div class="exercise-q">?</div>
-              <div>
-                <h2>Exercise</h2>
-                <p class="exercise-sub">Build a table with BOOLEAN, DATE, and DATETIME</p>
-              </div>
-            </div>
-            <ol class="exercise-steps">
-              <li>Create a table named <strong>app_users</strong> with id, name, married, birth_date, and last_login</li>
-              <li>Insert the 3 rows from the sample</li>
-              <li>Find all married users that last login after 2026-04-01</li>
-            </ol>
-            <div class="exercise-table-wrap">
-              <div class="exercise-table-title">Rows to insert</div>
-              <table class="exercise-table">
-                <thead>
-                  <tr><th>id</th><th>name</th><th>married</th><th>birth_date</th><th>last_login</th></tr>
-                </thead>
-                <tbody>
-                  <tr><td>1</td><td>Dana</td><td>TRUE</td><td>2004-06-15</td><td>2026-04-10 09:10:00</td></tr>
-                  <tr><td>2</td><td>Omar</td><td>FALSE</td><td>2003-11-02</td><td>2026-03-20 18:40:00</td></tr>
-                  <tr><td>3</td><td>Noa</td><td>TRUE</td><td>2005-01-30</td><td>2026-04-12 07:55:00</td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+      <div class="result-title">SELECT * FROM shopping WHERE name LIKE 'Bamba';</div>
+      <div class="code">SELECT * FROM shopping WHERE name LIKE 'Bamba';</div>
+      <table>
+        <thead><tr><th>id</th><th>name</th><th>amount</th></tr></thead>
+        <tbody><tr><td>5</td><td>Bamba</td><td>5</td></tr></tbody>
+      </table>
 
-          <div class="qa-divider">Solution</div>
+      <p class="note rtl"><code dir="ltr">WHERE</code> מסנן שורות לפני שהן חוזרות אליכם. <code dir="ltr">&gt;</code> ו-<code dir="ltr">=</code> משווים מספרים ישירות; <code dir="ltr">LIKE</code> משווה טקסט, וכאן בלי תו הכללה <code dir="ltr">%</code> הוא מתנהג כמו התאמה מדויקת ל-<code dir="ltr">'Bamba'</code>.</p>
+    </section>
 
-          <div class="solution-card">
-            <div class="solution-head">
-              <div class="solution-badge">2</div>
-              <div>
-                <h2 style="margin:0">Solution — BOOLEAN, DATE, DATETIME</h2>
-              </div>
-            </div>
+    <!-- 7 -->
+    <section class="card topic-panel" id="topic-7">
+      <h2 class="step-title">7) DELETE a Row</h2>
+      <div class="code">DELETE FROM shopping WHERE name LIKE 'Orange';</div>
+      <div class="big-result rtl">תוצאה:</div>
+      <table>
+        <thead><tr><th>id</th><th>name</th><th>amount</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Avokado</td><td>5</td></tr>
+          <tr><td>2</td><td>Milk</td><td>2</td></tr>
+          <tr><td>3</td><td>Bread</td><td>3</td></tr>
+          <tr><td>4</td><td>Chocolate</td><td>8</td></tr>
+          <tr><td>5</td><td>Bamba</td><td>5</td></tr>
+        </tbody>
+      </table>
+      <p class="note rtl"><code dir="ltr">Orange</code> (<code dir="ltr">id</code> 6) התאים לתנאי ה-<code dir="ltr">WHERE</code> ונעלם — נשארו חמש שורות. <code dir="ltr">DELETE FROM ... WHERE</code> מוחק שורות, לא את הטבלה עצמה.</p>
+    </section>
 
-            <h3>Step 1 — Create the table</h3>
-            <div class="code"><span class="k">CREATE TABLE</span> app_users (
-  id         <span class="t">INTEGER</span>  <span class="k">PRIMARY KEY</span>,
-  name       <span class="t">TEXT</span>     <span class="k">NOT NULL</span>,
-  married    <span class="t">BOOLEAN</span>  <span class="k">NOT NULL DEFAULT</span> <span class="n">0</span>,
-  birth_date <span class="t">DATE</span>     <span class="k">NOT NULL</span>,
-  last_login <span class="t">DATETIME</span> <span class="k">NOT NULL</span>
-);</div>
+    <!-- 8 -->
+    <section class="card topic-panel" id="topic-8">
+      <h2 class="step-title">8) UPDATE Rows</h2>
+      <div class="code">UPDATE shopping SET name = 'Bisli' WHERE name LIKE 'Bamba';
+UPDATE shopping SET amount=1 WHERE name LIKE 'Milk';</div>
+      <div class="big-result rtl">תוצאה:</div>
+      <table>
+        <thead><tr><th>id</th><th>name</th><th>amount</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Avokado</td><td>5</td></tr>
+          <tr><td>2</td><td>Milk</td><td>1</td></tr>
+          <tr><td>3</td><td>Bread</td><td>3</td></tr>
+          <tr><td>4</td><td>Chocolate</td><td>8</td></tr>
+          <tr><td>5</td><td>Bisli</td><td>5</td></tr>
+        </tbody>
+      </table>
+      <p class="note rtl">שני עדכונים בלתי תלויים: <code dir="ltr">Bamba</code> (<code dir="ltr">id</code> 5) משנה שם ל-<code dir="ltr">Bisli</code>, והכמות של <code dir="ltr">Milk</code> (<code dir="ltr">id</code> 2) יורדת מ-2 ל-1. ל-<code dir="ltr">UPDATE</code> תמיד צריך <code dir="ltr">WHERE</code> — בלעדיו כל השורות משתנות.</p>
+    </section>
 
-            <h3>Step 2 — Insert all 3 rows</h3>
-            <div class="code"><span class="k">INSERT INTO</span> app_users (id, name, married, birth_date, last_login)
-<span class="k">VALUES</span>
-  (<span class="n">1</span>, <span class="s">'Dana'</span>, <span class="k">TRUE</span>,  <span class="s">'2004-06-15'</span>, <span class="s">'2026-04-10 09:10:00'</span>),
-  (<span class="n">2</span>, <span class="s">'Omar'</span>, <span class="k">FALSE</span>, <span class="s">'2003-11-02'</span>, <span class="s">'2026-03-20 18:40:00'</span>),
-  (<span class="n">3</span>, <span class="s">'Noa'</span>,  <span class="k">TRUE</span>,  <span class="s">'2005-01-30'</span>, <span class="s">'2026-04-12 07:55:00'</span>);</div>
+    <!-- 9 -->
+    <section class="card topic-panel" id="topic-9">
+      <h2 class="step-title">9) ALTER TABLE — Add a Column</h2>
+      <div class="code">ALTER TABLE shopping ADD COLUMN maavar;</div>
+      <div class="big-result rtl">תוצאה:</div>
+      <table>
+        <thead><tr><th>id</th><th>name</th><th>amount</th><th>maavar</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Avokado</td><td>5</td><td><em>NULL</em></td></tr>
+          <tr><td>2</td><td>Milk</td><td>1</td><td><em>NULL</em></td></tr>
+          <tr><td>3</td><td>Bread</td><td>3</td><td><em>NULL</em></td></tr>
+          <tr><td>4</td><td>Chocolate</td><td>8</td><td><em>NULL</em></td></tr>
+          <tr><td>5</td><td>Bisli</td><td>5</td><td><em>NULL</em></td></tr>
+        </tbody>
+      </table>
+      <p class="note rtl">עמודה חדשה, <code dir="ltr">maavar</code>, מתווספת בבת אחת לכל השורות הקיימות. מכיוון שלא ניתן ערך ברירת מחדל, כל שורה מתחילה כ-<code dir="ltr">NULL</code> — "אין עדיין ערך", לא 0 ולא מחרוזת ריקה.</p>
+    </section>
 
-            <h3>Step 3 — Find married users who last logged in after 2026-04-01</h3>
-            <div class="code"><span class="k">SELECT</span> *
-<span class="k">FROM</span>   app_users
-<span class="k">WHERE</span>  married = <span class="k">TRUE</span>
-  <span class="k">AND</span>  last_login &gt; <span class="s">'2026-04-01'</span>;</div>
+    <!-- 10 -->
+    <section class="card topic-panel" id="topic-10">
+      <h2 class="step-title">10) Update the New Column</h2>
+      <div class="code">UPDATE shopping SET maavar=6 WHERE id=1;
+UPDATE shopping SET maavar=3 WHERE id=2;
+UPDATE shopping SET maavar=12 WHERE id=3;
+UPDATE shopping SET maavar=8 WHERE id=4;
+UPDATE shopping SET maavar=5 WHERE id=5;</div>
+      <div class="big-result rtl">תוצאה:</div>
+      <table>
+        <thead><tr><th>id</th><th>name</th><th>amount</th><th>maavar</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Avokado</td><td>5</td><td>6</td></tr>
+          <tr><td>2</td><td>Milk</td><td>1</td><td>3</td></tr>
+          <tr><td>3</td><td>Bread</td><td>3</td><td>12</td></tr>
+          <tr><td>4</td><td>Chocolate</td><td>8</td><td>8</td></tr>
+          <tr><td>5</td><td>Bisli</td><td>5</td><td>5</td></tr>
+        </tbody>
+      </table>
+      <p class="note rtl">חמישה עדכונים, כל אחד פונה לשורה אחת לפי ה-<code dir="ltr">id</code> שלה, וממלאים את הערך ב-<code dir="ltr">maavar</code> שבשלב 9 נשאר <code dir="ltr">NULL</code>.</p>
+    </section>
 
-            <div class="big-result">Result:</div>
-            <table>
-              <thead><tr><th>id</th><th>name</th><th>married</th><th>birth_date</th><th>last_login</th></tr></thead>
-              <tbody>
-                <tr><td>1</td><td>Dana</td><td>1</td><td>2004-06-15</td><td>2026-04-10 09:10:00</td></tr>
-                <tr><td>3</td><td>Noa</td><td>1</td><td>2005-01-30</td><td>2026-04-12 07:55:00</td></tr>
-              </tbody>
-            </table>
-            <p class="note">Omar is excluded: married = FALSE (0). Omar's last_login (2026-03-20) is also before 2026-04-01</p>
-          </div>
-        </section>
+    <!-- 11 -->
+    <section class="card topic-panel" id="topic-11">
+      <h2 class="step-title">11) AND &amp; BETWEEN</h2>
 
-        <!-- ══════════ SOLUTION 3 ══════════ -->
-        <section class="topic-panel" id="t-sol-3">
+      <div class="result-title">SELECT * FROM shopping WHERE amount &gt; 1 AND maavar &gt; 5;</div>
+      <div class="code">SELECT * FROM shopping WHERE amount > 1 AND maavar > 5;</div>
+      <table>
+        <thead><tr><th>id</th><th>name</th><th>amount</th><th>maavar</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Avokado</td><td>5</td><td>6</td></tr>
+          <tr><td>3</td><td>Bread</td><td>3</td><td>12</td></tr>
+          <tr><td>4</td><td>Chocolate</td><td>8</td><td>8</td></tr>
+        </tbody>
+      </table>
 
-          <!-- Question -->
-          <div class="exercise-card">
-            <div class="exercise-head">
-              <div class="exercise-q">?</div>
-              <div>
-                <h2>Exercise</h2>
-                <p class="exercise-sub">Create a table with multiple constraints</p>
-              </div>
-            </div>
-            <ol class="exercise-steps">
-              <li>Create a table named <strong>exam_results</strong> using the column rules shown under the sample table</li>
-              <li>Insert the 3 rows below</li>
-              <li>Find names of approved students</li>
-              <li>Find users where student_name and email start with d</li>
-            </ol>
-            <div class="exercise-table-wrap">
-              <div class="exercise-table-title">Rows to insert</div>
-              <table class="exercise-table">
-                <thead>
-                  <tr><th>id</th><th>email</th><th>student_name</th><th>grade</th><th>status</th></tr>
-                </thead>
-                <tbody>
-                  <tr><td>1</td><td>dana@mail.com</td><td>Dana</td><td>92</td><td>approved</td></tr>
-                  <tr><td>2</td><td>omar@mail.com</td><td>Omar</td><td>76</td><td>pending</td></tr>
-                  <tr><td>3</td><td>noa@mail.com</td><td>Noa</td><td>85</td><td>approved</td></tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="exercise-note">
-              id: main ID for each row (must be unique and not empty)<br>
-              email: cannot be empty and cannot duplicate another email<br>
-              student_name: cannot be empty<br>
-              grade: should be between 0 and 100<br>
-              status: if no value is given, use pending
-            </div>
-          </div>
+      <div class="result-title">SELECT * FROM shopping WHERE maavar BETWEEN 3 AND 5;</div>
+      <div class="code">SELECT * FROM shopping WHERE maavar BETWEEN 3 AND 5;</div>
+      <table>
+        <thead><tr><th>id</th><th>name</th><th>amount</th><th>maavar</th></tr></thead>
+        <tbody>
+          <tr><td>2</td><td>Milk</td><td>1</td><td>3</td></tr>
+          <tr><td>5</td><td>Bisli</td><td>5</td><td>5</td></tr>
+        </tbody>
+      </table>
 
-          <div class="qa-divider">Solution</div>
+      <p class="note rtl"><code dir="ltr">AND</code> משאיר רק שורות שעומדות בשני התנאים. <code dir="ltr">BETWEEN 3 AND 5</code> הוא קיצור לכתיבת <code dir="ltr">maavar &gt;= 3 AND maavar &lt;= 5</code> — שני הקצוות נכללים.</p>
+    </section>
 
-          <div class="solution-card">
-            <div class="solution-head">
-              <div class="solution-badge">3</div>
-              <div>
-                <h2 style="margin:0">Solution — Constraints</h2>
-              </div>
-            </div>
+    <!-- 12 -->
+    <section class="card topic-panel" id="topic-12">
+      <h2 class="step-title">12) ORDER BY</h2>
 
-            <h3>Step 1 — Create table with all required constraints</h3>
-            <div class="code"><span class="k">CREATE TABLE</span> exam_results (
-  id           <span class="t">INTEGER</span> <span class="k">PRIMARY KEY NOT NULL</span>,
-  email        <span class="t">TEXT</span>    <span class="k">NOT NULL UNIQUE</span>,
-  student_name <span class="t">TEXT</span>    <span class="k">NOT NULL</span>,
-  grade        <span class="t">INTEGER</span> <span class="k">CHECK</span> (grade &gt;= <span class="n">0</span> <span class="k">AND</span> grade &lt;= <span class="n">100</span>),
-  status       <span class="t">TEXT</span>    <span class="k">DEFAULT</span> <span class="s">'pending'</span>
-);</div>
+      <div class="result-title">SELECT * FROM shopping ORDER BY maavar;</div>
+      <div class="code">SELECT * FROM shopping ORDER BY maavar;</div>
+      <table>
+        <thead><tr><th>id</th><th>name</th><th>amount</th><th>maavar</th></tr></thead>
+        <tbody>
+          <tr><td>2</td><td>Milk</td><td>1</td><td>3</td></tr>
+          <tr><td>5</td><td>Bisli</td><td>5</td><td>5</td></tr>
+          <tr><td>1</td><td>Avokado</td><td>5</td><td>6</td></tr>
+          <tr><td>4</td><td>Chocolate</td><td>8</td><td>8</td></tr>
+          <tr><td>3</td><td>Bread</td><td>3</td><td>12</td></tr>
+        </tbody>
+      </table>
 
-            <h3>Step 2 — Insert all 3 rows</h3>
-            <div class="code"><span class="k">INSERT INTO</span> exam_results (id, email, student_name, grade, status)
-<span class="k">VALUES</span>
-  (<span class="n">1</span>, <span class="s">'dana@mail.com'</span>, <span class="s">'Dana'</span>, <span class="n">92</span>, <span class="s">'approved'</span>),
-  (<span class="n">2</span>, <span class="s">'omar@mail.com'</span>, <span class="s">'Omar'</span>, <span class="n">76</span>, <span class="s">'pending'</span>),
-  (<span class="n">3</span>, <span class="s">'noa@mail.com'</span>,  <span class="s">'Noa'</span>,  <span class="n">85</span>, <span class="s">'approved'</span>);</div>
+      <div class="result-title">SELECT * FROM shopping ORDER BY maavar DESC;</div>
+      <div class="code">SELECT * FROM shopping ORDER BY maavar DESC;</div>
+      <table>
+        <thead><tr><th>id</th><th>name</th><th>amount</th><th>maavar</th></tr></thead>
+        <tbody>
+          <tr><td>3</td><td>Bread</td><td>3</td><td>12</td></tr>
+          <tr><td>4</td><td>Chocolate</td><td>8</td><td>8</td></tr>
+          <tr><td>1</td><td>Avokado</td><td>5</td><td>6</td></tr>
+          <tr><td>5</td><td>Bisli</td><td>5</td><td>5</td></tr>
+          <tr><td>2</td><td>Milk</td><td>1</td><td>3</td></tr>
+        </tbody>
+      </table>
 
-            <h3>Step 3a — Find names of approved students</h3>
-            <div class="code"><span class="k">SELECT</span> student_name
-<span class="k">FROM</span>   exam_results
-<span class="k">WHERE</span>  status = <span class="s">'approved'</span>;</div>
+      <p class="note rtl"><code dir="ltr">ORDER BY</code> רגיל ממיין מהקטן לגדול (סדר עולה). <code dir="ltr">DESC</code> הופך את זה לסדר יורד, מהגדול לקטן. השורות זהות בשתי התוצאות — רק הסדר משתנה.</p>
+    </section>
 
-            <div class="big-result">Result:</div>
-            <table>
-              <thead><tr><th>student_name</th></tr></thead>
-              <tbody>
-                <tr><td>Dana</td></tr>
-                <tr><td>Noa</td></tr>
-              </tbody>
-            </table>
+    <!-- 13 -->
+    <section class="card topic-panel" id="topic-13">
+      <h2 class="step-title">13) A Second Table — Insert &amp; Delete All</h2>
+      <div class="code">CREATE TABLE books (id INTEGER PRIMARY KEY, name TEXT);
+INSERT INTO books VALUES (1, 'SQL PROGRAMMING');
+INSERT INTO books VALUES (2, 'CSHARP PROGRAMMING');</div>
+      <div class="result-title rtl"><code dir="ltr">books</code>, מיד אחרי ההכנסות:</div>
+      <table>
+        <thead><tr><th>id</th><th>name</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>SQL PROGRAMMING</td></tr>
+          <tr><td>2</td><td>CSHARP PROGRAMMING</td></tr>
+        </tbody>
+      </table>
 
-            <h3 style="margin-top:16px">Step 3b — Find users where student_name AND email both start with 'd'</h3>
-            <div class="code"><span class="k">SELECT</span> *
-<span class="k">FROM</span>   exam_results
-<span class="k">WHERE</span>  student_name <span class="k">LIKE</span> <span class="s">'d%'</span>
-  <span class="k">AND</span>  email <span class="k">LIKE</span> <span class="s">'d%'</span>;</div>
+      <div class="code">DELETE FROM books;</div>
+      <div class="result-title rtl"><code dir="ltr">books</code>, אחרי <code dir="ltr">DELETE FROM books</code> (בלי <code dir="ltr">WHERE</code>):</div>
+      <table>
+        <thead><tr><th>id</th><th>name</th></tr></thead>
+        <tbody><tr><td colspan="2"><em class="rtl" style="display:block">(0 שורות — הטבלה עדיין קיימת, לגמרי ריקה)</em></td></tr></tbody>
+      </table>
 
-            <div class="big-result">Result:</div>
-            <table>
-              <thead><tr><th>id</th><th>email</th><th>student_name</th><th>grade</th><th>status</th></tr></thead>
-              <tbody>
-                <tr><td>1</td><td>dana@mail.com</td><td>Dana</td><td>92</td><td>approved</td></tr>
-              </tbody>
-            </table>
-            <p class="note">LIKE is case-insensitive in SQLite by default for ASCII letters, so 'd%' matches 'Dana' and 'dana@mail.com'</p>
-          </div>
-        </section>
+      <p class="note rtl">טבלה חדשה לגמרי, שתי שורות, ואז <code dir="ltr">DELETE FROM books</code> בלי שום <code dir="ltr">WHERE</code> — זה מנקה כל שורה. הטבלה והעמודות שלה עדיין שם; רק הנתונים נעלמו. זה ההבדל המרכזי מ-<code dir="ltr">DROP TABLE</code> בשלב 1, שמסיר גם את המבנה.</p>
+    </section>
 
-        <a id="homework"></a>
-        <section class="homework topic-panel" id="t-sol-4">
-          <div class="hw-card">
-          <span class="hw-badge">Homework</span>
-          <h3>Homework Exercise</h3>
-          <ol>
-            <li>Create a new table called <strong>workshop_roster</strong> with these field rules:<br>
-              <strong>roster_id</strong> must be unique and cannot be empty (main id)<br>
-              <strong>contact_email</strong> must contain value and cannot repeat<br>
-              <strong>display_name</strong> must contain value<br>
-              <strong>wants_certificate</strong> is BOOLEAN and if missing use FALSE by default<br>
-              <strong>start_date</strong> is DATE and must contain value<br>
-              <strong>last_activity</strong> is DATETIME and must contain value<br>
-              <strong>completion_score</strong> is REAL and must stay between 0 and 100<br>
-              <strong>group_label</strong> is TEXT and if missing use starter by default
-            </li>
-            <li>Insert exactly <strong>5</strong> rows from the sample table below</li>
-            <li>Write these SELECT queries using only lesson 2 material:<br>
-              1) show all rows and all columns<br>
-              2) show only display_name, contact_email, completion_score<br>
-              3) show rows where wants_certificate = FALSE and last_activity &lt; '2026-04-10'<br>
-              4) show rows where display_name and contact_email both start with m (use LIKE)<br>
-              5) show rows where completion_score &lt; 85
-            </li>
-            <li>Try one insert with duplicate contact_email and explain which constraint blocks it</li>
-            <li>Try one insert with completion_score = 120 and explain which constraint blocks it</li>
-          </ol>
+    <!-- 14 -->
+    <section class="card topic-panel" id="topic-14">
+      <h2 class="step-title">14) Aggregate Functions</h2>
+      <div class="code">SELECT COUNT(*) FROM shopping;
+SELECT MAX(amount) FROM shopping;
+SELECT AVG(amount) FROM shopping;
+SELECT MIN(amount) FROM shopping;</div>
+      <div class="big-result rtl">תוצאה (בשלב הזה ל-<code dir="ltr">shopping</code> יש 5 שורות, עם הכמויות 5, 1, 3, 8, 5):</div>
+      <table>
+        <thead><tr><th>COUNT(*)</th><th>MAX(amount)</th><th>AVG(amount)</th><th>MIN(amount)</th></tr></thead>
+        <tbody><tr><td>5</td><td>8</td><td>4.4</td><td>1</td></tr></tbody>
+      </table>
+      <p class="note rtl">ארבע פונקציות צבירה, וכל אחת מכווצת את כל העמודה למספר אחד: כמה שורות יש, מה הכמות הגדולה ביותר, מה הממוצע, ומה הכי קטן. <code dir="ltr">(5+1+3+8+5)/5 = 4.4</code>.</p>
+    </section>
 
-          <div class="big-result">Rows to insert:</div>
-          <table>
-            <thead>
-              <tr>
-                <th>roster_id</th><th>contact_email</th><th>display_name</th><th>wants_certificate</th><th>start_date</th><th>last_activity</th><th>completion_score</th><th>group_label</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr><td>1</td><td>mika@campus.com</td><td>Mika</td><td>1</td><td>2026-04-01</td><td>2026-04-14 08:15:00</td><td>94.5</td><td>advanced</td></tr>
-              <tr><td>2</td><td>matan@campus.com</td><td>Matan</td><td>1</td><td>2026-04-05</td><td>2026-04-12 18:20:00</td><td>82.0</td><td>advanced</td></tr>
-              <tr><td>3</td><td>nora@campus.com</td><td>Nora</td><td>0</td><td>2026-04-07</td><td>2026-04-09 10:00:00</td><td>74.0</td><td>starter</td></tr>
-              <tr><td>4</td><td>liam@campus.com</td><td>Liam</td><td>1</td><td>2026-04-10</td><td>2026-04-15 07:45:00</td><td>88.0</td><td>regular</td></tr>
-              <tr><td>5</td><td>dana@campus.com</td><td>Dana</td><td>0</td><td>2026-04-11</td><td>2026-04-11 21:05:00</td><td>69.5</td><td>starter</td></tr>
-            </tbody>
-          </table>
-          <p><strong>Submit:</strong> your SQL script as text file .sql</p>
-          <p><strong>Submission email:</strong> pythonai211225+sql2@gmail.com</p>
-          </div>
-        </section>
+    <!-- 15 -->
+    <section class="card topic-panel" id="topic-15">
+      <h2 class="step-title">15) More Inserts &amp; GROUP BY</h2>
+      <div class="code">INSERT INTO shopping VALUES (6, 'Onions', 3, 6);
+INSERT INTO shopping VALUES (7, 'Orio', 1, 8);</div>
+      <div class="result-title rtl"><code dir="ltr">shopping</code>, אחרי שתי ההכנסות:</div>
+      <table>
+        <thead><tr><th>id</th><th>name</th><th>amount</th><th>maavar</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Avokado</td><td>5</td><td>6</td></tr>
+          <tr><td>2</td><td>Milk</td><td>1</td><td>3</td></tr>
+          <tr><td>3</td><td>Bread</td><td>3</td><td>12</td></tr>
+          <tr><td>4</td><td>Chocolate</td><td>8</td><td>8</td></tr>
+          <tr><td>5</td><td>Bisli</td><td>5</td><td>5</td></tr>
+          <tr><td>6</td><td>Onions</td><td>3</td><td>6</td></tr>
+          <tr><td>7</td><td>Orio</td><td>1</td><td>8</td></tr>
+        </tbody>
+      </table>
+
+      <div class="code">SELECT maavar, COUNT(*) FROM shopping GROUP BY maavar;</div>
+      <div class="result-title rtl">מקובץ לפי <code dir="ltr">maavar</code>:</div>
+      <table>
+        <thead><tr><th>maavar</th><th>COUNT(*)</th></tr></thead>
+        <tbody>
+          <tr><td>3</td><td>1</td></tr>
+          <tr><td>5</td><td>1</td></tr>
+          <tr><td>6</td><td>2</td></tr>
+          <tr><td>8</td><td>2</td></tr>
+          <tr><td>12</td><td>1</td></tr>
+        </tbody>
+      </table>
+      <p class="note rtl"><code dir="ltr">id</code> 6 היה פנוי שוב כי <code dir="ltr">Orange</code> (ה-<code dir="ltr">id</code> 6 המקורי) נמחק קודם בשלב 7, אז <code dir="ltr">Onions</code> יכול להשתמש בו מחדש. <code dir="ltr">GROUP BY maavar</code> מקבץ שורות שחולקות אותו ערך <code dir="ltr">maavar</code> וסופר כמה יש בכל קבוצה — ל-<code dir="ltr">maavar = 6</code> ול-<code dir="ltr">maavar = 8</code> יש עכשיו שתי שורות כל אחת.</p>
+    </section>
+
+    <!-- 16 -->
+    <section class="card topic-panel" id="topic-16">
+      <h2 class="step-title">16) Column Alias (AS)</h2>
+      <div class="code">SELECT id AS "SECRET", name, amount, maavar FROM shopping;</div>
+      <div class="big-result rtl">תוצאה:</div>
+      <table>
+        <thead><tr><th>SECRET</th><th>name</th><th>amount</th><th>maavar</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Avokado</td><td>5</td><td>6</td></tr>
+          <tr><td>2</td><td>Milk</td><td>1</td><td>3</td></tr>
+          <tr><td>3</td><td>Bread</td><td>3</td><td>12</td></tr>
+          <tr><td>4</td><td>Chocolate</td><td>8</td><td>8</td></tr>
+          <tr><td>5</td><td>Bisli</td><td>5</td><td>5</td></tr>
+          <tr><td>6</td><td>Onions</td><td>3</td><td>6</td></tr>
+          <tr><td>7</td><td>Orio</td><td>1</td><td>8</td></tr>
+        </tbody>
+      </table>
+      <p class="note rtl"><code dir="ltr">AS</code> משנה את השם של עמודה רק עבור התוצאה הזאת — הנתונים עדיין שייכים לעמודת <code dir="ltr">id</code> מתחת, אבל הכותרת שמודפסת על המסך אומרת <code dir="ltr">SECRET</code> במקום זאת. שום דבר לא משתנה בטבלה עצמה.</p>
+    </section>
+
+    <!-- 17 -->
+    <section class="card topic-panel" id="topic-17">
+      <h2 class="step-title">17) GROUP BY ... HAVING</h2>
+      <div class="code">SELECT maavar, COUNT(*) FROM shopping GROUP BY maavar HAVING COUNT(*)>1;</div>
+      <div class="big-result rtl">תוצאה:</div>
+      <table>
+        <thead><tr><th>maavar</th><th>COUNT(*)</th></tr></thead>
+        <tbody>
+          <tr><td>6</td><td>2</td></tr>
+          <tr><td>8</td><td>2</td></tr>
+        </tbody>
+      </table>
+      <p class="note rtl">אותו קיבוץ כמו בשלב 15, אבל <code dir="ltr">HAVING</code> מסנן את הקבוצות אחרי שהן כבר נבנו — רק קבוצות עם יותר משורה אחת שורדות. <code dir="ltr">WHERE</code> לא יכול לעשות את זה כי הוא מסנן שורות בודדות עוד לפני שהקיבוץ בכלל קורה.</p>
+    </section>
+
+    <!-- 18 -->
+    <section class="card topic-panel" id="topic-18">
+      <h2 class="step-title">18) A Third Table &amp; JOIN</h2>
+      <div class="code">CREATE TABLE prices (id INTEGER PRIMARY KEY, price INTEGER);
+INSERT INTO prices VALUES (1, 3);
+INSERT INTO prices VALUES (2, 7);
+INSERT INTO prices VALUES (3, 12);
+INSERT INTO prices VALUES (4, 5);
+INSERT INTO prices VALUES (5, 3);
+INSERT INTO prices VALUES (6, 2);
+INSERT INTO prices VALUES (7, 10);</div>
+      <div class="result-title rtl"><code dir="ltr">prices</code>:</div>
+      <table>
+        <thead><tr><th>id</th><th>price</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>3</td></tr>
+          <tr><td>2</td><td>7</td></tr>
+          <tr><td>3</td><td>12</td></tr>
+          <tr><td>4</td><td>5</td></tr>
+          <tr><td>5</td><td>3</td></tr>
+          <tr><td>6</td><td>2</td></tr>
+          <tr><td>7</td><td>10</td></tr>
+        </tbody>
+      </table>
+
+      <div class="code">SELECT s.id, s.name, s.amount, s.maavar, p.price
+FROM shopping s
+JOIN prices p ON s.id = p.id;</div>
+      <div class="result-title rtl"><code dir="ltr">shopping JOIN prices</code>:</div>
+      <table>
+        <thead><tr><th>id</th><th>name</th><th>amount</th><th>maavar</th><th>price</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Avokado</td><td>5</td><td>6</td><td>3</td></tr>
+          <tr><td>2</td><td>Milk</td><td>1</td><td>3</td><td>7</td></tr>
+          <tr><td>3</td><td>Bread</td><td>3</td><td>12</td><td>12</td></tr>
+          <tr><td>4</td><td>Chocolate</td><td>8</td><td>8</td><td>5</td></tr>
+          <tr><td>5</td><td>Bisli</td><td>5</td><td>5</td><td>3</td></tr>
+          <tr><td>6</td><td>Onions</td><td>3</td><td>6</td><td>2</td></tr>
+          <tr><td>7</td><td>Orio</td><td>1</td><td>8</td><td>10</td></tr>
+        </tbody>
+      </table>
+      <p class="note rtl">טבלה חדשה, <code dir="ltr">prices</code>, מחזיקה מחיר אחד לכל <code dir="ltr">id</code>. <code dir="ltr">JOIN ... ON s.id = p.id</code> מיישר כל שורה מ-<code dir="ltr">shopping</code> עם שורת המחיר שחולקת איתה אותו <code dir="ltr">id</code>, כך שהתוצאה מכילה עמודות משתי הטבלאות זו לצד זו.</p>
+    </section>
+
+    <!-- 19 -->
+    <section class="card topic-panel" id="topic-19">
+      <h2 class="step-title">19) Computed Column in a JOIN</h2>
+      <div class="code">SELECT s.id, s.name, s.amount, s.maavar, p.price,
+       s.amount * p.price AS "SECRET"
+FROM shopping s
+JOIN prices p ON s.id = p.id;</div>
+      <div class="big-result rtl">תוצאה:</div>
+      <table>
+        <thead><tr><th>id</th><th>name</th><th>amount</th><th>maavar</th><th>price</th><th>SECRET</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Avokado</td><td>5</td><td>6</td><td>3</td><td>15</td></tr>
+          <tr><td>2</td><td>Milk</td><td>1</td><td>3</td><td>7</td><td>7</td></tr>
+          <tr><td>3</td><td>Bread</td><td>3</td><td>12</td><td>12</td><td>36</td></tr>
+          <tr><td>4</td><td>Chocolate</td><td>8</td><td>8</td><td>5</td><td>40</td></tr>
+          <tr><td>5</td><td>Bisli</td><td>5</td><td>5</td><td>3</td><td>15</td></tr>
+          <tr><td>6</td><td>Onions</td><td>3</td><td>6</td><td>2</td><td>6</td></tr>
+          <tr><td>7</td><td>Orio</td><td>1</td><td>8</td><td>10</td><td>10</td></tr>
+        </tbody>
+      </table>
+      <p class="note rtl"><code dir="ltr">SECRET</code> הוא <code dir="ltr">amount * price</code> בכל שורה — העלות הכוללת של הפריט הזה (כמות כפול מחיר ליחידה), מחושבת תוך כדי ריצה ומסומנת בעזרת כינוי. שום דבר לא נשמר; זה מחושב מחדש בכל פעם שהשאילתא רצה.</p>
+    </section>
+
+    <!-- 20 -->
+    <section class="card topic-panel" id="topic-20">
+      <h2 class="step-title">20) JOIN + Subquery (MAX)</h2>
+      <div class="code">SELECT s.id, s.name, s.amount, s.maavar, p.price
+FROM shopping s
+JOIN prices p ON s.id = p.id
+WHERE p.price = (SELECT MAX(price) FROM prices);</div>
+      <div class="big-result rtl">תוצאה:</div>
+      <table>
+        <thead><tr><th>id</th><th>name</th><th>amount</th><th>maavar</th><th>price</th></tr></thead>
+        <tbody>
+          <tr><td>3</td><td>Bread</td><td>3</td><td>12</td><td>12</td></tr>
+        </tbody>
+      </table>
+      <p class="note rtl">החלק בסוגריים רץ קודם: <code dir="ltr">SELECT MAX(price) FROM prices</code> מוצא את המחיר הגבוה ביותר, 12. השאילתא החיצונית אז משאירה רק את השורה המחוברת שהמחיר שלה שווה למספר הזה — <code dir="ltr">Bread</code>, הפריט היקר ביותר.</p>
+
+      <p class="src-note">Source: <a href="../../sqlitehw.pdf" target="_blank" rel="noopener">sqlitehw.pdf</a></p>
+    </section>
+
+    <!-- HOMEWORK -->
+    <a id="homework"></a>
+    <section class="card topic-panel" id="topic-21">
+      <div class="hw-card">
+        <span class="hw-badge">Homework</span>
+        <h3>Homework Exercise — PETS Table</h3>
+        <p>Same commands as today, one more time on a table of your own. Keep it simple — one step at a time.</p>
+        <ol>
+          <li><strong>Create a table</strong> called <code>PETS</code>: <code>id INTEGER PRIMARY KEY</code>, <code>name TEXT NOT NULL</code>, <code>type TEXT</code>, <code>age INTEGER</code>.</li>
+          <li><strong>Insert</strong> these 4 pets:<br>
+            (1, 'Rex', 'Dog', 3)<br>
+            (2, 'Milo', 'Cat', 5)<br>
+            (3, 'Coco', 'Parrot', 1)<br>
+            (4, 'Luna', 'Cat', 2)
+          </li>
+          <li><strong>Select</strong> — write a query that shows every pet, all columns.</li>
+          <li><strong>Update</strong> — Rex just had a birthday. Set his age to 4.</li>
+          <li><strong>Select</strong> — write a query that shows only the pets where <code>type = 'Cat'</code>.</li>
+          <li><strong>Delete</strong> — Coco was given away. Delete the row where <code>name = 'Coco'</code>.</li>
+          <li><strong>Update</strong> — every pet that is left just had a birthday too. Add 1 to every remaining pet's <code>age</code> in a single <code>UPDATE</code> (no <code>WHERE</code> needed for this one).</li>
+        </ol>
+        <div class="big-result">Starting table:</div>
+        <table>
+          <thead><tr><th>id</th><th>name</th><th>type</th><th>age</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Rex</td><td>Dog</td><td>3</td></tr>
+            <tr><td>2</td><td>Milo</td><td>Cat</td><td>5</td></tr>
+            <tr><td>3</td><td>Coco</td><td>Parrot</td><td>1</td></tr>
+            <tr><td>4</td><td>Luna</td><td>Cat</td><td>2</td></tr>
+          </tbody>
+        </table>
+        <p><strong>Submit:</strong> your SQL script as a text file <code>.sql</code></p>
+        <p><strong>Submission email:</strong> pythonai080626+sql2@gmail.com</p>
+      </div>
+    </section>
 
       </main>
     </div>
 
-  </div><!-- /wrap -->
+  </div>
+
+  <div class="footer">Lesson 2 &middot; SQLite homework walkthrough, commands 1&ndash;20 &middot; October 12, 2026</div>
 
   <script>
-    const links  = document.querySelectorAll('.topic-link');
+    const links = document.querySelectorAll('.topic-link');
     const panels = document.querySelectorAll('.topic-panel');
 
     function showTopic(id) {
-      panels.forEach(p => p.classList.toggle('active', p.id === id));
-      links.forEach(l  => l.classList.toggle('active', l.dataset.target === id));
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      panels.forEach((panel) => {
+        panel.classList.toggle('active', panel.id === id);
+      });
+
+      links.forEach((link) => {
+        link.classList.toggle('active', link.dataset.target === id);
+      });
     }
 
-    links.forEach(link => {
+    links.forEach((link) => {
       link.addEventListener('click', () => {
         const targetId = link.dataset.target;
         showTopic(targetId);
-        if (targetId === 't-sol-4') {
-          location.hash = 'homework';
-        } else {
-          location.hash = targetId;
-        }
+        location.hash = targetId;
       });
     });
 
     function applyHashTopic() {
       const hash = location.hash.replace('#', '');
       if (!hash) return;
-
-      if (hash === 'homework') {
-        showTopic('t-sol-4');
-        return;
-      }
-
-      if (document.getElementById(hash)) {
+      const exists = document.getElementById(hash);
+      if (exists && exists.classList.contains('topic-panel')) {
         showTopic(hash);
       }
     }
