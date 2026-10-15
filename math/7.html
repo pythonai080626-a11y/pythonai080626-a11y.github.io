@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>שאלה - משולש חסום, קוטר ודלתון</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:ital,wght@0,400;0,500;0,700;0,900;1,500;1,700&family=Assistant:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   DESIGN PLAN - same system as math/1.html, math/3.html - math/6.html.
+   Layout: sticky left rail (diagram + given + jump nav + theorem
+   reference) beside the solution column flowing down the right
+   (RTL start). Claim/reason (טענה/נימוק) tables, מש״ל seal.
+   Color:  --ink navy text, --accent/--accent-2 sapphire blue
+           (headers, seal ring), --gold bronze (seal), --bg/--surface
+           cool paper blues.
+   Type:   Frank Ruhl Libre (display + math italics), Assistant
+           (Hebrew body sans).
+   ============================================================ */
+:root{
+  --bg:        #F5F8FC;
+  --surface:   #FFFFFF;
+  --surface-2: #EBF1FA;
+  --ink:       #152042;
+  --muted:     #5B6B8A;
+  --border:    #D8E2F1;
+  --accent:    #1E3F8F;
+  --accent-2:  #3E68C9;
+  --gold:      #A9762E;
+  --gold-soft: #F3E7D2;
+  --shadow:    0 18px 40px -22px rgba(21,32,66,.35);
+
+  --font-display: 'Frank Ruhl Libre', 'Times New Roman', serif;
+  --font-body:    'Assistant', -apple-system, 'Segoe UI', sans-serif;
+  --font-math:    'Frank Ruhl Libre', 'Times New Roman', serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:        #0B1220;
+    --surface:   #121B30;
+    --surface-2: #17213B;
+    --ink:       #E9EEFB;
+    --muted:     #96A6C6;
+    --border:    #27344E;
+    --accent:    #6090F0;
+    --accent-2:  #8AAEF5;
+    --gold:      #DCB06C;
+    --gold-soft: #2B2314;
+    --shadow:    0 18px 40px -20px rgba(0,0,0,.6);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:        #0B1220;
+  --surface:   #121B30;
+  --surface-2: #17213B;
+  --ink:       #E9EEFB;
+  --muted:     #96A6C6;
+  --border:    #27344E;
+  --accent:    #6090F0;
+  --accent-2:  #8AAEF5;
+  --gold:      #DCB06C;
+  --gold-soft: #2B2314;
+  --shadow:    0 18px 40px -20px rgba(0,0,0,.6);
+  color-scheme: dark;
+}
+
+*,*::before,*::after{ box-sizing:border-box }
+html,body{ margin:0 }
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:var(--font-body); line-height:1.75;
+}
+.page{
+  direction:rtl;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+h1,h2,h3{ font-family:var(--font-display); color:var(--ink); margin:0; text-wrap:balance }
+::selection{ background:var(--accent); color:#fff }
+
+.math{
+  direction:ltr; display:inline-block; unicode-bidi:isolate;
+  font-family:var(--font-math); font-style:italic; letter-spacing:.015em;
+  padding:0 .1em;
+}
+.math b{ font-weight:700; font-style:italic }
+.math sub{ font-size:.7em }
+
+/* ---------------------------------------------------------- shell */
+.shell{
+  max-width:1180px; margin:0 auto; padding-block: 28px 70px;
+  display:grid; grid-template-columns: 340px 1fr; gap:26px; align-items:start;
+}
+@media (max-width: 900px){ .shell{ grid-template-columns: 1fr; } }
+
+/* ---------------------------------------------------------- hero */
+.hero{
+  grid-column: 1 / -1; position:relative; overflow:hidden;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+  border-radius: 22px; padding: 30px 34px; color:#fff;
+  box-shadow: var(--shadow);
+  animation: riseIn .7s cubic-bezier(.22,1,.36,1) both;
+}
+.hero::before{
+  content:''; position:absolute; inset:0;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(255,255,255,.18), transparent 45%),
+    radial-gradient(circle at 85% 80%, rgba(255,255,255,.12), transparent 50%);
+  pointer-events:none;
+}
+.hero__tag{
+  display:inline-flex; align-items:center; gap:8px;
+  background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.35);
+  padding:6px 14px; border-radius:999px; font-size:.82rem; font-weight:600;
+  letter-spacing:.02em; margin-bottom:14px;
+}
+.hero h1{ color:#fff; font-size:clamp(1.7rem, 3.4vw, 2.5rem); font-weight:700; margin-bottom:8px }
+.hero p{ color:rgba(255,255,255,.88); max-width:62ch; font-size:1.02rem; margin:0 }
+.hero__meta{ display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; position:relative }
+.hero__meta span{
+  font-family:var(--font-body); font-size:.8rem; font-weight:600;
+  background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.3);
+  padding:5px 12px; border-radius:999px;
+}
+
+/* ---------------------------------------------------------- left rail */
+.rail{ position:sticky; top:18px; display:flex; flex-direction:column; gap:18px }
+@media (max-width:900px){ .rail{ position:static } }
+
+.panel{
+  background:var(--surface); border:1px solid var(--border); border-radius:18px;
+  padding:20px; box-shadow: var(--shadow);
+}
+.panel h2{ font-size:1.05rem; margin-bottom:12px; color:var(--accent) }
+
+/* diagram */
+.fig{ display:flex; flex-direction:column; align-items:center; gap:10px }
+.fig svg{ width:100%; height:auto; max-width:320px; color:var(--ink) }
+.fig__cap{ font-size:.78rem; color:var(--muted); text-align:center; line-height:1.6 }
+
+.seg{ stroke:var(--ink); stroke-width:2.2; fill:none; stroke-linecap:round; }
+.diag{ stroke:var(--accent-2); stroke-width:2; fill:none; }
+.pt{ fill:var(--surface); stroke:var(--accent); stroke-width:2.4 }
+.pt-f{ fill:var(--gold); stroke:var(--gold); }
+.lbl{ font-family:var(--font-math); font-style:italic; font-size:17px; fill:var(--ink); }
+.rightang{ fill:none; stroke:var(--accent-2); stroke-width:1.6 }
+
+@keyframes drawLine{ from{ stroke-dashoffset: var(--len) } to{ stroke-dashoffset:0 } }
+.seg,.diag{ animation: drawLine 1.4s cubic-bezier(.4,0,.2,1) both; }
+.pt, .lbl, .rightang{ animation: fadeUp .5s ease both; animation-delay: 1.1s; }
+@keyframes fadeUp{ from{ opacity:0; transform:translateY(4px) } to{ opacity:1; transform:none } }
+
+/* given chips */
+.given-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:9px }
+.given-list li{
+  display:flex; align-items:center; gap:10px;
+  background:var(--surface-2); border:1px solid var(--border); border-radius:11px;
+  padding:9px 12px; font-size:.92rem;
+}
+.given-list .dot{ width:8px; height:8px; border-radius:50%; background:var(--accent); flex:0 0 auto; }
+
+/* jump nav */
+.jump{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px }
+.jump a{
+  display:flex; align-items:center; gap:10px; text-decoration:none;
+  color:var(--muted); font-size:.9rem; font-weight:600; padding:7px 10px; border-radius:9px;
+  transition: background .15s ease, color .15s ease;
+}
+.jump a:hover{ background:var(--surface-2); color:var(--accent) }
+.jump .badge-mini{
+  width:24px; height:24px; border-radius:50%; display:grid; place-items:center;
+  background:var(--surface-2); border:1px solid var(--border); color:var(--accent);
+  font-family:var(--font-math); font-size:.78rem; flex:0 0 auto;
+}
+
+/* theorems reference */
+.thm-list{ margin:0; padding-right:1.1em; display:flex; flex-direction:column; gap:8px; font-size:.86rem; color:var(--muted) }
+.thm-list li::marker{ color:var(--gold) }
+
+/* ---------------------------------------------------------- main content */
+.main{ display:flex; flex-direction:column; gap:22px; min-width:0 }
+
+.intro{
+  background:var(--surface); border:1px solid var(--border); border-radius:18px;
+  padding:22px 26px; box-shadow:var(--shadow); font-size:1rem; color:var(--muted);
+  animation: riseIn .7s cubic-bezier(.22,1,.36,1) both; animation-delay:.05s;
+}
+.intro b{ color:var(--ink) }
+
+.proof{
+  background:var(--surface); border:1px solid var(--border); border-radius:20px;
+  overflow:hidden; box-shadow:var(--shadow); scroll-margin-top: 18px;
+  animation: riseIn .7s cubic-bezier(.22,1,.36,1) both;
+}
+.proof__head{
+  display:flex; align-items:center; gap:14px;
+  background:linear-gradient(135deg, var(--accent), var(--accent-2));
+  color:#fff; padding:16px 22px;
+}
+.proof__badge{
+  width:42px; height:42px; border-radius:50%; flex:0 0 auto;
+  background:rgba(255,255,255,.18); border:1.5px solid rgba(255,255,255,.55);
+  display:grid; place-items:center; font-family:var(--font-display); font-weight:700; font-size:1.05rem;
+}
+.proof__head h2{ color:#fff; font-size:1.18rem; margin:0 }
+.proof__head p{ margin:2px 0 0; color:rgba(255,255,255,.85); font-size:.85rem }
+
+.proof__body{ padding:22px }
+.subhead{
+  display:flex; align-items:center; gap:10px; margin:22px 0 10px;
+  font-family:var(--font-display); font-weight:700; color:var(--accent); font-size:1rem;
+}
+.subhead .num-badge{ font-size:.85rem }
+.subhead:first-of-type{ margin-top:0 }
+.goal{
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  background:var(--gold-soft); border:1px dashed var(--gold); border-radius:12px;
+  padding:12px 16px; margin-bottom:18px; font-size:.95rem;
+}
+.goal strong{ color:var(--gold); font-family:var(--font-body); white-space:nowrap }
+
+.tbl-wrap{ overflow-x:auto; border-radius:12px; border:1px solid var(--border) }
+table.proof-table{ width:100%; border-collapse:collapse; font-size:.93rem; min-width:420px }
+table.proof-table thead th{
+  background:linear-gradient(135deg, var(--accent), var(--accent-2)); color:#fff;
+  font-family:var(--font-body); font-weight:700; font-size:.82rem; letter-spacing:.03em;
+  padding:11px 14px; text-align:start;
+}
+table.proof-table th.num-col, table.proof-table td.num-col{ width:38px; text-align:center }
+table.proof-table td{ padding:12px 14px; border-top:1px solid var(--border); vertical-align:top }
+table.proof-table tbody tr:nth-child(even){ background:var(--surface-2) }
+.num-badge{
+  display:inline-grid; place-items:center; width:24px; height:24px; border-radius:50%;
+  background:var(--surface-2); border:1px solid var(--border); color:var(--accent);
+  font-family:var(--font-math); font-size:.78rem;
+}
+td.reason{ color:var(--muted) }
+
+.answer{
+  background:var(--surface-2); border:1px solid var(--border); border-radius:12px;
+  padding:14px 18px; margin-top:16px; font-size:.98rem; display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+}
+.answer strong{ color:var(--accent); font-family:var(--font-body) }
+
+.qed{
+  display:flex; align-items:center; justify-content:flex-end; gap:8px;
+  margin-top:16px; color:var(--gold); font-family:var(--font-display); font-weight:700;
+}
+.qed .ring{
+  width:30px; height:30px; border-radius:50%; border:2px solid var(--gold);
+  display:grid; place-items:center; font-size:.95rem;
+}
+
+/* summary chain */
+.chain{
+  background:var(--surface); border:1px solid var(--border); border-radius:20px;
+  padding:26px; box-shadow:var(--shadow);
+  animation: riseIn .7s cubic-bezier(.22,1,.36,1) both;
+}
+.chain h2{ font-size:1.2rem; margin-bottom:16px; color:var(--accent) }
+.chain__row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap }
+.chain__node{
+  background:var(--surface-2); border:1px solid var(--border); border-radius:12px;
+  padding:10px 14px; font-size:.85rem; font-weight:600; color:var(--ink); flex:1 1 180px;
+  min-width:0;
+}
+.chain__node small{ display:block; color:var(--muted); font-weight:400; margin-top:3px; font-size:.78rem }
+.chain__arrow{ color:var(--accent); font-size:1.3rem; flex:0 0 auto; transform:scaleX(-1) }
+@media (max-width:700px){ .chain__arrow{ transform:scaleX(-1) rotate(90deg) } }
+
+footer.foot{ grid-column:1/-1; text-align:center; color:var(--muted); font-size:.82rem; padding-top:6px; }
+
+@keyframes riseIn{ from{ opacity:0; transform:translateY(14px) } to{ opacity:1; transform:none } }
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:.01ms !important; animation-iteration-count:1 !important }
+  .seg,.diag{ stroke-dashoffset:0 !important }
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="shell">
+
+    <!-- ============================================================ HERO -->
+    <section class="hero">
+      <span class="hero__tag">📘 משולש חסום במעגל · קוטר ודלתון</span>
+      <h1>קוטר, דלתון ומשולש שווה-צלעות</h1>
+      <p>פתרון מלא ומנומק לשבעת סעיפי השאלה - מזוויות המשולש <span class="math" dir="ltr">ADC</span> והדמיון <span class="math" dir="ltr">ΔDBC~ΔDCO</span>, דרך משולש שווה-הצלעות <span class="math" dir="ltr">ACO</span>, ועד שטח הדלתון <span class="math" dir="ltr">CDOE</span> והיחס <span class="math" dir="ltr">DE/DF</span>.</p>
+      <div class="hero__meta">
+        <span>סעיף א׳ · זוויות ודמיון</span>
+        <span>סעיף ב׳ · <span class="math" dir="ltr" style="color:#fff">ACO</span> שווה-צלעות</span>
+        <span>סעיף ג׳ · שטח ו-<span class="math" dir="ltr" style="color:#fff">DE/DF</span></span>
+      </div>
+    </section>
+
+    <!-- ============================================================ LEFT RAIL -->
+    <aside class="rail">
+
+      <div class="panel">
+        <h2>הנתון בציור</h2>
+        <div class="fig">
+          <svg viewBox="0 0 230 260" role="img" aria-label="משולש ABC חסום במעגל שמרכזו O, AB קוטר, D על AB, E על BC, CDOE דלתון שהאלכסון הראשי שלו OC">
+            <!-- circle -->
+            <circle class="seg" style="--len:628" cx="70" cy="130" r="100"/>
+
+            <!-- diameter AB (through D, O) -->
+            <path class="seg" style="--len:200" d="M70,30 L70,230"/>
+            <!-- AC -->
+            <path class="seg" style="--len:100" d="M70,30 L156.6,80"/>
+            <!-- BC (through E) -->
+            <path class="seg" style="--len:173.2" d="M70,230 L156.6,80"/>
+            <!-- diagonal OC -->
+            <path class="diag" style="--len:100" d="M70,130 L156.6,80"/>
+            <!-- diagonal DE -->
+            <path class="diag" style="--len:86.6" d="M70,80 L113.3,155"/>
+
+            <!-- right angle marks -->
+            <path class="rightang" d="M146.6,80 L140.2,91 L129.2,84.6"/>
+            <path class="rightang" d="M70,90 L80,90 L80,80"/>
+
+            <!-- points -->
+            <circle class="pt" cx="70" cy="30" r="4.5"/>
+            <circle class="pt" cx="70" cy="230" r="4.5"/>
+            <circle class="pt" cx="156.6" cy="80" r="4.5"/>
+            <circle class="pt" cx="70" cy="130" r="4.5"/>
+            <circle class="pt pt-f" cx="70" cy="80" r="4.5"/>
+            <circle class="pt" cx="113.3" cy="155" r="4.5"/>
+            <circle class="pt" cx="113.3" cy="105" r="4.5"/>
+
+            <!-- labels -->
+            <text class="lbl" x="56" y="22">A</text>
+            <text class="lbl" x="58" y="248">B</text>
+            <text class="lbl" x="162" y="78">C</text>
+            <text class="lbl" x="56" y="124">O</text>
+            <text class="lbl" x="48" y="78">D</text>
+            <text class="lbl" x="118" y="168">E</text>
+            <text class="lbl" x="118" y="100">F</text>
+          </svg>
+          <p class="fig__cap">הציור להמחשה בלבד ואינו בהכרח מדויק (מוצג לפי הנתון הסופי של סעיף ב׳).<br><span class="math" dir="ltr">D</span> על <span class="math" dir="ltr">AB</span>, <span class="math" dir="ltr">E</span> על <span class="math" dir="ltr">BC</span>; <span class="math" dir="ltr">CDOE</span> דלתון, הציר <span class="math" dir="ltr">OC</span>.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>נתון</h2>
+        <ul class="given-list">
+          <li><span class="dot"></span> משולש <span class="math" dir="ltr">ABC</span> חסום במעגל שמרכזו <span class="math" dir="ltr">O</span>, רדיוס <span class="math" dir="ltr">R</span></li>
+          <li><span class="dot"></span> <span class="math" dir="ltr">AB</span> קוטר</li>
+          <li><span class="dot"></span> <span class="math" dir="ltr">D</span> על <span class="math" dir="ltr">AB</span>, <span class="math" dir="ltr">E</span> על <span class="math" dir="ltr">BC</span></li>
+          <li><span class="dot"></span> <span class="math" dir="ltr">CDOE</span> דלתון, האלכסון הראשי <span class="math" dir="ltr">OC</span></li>
+          <li><span class="dot"></span> <span class="math" dir="ltr">∠ABC = α</span></li>
+        </ul>
+      </div>
+
+      <div class="panel">
+        <h2>מעבר מהיר בין הסעיפים</h2>
+        <ul class="jump">
+          <li><a href="#sec-a"><span class="badge-mini">א</span> זוויות <span class="math" dir="ltr">ADC</span> והדמיון</a></li>
+          <li><a href="#sec-b"><span class="badge-mini">ב</span> <span class="math" dir="ltr">ACO</span> שווה-צלעות, <span class="math" dir="ltr">AD</span></a></li>
+          <li><a href="#sec-c"><span class="badge-mini">ג</span> <span class="math" dir="ltr">DC</span>, שטח, <span class="math" dir="ltr">DE/DF</span></a></li>
+        </ul>
+      </div>
+
+      <div class="panel">
+        <h2>משפטים שישמשו אותנו</h2>
+        <ol class="thm-list">
+          <li>זווית היקפית הנשענת על קוטר = 90° (משפט תאלס).</li>
+          <li>זווית מרכזית כפולה מהזווית ההיקפית הנשענת על אותו קשת.</li>
+          <li>במשולש שווה-שוקיים זוויות הבסיס שוות.</li>
+          <li>בדלתון, האלכסון הראשי הוא ציר סימטריה - מחלק אותו לשני משולשים חופפים (צ.צ.צ) ומאונך לאלכסון השני באמצעו.</li>
+          <li>במשולש ישר-זווית עם זווית 30°, הניצב שמול ה-30° שווה למחצית היתר.</li>
+          <li>שטח דלתון = מחצית מכפלת האלכסונים (המאונכים זה לזה).</li>
+          <li>משולש שווה-שוקיים עם זווית קודקוד 60° הוא משולש שווה-צלעות.</li>
+        </ol>
+      </div>
+
+    </aside>
+
+    <!-- ============================================================ MAIN -->
+    <main class="main">
+
+      <div class="intro">
+        <b>קו המחשבה:</b> מכיוון ש-<span class="math" dir="ltr">AB</span> קוטר, <span class="math" dir="ltr">∠ACB=90°</span> (תאלס). מכיוון ש-<span class="math" dir="ltr">OA=OC=R</span>, משולש <span class="math" dir="ltr">OAC</span> שווה-שוקיים, ומכאן אפשר לבטא את <span class="math" dir="ltr">∠ACO</span> באמצעות <span class="math" dir="ltr">α</span>. הסימטריה של הדלתון (<span class="math" dir="ltr">ΔCDO≅ΔCEO</span>) מעבירה זוויות בין <span class="math" dir="ltr">D</span> ל-<span class="math" dir="ltr">E</span>, ומכיוון ש-<span class="math" dir="ltr">D,O,B</span> כולן על הקוטר - מקבלים את כל זוויות <span class="math" dir="ltr">ADC</span> ואת הדמיון בסעיף א׳. בסעיף ב׳ הנתון <span class="math" dir="ltr">∠CEO=90°</span> "נועל" ערך ספציפי ל-<span class="math" dir="ltr">α</span> (דרך השוויון <span class="math" dir="ltr">∠CEO=∠CDO=180°-3α</span>), ומכאן ממשיכים לחשב הכל באמצעות <span class="math" dir="ltr">R</span> בלבד.
+      </div>
+
+      <!-- ===================== SECTION א ===================== -->
+      <section class="proof" id="sec-a">
+        <div class="proof__head">
+          <div class="proof__badge">א</div>
+          <div>
+            <h2>זוויות המשולש <span class="math" dir="ltr" style="color:#fff">ADC</span> והדמיון <span class="math" dir="ltr" style="color:#fff">ΔDBC~ΔDCO</span></h2>
+            <p>נסמן: <span class="math" dir="ltr" style="color:#fff">∠ABC = α</span></p>
+          </div>
+        </div>
+        <div class="proof__body">
+
+          <div class="subhead"><span class="num-badge">1</span> זוויות המשולש <span class="math" dir="ltr">ADC</span> באמצעות <span class="math" dir="ltr">α</span></div>
+          <div class="goal"><strong>רעיון:</strong> <span class="math" dir="ltr">D</span> נמצאת על <span class="math" dir="ltr">AB</span> כך ש-<span class="math" dir="ltr">∠DAC=∠BAC</span> ישירות; ו-<span class="math" dir="ltr">OC</span>, ציר הסימטריה של הדלתון, "מעביר" את <span class="math" dir="ltr">∠OCB</span> אל <span class="math" dir="ltr">∠OCD</span>.</div>
+          <div class="tbl-wrap">
+            <table class="proof-table">
+              <thead><tr><th class="num-col">#</th><th>טענה</th><th>נימוק</th></tr></thead>
+              <tbody>
+                <tr><td class="num-col"><span class="num-badge">1</span></td><td><span class="math" dir="ltr">∠ACB = 90°</span></td><td class="reason"><span class="math" dir="ltr">AB</span> קוטר - זווית היקפית הנשענת על קוטר (תאלס)</td></tr>
+                <tr><td class="num-col"><span class="num-badge">2</span></td><td><span class="math" dir="ltr">OA=OC=R</span> ⟹ משולש <span class="math" dir="ltr">OAC</span> שווה-שוקיים ⟹ <span class="math" dir="ltr">∠OCA=∠OAC</span>; <span class="math" dir="ltr">∠AOC=2α</span> ⟹ <span class="math" dir="ltr">∠OCA = (180°-2α)/2 = 90°-α</span></td><td class="reason">רדיוסים שווים; זווית מרכזית = פי 2 מהזווית ההיקפית <span class="math" dir="ltr">∠ABC</span> הנשענת על אותו קשת <span class="math" dir="ltr">AC</span></td></tr>
+                <tr><td class="num-col"><span class="num-badge">3</span></td><td><span class="math" dir="ltr">∠OCB = ∠ACB - ∠OCA = 90°-(90°-α) = α</span></td><td class="reason">שורות 1, 2</td></tr>
+                <tr><td class="num-col"><span class="num-badge">4</span></td><td><span class="math" dir="ltr">ΔCDO ≅ ΔCEO</span> (צ.צ.צ: <span class="math" dir="ltr">CD=CE</span>, <span class="math" dir="ltr">OD=OE</span> - דלתון; <span class="math" dir="ltr">CO</span> משותף) ⟹ <span class="math" dir="ltr">∠OCD=∠OCE</span></td><td class="reason">הגדרת הדלתון <span class="math" dir="ltr">CDOE</span></td></tr>
+                <tr><td class="num-col"><span class="num-badge">5</span></td><td><span class="math" dir="ltr">∠OCE = ∠OCB = α</span> ⟹ <span class="math" dir="ltr">∠OCD = α</span></td><td class="reason"><span class="math" dir="ltr">E</span> על הקרן <span class="math" dir="ltr">CB</span>; שורות 3, 4</td></tr>
+                <tr><td class="num-col"><span class="num-badge">6</span></td><td><span class="math" dir="ltr">∠DAC = ∠BAC = 90°-α</span></td><td class="reason"><span class="math" dir="ltr">D</span> על הקרן <span class="math" dir="ltr">AB</span>; סכום זוויות במשולש <span class="math" dir="ltr">ABC</span> הישר-זווית ב-<span class="math" dir="ltr">C</span></td></tr>
+                <tr><td class="num-col"><span class="num-badge">7</span></td><td><span class="math" dir="ltr">∠ACD = ∠ACO - ∠OCD = (90°-α)-α = 90°-2α</span></td><td class="reason">שורות 2, 5</td></tr>
+                <tr><td class="num-col"><span class="num-badge">8</span></td><td><span class="math" dir="ltr">∠ADC = 180°-∠DAC-∠ACD = 180°-(90°-α)-(90°-2α) = 3α</span></td><td class="reason">סכום זוויות במשולש <span class="math" dir="ltr">ADC</span>; שורות 6, 7</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="answer"><strong>תשובה:</strong> <span class="math" dir="ltr">∠DAC = 90°-α</span> &nbsp;·&nbsp; <span class="math" dir="ltr">∠ACD = 90°-2α</span> &nbsp;·&nbsp; <span class="math" dir="ltr">∠ADC = 3α</span></div>
+
+          <div class="subhead"><span class="num-badge">2</span> הוכחת <span class="math" dir="ltr">ΔDBC ~ ΔDCO</span></div>
+          <div class="goal"><strong>רעיון:</strong> <span class="math" dir="ltr">D,O,B</span> כולן על הקוטר <span class="math" dir="ltr">AB</span> - כך ש-<span class="math" dir="ltr">∠CDO</span> ו-<span class="math" dir="ltr">∠CDB</span> הן למעשה אותה זווית.</div>
+          <div class="tbl-wrap">
+            <table class="proof-table">
+              <thead><tr><th class="num-col">#</th><th>טענה</th><th>נימוק</th></tr></thead>
+              <tbody>
+                <tr><td class="num-col"><span class="num-badge">1</span></td><td><span class="math" dir="ltr">∠DBC = ∠ABC = α</span></td><td class="reason"><span class="math" dir="ltr">D</span> על הקרן <span class="math" dir="ltr">BA</span></td></tr>
+                <tr><td class="num-col"><span class="num-badge">2</span></td><td><span class="math" dir="ltr">∠DCO = α</span></td><td class="reason">הוכח בסעיף א׳.1 (שורה 5)</td></tr>
+                <tr><td class="num-col"><span class="num-badge">3</span></td><td><span class="math" dir="ltr">∠DBC = ∠DCO = α</span></td><td class="reason">שורות 1, 2</td></tr>
+                <tr><td class="num-col"><span class="num-badge">4</span></td><td><span class="math" dir="ltr">∠BDC = 180°-∠ADC = 180°-3α</span></td><td class="reason"><span class="math" dir="ltr">A,D,B</span> על ישר אחד - זוויות סמוכות ועוקבות (<span class="math" dir="ltr">∠ADC</span> מסעיף א׳.1)</td></tr>
+                <tr><td class="num-col"><span class="num-badge">5</span></td><td><span class="math" dir="ltr">D,O,B</span> כולן על הקוטר <span class="math" dir="ltr">AB</span>, כאשר <span class="math" dir="ltr">O</span> בין <span class="math" dir="ltr">D</span> ל-<span class="math" dir="ltr">B</span> ⟹ הקרן <span class="math" dir="ltr">DO</span> זהה לקרן <span class="math" dir="ltr">DB</span> ⟹ <span class="math" dir="ltr">∠CDO = ∠CDB = 180°-3α</span></td><td class="reason"><span class="math" dir="ltr">O</span> מרכז המעגל נמצא על הקוטר <span class="math" dir="ltr">AB</span>; שורה 4</td></tr>
+                <tr><td class="num-col"><span class="num-badge">6</span></td><td><span class="math" dir="ltr">∠DBC = ∠DCO</span> וגם <span class="math" dir="ltr">∠BDC = ∠CDO</span> ⟹ <span class="math" dir="ltr">ΔDBC ~ ΔDCO</span></td><td class="reason">דמיון זווית-זווית (ז.ז); שורות 3, 5</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="qed"><span class="ring">∎</span> מש״ל</div>
+        </div>
+      </section>
+
+      <!-- ===================== SECTION ב ===================== -->
+      <section class="proof" id="sec-b">
+        <div class="proof__head">
+          <div class="proof__badge">ב</div>
+          <div>
+            <h2>המשולש <span class="math" dir="ltr" style="color:#fff">ACO</span> שווה-צלעות, והקטע <span class="math" dir="ltr" style="color:#fff">AD</span></h2>
+            <p>נתון לסעיף זה: <span class="math" dir="ltr" style="color:#fff">∠CEO = 90°</span>; <span class="math" dir="ltr" style="color:#fff">R</span> רדיוס המעגל</p>
+          </div>
+        </div>
+        <div class="proof__body">
+
+          <div class="subhead"><span class="num-badge">1</span> הוכחת <span class="math" dir="ltr">ΔACO</span> שווה-צלעות</div>
+          <div class="goal"><strong>רעיון:</strong> החפיפה <span class="math" dir="ltr">ΔCDO≅ΔCEO</span> מסעיף א׳ מעבירה את הנתון <span class="math" dir="ltr">∠CEO=90°</span> אל <span class="math" dir="ltr">∠CDO</span>, שכבר ביטאנו באמצעות <span class="math" dir="ltr">α</span> - כך נמצא את <span class="math" dir="ltr">α</span> במפורש.</div>
+          <div class="tbl-wrap">
+            <table class="proof-table">
+              <thead><tr><th class="num-col">#</th><th>טענה</th><th>נימוק</th></tr></thead>
+              <tbody>
+                <tr><td class="num-col"><span class="num-badge">1</span></td><td><span class="math" dir="ltr">∠CDO = ∠CEO</span></td><td class="reason"><span class="math" dir="ltr">ΔCDO≅ΔCEO</span> (סעיף א׳.1, שורה 4)</td></tr>
+                <tr><td class="num-col"><span class="num-badge">2</span></td><td><span class="math" dir="ltr">∠CDO = 180°-3α</span> (סעיף א׳.2, שורה 5) ⟹ <span class="math" dir="ltr">∠CEO = 180°-3α</span></td><td class="reason">שורה 1</td></tr>
+                <tr><td class="num-col"><span class="num-badge">3</span></td><td>נתון <span class="math" dir="ltr">∠CEO=90°</span> ⟹ <span class="math" dir="ltr">180°-3α=90°</span> ⟹ <span class="math" dir="ltr">α=30°</span></td><td class="reason">נתון; שורה 2</td></tr>
+                <tr><td class="num-col"><span class="num-badge">4</span></td><td><span class="math" dir="ltr">AC = AB·sin(α) = 2R·sin30° = R</span></td><td class="reason">יחס סינוס במשולש <span class="math" dir="ltr">ABC</span> הישר-זווית ב-<span class="math" dir="ltr">C</span> (<span class="math" dir="ltr">AB=2R</span> קוטר)</td></tr>
+                <tr><td class="num-col"><span class="num-badge">5</span></td><td><span class="math" dir="ltr">AO = CO = R</span> (רדיוסים); יחד עם <span class="math" dir="ltr">AC=R</span> (שורה 4) ⟹ <span class="math" dir="ltr">AC=AO=CO=R</span></td><td class="reason">הגדרת רדיוס המעגל</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="qed"><span class="ring">∎</span> מש״ל</div>
+
+          <div class="subhead"><span class="num-badge">2</span> הקטע <span class="math" dir="ltr">AD</span> באמצעות <span class="math" dir="ltr">R</span></div>
+          <div class="goal"><strong>רעיון:</strong> עם <span class="math" dir="ltr">α=30°</span>, משולש <span class="math" dir="ltr">ADC</span> (מסעיף א׳.1) הוא משולש 30-60-90.</div>
+          <div class="tbl-wrap">
+            <table class="proof-table">
+              <thead><tr><th class="num-col">#</th><th>טענה</th><th>נימוק</th></tr></thead>
+              <tbody>
+                <tr><td class="num-col"><span class="num-badge">1</span></td><td>הצבת <span class="math" dir="ltr">α=30°</span> בסעיף א׳.1: <span class="math" dir="ltr">∠DAC=60°</span>, <span class="math" dir="ltr">∠ACD=30°</span>, <span class="math" dir="ltr">∠ADC=90°</span></td><td class="reason">סעיף א׳.1; סעיף ב׳.1</td></tr>
+                <tr><td class="num-col"><span class="num-badge">2</span></td><td>משולש <span class="math" dir="ltr">ADC</span> ישר-זווית ב-<span class="math" dir="ltr">D</span>, עם <span class="math" dir="ltr">∠ACD=30°</span> ו-<span class="math" dir="ltr">AC=R</span> (היתר)</td><td class="reason">שורה 1; סעיף ב׳.1</td></tr>
+                <tr><td class="num-col"><span class="num-badge">3</span></td><td><span class="math" dir="ltr">AD</span> (הניצב שמול <span class="math" dir="ltr">30°</span>) <span class="math" dir="ltr">= AC/2 = R/2</span></td><td class="reason">במשולש ישר-זווית, הניצב שמול זווית של <span class="math" dir="ltr">30°</span> שווה למחצית היתר</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="answer"><strong>תשובה:</strong> <span class="math" dir="ltr">AD = R/2</span></div>
+        </div>
+      </section>
+
+      <!-- ===================== SECTION ג ===================== -->
+      <section class="proof" id="sec-c">
+        <div class="proof__head">
+          <div class="proof__badge">ג</div>
+          <div>
+            <h2>הקטע <span class="math" dir="ltr" style="color:#fff">DC</span>, שטח הדלתון והיחס <span class="math" dir="ltr" style="color:#fff">DE/DF</span></h2>
+            <p>נסמן לסעיף זה: <span class="math" dir="ltr" style="color:#fff">F</span> אמצע הקטע <span class="math" dir="ltr" style="color:#fff">CO</span></p>
+          </div>
+        </div>
+        <div class="proof__body">
+
+          <div class="subhead"><span class="num-badge">1</span> הקטע <span class="math" dir="ltr">DC</span> באמצעות <span class="math" dir="ltr">R</span></div>
+          <div class="goal"><strong>רעיון:</strong> אותו משולש 30-60-90 <span class="math" dir="ltr">ADC</span>.</div>
+          <div class="tbl-wrap">
+            <table class="proof-table">
+              <thead><tr><th class="num-col">#</th><th>טענה</th><th>נימוק</th></tr></thead>
+              <tbody>
+                <tr><td class="num-col"><span class="num-badge">1</span></td><td><span class="math" dir="ltr">DC = √(AC²-AD²) = √(R² - R²/4) = R√3/2</span></td><td class="reason">משפט פיתגורס במשולש <span class="math" dir="ltr">ADC</span> הישר-זווית ב-<span class="math" dir="ltr">D</span> (סעיף ב׳.2)</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="answer"><strong>תשובה:</strong> <span class="math" dir="ltr">DC = R√3/2</span></div>
+
+          <div class="subhead"><span class="num-badge">2</span> שטח הדלתון <span class="math" dir="ltr">CDOE</span> באמצעות <span class="math" dir="ltr">R</span></div>
+          <div class="goal"><strong>רעיון:</strong> הדלתון מורכב משני משולשים חופפים <span class="math" dir="ltr">CDO</span> ו-<span class="math" dir="ltr">CEO</span> - מספיק לחשב שטח אחד ולהכפיל פי 2.</div>
+          <div class="tbl-wrap">
+            <table class="proof-table">
+              <thead><tr><th class="num-col">#</th><th>טענה</th><th>נימוק</th></tr></thead>
+              <tbody>
+                <tr><td class="num-col"><span class="num-badge">1</span></td><td>שטח <span class="math" dir="ltr">(ΔCDO) = ½·CD·CO·sin(∠DCO) = ½·(R√3/2)·R·sin30° = R²√3/8</span></td><td class="reason">נוסחת שטח משולש לפי שתי צלעות והזווית ביניהן; <span class="math" dir="ltr">∠DCO=α=30°</span> (סעיף א׳.1)</td></tr>
+                <tr><td class="num-col"><span class="num-badge">2</span></td><td>שטח <span class="math" dir="ltr">(CDOE) = 2·</span>שטח<span class="math" dir="ltr">(ΔCDO) = 2·R²√3/8 = R²√3/4</span></td><td class="reason"><span class="math" dir="ltr">ΔCDO≅ΔCEO</span> - האלכסון הראשי <span class="math" dir="ltr">OC</span> מחלק את הדלתון לשני משולשים חופפים</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="answer"><strong>תשובה:</strong> <span class="math" dir="ltr">שטח(CDOE) = R²√3/4</span></div>
+
+          <div class="subhead"><span class="num-badge">3</span> היחס <span class="math" dir="ltr">DE/DF</span></div>
+          <div class="goal"><strong>רעיון:</strong> <span class="math" dir="ltr">DE</span> מתקבל משטח הדלתון (אלכסונים מאונכים). ל-<span class="math" dir="ltr">DF</span> נראה ש-<span class="math" dir="ltr">ΔDOF</span> שווה-צלעות.</div>
+          <div class="tbl-wrap">
+            <table class="proof-table">
+              <thead><tr><th class="num-col">#</th><th>טענה</th><th>נימוק</th></tr></thead>
+              <tbody>
+                <tr><td class="num-col"><span class="num-badge">1</span></td><td><span class="math" dir="ltr">∠OEC=90°</span> (נתון) ⟹ <span class="math" dir="ltr">∠OEB=180°-90°=90°</span>; במשולש <span class="math" dir="ltr">OEB</span> הישר-זווית: <span class="math" dir="ltr">OE = OB·sin(∠OBE) = R·sin30° = R/2</span></td><td class="reason"><span class="math" dir="ltr">B,E,C</span> על ישר אחד - זוויות סמוכות; <span class="math" dir="ltr">∠OBE=∠OBC=α=30°</span> (משולש <span class="math" dir="ltr">OBC</span> שווה-שוקיים, <span class="math" dir="ltr">OB=OC=R</span>)</td></tr>
+                <tr><td class="num-col"><span class="num-badge">2</span></td><td><span class="math" dir="ltr">OD = OE = R/2</span></td><td class="reason">דלתון <span class="math" dir="ltr">CDOE</span>; שורה 1</td></tr>
+                <tr><td class="num-col"><span class="num-badge">3</span></td><td>האלכסונים <span class="math" dir="ltr">CO ⊥ DE</span>; שטח <span class="math" dir="ltr">(CDOE) = ½·CO·DE</span> ⟹ <span class="math" dir="ltr">R²√3/4 = ½·R·DE</span> ⟹ <span class="math" dir="ltr">DE = R√3/2</span></td><td class="reason">באלכסון הראשי של דלתון מאונך לשני; נוסחת שטח הדלתון (סעיף ג׳.2)</td></tr>
+                <tr><td class="num-col"><span class="num-badge">4</span></td><td><span class="math" dir="ltr">F</span> אמצע <span class="math" dir="ltr">CO</span> ⟹ <span class="math" dir="ltr">OF = CO/2 = R/2</span></td><td class="reason">נתון; הגדרת אמצע</td></tr>
+                <tr><td class="num-col"><span class="num-badge">5</span></td><td><span class="math" dir="ltr">OD = OF = R/2</span> ⟹ <span class="math" dir="ltr">ΔDOF</span> שווה-שוקיים; <span class="math" dir="ltr">∠DOF = ∠DOC = 180°-∠DCO-∠CDO = 180°-30°-90° = 60°</span></td><td class="reason">שורות 2, 4; סעיף א׳.1, סעיף ב׳.1 (<span class="math" dir="ltr">∠CDO=90°</span> בעקבות <span class="math" dir="ltr">α=30°</span>)</td></tr>
+                <tr><td class="num-col"><span class="num-badge">6</span></td><td>משולש שווה-שוקיים עם זווית קודקוד <span class="math" dir="ltr">60°</span> הוא שווה-צלעות ⟹ <span class="math" dir="ltr">DF = OD = R/2</span></td><td class="reason">שורה 5</td></tr>
+                <tr><td class="num-col"><span class="num-badge">7</span></td><td><span class="math" dir="ltr">DE/DF = (R√3/2)/(R/2) = √3</span></td><td class="reason">שורות 3, 6</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="answer"><strong>תשובה:</strong> <span class="math" dir="ltr">DE/DF = √3</span></div>
+        </div>
+      </section>
+
+      <!-- ===================== CHAIN SUMMARY ===================== -->
+      <section class="chain">
+        <h2>שרשרת הפתרון בקיצור</h2>
+        <div class="chain__row">
+          <div class="chain__node"><span class="math" dir="ltr">∠ADC=3α, ∠ACD=90°-2α ⟹ ΔDBC~ΔDCO</span><small>סעיף א׳</small></div>
+          <span class="chain__arrow">←</span>
+          <div class="chain__node"><span class="math" dir="ltr">∠CEO=∠CDO=180°-3α=90° ⟹ α=30°</span><small>סעיף ב׳ - <span class="math" dir="ltr">ACO</span> שווה-צלעות, <span class="math" dir="ltr">AD=R/2</span></small></div>
+          <span class="chain__arrow">←</span>
+          <div class="chain__node"><span class="math" dir="ltr">DC=R√3/2, שטח=R²√3/4</span><small>סעיף ג׳</small></div>
+          <span class="chain__arrow">←</span>
+          <div class="chain__node"><span class="math" dir="ltr">DE=R√3/2, DF=R/2 ⟹ DE/DF=√3</span><small>תשובה סופית</small></div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="foot">משולש חסום במעגל · קוטר ודלתון - פתרון מלא</footer>
+  </div>
+</div>
+</body>
+</html>
