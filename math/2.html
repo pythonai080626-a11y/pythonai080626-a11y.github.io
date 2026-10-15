@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>שאלה 5 - משיק ומקבילים במעגל</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:ital,wght@0,400;0,500;0,700;0,900;1,500;1,700&family=Assistant:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   DESIGN PLAN - same system as math/1.html, reused for series
+   consistency.
+   Layout: sticky left rail (diagram + given + jump nav + theorem
+   reference) beside the proof column flowing down the right
+   (RTL start). Claim/reason (טענה/נימוק) tables, מש״ל seal.
+   Color:  --ink navy text, --accent/--accent-2 sapphire blue
+           (headers, seal ring), --gold bronze (QED seal, given
+           chips), --bg/--surface cool paper blues.
+   Type:   Frank Ruhl Libre (display + math italics), Assistant
+           (Hebrew body sans).
+   ============================================================ */
+:root{
+  --bg:        #F5F8FC;
+  --surface:   #FFFFFF;
+  --surface-2: #EBF1FA;
+  --ink:       #152042;
+  --muted:     #5B6B8A;
+  --border:    #D8E2F1;
+  --accent:    #1E3F8F;
+  --accent-2:  #3E68C9;
+  --gold:      #A9762E;
+  --gold-soft: #F3E7D2;
+  --shadow:    0 18px 40px -22px rgba(21,32,66,.35);
+
+  --font-display: 'Frank Ruhl Libre', 'Times New Roman', serif;
+  --font-body:    'Assistant', -apple-system, 'Segoe UI', sans-serif;
+  --font-math:    'Frank Ruhl Libre', 'Times New Roman', serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:        #0B1220;
+    --surface:   #121B30;
+    --surface-2: #17213B;
+    --ink:       #E9EEFB;
+    --muted:     #96A6C6;
+    --border:    #27344E;
+    --accent:    #6090F0;
+    --accent-2:  #8AAEF5;
+    --gold:      #DCB06C;
+    --gold-soft: #2B2314;
+    --shadow:    0 18px 40px -20px rgba(0,0,0,.6);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:        #0B1220;
+  --surface:   #121B30;
+  --surface-2: #17213B;
+  --ink:       #E9EEFB;
+  --muted:     #96A6C6;
+  --border:    #27344E;
+  --accent:    #6090F0;
+  --accent-2:  #8AAEF5;
+  --gold:      #DCB06C;
+  --gold-soft: #2B2314;
+  --shadow:    0 18px 40px -20px rgba(0,0,0,.6);
+  color-scheme: dark;
+}
+
+*,*::before,*::after{ box-sizing:border-box }
+html,body{ margin:0 }
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:var(--font-body); line-height:1.75;
+}
+.page{
+  direction:rtl;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+h1,h2,h3{ font-family:var(--font-display); color:var(--ink); margin:0; text-wrap:balance }
+::selection{ background:var(--accent); color:#fff }
+
+.math{
+  direction:ltr; display:inline-block; unicode-bidi:isolate;
+  font-family:var(--font-math); font-style:italic; letter-spacing:.015em;
+  padding:0 .1em;
+}
+.math b{ font-weight:700; font-style:italic }
+
+/* ---------------------------------------------------------- shell */
+.shell{
+  max-width:1180px; margin:0 auto; padding-block: 28px 70px;
+  display:grid; grid-template-columns: 340px 1fr; gap:26px; align-items:start;
+}
+@media (max-width: 900px){ .shell{ grid-template-columns: 1fr; } }
+
+/* ---------------------------------------------------------- hero */
+.hero{
+  grid-column: 1 / -1; position:relative; overflow:hidden;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+  border-radius: 22px; padding: 30px 34px; color:#fff;
+  box-shadow: var(--shadow);
+  animation: riseIn .7s cubic-bezier(.22,1,.36,1) both;
+}
+.hero::before{
+  content:''; position:absolute; inset:0;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(255,255,255,.18), transparent 45%),
+    radial-gradient(circle at 85% 80%, rgba(255,255,255,.12), transparent 50%);
+  pointer-events:none;
+}
+.hero__tag{
+  display:inline-flex; align-items:center; gap:8px;
+  background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.35);
+  padding:6px 14px; border-radius:999px; font-size:.82rem; font-weight:600;
+  letter-spacing:.02em; margin-bottom:14px;
+}
+.hero h1{ color:#fff; font-size:clamp(1.7rem, 3.4vw, 2.5rem); font-weight:700; margin-bottom:8px }
+.hero p{ color:rgba(255,255,255,.88); max-width:62ch; font-size:1.02rem; margin:0 }
+.hero__meta{ display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; position:relative }
+.hero__meta span{
+  font-family:var(--font-body); font-size:.8rem; font-weight:600;
+  background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.3);
+  padding:5px 12px; border-radius:999px;
+}
+
+/* ---------------------------------------------------------- left rail */
+.rail{ position:sticky; top:18px; display:flex; flex-direction:column; gap:18px }
+@media (max-width:900px){ .rail{ position:static } }
+
+.panel{
+  background:var(--surface); border:1px solid var(--border); border-radius:18px;
+  padding:20px; box-shadow: var(--shadow);
+}
+.panel h2{ font-size:1.05rem; margin-bottom:12px; color:var(--accent) }
+
+/* diagram */
+.fig{ display:flex; flex-direction:column; align-items:center; gap:10px }
+.fig svg{ width:100%; height:auto; max-width:320px; color:var(--ink) }
+.fig__cap{ font-size:.78rem; color:var(--muted); text-align:center; line-height:1.6 }
+
+.seg{ stroke:var(--ink); stroke-width:2.2; fill:none; stroke-linecap:round; }
+.circ{ stroke:var(--accent-2); stroke-width:2.2; fill:none; }
+.pt{ fill:var(--surface); stroke:var(--accent); stroke-width:2.4 }
+.pt-k{ fill:var(--gold); stroke:var(--gold); }
+.lbl{ font-family:var(--font-math); font-style:italic; font-size:17px; fill:var(--ink); }
+
+@keyframes drawLine{ from{ stroke-dashoffset: var(--len) } to{ stroke-dashoffset:0 } }
+.seg,.circ{ animation: drawLine 1.5s cubic-bezier(.4,0,.2,1) both; }
+.pt, .lbl{ animation: fadeUp .5s ease both; animation-delay: 1.2s; }
+@keyframes fadeUp{ from{ opacity:0; transform:translateY(4px) } to{ opacity:1; transform:none } }
+
+/* given chips */
+.given-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:9px }
+.given-list li{
+  display:flex; align-items:center; gap:10px;
+  background:var(--surface-2); border:1px solid var(--border); border-radius:11px;
+  padding:9px 12px; font-size:.92rem;
+}
+.given-list .dot{ width:8px; height:8px; border-radius:50%; background:var(--accent); flex:0 0 auto; }
+
+/* jump nav */
+.jump{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px }
+.jump a{
+  display:flex; align-items:center; gap:10px; text-decoration:none;
+  color:var(--muted); font-size:.9rem; font-weight:600; padding:7px 10px; border-radius:9px;
+  transition: background .15s ease, color .15s ease;
+}
+.jump a:hover{ background:var(--surface-2); color:var(--accent) }
+.jump .badge-mini{
+  width:24px; height:24px; border-radius:50%; display:grid; place-items:center;
+  background:var(--surface-2); border:1px solid var(--border); color:var(--accent);
+  font-family:var(--font-math); font-size:.78rem; flex:0 0 auto;
+}
+
+/* theorems reference */
+.thm-list{ margin:0; padding-right:1.1em; display:flex; flex-direction:column; gap:8px; font-size:.86rem; color:var(--muted) }
+.thm-list li::marker{ color:var(--gold) }
+
+/* ---------------------------------------------------------- main content */
+.main{ display:flex; flex-direction:column; gap:22px; min-width:0 }
+
+.intro{
+  background:var(--surface); border:1px solid var(--border); border-radius:18px;
+  padding:22px 26px; box-shadow:var(--shadow); font-size:1rem; color:var(--muted);
+  animation: riseIn .7s cubic-bezier(.22,1,.36,1) both; animation-delay:.05s;
+}
+.intro b{ color:var(--ink) }
+
+.proof{
+  background:var(--surface); border:1px solid var(--border); border-radius:20px;
+  overflow:hidden; box-shadow:var(--shadow); scroll-margin-top: 18px;
+  animation: riseIn .7s cubic-bezier(.22,1,.36,1) both;
+}
+.proof__head{
+  display:flex; align-items:center; gap:14px;
+  background:linear-gradient(135deg, var(--accent), var(--accent-2));
+  color:#fff; padding:16px 22px;
+}
+.proof__badge{
+  width:42px; height:42px; border-radius:50%; flex:0 0 auto;
+  background:rgba(255,255,255,.18); border:1.5px solid rgba(255,255,255,.55);
+  display:grid; place-items:center; font-family:var(--font-display); font-weight:700; font-size:1.05rem;
+}
+.proof__head h2{ color:#fff; font-size:1.18rem; margin:0 }
+.proof__head p{ margin:2px 0 0; color:rgba(255,255,255,.85); font-size:.85rem }
+
+.proof__body{ padding:22px }
+.goal{
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  background:var(--gold-soft); border:1px dashed var(--gold); border-radius:12px;
+  padding:12px 16px; margin-bottom:18px; font-size:.95rem;
+}
+.goal strong{ color:var(--gold); font-family:var(--font-body); white-space:nowrap }
+
+.given-local{
+  background:var(--surface-2); border:1px solid var(--border); border-radius:12px;
+  padding:12px 16px; margin-bottom:14px; font-size:.9rem; color:var(--muted);
+}
+.given-local strong{ color:var(--ink) }
+
+.tbl-wrap{ overflow-x:auto; border-radius:12px; border:1px solid var(--border) }
+table.proof-table{ width:100%; border-collapse:collapse; font-size:.93rem; min-width:420px }
+table.proof-table thead th{
+  background:linear-gradient(135deg, var(--accent), var(--accent-2)); color:#fff;
+  font-family:var(--font-body); font-weight:700; font-size:.82rem; letter-spacing:.03em;
+  padding:11px 14px; text-align:start;
+}
+table.proof-table th.num-col, table.proof-table td.num-col{ width:38px; text-align:center }
+table.proof-table td{ padding:12px 14px; border-top:1px solid var(--border); vertical-align:top }
+table.proof-table tbody tr:nth-child(even){ background:var(--surface-2) }
+.num-badge{
+  display:inline-grid; place-items:center; width:24px; height:24px; border-radius:50%;
+  background:var(--surface-2); border:1px solid var(--border); color:var(--accent);
+  font-family:var(--font-math); font-size:.78rem;
+}
+td.reason{ color:var(--muted) }
+
+.answer{
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  background:linear-gradient(135deg, var(--accent), var(--accent-2)); color:#fff;
+  border-radius:14px; padding:16px 20px; margin-top:16px; font-size:1.05rem; font-weight:700;
+}
+.answer .math{ color:#fff; font-size:1.15rem }
+.answer .tag-ans{
+  font-family:var(--font-body); font-weight:700; font-size:.78rem; letter-spacing:.04em;
+  background:rgba(255,255,255,.2); padding:4px 10px; border-radius:999px;
+}
+
+.check{
+  margin-top:14px; font-size:.84rem; color:var(--muted);
+  background:var(--surface-2); border:1px dashed var(--border); border-radius:10px;
+  padding:10px 14px;
+}
+.check b{ color:var(--ink) }
+
+.qed{
+  display:flex; align-items:center; justify-content:flex-end; gap:8px;
+  margin-top:16px; color:var(--gold); font-family:var(--font-display); font-weight:700;
+}
+.qed .ring{
+  width:30px; height:30px; border-radius:50%; border:2px solid var(--gold);
+  display:grid; place-items:center; font-size:.95rem;
+}
+
+/* summary chain */
+.chain{
+  background:var(--surface); border:1px solid var(--border); border-radius:20px;
+  padding:26px; box-shadow:var(--shadow);
+  animation: riseIn .7s cubic-bezier(.22,1,.36,1) both;
+}
+.chain h2{ font-size:1.2rem; margin-bottom:16px; color:var(--accent) }
+.chain__row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap }
+.chain__node{
+  background:var(--surface-2); border:1px solid var(--border); border-radius:12px;
+  padding:10px 14px; font-size:.85rem; font-weight:600; color:var(--ink); flex:1 1 180px;
+  min-width:0;
+}
+.chain__node small{ display:block; color:var(--muted); font-weight:400; margin-top:3px; font-size:.78rem }
+.chain__arrow{ color:var(--accent); font-size:1.3rem; flex:0 0 auto; transform:scaleX(-1) }
+@media (max-width:700px){ .chain__arrow{ transform:scaleX(-1) rotate(90deg) } }
+
+footer.foot{ grid-column:1/-1; text-align:center; color:var(--muted); font-size:.82rem; padding-top:6px; }
+
+@keyframes riseIn{ from{ opacity:0; transform:translateY(14px) } to{ opacity:1; transform:none } }
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:.01ms !important; animation-iteration-count:1 !important }
+  .seg,.circ{ stroke-dashoffset:0 !important }
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="shell">
+
+    <!-- ============================================================ HERO -->
+    <section class="hero">
+      <span class="hero__tag">📘 שאלה 5 · מעגל, משיק ומקבילים</span>
+      <h1>משיק, מיתר מקביל ויחס שטחים במעגל</h1>
+      <p>פתרון מלא ומנומק לשלושת סעיפי השאלה — מדמיון משולשים דרך משפט המשיק-מיתר, ועד ביטוי שטח המשולש <span class="math" dir="ltr">CKD</span> באמצעות <span class="math" dir="ltr">S</span>.</p>
+      <div class="hero__meta">
+        <span>סעיף א׳ · דמיון משולשים</span>
+        <span>סעיף ב׳ · יחס שטחים</span>
+        <span>סעיף ג׳ · שטח <span class="math" dir="ltr" style="color:#fff">△CKD</span></span>
+      </div>
+    </section>
+
+    <!-- ============================================================ LEFT RAIL -->
+    <aside class="rail">
+
+      <div class="panel">
+        <h2>הנתון בציור</h2>
+        <div class="fig">
+          <svg viewBox="0 0 400 370" role="img" aria-label="מעגל עם נקודות C, D, F; משיק CB; קו מקביל BFA; וקטע AC החותך את DF בנקודה K">
+            <!-- circle through C, D, F -->
+            <circle class="circ" style="--len:691" cx="230" cy="220" r="110"/>
+
+            <!-- chords -->
+            <path class="seg" style="--len:206" d="M127,182 L333,182"/>
+            <path class="seg" style="--len:180" d="M127,182 L230,330"/>
+            <path class="seg" style="--len:180" d="M333,182 L230,330"/>
+
+            <!-- tangent CB -->
+            <path class="seg" style="--len:158" d="M127,182 L73,330"/>
+
+            <!-- line B-F-A -->
+            <path class="seg" style="--len:267" d="M73,330 L340,330"/>
+
+            <!-- secant C-A (through K) -->
+            <path class="seg" style="--len:259" d="M127,182 L340,330"/>
+
+            <!-- points -->
+            <circle class="pt" cx="127" cy="182" r="4.5"/>
+            <circle class="pt" cx="333" cy="182" r="4.5"/>
+            <circle class="pt" cx="230" cy="330" r="4.5"/>
+            <circle class="pt" cx="73" cy="330" r="4.5"/>
+            <circle class="pt" cx="340" cy="330" r="4.5"/>
+            <circle class="pt pt-k" cx="266" cy="279" r="4.5"/>
+
+            <!-- labels -->
+            <text class="lbl" x="98" y="178">C</text>
+            <text class="lbl" x="340" y="178">D</text>
+            <text class="lbl" x="222" y="352">F</text>
+            <text class="lbl" x="52" y="352">B</text>
+            <text class="lbl" x="346" y="352">A</text>
+            <text class="lbl" x="277" y="270">K</text>
+          </svg>
+          <p class="fig__cap">הציור להמחשה בלבד ואינו בהכרח מדויק ביחסים המספריים.<br><span class="math" dir="ltr">C, D, F</span> על המעגל; <span class="math" dir="ltr">CB</span> משיק; <span class="math" dir="ltr">BFA</span> מקביל ל-<span class="math" dir="ltr">CD</span>.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>נתון</h2>
+        <ul class="given-list">
+          <li><span class="dot"></span> <span class="math" dir="ltr">C, D, F</span> על מעגל</li>
+          <li><span class="dot"></span> מ-<span class="math" dir="ltr">F</span> העבירו ישר מקביל ל-<span class="math" dir="ltr">CD</span></li>
+          <li><span class="dot"></span> <span class="math" dir="ltr">CB</span> משיק למעגל, חותך את המקביל ב-<span class="math" dir="ltr">B</span></li>
+          <li><span class="dot"></span> <span class="math" dir="ltr">A</span> על המשך <span class="math" dir="ltr">BF</span></li>
+          <li><span class="dot"></span> <span class="math" dir="ltr">DF ∩ AC = K</span></li>
+        </ul>
+      </div>
+
+      <div class="panel">
+        <h2>מעבר מהיר בין הסעיפים</h2>
+        <ul class="jump">
+          <li><a href="#sec-a"><span class="badge-mini">א</span> <span class="math" dir="ltr">△DCF ~ △CFB</span></a></li>
+          <li><a href="#sec-b"><span class="badge-mini">ב</span> <span class="math" dir="ltr">S△CKF ⁄ S△CDF</span></a></li>
+          <li><a href="#sec-c"><span class="badge-mini">ג</span> <span class="math" dir="ltr">S△CKD</span></a></li>
+        </ul>
+      </div>
+
+      <div class="panel">
+        <h2>משפטים שישמשו אותנו</h2>
+        <ol class="thm-list">
+          <li>זווית בין משיק למיתר שווה לזווית ההיקפית הנשענת על אותה קשת, מהצד השני.</li>
+          <li>זוויות מתחלפות בין ישרים מקבילים שוות.</li>
+          <li>משפט דמיון זווית-זווית (ז.ז).</li>
+          <li>משולשים בעלי אותו גובה: יחס השטחים שווה ליחס הבסיסים.</li>
+          <li>משולשים דומים: יחס השטחים שווה לריבוע יחס הדמיון.</li>
+        </ol>
+      </div>
+
+    </aside>
+
+    <!-- ============================================================ MAIN -->
+    <main class="main">
+
+      <div class="intro">
+        <b>קו המחשבה:</b> בסעיף א׳ נוכיח דמיון בין משולש <span class="math" dir="ltr">DCF</span> לבין משולש <span class="math" dir="ltr">CFB</span>, בעזרת זווית משיק-מיתר וזוויות מתחלפות. בסעיף ב׳ נשתמש בנקודה <span class="math" dir="ltr">K</span> שעל <span class="math" dir="ltr">DF</span> כדי להשוות שטחי משולשים בעלי אותו גובה. בסעיף ג׳ נחבר את שני הסעיפים הקודמים עם נתון נוסף על <span class="math" dir="ltr">BC ⁄ FK</span>, ונגיע לשטח המבוקש דרך יחס הדמיון בריבוע.
+      </div>
+
+      <!-- ===================== SECTION א ===================== -->
+      <section class="proof" id="sec-a">
+        <div class="proof__head">
+          <div class="proof__badge">א</div>
+          <div>
+            <h2>דמיון המשולשים</h2>
+            <p>להוכיח: <span class="math" dir="ltr" style="color:#fff">△DCF ~ △CFB</span></p>
+          </div>
+        </div>
+        <div class="proof__body">
+          <div class="goal"><strong>רעיון:</strong> זווית משיק-מיתר נותנת זוג זוויות שוות, וזוויות מתחלפות בין המקבילים <span class="math" dir="ltr">CD, FB</span> נותנות זוג זוויות שוות נוסף — ושני זוגות מספיקים לדמיון.</div>
+          <div class="tbl-wrap">
+            <table class="proof-table">
+              <thead><tr><th class="num-col">#</th><th>טענה</th><th>נימוק</th></tr></thead>
+              <tbody>
+                <tr><td class="num-col"><span class="num-badge">1</span></td><td><span class="math" dir="ltr">CD ∥ FB</span></td><td class="reason">נתון</td></tr>
+                <tr><td class="num-col"><span class="num-badge">2</span></td><td><span class="math" dir="ltr">∠DCF = ∠CFB</span></td><td class="reason">זוויות מתחלפות בין המקבילים <span class="math" dir="ltr">CD ∥ FB</span> והחותך <span class="math" dir="ltr">CF</span></td></tr>
+                <tr><td class="num-col"><span class="num-badge">3</span></td><td><span class="math" dir="ltr">CB</span> משיק למעגל בנקודה <span class="math" dir="ltr">C</span></td><td class="reason">נתון</td></tr>
+                <tr><td class="num-col"><span class="num-badge">4</span></td><td><span class="math" dir="ltr">∠BCF = ∠FDC</span></td><td class="reason">זווית בין המשיק <span class="math" dir="ltr">CB</span> למיתר <span class="math" dir="ltr">CF</span> שווה לזווית ההיקפית <span class="math" dir="ltr">∠FDC</span> הנשענת על קשת <span class="math" dir="ltr">CF</span> מהצד השני</td></tr>
+                <tr><td class="num-col"><span class="num-badge">5</span></td><td><span class="math" dir="ltr">△DCF ~ △CFB</span></td><td class="reason">משפט דמיון זווית-זווית (ז.ז), לפי שורות 2 ו-4</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="qed"><span class="ring">∎</span> מש״ל</div>
+        </div>
+      </section>
+
+      <!-- ===================== SECTION ב ===================== -->
+      <section class="proof" id="sec-b">
+        <div class="proof__head">
+          <div class="proof__badge">ב</div>
+          <div>
+            <h2>יחס שטחים על אותו גובה</h2>
+            <p>למצוא: <span class="math" dir="ltr" style="color:#fff">S△CKF ⁄ S△CDF</span></p>
+          </div>
+        </div>
+        <div class="proof__body">
+          <div class="given-local"><strong>נתון לסעיף זה:</strong> <span class="math" dir="ltr">K</span> נמצאת על הקטע <span class="math" dir="ltr">DF</span>, וכן <span class="math" dir="ltr">KD ⁄ KF = 5 ⁄ 3</span>.</div>
+          <div class="goal"><strong>רעיון:</strong> משולשים <span class="math" dir="ltr">CKF</span> ו-<span class="math" dir="ltr">CDF</span> חולקים קודקוד <span class="math" dir="ltr">C</span> ובסיסים על אותו ישר <span class="math" dir="ltr">DF</span> — כלומר אותו גובה, ולכן יחס השטחים שווה ליחס הבסיסים.</div>
+          <div class="tbl-wrap">
+            <table class="proof-table">
+              <thead><tr><th class="num-col">#</th><th>טענה</th><th>נימוק</th></tr></thead>
+              <tbody>
+                <tr><td class="num-col"><span class="num-badge">1</span></td><td><span class="math" dir="ltr">KD ⁄ KF = 5 ⁄ 3</span> ⟹ נסמן <span class="math" dir="ltr">KF = 3t, KD = 5t</span></td><td class="reason">נתון</td></tr>
+                <tr><td class="num-col"><span class="num-badge">2</span></td><td><span class="math" dir="ltr">DF = DK + KF = 8t</span></td><td class="reason"><span class="math" dir="ltr">K</span> נמצאת בין <span class="math" dir="ltr">D</span> ל-<span class="math" dir="ltr">F</span> על הקטע <span class="math" dir="ltr">DF</span></td></tr>
+                <tr><td class="num-col"><span class="num-badge">3</span></td><td>למשולשים <span class="math" dir="ltr">CKF, CDF</span> קודקוד משותף <span class="math" dir="ltr">C</span> ובסיסים <span class="math" dir="ltr">KF, DF</span> על אותו ישר</td><td class="reason">מתוך היות <span class="math" dir="ltr">K</span> נקודה על הקטע <span class="math" dir="ltr">DF</span></td></tr>
+                <tr><td class="num-col"><span class="num-badge">4</span></td><td>לשני המשולשים אותו גובה מ-<span class="math" dir="ltr">C</span> אל הישר <span class="math" dir="ltr">DF</span></td><td class="reason">מסקנה משורה 3</td></tr>
+                <tr><td class="num-col"><span class="num-badge">5</span></td><td><span class="math" dir="ltr">S△CKF ⁄ S△CDF = KF ⁄ DF = 3t ⁄ 8t = 3 ⁄ 8</span></td><td class="reason">משולשים בעלי אותו גובה: יחס השטחים שווה ליחס הבסיסים</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="answer"><span class="tag-ans">תשובה</span> <span class="math" dir="ltr">S△CKF ⁄ S△CDF = 3 ⁄ 8</span></div>
+          <div class="qed"><span class="ring">∎</span> מש״ל</div>
+        </div>
+      </section>
+
+      <!-- ===================== SECTION ג ===================== -->
+      <section class="proof" id="sec-c">
+        <div class="proof__head">
+          <div class="proof__badge">ג</div>
+          <div>
+            <h2>שטח המשולש <span class="math" dir="ltr" style="color:#fff">CKD</span> באמצעות <span class="math" dir="ltr" style="color:#fff">S</span></h2>
+            <p>להביע: <span class="math" dir="ltr" style="color:#fff">S△CKD</span></p>
+          </div>
+        </div>
+        <div class="proof__body">
+          <div class="given-local"><strong>נתון לסעיף זה:</strong> <span class="math" dir="ltr">BC ⁄ FK = 16 ⁄ 9</span>, ו-<span class="math" dir="ltr">S</span> הוא שטח המשולש <span class="math" dir="ltr">BCF</span>.</div>
+          <div class="goal"><strong>רעיון:</strong> משני יחסי הדמיון (<span class="math" dir="ltr">BC ⁄ FK</span>) נמצא את יחס הדמיון <span class="math" dir="ltr">k</span> בין <span class="math" dir="ltr">△DCF</span> ל-<span class="math" dir="ltr">△CFB</span>, נעבור ליחס השטחים דרך <span class="math" dir="ltr">k²</span>, ומשם נחלק את <span class="math" dir="ltr">S△CDF</span> לפי יחס הבסיסים <span class="math" dir="ltr">DK ⁄ DF</span> כמו בסעיף ב׳.</div>
+          <div class="tbl-wrap">
+            <table class="proof-table">
+              <thead><tr><th class="num-col">#</th><th>טענה</th><th>נימוק</th></tr></thead>
+              <tbody>
+                <tr><td class="num-col"><span class="num-badge">1</span></td><td><span class="math" dir="ltr">FK = KF = 3t</span> (מסעיף ב) ⟹ <span class="math" dir="ltr">BC = (16⁄9)·3t = 16t⁄3</span></td><td class="reason">נתון: <span class="math" dir="ltr">BC ⁄ FK = 16 ⁄ 9</span></td></tr>
+                <tr><td class="num-col"><span class="num-badge">2</span></td><td><span class="math" dir="ltr">FD ⁄ BC = CF ⁄ FB = DC ⁄ CF = k</span></td><td class="reason">יחס הדמיון בין הצלעות המתאימות ב-<span class="math" dir="ltr">△DCF ~ △CFB</span> (סעיף א׳): <span class="math" dir="ltr">D↔C, C↔F, F↔B</span></td></tr>
+                <tr><td class="num-col"><span class="num-badge">3</span></td><td><span class="math" dir="ltr">FD = DF = 8t</span></td><td class="reason">הוכח בסעיף ב׳</td></tr>
+                <tr><td class="num-col"><span class="num-badge">4</span></td><td><span class="math" dir="ltr">k = FD ⁄ BC = 8t ⁄ (16t⁄3) = 3 ⁄ 2</span></td><td class="reason">הצבה משורות 1 ו-3</td></tr>
+                <tr><td class="num-col"><span class="num-badge">5</span></td><td><span class="math" dir="ltr">S△DCF ⁄ S△CFB = k² = 9 ⁄ 4</span></td><td class="reason">משולשים דומים: יחס השטחים שווה לריבוע יחס הדמיון</td></tr>
+                <tr><td class="num-col"><span class="num-badge">6</span></td><td><span class="math" dir="ltr">S△DCF = (9⁄4)·S△CFB = (9⁄4)S</span></td><td class="reason"><span class="math" dir="ltr">S△CFB = S</span> (נתון)</td></tr>
+                <tr><td class="num-col"><span class="num-badge">7</span></td><td><span class="math" dir="ltr">S△CKD ⁄ S△CDF = DK ⁄ DF = 5t ⁄ 8t = 5 ⁄ 8</span></td><td class="reason">אותו נימוק כמו בסעיף ב׳: קודקוד משותף <span class="math" dir="ltr">C</span>, בסיסים <span class="math" dir="ltr">DK, DF</span> על אותו ישר</td></tr>
+                <tr><td class="num-col"><span class="num-badge">8</span></td><td><span class="math" dir="ltr">S△CKD = (5⁄8)·(9⁄4)S = 45⁄32 · S</span></td><td class="reason">הצבה משורות 6 ו-7</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="answer"><span class="tag-ans">תשובה</span> <span class="math" dir="ltr">S△CKD = 45⁄32 · S</span></div>
+          <div class="check"><b>בדיקת סבירות:</b> <span class="math" dir="ltr">S△CKD + S△CKF = (45⁄32)S + (3⁄8)·(9⁄4)S = (45⁄32)S + (27⁄32)S = (72⁄32)S = (9⁄4)S = S△DCF</span> ✓ — תואם בדיוק לשורה 6, כנדרש מכך ש-<span class="math" dir="ltr">K</span> מחלקת את <span class="math" dir="ltr">△CDF</span> לשני המשולשים <span class="math" dir="ltr">CKD</span> ו-<span class="math" dir="ltr">CKF</span>.</div>
+          <div class="qed"><span class="ring">∎</span> מש״ל</div>
+        </div>
+      </section>
+
+      <!-- ===================== CHAIN SUMMARY ===================== -->
+      <section class="chain">
+        <h2>שרשרת הפתרון בקיצור</h2>
+        <div class="chain__row">
+          <div class="chain__node">ז.ז ⟹ <span class="math" dir="ltr">△DCF ~ △CFB</span><small>סעיף א׳</small></div>
+          <span class="chain__arrow">←</span>
+          <div class="chain__node"><span class="math" dir="ltr">KD⁄KF=5⁄3</span> ⟹ <span class="math" dir="ltr">S△CKF⁄S△CDF=3⁄8</span><small>סעיף ב׳</small></div>
+          <span class="chain__arrow">←</span>
+          <div class="chain__node"><span class="math" dir="ltr">BC⁄FK=16⁄9</span> ⟹ <span class="math" dir="ltr">k=3⁄2</span> ⟹ <span class="math" dir="ltr">S△DCF=9⁄4 S</span><small>סעיף ג׳</small></div>
+          <span class="chain__arrow">←</span>
+          <div class="chain__node"><span class="math" dir="ltr">S△CKD = 45⁄32 · S</span><small>תשובה סופית</small></div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="foot">שאלה 5 — מעגל, משיק ומקבילים · פתרון מלא</footer>
+  </div>
+</div>
+</body>
+</html>
