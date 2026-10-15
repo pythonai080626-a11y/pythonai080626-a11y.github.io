@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>שאלה - משולש ישר-זווית ותיכונים</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:ital,wght@0,400;0,500;0,700;0,900;1,500;1,700&family=Assistant:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   DESIGN PLAN - same system as math/1.html, math/3.html, math/4.html, math/5.html.
+   Layout: sticky left rail (diagram + given + jump nav + theorem
+   reference) beside the solution column flowing down the right
+   (RTL start). Claim/reason (טענה/נימוק) tables, מש״ל seal.
+   Color:  --ink navy text, --accent/--accent-2 sapphire blue
+           (headers, seal ring), --gold bronze (seal), --bg/--surface
+           cool paper blues.
+   Type:   Frank Ruhl Libre (display + math italics), Assistant
+           (Hebrew body sans).
+   ============================================================ */
+:root{
+  --bg:        #F5F8FC;
+  --surface:   #FFFFFF;
+  --surface-2: #EBF1FA;
+  --ink:       #152042;
+  --muted:     #5B6B8A;
+  --border:    #D8E2F1;
+  --accent:    #1E3F8F;
+  --accent-2:  #3E68C9;
+  --gold:      #A9762E;
+  --gold-soft: #F3E7D2;
+  --shadow:    0 18px 40px -22px rgba(21,32,66,.35);
+
+  --font-display: 'Frank Ruhl Libre', 'Times New Roman', serif;
+  --font-body:    'Assistant', -apple-system, 'Segoe UI', sans-serif;
+  --font-math:    'Frank Ruhl Libre', 'Times New Roman', serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:        #0B1220;
+    --surface:   #121B30;
+    --surface-2: #17213B;
+    --ink:       #E9EEFB;
+    --muted:     #96A6C6;
+    --border:    #27344E;
+    --accent:    #6090F0;
+    --accent-2:  #8AAEF5;
+    --gold:      #DCB06C;
+    --gold-soft: #2B2314;
+    --shadow:    0 18px 40px -20px rgba(0,0,0,.6);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:        #0B1220;
+  --surface:   #121B30;
+  --surface-2: #17213B;
+  --ink:       #E9EEFB;
+  --muted:     #96A6C6;
+  --border:    #27344E;
+  --accent:    #6090F0;
+  --accent-2:  #8AAEF5;
+  --gold:      #DCB06C;
+  --gold-soft: #2B2314;
+  --shadow:    0 18px 40px -20px rgba(0,0,0,.6);
+  color-scheme: dark;
+}
+
+*,*::before,*::after{ box-sizing:border-box }
+html,body{ margin:0 }
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:var(--font-body); line-height:1.75;
+}
+.page{
+  direction:rtl;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+h1,h2,h3{ font-family:var(--font-display); color:var(--ink); margin:0; text-wrap:balance }
+::selection{ background:var(--accent); color:#fff }
+
+.math{
+  direction:ltr; display:inline-block; unicode-bidi:isolate;
+  font-family:var(--font-math); font-style:italic; letter-spacing:.015em;
+  padding:0 .1em;
+}
+.math b{ font-weight:700; font-style:italic }
+.math sub{ font-size:.7em }
+
+/* ---------------------------------------------------------- shell */
+.shell{
+  max-width:1180px; margin:0 auto; padding-block: 28px 70px;
+  display:grid; grid-template-columns: 340px 1fr; gap:26px; align-items:start;
+}
+@media (max-width: 900px){ .shell{ grid-template-columns: 1fr; } }
+
+/* ---------------------------------------------------------- hero */
+.hero{
+  grid-column: 1 / -1; position:relative; overflow:hidden;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+  border-radius: 22px; padding: 30px 34px; color:#fff;
+  box-shadow: var(--shadow);
+  animation: riseIn .7s cubic-bezier(.22,1,.36,1) both;
+}
+.hero::before{
+  content:''; position:absolute; inset:0;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(255,255,255,.18), transparent 45%),
+    radial-gradient(circle at 85% 80%, rgba(255,255,255,.12), transparent 50%);
+  pointer-events:none;
+}
+.hero__tag{
+  display:inline-flex; align-items:center; gap:8px;
+  background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.35);
+  padding:6px 14px; border-radius:999px; font-size:.82rem; font-weight:600;
+  letter-spacing:.02em; margin-bottom:14px;
+}
+.hero h1{ color:#fff; font-size:clamp(1.7rem, 3.4vw, 2.5rem); font-weight:700; margin-bottom:8px }
+.hero p{ color:rgba(255,255,255,.88); max-width:62ch; font-size:1.02rem; margin:0 }
+.hero__meta{ display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; position:relative }
+.hero__meta span{
+  font-family:var(--font-body); font-size:.8rem; font-weight:600;
+  background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.3);
+  padding:5px 12px; border-radius:999px;
+}
+
+/* ---------------------------------------------------------- left rail */
+.rail{ position:sticky; top:18px; display:flex; flex-direction:column; gap:18px }
+@media (max-width:900px){ .rail{ position:static } }
+
+.panel{
+  background:var(--surface); border:1px solid var(--border); border-radius:18px;
+  padding:20px; box-shadow: var(--shadow);
+}
+.panel h2{ font-size:1.05rem; margin-bottom:12px; color:var(--accent) }
+
+/* diagram */
+.fig{ display:flex; flex-direction:column; align-items:center; gap:10px }
+.fig svg{ width:100%; height:auto; max-width:320px; color:var(--ink) }
+.fig__cap{ font-size:.78rem; color:var(--muted); text-align:center; line-height:1.6 }
+
+.seg{ stroke:var(--ink); stroke-width:2.2; fill:none; stroke-linecap:round; }
+.diag{ stroke:var(--accent-2); stroke-width:2; fill:none; }
+.pt{ fill:var(--surface); stroke:var(--accent); stroke-width:2.4 }
+.pt-f{ fill:var(--gold); stroke:var(--gold); }
+.lbl{ font-family:var(--font-math); font-style:italic; font-size:17px; fill:var(--ink); }
+.rightang{ fill:none; stroke:var(--accent-2); stroke-width:1.6 }
+
+@keyframes drawLine{ from{ stroke-dashoffset: var(--len) } to{ stroke-dashoffset:0 } }
+.seg,.diag{ animation: drawLine 1.4s cubic-bezier(.4,0,.2,1) both; }
+.pt, .lbl, .rightang{ animation: fadeUp .5s ease both; animation-delay: 1.1s; }
+@keyframes fadeUp{ from{ opacity:0; transform:translateY(4px) } to{ opacity:1; transform:none } }
+
+/* given chips */
+.given-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:9px }
+.given-list li{
+  display:flex; align-items:center; gap:10px;
+  background:var(--surface-2); border:1px solid var(--border); border-radius:11px;
+  padding:9px 12px; font-size:.92rem;
+}
+.given-list .dot{ width:8px; height:8px; border-radius:50%; background:var(--accent); flex:0 0 auto; }
+
+/* jump nav */
+.jump{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px }
+.jump a{
+  display:flex; align-items:center; gap:10px; text-decoration:none;
+  color:var(--muted); font-size:.9rem; font-weight:600; padding:7px 10px; border-radius:9px;
+  transition: background .15s ease, color .15s ease;
+}
+.jump a:hover{ background:var(--surface-2); color:var(--accent) }
+.jump .badge-mini{
+  width:24px; height:24px; border-radius:50%; display:grid; place-items:center;
+  background:var(--surface-2); border:1px solid var(--border); color:var(--accent);
+  font-family:var(--font-math); font-size:.78rem; flex:0 0 auto;
+}
+
+/* theorems reference */
+.thm-list{ margin:0; padding-right:1.1em; display:flex; flex-direction:column; gap:8px; font-size:.86rem; color:var(--muted) }
+.thm-list li::marker{ color:var(--gold) }
+
+/* ---------------------------------------------------------- main content */
+.main{ display:flex; flex-direction:column; gap:22px; min-width:0 }
+
+.intro{
+  background:var(--surface); border:1px solid var(--border); border-radius:18px;
+  padding:22px 26px; box-shadow:var(--shadow); font-size:1rem; color:var(--muted);
+  animation: riseIn .7s cubic-bezier(.22,1,.36,1) both; animation-delay:.05s;
+}
+.intro b{ color:var(--ink) }
+
+.proof{
+  background:var(--surface); border:1px solid var(--border); border-radius:20px;
+  overflow:hidden; box-shadow:var(--shadow); scroll-margin-top: 18px;
+  animation: riseIn .7s cubic-bezier(.22,1,.36,1) both;
+}
+.proof__head{
+  display:flex; align-items:center; gap:14px;
+  background:linear-gradient(135deg, var(--accent), var(--accent-2));
+  color:#fff; padding:16px 22px;
+}
+.proof__badge{
+  width:42px; height:42px; border-radius:50%; flex:0 0 auto;
+  background:rgba(255,255,255,.18); border:1.5px solid rgba(255,255,255,.55);
+  display:grid; place-items:center; font-family:var(--font-display); font-weight:700; font-size:1.05rem;
+}
+.proof__head h2{ color:#fff; font-size:1.18rem; margin:0 }
+.proof__head p{ margin:2px 0 0; color:rgba(255,255,255,.85); font-size:.85rem }
+
+.proof__body{ padding:22px }
+.goal{
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  background:var(--gold-soft); border:1px dashed var(--gold); border-radius:12px;
+  padding:12px 16px; margin-bottom:18px; font-size:.95rem;
+}
+.goal strong{ color:var(--gold); font-family:var(--font-body); white-space:nowrap }
+
+.tbl-wrap{ overflow-x:auto; border-radius:12px; border:1px solid var(--border) }
+table.proof-table{ width:100%; border-collapse:collapse; font-size:.93rem; min-width:420px }
+table.proof-table thead th{
+  background:linear-gradient(135deg, var(--accent), var(--accent-2)); color:#fff;
+  font-family:var(--font-body); font-weight:700; font-size:.82rem; letter-spacing:.03em;
+  padding:11px 14px; text-align:start;
+}
+table.proof-table th.num-col, table.proof-table td.num-col{ width:38px; text-align:center }
+table.proof-table td{ padding:12px 14px; border-top:1px solid var(--border); vertical-align:top }
+table.proof-table tbody tr:nth-child(even){ background:var(--surface-2) }
+.num-badge{
+  display:inline-grid; place-items:center; width:24px; height:24px; border-radius:50%;
+  background:var(--surface-2); border:1px solid var(--border); color:var(--accent);
+  font-family:var(--font-math); font-size:.78rem;
+}
+td.reason{ color:var(--muted) }
+
+.answer{
+  background:var(--surface-2); border:1px solid var(--border); border-radius:12px;
+  padding:14px 18px; margin-top:16px; font-size:.98rem; display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+}
+.answer strong{ color:var(--accent); font-family:var(--font-body) }
+
+.qed{
+  display:flex; align-items:center; justify-content:flex-end; gap:8px;
+  margin-top:16px; color:var(--gold); font-family:var(--font-display); font-weight:700;
+}
+.qed .ring{
+  width:30px; height:30px; border-radius:50%; border:2px solid var(--gold);
+  display:grid; place-items:center; font-size:.95rem;
+}
+
+/* summary chain */
+.chain{
+  background:var(--surface); border:1px solid var(--border); border-radius:20px;
+  padding:26px; box-shadow:var(--shadow);
+  animation: riseIn .7s cubic-bezier(.22,1,.36,1) both;
+}
+.chain h2{ font-size:1.2rem; margin-bottom:16px; color:var(--accent) }
+.chain__row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap }
+.chain__node{
+  background:var(--surface-2); border:1px solid var(--border); border-radius:12px;
+  padding:10px 14px; font-size:.85rem; font-weight:600; color:var(--ink); flex:1 1 180px;
+  min-width:0;
+}
+.chain__node small{ display:block; color:var(--muted); font-weight:400; margin-top:3px; font-size:.78rem }
+.chain__arrow{ color:var(--accent); font-size:1.3rem; flex:0 0 auto; transform:scaleX(-1) }
+@media (max-width:700px){ .chain__arrow{ transform:scaleX(-1) rotate(90deg) } }
+
+footer.foot{ grid-column:1/-1; text-align:center; color:var(--muted); font-size:.82rem; padding-top:6px; }
+
+@keyframes riseIn{ from{ opacity:0; transform:translateY(14px) } to{ opacity:1; transform:none } }
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:.01ms !important; animation-iteration-count:1 !important }
+  .seg,.diag{ stroke-dashoffset:0 !important }
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="shell">
+
+    <!-- ============================================================ HERO -->
+    <section class="hero">
+      <span class="hero__tag">📘 משולש ישר-זווית · תיכונים ומרכז הכובד</span>
+      <h1>תיכונים נפגשים ומרכז הכובד</h1>
+      <p>פתרון מלא ומנומק לארבעת סעיפי השאלה - מזוויות המשולש <span class="math" dir="ltr">ABC</span>, דרך אורכי הקטעים <span class="math" dir="ltr">BM</span> ו-<span class="math" dir="ltr">CM</span> עד זוויות המשולש <span class="math" dir="ltr">BMC</span> שנוצר בנקודת המפגש של התיכונים.</p>
+      <div class="hero__meta">
+        <span>סעיף א׳ · זוויות <span class="math" dir="ltr" style="color:#fff">ABC</span></span>
+        <span>סעיף ב׳ · <span class="math" dir="ltr" style="color:#fff">BM</span></span>
+        <span>סעיף ג׳ · <span class="math" dir="ltr" style="color:#fff">CM</span></span>
+        <span>סעיף ד׳ · זוויות <span class="math" dir="ltr" style="color:#fff">BMC</span></span>
+      </div>
+    </section>
+
+    <!-- ============================================================ LEFT RAIL -->
+    <aside class="rail">
+
+      <div class="panel">
+        <h2>הנתון בציור</h2>
+        <div class="fig">
+          <svg viewBox="0 0 230 160" role="img" aria-label="משולש ABC ישר זווית ב-B, עם D אמצע AB ו-E אמצע AC, והתיכונים BE ו-CD נפגשים בנקודה M">
+            <!-- triangle sides -->
+            <path class="seg" style="--len:108" d="M40,20 L40,128"/>
+            <path class="seg" style="--len:144" d="M40,128 L184,128"/>
+            <path class="seg" style="--len:180" d="M184,128 L40,20"/>
+
+            <!-- medians -->
+            <path class="diag" style="--len:90" d="M40,128 L112,74"/>
+            <path class="diag" style="--len:154" d="M184,128 L40,74"/>
+
+            <!-- right angle mark at B -->
+            <path class="rightang" d="M40,118 L50,118 L50,128"/>
+
+            <!-- points -->
+            <circle class="pt" cx="40" cy="20" r="4.5"/>
+            <circle class="pt" cx="40" cy="128" r="4.5"/>
+            <circle class="pt" cx="184" cy="128" r="4.5"/>
+            <circle class="pt" cx="40" cy="74" r="4.5"/>
+            <circle class="pt" cx="112" cy="74" r="4.5"/>
+            <circle class="pt pt-f" cx="88" cy="92" r="4.5"/>
+
+            <!-- labels -->
+            <text class="lbl" x="28" y="14">A</text>
+            <text class="lbl" x="20" y="146">B</text>
+            <text class="lbl" x="188" y="146">C</text>
+            <text class="lbl" x="16" y="78">D</text>
+            <text class="lbl" x="118" y="66">E</text>
+            <text class="lbl" x="94" y="90">M</text>
+          </svg>
+          <p class="fig__cap">הציור להמחשה בלבד ואינו בהכרח מדויק.<br><span class="math" dir="ltr">D</span> אמצע <span class="math" dir="ltr">AB</span>, <span class="math" dir="ltr">E</span> אמצע <span class="math" dir="ltr">AC</span>; <span class="math" dir="ltr">BE ∩ CD = M</span>.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>נתון</h2>
+        <ul class="given-list">
+          <li><span class="dot"></span> משולש <span class="math" dir="ltr">ABC</span> ישר-זווית, <span class="math" dir="ltr">∠B = 90°</span></li>
+          <li><span class="dot"></span> <span class="math" dir="ltr">AB = 3</span>, <span class="math" dir="ltr">AC = 5</span></li>
+          <li><span class="dot"></span> <span class="math" dir="ltr">D</span> אמצע <span class="math" dir="ltr">AB</span>, <span class="math" dir="ltr">E</span> אמצע <span class="math" dir="ltr">AC</span> (<span class="math" dir="ltr">BE</span>, <span class="math" dir="ltr">CD</span> תיכונים)</li>
+          <li><span class="dot"></span> <span class="math" dir="ltr">BE ∩ CD = M</span></li>
+        </ul>
+      </div>
+
+      <div class="panel">
+        <h2>מעבר מהיר בין הסעיפים</h2>
+        <ul class="jump">
+          <li><a href="#sec-a"><span class="badge-mini">א</span> זוויות <span class="math" dir="ltr">ABC</span></a></li>
+          <li><a href="#sec-b"><span class="badge-mini">ב</span> אורך <span class="math" dir="ltr">BM</span></a></li>
+          <li><a href="#sec-c"><span class="badge-mini">ג</span> אורך <span class="math" dir="ltr">CM</span></a></li>
+          <li><a href="#sec-d"><span class="badge-mini">ד</span> זוויות <span class="math" dir="ltr">BMC</span></a></li>
+        </ul>
+      </div>
+
+      <div class="panel">
+        <h2>משפטים שישמשו אותנו</h2>
+        <ol class="thm-list">
+          <li>סכום זוויות במשולש = 180°.</li>
+          <li>תיכון ליתר במשולש ישר-זווית שווה למחצית היתר.</li>
+          <li>נקודת מפגש התיכונים (מרכז הכובד) מחלקת כל תיכון ביחס 2:1 מהקודקוד.</li>
+          <li>במשולש שווה-שוקיים זוויות הבסיס שוות זו לזו.</li>
+          <li>משפט פיתגורס במשולש ישר-זווית.</li>
+          <li>חוק הקוסינוסים - מציאת זווית כאשר ידועות שלוש הצלעות.</li>
+        </ol>
+      </div>
+
+    </aside>
+
+    <!-- ============================================================ MAIN -->
+    <main class="main">
+
+      <div class="intro">
+        <b>קו המחשבה:</b> בסעיף א׳ נמצא את <span class="math" dir="ltr">BC</span> בעזרת פיתגורס ואת זוויות <span class="math" dir="ltr">ABC</span> בעזרת סינוס. בסעיף ב׳ נשתמש בכך ש-<span class="math" dir="ltr">BE</span> הוא תיכון ליתר <span class="math" dir="ltr">AC</span> - ולכן שווה למחציתו - ונחלק אותו ביחס 2:1 כדי לקבל את <span class="math" dir="ltr">BM</span>. בסעיף ג׳ <span class="math" dir="ltr">CD</span> הוא תיכון לניצב (לא ליתר), אז נחשב אותו דרך משולש ישר-זווית נוסף <span class="math" dir="ltr">DBC</span>, ונחלק גם אותו ביחס 2:1. בסעיף ד׳ זווית <span class="math" dir="ltr">∠MBC</span> מתקבלת ישירות מתכונת המשולש שווה-השוקיים <span class="math" dir="ltr">BEC</span>, ושתי הזוויות הנותרות ב-<span class="math" dir="ltr">△BMC</span> מתקבלות מחוק הקוסינוסים לפי שלוש הצלעות שכבר חושבו.
+      </div>
+
+      <!-- ===================== SECTION א ===================== -->
+      <section class="proof" id="sec-a">
+        <div class="proof__head">
+          <div class="proof__badge">א</div>
+          <div>
+            <h2>זוויות המשולש <span class="math" dir="ltr" style="color:#fff">ABC</span></h2>
+            <p>למצוא: <span class="math" dir="ltr" style="color:#fff">∠A, ∠B, ∠C</span></p>
+          </div>
+        </div>
+        <div class="proof__body">
+          <div class="goal"><strong>רעיון:</strong> נמצא את הניצב החסר <span class="math" dir="ltr">BC</span> בעזרת פיתגורס, ואז נשתמש ביחס סינוס בכל אחת מהזוויות החדות.</div>
+          <div class="tbl-wrap">
+            <table class="proof-table">
+              <thead><tr><th class="num-col">#</th><th>טענה</th><th>נימוק</th></tr></thead>
+              <tbody>
+                <tr><td class="num-col"><span class="num-badge">1</span></td><td><span class="math" dir="ltr">BC = √(AC² - AB²) = √(25 - 9) = √16 = 4</span></td><td class="reason">משפט פיתגורס במשולש <span class="math" dir="ltr">ABC</span> הישר-זווית ב-<span class="math" dir="ltr">B</span></td></tr>
+                <tr><td class="num-col"><span class="num-badge">2</span></td><td><span class="math" dir="ltr">sin(A) = BC/AC = 4/5</span> ⟹ <span class="math" dir="ltr">∠A ≈ 53.13°</span></td><td class="reason">יחס סינוס לזווית חדה במשולש ישר-זווית (מול/יתר)</td></tr>
+                <tr><td class="num-col"><span class="num-badge">3</span></td><td><span class="math" dir="ltr">sin(C) = AB/AC = 3/5</span> ⟹ <span class="math" dir="ltr">∠C ≈ 36.87°</span></td><td class="reason">יחס סינוס לזווית חדה</td></tr>
+                <tr><td class="num-col"><span class="num-badge">4</span></td><td>בדיקה: <span class="math" dir="ltr">53.13° + 90° + 36.87° = 180°</span> ✓</td><td class="reason">סכום זוויות במשולש</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="answer"><strong>תשובה:</strong> <span class="math" dir="ltr">∠A ≈ 53.13°</span> &nbsp;·&nbsp; <span class="math" dir="ltr">∠B = 90°</span> &nbsp;·&nbsp; <span class="math" dir="ltr">∠C ≈ 36.87°</span></div>
+        </div>
+      </section>
+
+      <!-- ===================== SECTION ב ===================== -->
+      <section class="proof" id="sec-b">
+        <div class="proof__head">
+          <div class="proof__badge">ב</div>
+          <div>
+            <h2>אורך הקטע <span class="math" dir="ltr" style="color:#fff">BM</span></h2>
+            <p>למצוא: <span class="math" dir="ltr" style="color:#fff">BM</span></p>
+          </div>
+        </div>
+        <div class="proof__body">
+          <div class="goal"><strong>רעיון:</strong> <span class="math" dir="ltr">BE</span> הוא תיכון מהזווית הישרה אל היתר <span class="math" dir="ltr">AC</span> - ולכן שווה למחציתו, בלי שום חישוב נוסף.</div>
+          <div class="tbl-wrap">
+            <table class="proof-table">
+              <thead><tr><th class="num-col">#</th><th>טענה</th><th>נימוק</th></tr></thead>
+              <tbody>
+                <tr><td class="num-col"><span class="num-badge">1</span></td><td><span class="math" dir="ltr">E</span> אמצע היתר <span class="math" dir="ltr">AC</span> ⟹ <span class="math" dir="ltr">BE</span> תיכון ליתר</td><td class="reason">נתון; הגדרת <span class="math" dir="ltr">E</span></td></tr>
+                <tr><td class="num-col"><span class="num-badge">2</span></td><td><span class="math" dir="ltr">BE = AC/2 = 5/2 = 2.5</span></td><td class="reason">תיכון ליתר במשולש ישר-זווית שווה למחצית היתר</td></tr>
+                <tr><td class="num-col"><span class="num-badge">3</span></td><td><span class="math" dir="ltr">M</span> מרכז הכובד של <span class="math" dir="ltr">△ABC</span> ⟹ <span class="math" dir="ltr">BM = (2/3)·BE</span></td><td class="reason">נקודת מפגש התיכונים מחלקת כל תיכון ביחס 2:1 מהקודקוד</td></tr>
+                <tr><td class="num-col"><span class="num-badge">4</span></td><td><span class="math" dir="ltr">BM = (2/3)·(5/2) = 5/3</span></td><td class="reason">הצבה</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="answer"><strong>תשובה:</strong> <span class="math" dir="ltr">BM = 5/3 ≈ 1.67</span></div>
+        </div>
+      </section>
+
+      <!-- ===================== SECTION ג ===================== -->
+      <section class="proof" id="sec-c">
+        <div class="proof__head">
+          <div class="proof__badge">ג</div>
+          <div>
+            <h2>אורך הקטע <span class="math" dir="ltr" style="color:#fff">CM</span></h2>
+            <p>למצוא: <span class="math" dir="ltr" style="color:#fff">CM</span></p>
+          </div>
+        </div>
+        <div class="proof__body">
+          <div class="goal"><strong>רעיון:</strong> <span class="math" dir="ltr">CD</span> הוא תיכון לניצב <span class="math" dir="ltr">AB</span>, לא ליתר - אז אין קיצור כמו בסעיף ב׳. נבנה משולש ישר-זווית נוסף <span class="math" dir="ltr">DBC</span> ונשתמש בפיתגורס.</div>
+          <div class="tbl-wrap">
+            <table class="proof-table">
+              <thead><tr><th class="num-col">#</th><th>טענה</th><th>נימוק</th></tr></thead>
+              <tbody>
+                <tr><td class="num-col"><span class="num-badge">1</span></td><td><span class="math" dir="ltr">D</span> אמצע <span class="math" dir="ltr">AB</span> ⟹ <span class="math" dir="ltr">BD = AB/2 = 3/2</span></td><td class="reason">נתון; הגדרת <span class="math" dir="ltr">D</span></td></tr>
+                <tr><td class="num-col"><span class="num-badge">2</span></td><td><span class="math" dir="ltr">D</span> נמצאת על הקטע <span class="math" dir="ltr">AB</span> ⟹ <span class="math" dir="ltr">∠DBC = ∠ABC = 90°</span></td><td class="reason"><span class="math" dir="ltr">D, A, B</span> על ישר אחד; נתון <span class="math" dir="ltr">∠ABC = 90°</span></td></tr>
+                <tr><td class="num-col"><span class="num-badge">3</span></td><td>משולש <span class="math" dir="ltr">DBC</span> ישר-זווית ב-<span class="math" dir="ltr">B</span>: <span class="math" dir="ltr">CD = √(BD² + BC²) = √(1.5² + 4²) = √18.25 = √73/2</span></td><td class="reason">משפט פיתגורס במשולש <span class="math" dir="ltr">DBC</span></td></tr>
+                <tr><td class="num-col"><span class="num-badge">4</span></td><td><span class="math" dir="ltr">M</span> מרכז הכובד ⟹ <span class="math" dir="ltr">CM = (2/3)·CD = (2/3)·(√73/2) = √73/3</span></td><td class="reason">נקודת מפגש התיכונים מחלקת כל תיכון ביחס 2:1 מהקודקוד</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="answer"><strong>תשובה:</strong> <span class="math" dir="ltr">CM = √73/3 ≈ 2.85</span></div>
+        </div>
+      </section>
+
+      <!-- ===================== SECTION ד ===================== -->
+      <section class="proof" id="sec-d">
+        <div class="proof__head">
+          <div class="proof__badge">ד</div>
+          <div>
+            <h2>זוויות המשולש <span class="math" dir="ltr" style="color:#fff">BMC</span></h2>
+            <p>למצוא: <span class="math" dir="ltr" style="color:#fff">∠MBC, ∠MCB, ∠BMC</span></p>
+          </div>
+        </div>
+        <div class="proof__body">
+          <div class="goal"><strong>רעיון:</strong> <span class="math" dir="ltr">∠MBC</span> מתקבלת ישר מהמשולש שווה-השוקיים <span class="math" dir="ltr">BEC</span> (מסעיף ב׳). לשתי הזוויות הנותרות נשתמש בחוק הקוסינוסים עם שלוש הצלעות <span class="math" dir="ltr">BM, CM, BC</span> שכבר חושבו.</div>
+          <div class="tbl-wrap">
+            <table class="proof-table">
+              <thead><tr><th class="num-col">#</th><th>טענה</th><th>נימוק</th></tr></thead>
+              <tbody>
+                <tr><td class="num-col"><span class="num-badge">1</span></td><td><span class="math" dir="ltr">BE = CE = AC/2 = 2.5</span> ⟹ <span class="math" dir="ltr">△BEC</span> שווה-שוקיים</td><td class="reason"><span class="math" dir="ltr">BE</span> תיכון ליתר (סעיף ב׳); <span class="math" dir="ltr">CE</span> חצי היתר כי <span class="math" dir="ltr">E</span> אמצע <span class="math" dir="ltr">AC</span></td></tr>
+                <tr><td class="num-col"><span class="num-badge">2</span></td><td><span class="math" dir="ltr">∠EBC = ∠ECB</span></td><td class="reason">זוויות הבסיס במשולש שווה-שוקיים <span class="math" dir="ltr">BEC</span> שוות</td></tr>
+                <tr><td class="num-col"><span class="num-badge">3</span></td><td><span class="math" dir="ltr">E</span> על <span class="math" dir="ltr">AC</span> ⟹ <span class="math" dir="ltr">∠ECB = ∠ACB = ∠C</span>; ו-<span class="math" dir="ltr">M</span> על <span class="math" dir="ltr">BE</span> ⟹ <span class="math" dir="ltr">∠MBC = ∠EBC</span></td><td class="reason">הגדרת <span class="math" dir="ltr">E</span>, <span class="math" dir="ltr">M</span></td></tr>
+                <tr><td class="num-col"><span class="num-badge">4</span></td><td><span class="math" dir="ltr">∠MBC = ∠C ≈ 36.87°</span></td><td class="reason">משורות 2, 3 וסעיף א׳</td></tr>
+                <tr><td class="num-col"><span class="num-badge">5</span></td><td>בעזרת חוק הקוסינוסים במשולש <span class="math" dir="ltr">BMC</span> (עם <span class="math" dir="ltr">BM=5/3</span>, <span class="math" dir="ltr">CM=√73/3</span>, <span class="math" dir="ltr">BC=4</span>): <span class="math" dir="ltr">cos(∠MCB) = (CM²+BC²-BM²)/(2·CM·BC) = 8/√73</span> ⟹ <span class="math" dir="ltr">∠MCB ≈ 20.56°</span></td><td class="reason">חוק הקוסינוסים במשולש <span class="math" dir="ltr">BMC</span>; סעיפים ב׳, ג׳</td></tr>
+                <tr><td class="num-col"><span class="num-badge">6</span></td><td><span class="math" dir="ltr">∠BMC = 180° - ∠MBC - ∠MCB ≈ 180° - 36.87° - 20.56° = 122.57°</span></td><td class="reason">סכום זוויות במשולש <span class="math" dir="ltr">BMC</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="answer"><strong>תשובה:</strong> <span class="math" dir="ltr">∠MBC ≈ 36.87°</span> &nbsp;·&nbsp; <span class="math" dir="ltr">∠MCB ≈ 20.56°</span> &nbsp;·&nbsp; <span class="math" dir="ltr">∠BMC ≈ 122.57°</span> &nbsp;·&nbsp; <span style="color:var(--muted); font-size:.88rem">(לב שימו: <span class="math" dir="ltr">∠MBC = ∠C</span> - לא מקרי, זו תוצאה ישירה של תכונת תיכון-ליתר.)</span></div>
+          <div class="qed"><span class="ring">∎</span> מש״ל</div>
+        </div>
+      </section>
+
+      <!-- ===================== CHAIN SUMMARY ===================== -->
+      <section class="chain">
+        <h2>שרשרת הפתרון בקיצור</h2>
+        <div class="chain__row">
+          <div class="chain__node"><span class="math" dir="ltr">BC=4</span> (פיתגורס) ⟹ <span class="math" dir="ltr">∠A≈53.13°, ∠C≈36.87°</span><small>סעיף א׳</small></div>
+          <span class="chain__arrow">←</span>
+          <div class="chain__node"><span class="math" dir="ltr">BE=AC/2=2.5 ⟹ BM=5/3</span><small>סעיף ב׳ - תיכון ליתר</small></div>
+          <span class="chain__arrow">←</span>
+          <div class="chain__node"><span class="math" dir="ltr">CD=√73/2 ⟹ CM=√73/3</span><small>סעיף ג׳ - פיתגורס ב-<span class="math" dir="ltr">△DBC</span></small></div>
+          <span class="chain__arrow">←</span>
+          <div class="chain__node"><span class="math" dir="ltr">∠MBC≈36.87°, ∠MCB≈20.56°, ∠BMC≈122.57°</span><small>סעיף ד׳ - תשובה סופית</small></div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="foot">משולש ישר-זווית · תיכונים ומרכז הכובד - פתרון מלא</footer>
+  </div>
+</div>
+</body>
+</html>

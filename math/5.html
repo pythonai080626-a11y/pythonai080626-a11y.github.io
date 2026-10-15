@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>שאלה - שני מעגלים משיקים מבפנים</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:ital,wght@0,400;0,500;0,700;0,900;1,500;1,700&family=Assistant:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   DESIGN PLAN - same system as math/1.html, math/3.html, math/4.html.
+   Layout: sticky left rail (diagram + given + jump nav + theorem
+   reference) beside the solution column flowing down the right
+   (RTL start). Claim/reason (טענה/נימוק) tables, מש״ל seal.
+   Color:  --ink navy text, --accent/--accent-2 sapphire blue
+           (headers, seal ring), --gold bronze (seal), --bg/--surface
+           cool paper blues.
+   Type:   Frank Ruhl Libre (display + math italics), Assistant
+           (Hebrew body sans).
+   ============================================================ */
+:root{
+  --bg:        #F5F8FC;
+  --surface:   #FFFFFF;
+  --surface-2: #EBF1FA;
+  --ink:       #152042;
+  --muted:     #5B6B8A;
+  --border:    #D8E2F1;
+  --accent:    #1E3F8F;
+  --accent-2:  #3E68C9;
+  --gold:      #A9762E;
+  --gold-soft: #F3E7D2;
+  --shadow:    0 18px 40px -22px rgba(21,32,66,.35);
+
+  --font-display: 'Frank Ruhl Libre', 'Times New Roman', serif;
+  --font-body:    'Assistant', -apple-system, 'Segoe UI', sans-serif;
+  --font-math:    'Frank Ruhl Libre', 'Times New Roman', serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:        #0B1220;
+    --surface:   #121B30;
+    --surface-2: #17213B;
+    --ink:       #E9EEFB;
+    --muted:     #96A6C6;
+    --border:    #27344E;
+    --accent:    #6090F0;
+    --accent-2:  #8AAEF5;
+    --gold:      #DCB06C;
+    --gold-soft: #2B2314;
+    --shadow:    0 18px 40px -20px rgba(0,0,0,.6);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:        #0B1220;
+  --surface:   #121B30;
+  --surface-2: #17213B;
+  --ink:       #E9EEFB;
+  --muted:     #96A6C6;
+  --border:    #27344E;
+  --accent:    #6090F0;
+  --accent-2:  #8AAEF5;
+  --gold:      #DCB06C;
+  --gold-soft: #2B2314;
+  --shadow:    0 18px 40px -20px rgba(0,0,0,.6);
+  color-scheme: dark;
+}
+
+*,*::before,*::after{ box-sizing:border-box }
+html,body{ margin:0 }
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:var(--font-body); line-height:1.75;
+}
+.page{
+  direction:rtl;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+h1,h2,h3{ font-family:var(--font-display); color:var(--ink); margin:0; text-wrap:balance }
+::selection{ background:var(--accent); color:#fff }
+
+.math{
+  direction:ltr; display:inline-block; unicode-bidi:isolate;
+  font-family:var(--font-math); font-style:italic; letter-spacing:.015em;
+  padding:0 .1em;
+}
+.math b{ font-weight:700; font-style:italic }
+.math sub{ font-size:.7em }
+
+/* ---------------------------------------------------------- shell */
+.shell{
+  max-width:1180px; margin:0 auto; padding-block: 28px 70px;
+  display:grid; grid-template-columns: 340px 1fr; gap:26px; align-items:start;
+}
+@media (max-width: 900px){ .shell{ grid-template-columns: 1fr; } }
+
+/* ---------------------------------------------------------- hero */
+.hero{
+  grid-column: 1 / -1; position:relative; overflow:hidden;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+  border-radius: 22px; padding: 30px 34px; color:#fff;
+  box-shadow: var(--shadow);
+  animation: riseIn .7s cubic-bezier(.22,1,.36,1) both;
+}
+.hero::before{
+  content:''; position:absolute; inset:0;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(255,255,255,.18), transparent 45%),
+    radial-gradient(circle at 85% 80%, rgba(255,255,255,.12), transparent 50%);
+  pointer-events:none;
+}
+.hero__tag{
+  display:inline-flex; align-items:center; gap:8px;
+  background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.35);
+  padding:6px 14px; border-radius:999px; font-size:.82rem; font-weight:600;
+  letter-spacing:.02em; margin-bottom:14px;
+}
+.hero h1{ color:#fff; font-size:clamp(1.7rem, 3.4vw, 2.5rem); font-weight:700; margin-bottom:8px }
+.hero p{ color:rgba(255,255,255,.88); max-width:62ch; font-size:1.02rem; margin:0 }
+.hero__meta{ display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; position:relative }
+.hero__meta span{
+  font-family:var(--font-body); font-size:.8rem; font-weight:600;
+  background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.3);
+  padding:5px 12px; border-radius:999px;
+}
+
+/* ---------------------------------------------------------- left rail */
+.rail{ position:sticky; top:18px; display:flex; flex-direction:column; gap:18px }
+@media (max-width:900px){ .rail{ position:static } }
+
+.panel{
+  background:var(--surface); border:1px solid var(--border); border-radius:18px;
+  padding:20px; box-shadow: var(--shadow);
+}
+.panel h2{ font-size:1.05rem; margin-bottom:12px; color:var(--accent) }
+
+/* diagram */
+.fig{ display:flex; flex-direction:column; align-items:center; gap:10px }
+.fig svg{ width:100%; height:auto; max-width:320px; color:var(--ink) }
+.fig__cap{ font-size:.78rem; color:var(--muted); text-align:center; line-height:1.6 }
+
+.seg{ stroke:var(--ink); stroke-width:2.2; fill:none; stroke-linecap:round; }
+.diag{ stroke:var(--accent-2); stroke-width:2; fill:none; }
+.pt{ fill:var(--surface); stroke:var(--accent); stroke-width:2.4 }
+.pt-f{ fill:var(--gold); stroke:var(--gold); }
+.lbl{ font-family:var(--font-math); font-style:italic; font-size:17px; fill:var(--ink); }
+.rightang{ fill:none; stroke:var(--accent-2); stroke-width:1.6 }
+
+@keyframes drawLine{ from{ stroke-dashoffset: var(--len) } to{ stroke-dashoffset:0 } }
+.seg,.diag{ animation: drawLine 1.4s cubic-bezier(.4,0,.2,1) both; }
+.pt, .lbl, .rightang{ animation: fadeUp .5s ease both; animation-delay: 1.1s; }
+@keyframes fadeUp{ from{ opacity:0; transform:translateY(4px) } to{ opacity:1; transform:none } }
+
+/* given chips */
+.given-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:9px }
+.given-list li{
+  display:flex; align-items:center; gap:10px;
+  background:var(--surface-2); border:1px solid var(--border); border-radius:11px;
+  padding:9px 12px; font-size:.92rem;
+}
+.given-list .dot{ width:8px; height:8px; border-radius:50%; background:var(--accent); flex:0 0 auto; }
+
+/* jump nav */
+.jump{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px }
+.jump a{
+  display:flex; align-items:center; gap:10px; text-decoration:none;
+  color:var(--muted); font-size:.9rem; font-weight:600; padding:7px 10px; border-radius:9px;
+  transition: background .15s ease, color .15s ease;
+}
+.jump a:hover{ background:var(--surface-2); color:var(--accent) }
+.jump .badge-mini{
+  width:24px; height:24px; border-radius:50%; display:grid; place-items:center;
+  background:var(--surface-2); border:1px solid var(--border); color:var(--accent);
+  font-family:var(--font-math); font-size:.78rem; flex:0 0 auto;
+}
+
+/* theorems reference */
+.thm-list{ margin:0; padding-right:1.1em; display:flex; flex-direction:column; gap:8px; font-size:.86rem; color:var(--muted) }
+.thm-list li::marker{ color:var(--gold) }
+
+/* ---------------------------------------------------------- main content */
+.main{ display:flex; flex-direction:column; gap:22px; min-width:0 }
+
+.intro{
+  background:var(--surface); border:1px solid var(--border); border-radius:18px;
+  padding:22px 26px; box-shadow:var(--shadow); font-size:1rem; color:var(--muted);
+  animation: riseIn .7s cubic-bezier(.22,1,.36,1) both; animation-delay:.05s;
+}
+.intro b{ color:var(--ink) }
+
+.proof{
+  background:var(--surface); border:1px solid var(--border); border-radius:20px;
+  overflow:hidden; box-shadow:var(--shadow); scroll-margin-top: 18px;
+  animation: riseIn .7s cubic-bezier(.22,1,.36,1) both;
+}
+.proof__head{
+  display:flex; align-items:center; gap:14px;
+  background:linear-gradient(135deg, var(--accent), var(--accent-2));
+  color:#fff; padding:16px 22px;
+}
+.proof__badge{
+  width:42px; height:42px; border-radius:50%; flex:0 0 auto;
+  background:rgba(255,255,255,.18); border:1.5px solid rgba(255,255,255,.55);
+  display:grid; place-items:center; font-family:var(--font-display); font-weight:700; font-size:1.05rem;
+}
+.proof__head h2{ color:#fff; font-size:1.18rem; margin:0 }
+.proof__head p{ margin:2px 0 0; color:rgba(255,255,255,.85); font-size:.85rem }
+
+.proof__body{ padding:22px }
+.subhead{
+  display:flex; align-items:center; gap:10px; margin:22px 0 10px;
+  font-family:var(--font-display); font-weight:700; color:var(--accent); font-size:1rem;
+}
+.subhead .num-badge{ font-size:.85rem }
+.subhead:first-of-type{ margin-top:0 }
+.goal{
+  display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  background:var(--gold-soft); border:1px dashed var(--gold); border-radius:12px;
+  padding:12px 16px; margin-bottom:18px; font-size:.95rem;
+}
+.goal strong{ color:var(--gold); font-family:var(--font-body); white-space:nowrap }
+
+.tbl-wrap{ overflow-x:auto; border-radius:12px; border:1px solid var(--border) }
+table.proof-table{ width:100%; border-collapse:collapse; font-size:.93rem; min-width:420px }
+table.proof-table thead th{
+  background:linear-gradient(135deg, var(--accent), var(--accent-2)); color:#fff;
+  font-family:var(--font-body); font-weight:700; font-size:.82rem; letter-spacing:.03em;
+  padding:11px 14px; text-align:start;
+}
+table.proof-table th.num-col, table.proof-table td.num-col{ width:38px; text-align:center }
+table.proof-table td{ padding:12px 14px; border-top:1px solid var(--border); vertical-align:top }
+table.proof-table tbody tr:nth-child(even){ background:var(--surface-2) }
+.num-badge{
+  display:inline-grid; place-items:center; width:24px; height:24px; border-radius:50%;
+  background:var(--surface-2); border:1px solid var(--border); color:var(--accent);
+  font-family:var(--font-math); font-size:.78rem;
+}
+td.reason{ color:var(--muted) }
+
+.answer{
+  background:var(--surface-2); border:1px solid var(--border); border-radius:12px;
+  padding:14px 18px; margin-top:16px; font-size:.98rem; display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+}
+.answer strong{ color:var(--accent); font-family:var(--font-body) }
+
+.qed{
+  display:flex; align-items:center; justify-content:flex-end; gap:8px;
+  margin-top:16px; color:var(--gold); font-family:var(--font-display); font-weight:700;
+}
+.qed .ring{
+  width:30px; height:30px; border-radius:50%; border:2px solid var(--gold);
+  display:grid; place-items:center; font-size:.95rem;
+}
+
+/* summary chain */
+.chain{
+  background:var(--surface); border:1px solid var(--border); border-radius:20px;
+  padding:26px; box-shadow:var(--shadow);
+  animation: riseIn .7s cubic-bezier(.22,1,.36,1) both;
+}
+.chain h2{ font-size:1.2rem; margin-bottom:16px; color:var(--accent) }
+.chain__row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap }
+.chain__node{
+  background:var(--surface-2); border:1px solid var(--border); border-radius:12px;
+  padding:10px 14px; font-size:.85rem; font-weight:600; color:var(--ink); flex:1 1 180px;
+  min-width:0;
+}
+.chain__node small{ display:block; color:var(--muted); font-weight:400; margin-top:3px; font-size:.78rem }
+.chain__arrow{ color:var(--accent); font-size:1.3rem; flex:0 0 auto; transform:scaleX(-1) }
+@media (max-width:700px){ .chain__arrow{ transform:scaleX(-1) rotate(90deg) } }
+
+footer.foot{ grid-column:1/-1; text-align:center; color:var(--muted); font-size:.82rem; padding-top:6px; }
+
+@keyframes riseIn{ from{ opacity:0; transform:translateY(14px) } to{ opacity:1; transform:none } }
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:.01ms !important; animation-iteration-count:1 !important }
+  .seg,.diag{ stroke-dashoffset:0 !important }
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="shell">
+
+    <!-- ============================================================ HERO -->
+    <section class="hero">
+      <span class="hero__tag">📘 שני מעגלים משיקים מבפנים</span>
+      <h1>משיק פנימי, יחס רדיוסים ומשיק משותף</h1>
+      <p>פתרון מלא ומנומק לשלושת סעיפי השאלה - מציאת היחס <span class="math" dir="ltr">R<sub>1</sub>/R<sub>2</sub></span> מתוך שוויון זוויות, הוכחת <span class="math" dir="ltr">BD = MD</span>, ועד ביטוי <span class="math" dir="ltr">O<sub>1</sub>C</span> ו-<span class="math" dir="ltr">AC</span> באמצעות <span class="math" dir="ltr">R<sub>2</sub></span>.</p>
+      <div class="hero__meta">
+        <span>סעיף א׳ · יחס הרדיוסים</span>
+        <span>סעיף ב׳ · <span class="math" dir="ltr" style="color:#fff">BD = MD</span></span>
+        <span>סעיף ג׳ · משיק משותף מ-<span class="math" dir="ltr" style="color:#fff">A</span></span>
+      </div>
+    </section>
+
+    <!-- ============================================================ LEFT RAIL -->
+    <aside class="rail">
+
+      <div class="panel">
+        <h2>הנתון בציור</h2>
+        <div class="fig">
+          <svg viewBox="0 0 270 300" role="img" aria-label="מעגל גדול שמרכזו O1 ומעגל קטן שמרכזו O2 משיקים מבפנים בנקודה A; הנקודה M על חיתוך O1A עם המעגל הקטן; D על הרדיוס O1B; C על המשך O1B">
+            <!-- big circle O1 -->
+            <circle class="seg" style="--len:679" cx="138" cy="170" r="108"/>
+            <!-- small circle O2 -->
+            <circle class="seg" style="--len:226" cx="66" cy="170" r="36"/>
+
+            <!-- radius O1A (through M, O2) -->
+            <path class="diag" style="--len:108" d="M138,170 L30,170"/>
+            <!-- radius O1B extended to C (through D, B) -->
+            <path class="diag" style="--len:180" d="M138,170 L30,26"/>
+            <!-- tangent at M to small circle, meeting O1B at D -->
+            <path class="diag" style="--len:48" d="M102,170 L102,122"/>
+            <!-- common tangent at A, meeting extension of O1B at C -->
+            <path class="diag" style="--len:144" d="M30,170 L30,26"/>
+
+            <!-- right angle marks -->
+            <path class="rightang" d="M110,170 L110,162 L102,162"/>
+            <path class="rightang" d="M38,170 L38,162 L30,162"/>
+
+            <!-- points -->
+            <circle class="pt" cx="138" cy="170" r="4.5"/>
+            <circle class="pt" cx="66" cy="170" r="4.5"/>
+            <circle class="pt" cx="30" cy="170" r="4.5"/>
+            <circle class="pt" cx="102" cy="170" r="4.5"/>
+            <circle class="pt" cx="73" cy="84" r="4.5"/>
+            <circle class="pt pt-f" cx="102" cy="122" r="4.5"/>
+            <circle class="pt" cx="30" cy="26" r="4.5"/>
+
+            <!-- labels -->
+            <text class="lbl" x="144" y="182">O<tspan baseline-shift="sub" font-size="11">1</tspan></text>
+            <text class="lbl" x="48" y="188">O<tspan baseline-shift="sub" font-size="11">2</tspan></text>
+            <text class="lbl" x="10" y="182">A</text>
+            <text class="lbl" x="94" y="202">M</text>
+            <text class="lbl" x="46" y="80">B</text>
+            <text class="lbl" x="108" y="118">D</text>
+            <text class="lbl" x="12" y="20">C</text>
+          </svg>
+          <p class="fig__cap">הציור להמחשה בלבד ואינו בהכרח מדויק.<br><span class="math" dir="ltr">⊙O<sub>1</sub></span> חיצוני (רדיוס <span class="math" dir="ltr">R<sub>1</sub></span>), <span class="math" dir="ltr">⊙O<sub>2</sub></span> פנימי (רדיוס <span class="math" dir="ltr">R<sub>2</sub></span>), משיקים מבפנים ב-<span class="math" dir="ltr">A</span>.</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>נתון</h2>
+        <ul class="given-list">
+          <li><span class="dot"></span> <span class="math" dir="ltr">⊙O<sub>1</sub></span>, <span class="math" dir="ltr">⊙O<sub>2</sub></span> משיקים מבפנים בנקודה <span class="math" dir="ltr">A</span></li>
+          <li><span class="dot"></span> <span class="math" dir="ltr">O<sub>1</sub>A</span> רדיוס המעגל החיצוני, <span class="math" dir="ltr">O<sub>1</sub>A = R<sub>1</sub></span></li>
+          <li><span class="dot"></span> <span class="math" dir="ltr">O<sub>2</sub></span> נמצאת על הקטע <span class="math" dir="ltr">O<sub>1</sub>A</span>; רדיוס <span class="math" dir="ltr">⊙O<sub>2</sub></span> הוא <span class="math" dir="ltr">R<sub>2</sub></span></li>
+          <li><span class="dot"></span> <span class="math" dir="ltr">O<sub>1</sub>A</span> חותך את <span class="math" dir="ltr">⊙O<sub>2</sub></span> בנקודה נוספת <span class="math" dir="ltr">M</span></li>
+          <li><span class="dot"></span> <span class="math" dir="ltr">MD</span> משיק ל-<span class="math" dir="ltr">⊙O<sub>2</sub></span> ב-<span class="math" dir="ltr">M</span>, חותך את הרדיוס <span class="math" dir="ltr">O<sub>1</sub>B</span> ב-<span class="math" dir="ltr">D</span></li>
+          <li><span class="dot"></span> <span class="math" dir="ltr">∠DO<sub>1</sub>M = ∠DO<sub>2</sub>M</span></li>
+        </ul>
+      </div>
+
+      <div class="panel">
+        <h2>מעבר מהיר בין הסעיפים</h2>
+        <ul class="jump">
+          <li><a href="#sec-a"><span class="badge-mini">א</span> יחס הרדיוסים <span class="math" dir="ltr">R<sub>1</sub>/R<sub>2</sub></span></a></li>
+          <li><a href="#sec-b"><span class="badge-mini">ב</span> <span class="math" dir="ltr">AO<sub>1</sub>:BD</span> והוכחת <span class="math" dir="ltr">BD=MD</span></a></li>
+          <li><a href="#sec-c"><span class="badge-mini">ג</span> משיק משותף - <span class="math" dir="ltr">O<sub>1</sub>C</span>, <span class="math" dir="ltr">AC</span></a></li>
+        </ul>
+      </div>
+
+      <div class="panel">
+        <h2>משפטים שישמשו אותנו</h2>
+        <ol class="thm-list">
+          <li>משיק למעגל מאונך לרדיוס אליו - בנקודת ההשקה.</li>
+          <li>במעגלים משיקים מבפנים, המרחק בין המרכזים שווה להפרש הרדיוסים (הגדול פחות הקטן).</li>
+          <li>במשולש ישר-זווית: טנגנס זווית חדה = מול/ליד; קוסינוס = ליד/יתר.</li>
+          <li>משפט פיתגורס במשולש ישר-זווית.</li>
+        </ol>
+      </div>
+
+    </aside>
+
+    <!-- ============================================================ MAIN -->
+    <main class="main">
+
+      <div class="intro">
+        <b>קו המחשבה:</b> המשיק <span class="math" dir="ltr">MD</span> מאונך לקטע <span class="math" dir="ltr">O<sub>1</sub>A</span> בנקודה <span class="math" dir="ltr">M</span> (כי זהו גם רדיוס <span class="math" dir="ltr">⊙O<sub>2</sub></span> וגם קטע מתוך <span class="math" dir="ltr">O<sub>1</sub>A</span>) - ולכן שני המשולשים <span class="math" dir="ltr">O<sub>1</sub>MD</span> ו-<span class="math" dir="ltr">O<sub>2</sub>MD</span> ישרי-זווית ב-<span class="math" dir="ltr">M</span> וחולקים את הצלע <span class="math" dir="ltr">MD</span>. השוואת הטנגנסים של הזוויות השוות הנתונות נותנת לנו ישירות <span class="math" dir="ltr">O<sub>1</sub>M = O<sub>2</sub>M</span>, ומכאן את היחס <span class="math" dir="ltr">R<sub>1</sub>/R<sub>2</sub></span> (סעיף א׳). בסעיף ב׳ נשתמש ביחס שבו <span class="math" dir="ltr">D</span> מחלקת את <span class="math" dir="ltr">O<sub>1</sub>B</span> כדי לחשב את <span class="math" dir="ltr">MD</span> ואת <span class="math" dir="ltr">BD</span> בנפרד ולהשוות. בסעיף ג׳ נבנה משולש ישר-זווית נוסף <span class="math" dir="ltr">O<sub>1</sub>AC</span> (המשיק המשותף מאונך ל-<span class="math" dir="ltr">O<sub>1</sub>A</span> ב-<span class="math" dir="ltr">A</span>) ונשתמש באותה זווית שחושבה בסעיף ב׳.
+      </div>
+
+      <!-- ===================== SECTION א ===================== -->
+      <section class="proof" id="sec-a">
+        <div class="proof__head">
+          <div class="proof__badge">א</div>
+          <div>
+            <h2>יחס הרדיוסים <span class="math" dir="ltr" style="color:#fff">R<sub>1</sub>/R<sub>2</sub></span></h2>
+            <p>למצוא: <span class="math" dir="ltr" style="color:#fff">R<sub>1</sub>/R<sub>2</sub></span></p>
+          </div>
+        </div>
+        <div class="proof__body">
+          <div class="goal"><strong>רעיון:</strong> שני המשולשים <span class="math" dir="ltr">O<sub>1</sub>MD</span> ו-<span class="math" dir="ltr">O<sub>2</sub>MD</span> ישרי-זווית באותה נקודה <span class="math" dir="ltr">M</span> וחולקים את הצלע <span class="math" dir="ltr">MD</span> - שוויון הזוויות הנתון גורר ישירות שוויון הניצבים הנגדיים.</div>
+          <div class="tbl-wrap">
+            <table class="proof-table">
+              <thead><tr><th class="num-col">#</th><th>טענה</th><th>נימוק</th></tr></thead>
+              <tbody>
+                <tr><td class="num-col"><span class="num-badge">1</span></td><td><span class="math" dir="ltr">MD</span> משיק ל-<span class="math" dir="ltr">⊙O<sub>2</sub></span> ב-<span class="math" dir="ltr">M</span> ⟹ <span class="math" dir="ltr">O<sub>2</sub>M ⊥ MD</span>; וכן <span class="math" dir="ltr">O<sub>1</sub>, O<sub>2</sub>, M</span> על ישר אחד (<span class="math" dir="ltr">O<sub>1</sub>A</span>) ⟹ <span class="math" dir="ltr">O<sub>1</sub>M ⊥ MD</span></td><td class="reason">משיק מאונך לרדיוס בנקודת ההשקה</td></tr>
+                <tr><td class="num-col"><span class="num-badge">2</span></td><td>במשולש <span class="math" dir="ltr">O<sub>1</sub>MD</span> (ישר-זווית ב-<span class="math" dir="ltr">M</span>): <span class="math" dir="ltr">tan(∠DO<sub>1</sub>M) = MD/O<sub>1</sub>M</span>. במשולש <span class="math" dir="ltr">O<sub>2</sub>MD</span> (ישר-זווית ב-<span class="math" dir="ltr">M</span>): <span class="math" dir="ltr">tan(∠DO<sub>2</sub>M) = MD/O<sub>2</sub>M</span></td><td class="reason">יחס טנגנס בזווית חדה במשולש ישר-זווית</td></tr>
+                <tr><td class="num-col"><span class="num-badge">3</span></td><td>נתון <span class="math" dir="ltr">∠DO<sub>1</sub>M = ∠DO<sub>2</sub>M</span> ⟹ <span class="math" dir="ltr">MD/O<sub>1</sub>M = MD/O<sub>2</sub>M</span> ⟹ <span class="math" dir="ltr">O<sub>1</sub>M = O<sub>2</sub>M</span></td><td class="reason">משורה 2 וצמצום הקטע המשותף <span class="math" dir="ltr">MD</span></td></tr>
+                <tr><td class="num-col"><span class="num-badge">4</span></td><td><span class="math" dir="ltr">O<sub>2</sub>M = R<sub>2</sub></span></td><td class="reason"><span class="math" dir="ltr">M</span> נמצאת על <span class="math" dir="ltr">⊙O<sub>2</sub></span></td></tr>
+                <tr><td class="num-col"><span class="num-badge">5</span></td><td><span class="math" dir="ltr">O<sub>1</sub>M = O<sub>1</sub>O<sub>2</sub> - O<sub>2</sub>M = (R<sub>1</sub>-R<sub>2</sub>) - R<sub>2</sub> = R<sub>1</sub>-2R<sub>2</sub></span></td><td class="reason">מעגלים משיקים מבפנים: <span class="math" dir="ltr">O<sub>1</sub>O<sub>2</sub> = R<sub>1</sub>-R<sub>2</sub></span>; הנקודות <span class="math" dir="ltr">O<sub>1</sub>, M, O<sub>2</sub>, A</span> באותו סדר על הקטע</td></tr>
+                <tr><td class="num-col"><span class="num-badge">6</span></td><td>משורות 3, 4, 5: <span class="math" dir="ltr">R<sub>1</sub>-2R<sub>2</sub> = R<sub>2</sub></span> ⟹ <span class="math" dir="ltr">R<sub>1</sub> = 3R<sub>2</sub></span></td><td class="reason">חילוץ <span class="math" dir="ltr">R<sub>1</sub></span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="answer"><strong>תשובה:</strong> <span class="math" dir="ltr">R<sub>1</sub>/R<sub>2</sub> = 3</span></div>
+        </div>
+      </section>
+
+      <!-- ===================== SECTION ב ===================== -->
+      <section class="proof" id="sec-b">
+        <div class="proof__head">
+          <div class="proof__badge">ב</div>
+          <div>
+            <h2>היחס <span class="math" dir="ltr" style="color:#fff">AO<sub>1</sub>:BD</span> והוכחת <span class="math" dir="ltr" style="color:#fff">BD=MD</span></h2>
+            <p>נתון לסעיף זה: הנקודה <span class="math" dir="ltr" style="color:#fff">D</span> מחלקת את הרדיוס <span class="math" dir="ltr" style="color:#fff">O<sub>1</sub>B</span> ביחס <span class="math" dir="ltr" style="color:#fff">O<sub>1</sub>D : DB = 5 : 4</span></p>
+          </div>
+        </div>
+        <div class="proof__body">
+
+          <div class="subhead"><span class="num-badge">1</span> מציאת היחס <span class="math" dir="ltr">AO<sub>1</sub> : BD</span></div>
+          <div class="goal"><strong>רעיון:</strong> <span class="math" dir="ltr">O<sub>1</sub>B</span> הוא רדיוס של <span class="math" dir="ltr">⊙O<sub>1</sub></span> ושווה <span class="math" dir="ltr">R<sub>1</sub></span> - נחלק אותו ל-9 חלקים לפי היחס הנתון ונציב את <span class="math" dir="ltr">R<sub>1</sub>=3R<sub>2</sub></span> מסעיף א׳.</div>
+          <div class="tbl-wrap">
+            <table class="proof-table">
+              <thead><tr><th class="num-col">#</th><th>טענה</th><th>נימוק</th></tr></thead>
+              <tbody>
+                <tr><td class="num-col"><span class="num-badge">1</span></td><td><span class="math" dir="ltr">O<sub>1</sub>B = O<sub>1</sub>D + DB</span>, וביחס <span class="math" dir="ltr">O<sub>1</sub>D:DB=5:4</span> ⟹ <span class="math" dir="ltr">O<sub>1</sub>D=5k, DB=4k</span> ⟹ <span class="math" dir="ltr">O<sub>1</sub>B=9k</span></td><td class="reason"><span class="math" dir="ltr">D</span> נמצאת על הקטע <span class="math" dir="ltr">O<sub>1</sub>B</span>; נתון היחס</td></tr>
+                <tr><td class="num-col"><span class="num-badge">2</span></td><td><span class="math" dir="ltr">O<sub>1</sub>B = R<sub>1</sub> = 3R<sub>2</sub></span> ⟹ <span class="math" dir="ltr">9k = 3R<sub>2</sub></span> ⟹ <span class="math" dir="ltr">k = R<sub>2</sub>/3</span></td><td class="reason"><span class="math" dir="ltr">O<sub>1</sub>B</span> רדיוס <span class="math" dir="ltr">⊙O<sub>1</sub></span>; סעיף א׳</td></tr>
+                <tr><td class="num-col"><span class="num-badge">3</span></td><td><span class="math" dir="ltr">O<sub>1</sub>D = 5R<sub>2</sub>/3</span>, <span class="math" dir="ltr">DB = 4R<sub>2</sub>/3</span></td><td class="reason">הצבה</td></tr>
+                <tr><td class="num-col"><span class="num-badge">4</span></td><td><span class="math" dir="ltr">AO<sub>1</sub> : BD = R<sub>1</sub> : DB = 3R<sub>2</sub> : 4R<sub>2</sub>/3 = 9 : 4</span></td><td class="reason"><span class="math" dir="ltr">AO<sub>1</sub>=O<sub>1</sub>A=R<sub>1</sub></span>; הצבה וצמצום</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="answer"><strong>תשובה:</strong> <span class="math" dir="ltr">AO<sub>1</sub> : BD = 9 : 4</span></div>
+
+          <div class="subhead"><span class="num-badge">2</span> הוכחת <span class="math" dir="ltr">BD = MD</span></div>
+          <div class="goal"><strong>רעיון:</strong> משולש <span class="math" dir="ltr">O<sub>1</sub>MD</span> ישר-זווית ב-<span class="math" dir="ltr">M</span> (הוכח בסעיף א׳) - נחשב את <span class="math" dir="ltr">MD</span> דרך פיתגורס, ונשווה לתוצאה שקיבלנו עבור <span class="math" dir="ltr">DB</span>.</div>
+          <div class="tbl-wrap">
+            <table class="proof-table">
+              <thead><tr><th class="num-col">#</th><th>טענה</th><th>נימוק</th></tr></thead>
+              <tbody>
+                <tr><td class="num-col"><span class="num-badge">1</span></td><td>משולש <span class="math" dir="ltr">O<sub>1</sub>MD</span> ישר-זווית ב-<span class="math" dir="ltr">M</span>, עם <span class="math" dir="ltr">O<sub>1</sub>M=R<sub>2</sub></span> (סעיף א׳) ו-<span class="math" dir="ltr">O<sub>1</sub>D=5R<sub>2</sub>/3</span> (סעיף ב׳.1)</td><td class="reason">סעיף א׳ שורה 1; סעיף ב׳.1</td></tr>
+                <tr><td class="num-col"><span class="num-badge">2</span></td><td><span class="math" dir="ltr">MD = √(O<sub>1</sub>D² - O<sub>1</sub>M²) = √((5R<sub>2</sub>/3)² - R<sub>2</sub>²) = √(16R<sub>2</sub>²/9) = 4R<sub>2</sub>/3</span></td><td class="reason">משפט פיתגורס במשולש <span class="math" dir="ltr">O<sub>1</sub>MD</span></td></tr>
+                <tr><td class="num-col"><span class="num-badge">3</span></td><td><span class="math" dir="ltr">DB = 4R<sub>2</sub>/3</span></td><td class="reason">מסעיף ב׳.1</td></tr>
+                <tr><td class="num-col"><span class="num-badge">4</span></td><td><span class="math" dir="ltr">MD = 4R<sub>2</sub>/3 = DB</span> ⟹ <span class="math" dir="ltr">BD = MD</span></td><td class="reason">משורות 2, 3</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="qed"><span class="ring">∎</span> מש״ל</div>
+        </div>
+      </section>
+
+      <!-- ===================== SECTION ג ===================== -->
+      <section class="proof" id="sec-c">
+        <div class="proof__head">
+          <div class="proof__badge">ג</div>
+          <div>
+            <h2>משיק משותף מ-<span class="math" dir="ltr" style="color:#fff">A</span></h2>
+            <p>נתון לסעיף זה: מ-<span class="math" dir="ltr" style="color:#fff">A</span> מועבר המשיק המשותף לשני המעגלים, החותך את המשך <span class="math" dir="ltr" style="color:#fff">O<sub>1</sub>B</span> בנקודה <span class="math" dir="ltr" style="color:#fff">C</span></p>
+          </div>
+        </div>
+        <div class="proof__body">
+
+          <div class="subhead"><span class="num-badge">1</span> ביטוי <span class="math" dir="ltr">O<sub>1</sub>C</span> באמצעות <span class="math" dir="ltr">R<sub>2</sub></span></div>
+          <div class="goal"><strong>רעיון:</strong> מכיוון שהמעגלים משיקים מבפנים ב-<span class="math" dir="ltr">A</span>, המשיק המשותף היחיד בנקודה זו מאונך ל-<span class="math" dir="ltr">O<sub>1</sub>A</span> - כך נוצר משולש ישר-זווית נוסף <span class="math" dir="ltr">O<sub>1</sub>AC</span>, עם אותה זווית שחושבה בסעיף ב׳.</div>
+          <div class="tbl-wrap">
+            <table class="proof-table">
+              <thead><tr><th class="num-col">#</th><th>טענה</th><th>נימוק</th></tr></thead>
+              <tbody>
+                <tr><td class="num-col"><span class="num-badge">1</span></td><td>המשיק המשותף ב-<span class="math" dir="ltr">A</span> מאונך ל-<span class="math" dir="ltr">O<sub>1</sub>A</span></td><td class="reason">משיק מאונך לרדיוס בנקודת ההשקה (לשני המעגלים כאחד, כי <span class="math" dir="ltr">O<sub>1</sub>,O<sub>2</sub>,A</span> על ישר אחד)</td></tr>
+                <tr><td class="num-col"><span class="num-badge">2</span></td><td>משולש <span class="math" dir="ltr">O<sub>1</sub>AC</span> ישר-זווית ב-<span class="math" dir="ltr">A</span>; <span class="math" dir="ltr">C</span> על קרן <span class="math" dir="ltr">O<sub>1</sub>B</span> ⟹ <span class="math" dir="ltr">∠AO<sub>1</sub>C = ∠AO<sub>1</sub>B = ∠DO<sub>1</sub>M</span></td><td class="reason">שורה 1; <span class="math" dir="ltr">C</span> נמצאת על המשך <span class="math" dir="ltr">O<sub>1</sub>B</span></td></tr>
+                <tr><td class="num-col"><span class="num-badge">3</span></td><td><span class="math" dir="ltr">cos(∠DO<sub>1</sub>M) = O<sub>1</sub>M/O<sub>1</sub>D = R<sub>2</sub>/(5R<sub>2</sub>/3) = 3/5</span></td><td class="reason">יחס קוסינוס במשולש <span class="math" dir="ltr">O<sub>1</sub>MD</span> הישר-זווית (סעיף ב׳)</td></tr>
+                <tr><td class="num-col"><span class="num-badge">4</span></td><td>במשולש <span class="math" dir="ltr">O<sub>1</sub>AC</span>: <span class="math" dir="ltr">cos(∠AO<sub>1</sub>C) = O<sub>1</sub>A/O<sub>1</sub>C</span> ⟹ <span class="math" dir="ltr">3/5 = 3R<sub>2</sub>/O<sub>1</sub>C</span> ⟹ <span class="math" dir="ltr">O<sub>1</sub>C = 5R<sub>2</sub></span></td><td class="reason">יחס קוסינוס בזווית חדה; <span class="math" dir="ltr">O<sub>1</sub>A=R<sub>1</sub>=3R<sub>2</sub></span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="answer"><strong>תשובה:</strong> <span class="math" dir="ltr">O<sub>1</sub>C = 5R<sub>2</sub></span></div>
+
+          <div class="subhead"><span class="num-badge">2</span> ביטוי <span class="math" dir="ltr">AC</span> באמצעות <span class="math" dir="ltr">R<sub>2</sub></span></div>
+          <div class="goal"><strong>רעיון:</strong> באותו משולש ישר-זווית <span class="math" dir="ltr">O<sub>1</sub>AC</span> - פיתגורס.</div>
+          <div class="tbl-wrap">
+            <table class="proof-table">
+              <thead><tr><th class="num-col">#</th><th>טענה</th><th>נימוק</th></tr></thead>
+              <tbody>
+                <tr><td class="num-col"><span class="num-badge">1</span></td><td>משולש <span class="math" dir="ltr">O<sub>1</sub>AC</span> ישר-זווית ב-<span class="math" dir="ltr">A</span>, עם <span class="math" dir="ltr">O<sub>1</sub>A=3R<sub>2</sub></span> ו-<span class="math" dir="ltr">O<sub>1</sub>C=5R<sub>2</sub></span> (סעיף ג׳.1)</td><td class="reason">סעיף ג׳.1</td></tr>
+                <tr><td class="num-col"><span class="num-badge">2</span></td><td><span class="math" dir="ltr">AC = √(O<sub>1</sub>C² - O<sub>1</sub>A²) = √(25R<sub>2</sub>² - 9R<sub>2</sub>²) = √(16R<sub>2</sub>²) = 4R<sub>2</sub></span></td><td class="reason">משפט פיתגורס במשולש <span class="math" dir="ltr">O<sub>1</sub>AC</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="answer"><strong>תשובה:</strong> <span class="math" dir="ltr">AC = 4R<sub>2</sub></span> &nbsp;·&nbsp; <span style="color:var(--muted); font-size:.88rem">(לב שימו: <span class="math" dir="ltr">O<sub>1</sub>A=3R<sub>2</sub></span>, <span class="math" dir="ltr">AC=4R<sub>2</sub></span>, <span class="math" dir="ltr">O<sub>1</sub>C=5R<sub>2</sub></span> - משולש פיתגורי 3-4-5, בדיקת היגיון נאה לתשובה.)</span></div>
+        </div>
+      </section>
+
+      <!-- ===================== CHAIN SUMMARY ===================== -->
+      <section class="chain">
+        <h2>שרשרת ההוכחה בקיצור</h2>
+        <div class="chain__row">
+          <div class="chain__node"><span class="math" dir="ltr">∠DO<sub>1</sub>M = ∠DO<sub>2</sub>M</span><small>נתון; שני משולשים ישרי-זווית חולקים <span class="math" dir="ltr">MD</span></small></div>
+          <span class="chain__arrow">←</span>
+          <div class="chain__node"><span class="math" dir="ltr">O<sub>1</sub>M=O<sub>2</sub>M ⟹ R<sub>1</sub>=3R<sub>2</sub></span><small>סעיף א׳</small></div>
+          <span class="chain__arrow">←</span>
+          <div class="chain__node"><span class="math" dir="ltr">O<sub>1</sub>D:DB=5:4 ⟹ MD=DB=4R<sub>2</sub>/3</span><small>סעיף ב׳</small></div>
+          <span class="chain__arrow">←</span>
+          <div class="chain__node">משולש 3-4-5: <span class="math" dir="ltr">O<sub>1</sub>A, AC, O<sub>1</sub>C = 3R<sub>2</sub>, 4R<sub>2</sub>, 5R<sub>2</sub></span><small>סעיף ג׳ - תשובה סופית</small></div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="foot">שני מעגלים משיקים מבפנים - פתרון מלא</footer>
+  </div>
+</div>
+</body>
+</html>
