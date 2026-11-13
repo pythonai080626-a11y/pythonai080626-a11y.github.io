@@ -143,7 +143,6 @@
       border-radius: 999px; padding: 1px 9px; white-space: nowrap;
     }
     li.nx > .nx-text { opacity: .72; }
-    .sec.extra { --c: var(--amber); border-style: dashed; border-left-style: solid; }
     body.exam-only .nx, body.exam-only .toc a.nx { display: none; }
 
     /* ── cheat sheet chips ── */
@@ -231,8 +230,7 @@
     <a href="#union-dates" style="--c:#2dd4bf"><b>10</b>UNION &amp; dates</a>
     <a href="#python"     style="--c:#60a5fa"><b>11</b>Python + SQLite</a>
     <a href="#csv"        style="--c:#10b981"><b>12</b>CSV &amp; practice</a>
-    <a href="#extras"     style="--c:#fbbf24" class="nx"><b>13</b>Not for exam</a>
-    <a href="#cheat"      style="--c:#06b6d4"><b>14</b>Keywords</a>
+    <a href="#cheat"      style="--c:#06b6d4"><b>13</b>Keywords</a>
   </nav>
 
   <!-- 01 ───────────────────────────────────────── -->
@@ -710,20 +708,8 @@
   </section>
 
   <!-- 13 ───────────────────────────────────────── -->
-  <section class="sec extra nx" id="extras" style="--c:#fbbf24">
-    <div class="sec-head"><span class="sec-num">13</span><h2>Extra topics — not for the exam</h2><span class="nx-badge" style="margin:0">not for exam</span></div>
-    <ul>
-      <li><strong>Setup</strong> — installing SQLite and DB Browser for SQLite</li>
-      <li><strong>Dates</strong> — <code>JULIANDAY()</code> and the end-of-day trick for <code>BETWEEN</code></li>
-      <li><strong>Triggers</strong> — <code>CREATE TRIGGER</code>, <code>AFTER</code> / <code>BEFORE</code>, <code>NEW</code> / <code>OLD</code></li>
-      <li><strong>Views</strong> — <code>CREATE VIEW</code> / <code>DROP VIEW</code>, saved queries used like tables</li>
-      <li><strong>SQL Research Skills</strong> — the worked business cases (top customers, duplicate refunds, suspicious logins); the SQL inside them (<code>JOIN</code>, <code>GROUP BY</code>, self-join) is exam material, the case studies themselves are extra</li>
-    </ul>
-  </section>
-
-  <!-- 14 ───────────────────────────────────────── -->
   <section class="sec" id="cheat" style="--c:#06b6d4">
-    <div class="sec-head"><span class="sec-num">14</span><h2>Keywords at a glance</h2></div>
+    <div class="sec-head"><span class="sec-num">13</span><h2>Keywords at a glance</h2></div>
     <div class="chip-group">Structure</div>
     <div class="chips"><span>CREATE TABLE</span><span>DROP TABLE</span><span>ALTER TABLE</span><span>ADD COLUMN</span><span>RENAME TO</span><span>RENAME COLUMN</span><span>DROP COLUMN</span><span>PRAGMA table_info</span><span>PRAGMA foreign_keys</span></div>
     <div class="chip-group">Types &amp; constraints</div>
