@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SQL Exam Material</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='%23080e1c'/><text x='32' y='45' text-anchor='middle' font-family='Arial, sans-serif' font-size='42' font-weight='700' fill='%23fbbf24'>db</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #07101f;
+      --surface: #111c30;
+      --border: rgba(148,180,255,.10);
+      --border-hi: rgba(148,180,255,.2);
+      --text: #e8f0fe;
+      --muted: #9fb2d0;
+      --dim: #5d7596;
+      --teal: #2dd4bf;
+      --amber: #fbbf24;
+      --amber-d: rgba(251,191,36,.12);
+      --code-bg: rgba(45,212,191,.1);
+      --code-fg: #7ee8da;
+      --mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html {
+      scroll-behavior: smooth; scroll-padding-top: 72px;
+      -webkit-text-size-adjust: 100%; text-size-adjust: 100%; /* stop iOS Safari from inflating text */
+    }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      min-height: 100vh;
+      background-image:
+        radial-gradient(ellipse 80% 60% at 10% -10%, rgba(251,191,36,.07) 0%, transparent 55%),
+        radial-gradient(ellipse 60% 50% at 95% 5%, rgba(167,139,250,.07) 0%, transparent 50%),
+        radial-gradient(ellipse 50% 40% at 50% 100%, rgba(45,212,191,.05) 0%, transparent 50%);
+    }
+
+    /* ── top nav ── */
+    .top-nav {
+      position: sticky; top: 0; z-index: 40;
+      background: rgba(7,16,31,.85);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .top-nav .wrap {
+      max-width: 940px; margin: 0 auto; padding: 11px 16px;
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+    .nav-home {
+      color: var(--teal); text-decoration: none; font-weight: 700; font-size: .88rem;
+      border: 1px solid rgba(45,212,191,.35); background: rgba(45,212,191,.08);
+      border-radius: 999px; padding: 5px 13px; transition: background .2s;
+    }
+    .nav-home:hover { background: rgba(45,212,191,.18); }
+    .brand { font-weight: 800; letter-spacing: .02em; margin-right: auto; }
+    .toggle {
+      display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+      font-size: .82rem; font-weight: 600; color: var(--muted);
+      border: 1px solid var(--border-hi); border-radius: 999px; padding: 5px 13px;
+      user-select: none;
+    }
+    .toggle:hover { color: var(--text); }
+    .toggle input { accent-color: var(--amber); width: 15px; height: 15px; cursor: pointer; }
+
+    /* ── layout ── */
+    .container { max-width: 940px; margin: 0 auto; padding: 0 16px 64px; }
+
+    .hero { padding: 48px 0 24px; }
+    .tag {
+      display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--amber); background: var(--amber-d); border: 1px solid rgba(251,191,36,.3);
+      border-radius: 999px; padding: 4px 13px; margin-bottom: 14px;
+    }
+    h1 { font-size: clamp(2rem, 5vw, 2.9rem); font-weight: 800; line-height: 1.15; letter-spacing: -.02em; }
+    .lead { color: var(--muted); font-size: 1.05rem; max-width: 640px; margin-top: 12px; }
+
+    .legend { display: flex; gap: 10px 22px; flex-wrap: wrap; margin-top: 20px; font-size: .85rem; color: var(--muted); }
+    .legend span { display: inline-flex; align-items: center; gap: 8px; }
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--teal); }
+
+    /* ── table of contents ── */
+    .toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 34px; }
+    .toc a {
+      font-size: .8rem; font-weight: 600; text-decoration: none; color: var(--muted);
+      border: 1px solid var(--border-hi); border-radius: 999px; padding: 5px 12px;
+      transition: color .2s, border-color .2s, background .2s;
+    }
+    .toc a b { color: var(--c); margin-right: 6px; font-family: var(--mono); font-weight: 700; }
+    .toc a:hover { color: var(--text); border-color: var(--c); background: rgba(255,255,255,.04); }
+
+    /* ── section cards ── */
+    .sec {
+      --c: var(--teal);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--c);
+      border-radius: 16px;
+      padding: 24px 26px 22px;
+      margin-bottom: 18px;
+      animation: rise .5s ease both;
+    }
+    @keyframes rise { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+    .sec-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+    .sec-num { font-family: var(--mono); font-weight: 700; font-size: .95rem; color: var(--c); }
+    .sec h2 { font-size: 1.3rem; font-weight: 700; letter-spacing: -.01em; }
+    .src {
+      margin-left: auto; font-size: .72rem; font-weight: 600; color: var(--dim);
+      border: 1px solid var(--border); border-radius: 999px; padding: 2px 10px;
+    }
+
+    /* ── nested bullets ── */
+    .sec ul { list-style: none; }
+    .sec > ul > li { margin: 11px 0; padding-left: 20px; position: relative; font-size: .98rem; }
+    .sec > ul > li::before {
+      content: ""; position: absolute; left: 2px; top: .62em;
+      width: 8px; height: 8px; border-radius: 50%; background: var(--c);
+    }
+    .sec > ul > li > strong:first-child { color: #fff; }
+    .sec li ul { margin-top: 5px; }
+    .sec li li { margin: 4px 0; padding-left: 18px; position: relative; font-size: .93rem; color: var(--muted); }
+    .sec li li::before {
+      content: "→"; position: absolute; left: 0; top: 0; font-size: .85em; line-height: inherit; color: var(--c); opacity: .85;
+    }
+    .sec li li li { font-size: .9rem; }
+    .sec li li li::before { content: ""; left: 4px; top: .75em; width: 4px; height: 4px; border-radius: 50%; background: var(--c); opacity: .6; }
+
+    code {
+      font-family: var(--mono); font-size: .86em; color: var(--code-fg);
+      background: var(--code-bg); padding: 1px 6px; border-radius: 5px; white-space: normal;
+    }
+
+    /* ── "not for exam" ── */
+    .nx-badge {
+      display: inline-block; vertical-align: middle; margin-left: 8px;
+      font-size: .66rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+      color: var(--amber); background: var(--amber-d); border: 1px solid rgba(251,191,36,.35);
+      border-radius: 999px; padding: 1px 9px; white-space: nowrap;
+    }
+    li.nx > .nx-text { opacity: .72; }
+    .sec.extra { --c: var(--amber); border-style: dashed; border-left-style: solid; }
+    body.exam-only .nx, body.exam-only .toc a.nx { display: none; }
+
+    /* ── cheat sheet chips ── */
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+    .chips span {
+      font-family: var(--mono); font-size: .8rem; font-weight: 700; color: var(--c);
+      background: rgba(255,255,255,.04); border: 1px solid var(--border-hi);
+      border-radius: 8px; padding: 4px 10px;
+    }
+    .chip-group { margin: 16px 0 6px; font-size: .78rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+    .chip-group:first-of-type { margin-top: 4px; }
+
+    footer { text-align: center; color: var(--dim); font-size: .82rem; padding: 10px 16px 40px; }
+
+    @media (max-width: 600px) {
+      body { line-height: 1.55; }
+      .hero { padding: 28px 0 16px; }
+      h1 { font-size: 1.6rem; }
+      .lead { font-size: .92rem; }
+      .legend { font-size: .78rem; }
+      .toc { gap: 6px; margin-bottom: 22px; }
+      .toc a { font-size: .72rem; padding: 4px 9px; }
+      .sec { padding: 16px 14px 14px; border-radius: 12px; margin-bottom: 14px; }
+      .sec h2 { font-size: 1.05rem; font-weight: 600; }
+      .sec-head { margin-bottom: 8px; gap: 8px; }
+      .sec-num { font-size: .8rem; }
+      .src { margin-left: 0; font-size: .66rem; }
+      .sec > ul > li { font-size: .88rem; margin: 9px 0; padding-left: 16px; }
+      .sec > ul > li > strong:first-child, .sec strong { font-weight: 600; }
+      .sec li li { font-size: .84rem; padding-left: 15px; }
+      .sec li li li { font-size: .82rem; }
+      code { font-size: .8em; padding: 0 4px; }
+      .nx-badge { font-size: .6rem; margin-left: 5px; }
+      .chips span { font-size: .72rem; padding: 3px 8px; }
+      .brand { display: none; }
+      .toggle { font-size: .76rem; padding: 4px 10px; }
+      .top-nav .wrap { justify-content: space-between; padding: 9px 14px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .sec { animation: none; }
+    }
+    @media print {
+      body { background: #fff; color: #111; }
+      .top-nav, .toc { display: none; }
+      .sec { background: #fff; border-color: #bbb; break-inside: avoid; animation: none; }
+      .sec h2, .sec > ul > li > strong:first-child { color: #000; }
+      .sec li li, .lead { color: #333; }
+      code { background: #eee; color: #000; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <div class="wrap">
+    <a class="nav-home" href="../index.html">← Home</a>
+    <div class="brand">SQL — Exam Material</div>
+    <label class="toggle"><input type="checkbox" id="examOnly"> Hide “not for exam”</label>
+  </div>
+</nav>
+
+<main class="container">
+
+  <header class="hero">
+    <span class="tag">SQLite · Exam Prep</span>
+    <h1>SQL Exam Material</h1>
+    <p class="lead">Every topic from the course in one place — slides, lessons and practice labs — as quick bullets you can scan before the exam.</p>
+    <div class="legend">
+      <span><i class="dot"></i> Everything below is exam material…</span>
+      <span><span class="nx-badge" style="margin:0">not for exam</span> …unless it carries this badge</span>
+    </div>
+  </header>
+
+  <nav class="toc" aria-label="Sections">
+    <a href="#intro"      style="--c:#06b6d4"><b>01</b>Intro</a>
+    <a href="#tables"     style="--c:#2dd4bf"><b>02</b>Tables</a>
+    <a href="#types"      style="--c:#60a5fa"><b>03</b>Data types</a>
+    <a href="#constraints" style="--c:#10b981"><b>04</b>Constraints &amp; keys</a>
+    <a href="#modify"     style="--c:#fb7185"><b>05</b>INSERT · UPDATE · DELETE</a>
+    <a href="#select"     style="--c:#f59e0b"><b>06</b>SELECT</a>
+    <a href="#aggregates" style="--c:#fbbf24"><b>07</b>Aggregations</a>
+    <a href="#joins"      style="--c:#a78bfa"><b>08</b>JOINs</a>
+    <a href="#design"     style="--c:#f472b6"><b>09</b>Design &amp; normalization</a>
+    <a href="#union-dates" style="--c:#2dd4bf"><b>10</b>UNION &amp; dates</a>
+    <a href="#python"     style="--c:#60a5fa"><b>11</b>Python + SQLite</a>
+    <a href="#csv"        style="--c:#10b981"><b>12</b>CSV &amp; practice</a>
+    <a href="#extras"     style="--c:#fbbf24" class="nx"><b>13</b>Not for exam</a>
+    <a href="#cheat"      style="--c:#06b6d4"><b>14</b>Keywords</a>
+  </nav>
+
+  <!-- 01 ───────────────────────────────────────── -->
+  <section class="sec" id="intro" style="--c:#06b6d4">
+    <div class="sec-head"><span class="sec-num">01</span><h2>SQL, databases &amp; engines</h2><span class="src">Slide 01</span></div>
+    <ul>
+      <li><strong>What is SQL?</strong>
+        <ul>
+          <li>Structured Query Language — the language we use to talk to a relational database</li>
+          <li>Like asking one very precise question: a single line of SQL replaces a whole Python loop</li>
+          <li>Four basic operations (CRUD): <code>SELECT</code> read · <code>INSERT</code> add · <code>UPDATE</code> change · <code>DELETE</code> remove</li>
+        </ul>
+      </li>
+      <li><strong>Why a database and not files / Excel?</strong>
+        <ul>
+          <li>Two people editing the same file at once overwrite each other — a database handles concurrent access</li>
+          <li>A database enforces rules (types, constraints) so your code doesn’t have to</li>
+          <li>Fast lookups and it keeps working with millions of rows</li>
+          <li>Files are still fine for small, single-user, throw-away data</li>
+        </ul>
+      </li>
+      <li><strong>What is an RDBMS?</strong> (Relational Database Management System)
+        <ul>
+          <li>Data lives in <strong>tables</strong> — rows are records, columns are fields</li>
+          <li>Tables are <strong>related</strong> to each other through keys, and read together with <code>JOIN</code></li>
+          <li>Handled for you: concurrent access · ACID transactions · indexes · crash recovery · query optimisation</li>
+        </ul>
+      </li>
+      <li><strong>Famous SQL engines</strong>
+        <ul>
+          <li>PostgreSQL · MySQL / MariaDB · SQLite · SQL Server · Oracle</li>
+          <li><strong>SQLite</strong> — serverless, the whole database is a single file; perfect for learning and the engine we use in this course</li>
+        </ul>
+      </li>
+      <li class="nx"><span class="nx-text"><strong>Installing SQLite &amp; DB Browser for SQLite</strong></span><span class="nx-badge">not for exam</span>
+        <ul>
+          <li>Download / install steps and the DB Browser walkthrough — setup only, nothing to memorise</li>
+        </ul>
+      </li>
+    </ul>
+  </section>
+
+  <!-- 02 ───────────────────────────────────────── -->
+  <section class="sec" id="tables" style="--c:#2dd4bf">
+    <div class="sec-head"><span class="sec-num">02</span><h2>Creating &amp; changing tables</h2><span class="src">Slides 01 · 04</span></div>
+    <ul>
+      <li><strong>CREATE TABLE</strong>
+        <ul>
+          <li><code>CREATE TABLE name (column type constraints, …);</code></li>
+          <li>Every column = a name + a data type + optional constraints</li>
+        </ul>
+      </li>
+      <li><strong>DROP TABLE</strong>
+        <ul>
+          <li><code>DROP TABLE name;</code> — deletes the table <em>and</em> all of its data</li>
+        </ul>
+      </li>
+      <li><strong>ALTER TABLE</strong> — change the structure of an existing table
+        <ul>
+          <li><code>ADD COLUMN</code> — <code>ALTER TABLE t ADD COLUMN col TYPE;</code>
+            <ul>
+              <li>Existing rows get <code>NULL</code> in the new column</li>
+              <li>Fill it afterwards with <code>UPDATE</code>, or add it with a <code>DEFAULT</code> value</li>
+            </ul>
+          </li>
+          <li><code>RENAME TO</code> — rename the table: <code>ALTER TABLE old RENAME TO new;</code></li>
+          <li><code>RENAME COLUMN a TO b</code> — rename a column</li>
+          <li><code>DROP COLUMN col</code> — remove a column</li>
+        </ul>
+      </li>
+      <li><strong>Inspect a table</strong>
+        <ul>
+          <li><code>PRAGMA table_info(table);</code> — lists the columns, their types, NOT NULL, default and primary key</li>
+        </ul>
+      </li>
+    </ul>
+  </section>
+
+  <!-- 03 ───────────────────────────────────────── -->
+  <section class="sec" id="types" style="--c:#60a5fa">
+    <div class="sec-head"><span class="sec-num">03</span><h2>Data types</h2><span class="src">Slide 02</span></div>
+    <ul>
+      <li><strong>The 5 SQLite storage classes</strong>
+        <ul>
+          <li><code>NULL</code> — no value / unknown</li>
+          <li><code>INTEGER</code> — whole numbers</li>
+          <li><code>REAL</code> — decimal numbers</li>
+          <li><code>TEXT</code> — strings, written in single quotes <code>'like this'</code></li>
+          <li><code>BLOB</code> — raw binary data, e.g. <code>X'89504E47'</code></li>
+        </ul>
+      </li>
+      <li><strong>Type affinity</strong>
+        <ul>
+          <li>The declared column type is a <em>preferred</em> type, not a strict wall — SQLite converts values to it when it can</li>
+        </ul>
+      </li>
+      <li><strong>No real BOOLEAN / DATE / DATETIME types</strong> — they are stored as simpler types
+        <ul>
+          <li><code>BOOLEAN</code> → stored as <code>0</code> (false) / <code>1</code> (true); <code>TRUE</code> and <code>FALSE</code> are accepted</li>
+          <li><code>DATE</code> → <code>TEXT</code> in the format <code>YYYY-MM-DD</code></li>
+          <li><code>DATETIME</code> → <code>TEXT</code> in the format <code>YYYY-MM-DD HH:MM:SS</code></li>
+        </ul>
+      </li>
+    </ul>
+  </section>
+
+  <!-- 04 ───────────────────────────────────────── -->
+  <section class="sec" id="constraints" style="--c:#10b981">
+    <div class="sec-head"><span class="sec-num">04</span><h2>Constraints &amp; keys</h2><span class="src">Slide 02 · Lessons 2–3</span></div>
+    <ul>
+      <li><strong>Constraints</strong> — rules that protect your data; the database rejects any row that breaks them
+        <ul>
+          <li><code>NOT NULL</code> — the column must always have a value</li>
+          <li><code>UNIQUE</code> — no two rows may share the same value</li>
+          <li><code>CHECK (expression)</code> — your own rule, e.g. <code>CHECK (grade BETWEEN 0 AND 100)</code></li>
+          <li><code>DEFAULT value</code> — filled in automatically when an <code>INSERT</code> gives no value</li>
+        </ul>
+      </li>
+      <li><strong>PRIMARY KEY</strong> — the unique identity of a row (unique + not null)
+        <ul>
+          <li>Single column: <code>id INTEGER PRIMARY KEY</code></li>
+          <li><strong>Composite primary key</strong> — two (or more) columns together form the key:
+            <code>PRIMARY KEY (student_id, course_id)</code>
+            <ul>
+              <li>Each column may repeat on its own, but the <em>pair</em> must be unique</li>
+              <li>Typical use: a junction table for a many-to-many relationship</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li><strong>Auto increment</strong>
+        <ul>
+          <li><code>INTEGER PRIMARY KEY</code> — if you omit the id, SQLite assigns the next number itself; may reuse ids of deleted rows</li>
+          <li><code>INTEGER PRIMARY KEY AUTOINCREMENT</code> — never reuses an old id, always moves forward (slightly slower)</li>
+        </ul>
+      </li>
+      <li><strong>FOREIGN KEY</strong> — a column in the child table that points to the parent table’s key
+        <ul>
+          <li><code>FOREIGN KEY (col) REFERENCES parent(id)</code></li>
+          <li>Inserting a child whose parent doesn’t exist fails → create the parent row first</li>
+          <li>Deleting a parent that still has children fails (unless you chose a different <code>ON DELETE</code> action)</li>
+          <li><code>ON DELETE</code> actions: <code>CASCADE</code> (delete the children too) · <code>RESTRICT</code> (block the delete) · <code>SET NULL</code></li>
+          <li><code>PRAGMA foreign_keys = ON;</code> — must be switched on (per connection), otherwise SQLite ignores foreign keys</li>
+        </ul>
+      </li>
+    </ul>
+  </section>
+
+  <!-- 05 ───────────────────────────────────────── -->
+  <section class="sec" id="modify" style="--c:#fb7185">
+    <div class="sec-head"><span class="sec-num">05</span><h2>INSERT · UPDATE · DELETE</h2><span class="src">Slide 01 · Lesson 2</span></div>
+    <ul>
+      <li><strong>INSERT</strong> — add rows
+        <ul>
+          <li><code>INSERT INTO t (col1, col2) VALUES (v1, v2);</code> — name the columns, values in the same order</li>
+          <li>Without a column list you must give a value for every column, in table order</li>
+          <li>Several rows in one statement: <code>VALUES (…), (…), (…)</code></li>
+        </ul>
+      </li>
+      <li><strong>UPDATE</strong> — change existing rows
+        <ul>
+          <li><code>UPDATE t SET col = value WHERE condition;</code></li>
+          <li>Several columns at once: <code>SET a = 1, b = 'x'</code></li>
+          <li>The new value can be an expression: <code>SET tax = amount * 0.07</code></li>
+          <li><code>CASE WHEN … THEN … ELSE … END</code> inside <code>SET</code> gives different rows different values in one statement</li>
+        </ul>
+      </li>
+      <li><strong>DELETE</strong> — remove rows
+        <ul>
+          <li><code>DELETE FROM t WHERE condition;</code> — the table itself stays</li>
+          <li>Without <code>WHERE</code> every row is deleted</li>
+        </ul>
+      </li>
+      <li><strong>Don’t forget <code>WHERE</code></strong>
+        <ul>
+          <li><code>UPDATE</code> or <code>DELETE</code> without <code>WHERE</code> touches <em>every</em> row</li>
+          <li><code>DELETE FROM t</code> = empty the table · <code>DROP TABLE t</code> = remove the table completely</li>
+        </ul>
+      </li>
+    </ul>
+  </section>
+
+  <!-- 06 ───────────────────────────────────────── -->
+  <section class="sec" id="select" style="--c:#f59e0b">
+    <div class="sec-head"><span class="sec-num">06</span><h2>SELECT — filter &amp; sort</h2><span class="src">Slide 03</span></div>
+    <ul>
+      <li><strong>The basics</strong>
+        <ul>
+          <li><code>SELECT * FROM t;</code> — all columns</li>
+          <li><code>SELECT a, b FROM t;</code> — only the columns you name</li>
+          <li>Calculated columns: <code>SELECT price * 2 FROM t;</code></li>
+        </ul>
+      </li>
+      <li><strong>WHERE</strong> — keep only the rows that match
+        <ul>
+          <li>Comparisons: <code>=</code> · <code>!=</code> / <code>&lt;&gt;</code> · <code>&lt;</code> · <code>&gt;</code> · <code>&lt;=</code> · <code>&gt;=</code></li>
+          <li>Logic: <code>AND</code> · <code>OR</code> · <code>NOT</code></li>
+          <li>Precedence: <code>AND</code> is evaluated before <code>OR</code> — use parentheses to control it</li>
+        </ul>
+      </li>
+      <li><strong>Pattern &amp; range filters</strong>
+        <ul>
+          <li><code>LIKE</code> — wildcards <code>%</code> (any number of characters) and <code>_</code> (exactly one)
+            <ul>
+              <li><code>LIKE 'M%'</code> starts with M · <code>LIKE '%Pro'</code> ends with Pro · <code>LIKE '%an%'</code> contains “an”</li>
+            </ul>
+          </li>
+          <li><code>GLOB</code> — Unix-style wildcards <code>*</code> (any characters) and <code>?</code> (exactly one); case-sensitive
+            <ul>
+              <li><code>GLOB '????? *'</code> = five characters, a space, then anything</li>
+            </ul>
+          </li>
+          <li><code>BETWEEN a AND b</code> — inclusive range (both ends count)</li>
+          <li><code>IN (v1, v2, …)</code> — matches any value in the list</li>
+          <li><code>IS NULL</code> / <code>IS NOT NULL</code> — the only way to test for a missing value (never <code>= NULL</code>)</li>
+        </ul>
+      </li>
+      <li><strong>Sorting &amp; paging</strong>
+        <ul>
+          <li><code>ORDER BY col</code> — <code>ASC</code> (default) or <code>DESC</code></li>
+          <li>Several columns: <code>ORDER BY a ASC, b DESC</code> — the second only breaks ties of the first</li>
+          <li><code>LIMIT n</code> — return only the first n rows</li>
+          <li><code>LIMIT n OFFSET m</code> — skip m rows first → pagination</li>
+        </ul>
+      </li>
+      <li><strong>Aliases — <code>AS</code></strong>
+        <ul>
+          <li>Rename a column in the output: <code>SELECT price * 2 AS double_price</code></li>
+          <li>Short names for tables too (essential in JOINs); an alias can be used in <code>ORDER BY</code></li>
+        </ul>
+      </li>
+      <li><strong>DISTINCT</strong>
+        <ul>
+          <li>Removes duplicates: <code>SELECT DISTINCT country FROM t;</code></li>
+          <li>On several columns it removes duplicate <em>combinations</em></li>
+        </ul>
+      </li>
+      <li><strong>Subquery</strong> — a query inside a query
+        <ul>
+          <li>e.g. the most expensive item: <code>WHERE price = (SELECT MAX(price) FROM t)</code></li>
+        </ul>
+      </li>
+      <li><strong>Order the clauses are written in</strong>
+        <ul>
+          <li><code>SELECT</code> → <code>FROM</code> → <code>JOIN … ON</code> → <code>WHERE</code> → <code>GROUP BY</code> → <code>HAVING</code> → <code>ORDER BY</code> → <code>LIMIT</code></li>
+        </ul>
+      </li>
+    </ul>
+  </section>
+
+  <!-- 07 ───────────────────────────────────────── -->
+  <section class="sec" id="aggregates" style="--c:#fbbf24">
+    <div class="sec-head"><span class="sec-num">07</span><h2>Aggregations — group &amp; summarize</h2><span class="src">Slide 04</span></div>
+    <ul>
+      <li><strong>Aggregate functions</strong> — many rows in, one value out
+        <ul>
+          <li><code>COUNT(*)</code> — counts every row</li>
+          <li><code>COUNT(col)</code> — counts only rows where <code>col</code> is not <code>NULL</code></li>
+          <li><code>COUNT(DISTINCT col)</code> — counts unique values</li>
+          <li><code>SUM</code> · <code>AVG</code> · <code>MIN</code> · <code>MAX</code>
+            <ul>
+              <li>They skip <code>NULL</code>s — <code>AVG</code> divides only by the non-NULL rows (the hidden trap)</li>
+              <li><code>MIN</code> / <code>MAX</code> also work on text and dates</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li><strong>GROUP BY</strong> — one result row per group
+        <ul>
+          <li>One column (<code>GROUP BY region</code>) or several (<code>GROUP BY region, rep</code>)</li>
+          <li>Every selected column must be in <code>GROUP BY</code> or inside an aggregate function</li>
+          <li>Sort by an aggregate using its alias: <code>ORDER BY total DESC</code></li>
+        </ul>
+      </li>
+      <li><strong>HAVING vs WHERE</strong>
+        <ul>
+          <li><code>WHERE</code> filters <em>rows</em> <strong>before</strong> grouping — it cannot use aggregates</li>
+          <li><code>HAVING</code> filters <em>groups</em> <strong>after</strong> grouping — it can use aggregates, e.g. <code>HAVING COUNT(*) &gt; 2</code></li>
+          <li>You can use both in the same query</li>
+        </ul>
+      </li>
+      <li><strong>Clean-up &amp; conditional logic</strong>
+        <ul>
+          <li><code>COALESCE(x, 0)</code> — replace <code>NULL</code> with a fallback, e.g. <code>COALESCE(SUM(amount), 0)</code></li>
+          <li><code>ROUND(x, 2)</code> — round to 2 decimals, e.g. <code>ROUND(AVG(amount), 2)</code></li>
+          <li><code>CASE WHEN … THEN … ELSE … END</code> — if/else inside a query</li>
+          <li>Conditional counting: <code>COUNT(CASE WHEN … THEN 1 END)</code></li>
+        </ul>
+      </li>
+      <li><strong>Common mistakes</strong>
+        <ul>
+          <li>Selecting a column that is not in <code>GROUP BY</code> and not aggregated</li>
+          <li>Putting an aggregate in <code>WHERE</code> (use <code>HAVING</code>)</li>
+        </ul>
+      </li>
+    </ul>
+  </section>
+
+  <!-- 08 ───────────────────────────────────────── -->
+  <section class="sec" id="joins" style="--c:#a78bfa">
+    <div class="sec-head"><span class="sec-num">08</span><h2>JOINs — connecting tables</h2><span class="src">Slide 05 · Lessons 5–6</span></div>
+    <ul>
+      <li><strong>The idea</strong>
+        <ul>
+          <li>Data is split across tables and linked by keys; a <code>JOIN</code> puts the pieces back together</li>
+          <li><code>FROM a JOIN b ON a.fk = b.pk</code> — the <code>ON</code> condition says how rows match</li>
+          <li>Use table aliases and <code>table.column</code> so column names are not ambiguous</li>
+        </ul>
+      </li>
+      <li><strong>INNER JOIN</strong> — only rows that match on both sides; everything else is dropped</li>
+      <li><strong>LEFT JOIN</strong> — every row of the left table + matches from the right; no match → <code>NULL</code>s on the right
+        <ul>
+          <li><strong>Find unmatched rows:</strong> <code>LEFT JOIN … WHERE right.id IS NULL</code> (e.g. departments with no employees)</li>
+        </ul>
+      </li>
+      <li><strong>RIGHT JOIN</strong> — the mirror image of LEFT JOIN; same result if you swap the table order</li>
+      <li><strong>FULL OUTER JOIN</strong> — every row from both tables; <code>NULL</code>s on whichever side has no match
+        <ul>
+          <li>Only the unmatched rows from either side: <code>WHERE a.id IS NULL OR b.id IS NULL</code></li>
+          <li>Replace the <code>NULL</code>s with <code>COALESCE</code></li>
+        </ul>
+      </li>
+      <li><strong>CROSS JOIN</strong> — every combination of rows, no <code>ON</code> condition
+        <ul>
+          <li>rows(A) × rows(B) — the result grows fast</li>
+          <li>Use for combinations: sizes × colors, menus, rosters</li>
+        </ul>
+      </li>
+      <li><strong>Self-join</strong> — a table joined to itself using two aliases
+        <ul>
+          <li>e.g. employee ↔ their manager through <code>manager_id</code></li>
+        </ul>
+      </li>
+      <li><strong>Joining 3+ tables</strong>
+        <ul>
+          <li>Chain several <code>JOIN … ON …</code> clauses; you can mix join types</li>
+          <li>Mind the order of the joins — especially with <code>LEFT JOIN</code></li>
+        </ul>
+      </li>
+      <li><strong>JOIN + the rest of SQL</strong>
+        <ul>
+          <li>Combine with <code>WHERE</code>, <code>GROUP BY</code>, <code>HAVING</code>, <code>ORDER BY</code> — e.g. total spend per customer, employees per department</li>
+        </ul>
+      </li>
+    </ul>
+  </section>
+
+  <!-- 09 ───────────────────────────────────────── -->
+  <section class="sec" id="design" style="--c:#f472b6">
+    <div class="sec-head"><span class="sec-num">09</span><h2>Relationships, normalization &amp; design</h2><span class="src">Lessons 6–8</span></div>
+    <ul>
+      <li><strong>Relationship types</strong>
+        <ul>
+          <li><strong>One-to-one (1:1)</strong> — e.g. citizen ↔ ID card
+            <ul>
+              <li>Shared primary key, or “1:1+”: its own primary key + a <code>UNIQUE</code> foreign key</li>
+            </ul>
+          </li>
+          <li><strong>One-to-many (1:N)</strong> — e.g. category → posts; the foreign key sits on the “many” side</li>
+          <li><strong>Many-to-many (N:M)</strong> — e.g. students ↔ courses
+            <ul>
+              <li>Needs a <strong>junction table</strong> with two foreign keys and a composite primary key</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li><strong>Normalization</strong> — each fact stored once
+        <ul>
+          <li><strong>1NF</strong> — atomic values: one value per cell, no lists, no repeating columns like <code>phone1</code>, <code>phone2</code></li>
+          <li><strong>2NF</strong> — 1NF + every non-key column depends on the <em>whole</em> key (no partial dependency; matters with composite keys)</li>
+          <li><strong>3NF</strong> — 2NF + no transitive dependency (a non-key column must not depend on another non-key column)</li>
+        </ul>
+      </li>
+      <li><strong>The design process</strong>
+        <ul>
+          <li>Identify entities → define attributes → map relationships → apply normal forms → draw the ERD <em>before</em> writing SQL</li>
+          <li>ERD: boxes = tables, lines = relationships, crow’s foot = “many”</li>
+          <li>Tools: dbdiagram.io (<code>Ref:</code> notation), draw.io, ERDPlus, QuickDBD, Lucidchart</li>
+        </ul>
+      </li>
+      <li><strong>Practice</strong>
+        <ul>
+          <li>Pizza-restaurant database; homework 18 — design and <code>CREATE</code> tables with primary and foreign keys</li>
+        </ul>
+      </li>
+    </ul>
+  </section>
+
+  <!-- 10 ───────────────────────────────────────── -->
+  <section class="sec" id="union-dates" style="--c:#2dd4bf">
+    <div class="sec-head"><span class="sec-num">10</span><h2>UNION &amp; date queries</h2><span class="src">Lesson 8</span></div>
+    <ul>
+      <li><strong>Set operations</strong> — stack the results of two <code>SELECT</code>s
+        <ul>
+          <li><code>UNION</code> — combine and remove duplicates</li>
+          <li><code>UNION ALL</code> — combine and keep every row (including duplicates)</li>
+          <li><code>INTERSECT</code> — only rows that appear in both results</li>
+          <li><code>EXCEPT</code> — rows in the first result that are not in the second</li>
+          <li>Both queries need the same number of columns, with compatible types</li>
+        </ul>
+      </li>
+      <li><strong>Date queries with <code>strftime(format, column)</code></strong>
+        <ul>
+          <li>Format codes: <code>%Y</code> year · <code>%m</code> month · <code>%d</code> day · <code>%H</code> hour · <code>%M</code> minutes · <code>%S</code> seconds · <code>%w</code> weekday (0 = Sunday)</li>
+          <li><code>%Y-%m-%d</code> gives just the date</li>
+          <li>It always returns <code>TEXT</code> → compare with quotes (<code>= '2026'</code>) or wrap it: <code>CAST(strftime('%H', col) AS INTEGER)</code></li>
+          <li>Filter by year / month / day / hour, combine the conditions, and <code>GROUP BY strftime('%m', col)</code> to total per month</li>
+        </ul>
+      </li>
+      <li class="nx"><span class="nx-text"><strong><code>JULIANDAY()</code></strong> — days between two dates</span><span class="nx-badge">not for exam</span></li>
+      <li class="nx"><span class="nx-text"><strong>The end-of-day trick</strong> for <code>BETWEEN</code> on a date range</span><span class="nx-badge">not for exam</span></li>
+    </ul>
+  </section>
+
+  <!-- 11 ───────────────────────────────────────── -->
+  <section class="sec" id="python" style="--c:#60a5fa">
+    <div class="sec-head"><span class="sec-num">11</span><h2>Running queries from Python</h2><span class="src">Slide 09 · Lesson 9</span></div>
+    <ul>
+      <li><strong>Python talks to SQLite with the built-in <code>sqlite3</code> module</strong>
+        <ul>
+          <li>We wrapped it in a small <code>db.py</code> library and import it from <code>main.py</code></li>
+          <li>Flow: connect → <code>execute(sql, params)</code> → read with <code>fetchall()</code> or save with <code>commit()</code></li>
+        </ul>
+      </li>
+      <li><strong>The library functions</strong>
+        <ul>
+          <li><code>connect()</code> — opens the connection; rows come back like dictionaries</li>
+          <li><code>run_query_select(sql, params)</code> — for <code>SELECT</code>; returns a list of dicts</li>
+          <li><code>run_update_query(sql, params)</code> — for <code>INSERT</code> / <code>UPDATE</code> / <code>DELETE</code> / <code>CREATE</code>; commits and returns <code>lastrowid</code></li>
+        </ul>
+      </li>
+      <li><strong>CRUD from Python</strong>
+        <ul>
+          <li>All four operations — create, read, update, delete — go through those two functions</li>
+          <li>Changes are only saved to disk after <code>commit()</code></li>
+        </ul>
+      </li>
+      <li><strong>SQL injection &amp; <code>?</code> placeholders</strong>
+        <ul>
+          <li>Never paste user input into the SQL string (f-strings / <code>+</code>) — an attacker can inject their own SQL</li>
+          <li>Write <code>?</code> in the SQL and pass the values separately as a tuple; one <code>?</code> per value, filled left-to-right</li>
+          <li>The value is always treated as data, never as SQL</li>
+        </ul>
+      </li>
+      <li><strong>Going further</strong>
+        <ul>
+          <li>Run a <code>JOIN</code> from Python — remember <code>PRAGMA foreign_keys = ON</code> when tables use foreign keys</li>
+          <li>Interactive programs: <code>input()</code> → <code>INSERT</code>, search by id, wrap the call in <code>try / except</code></li>
+        </ul>
+      </li>
+    </ul>
+  </section>
+
+  <!-- 12 ───────────────────────────────────────── -->
+  <section class="sec" id="csv" style="--c:#10b981">
+    <div class="sec-head"><span class="sec-num">12</span><h2>Importing CSV &amp; the practice labs</h2><span class="src">Slide 03 · Practice</span></div>
+    <ul>
+      <li><strong>Import a CSV file into SQLite</strong> (done in the Netflix and e-commerce labs)
+        <ul>
+          <li>Create or open a <code>.db</code> file → <code>File ▶ Import ▶ Table from CSV file…</code></li>
+          <li>Pick the CSV, set the table name, tick that the first row holds the column names → OK</li>
+          <li><code>Write Changes</code> — otherwise the data is not saved into the <code>.db</code></li>
+          <li>Afterwards it is a normal table: <code>SELECT</code>, <code>WHERE</code>, <code>GROUP BY</code>, <code>ORDER BY</code> …</li>
+        </ul>
+      </li>
+      <li><strong>What the practice labs trained</strong>
+        <ul>
+          <li>Writing <code>CREATE TABLE</code> from a description — types, <code>PRIMARY KEY</code> (<code>INTEGER PRIMARY KEY</code>, <code>AUTOINCREMENT</code>), <code>NOT NULL</code></li>
+          <li>Filtering, sorting and ranking real data (Netflix, Eurovision)</li>
+          <li>Analytics with <code>GROUP BY</code>, <code>HAVING</code>, <code>COALESCE</code>, <code>ROUND</code> (customer analytics)</li>
+          <li>JOINs, <code>IS NULL</code> and <code>FULL OUTER JOIN</code> on lectures &amp; courses; create tables and query them (homework 17 · 18)</li>
+        </ul>
+      </li>
+    </ul>
+  </section>
+
+  <!-- 13 ───────────────────────────────────────── -->
+  <section class="sec extra nx" id="extras" style="--c:#fbbf24">
+    <div class="sec-head"><span class="sec-num">13</span><h2>Extra topics — not for the exam</h2><span class="nx-badge" style="margin:0">not for exam</span></div>
+    <ul>
+      <li><strong>Setup</strong> — installing SQLite and DB Browser for SQLite</li>
+      <li><strong>Dates</strong> — <code>JULIANDAY()</code> and the end-of-day trick for <code>BETWEEN</code></li>
+      <li><strong>Triggers</strong> — <code>CREATE TRIGGER</code>, <code>AFTER</code> / <code>BEFORE</code>, <code>NEW</code> / <code>OLD</code></li>
+      <li><strong>Views</strong> — <code>CREATE VIEW</code> / <code>DROP VIEW</code>, saved queries used like tables</li>
+      <li><strong>SQL Research Skills</strong> — the worked business cases (top customers, duplicate refunds, suspicious logins); the SQL inside them (<code>JOIN</code>, <code>GROUP BY</code>, self-join) is exam material, the case studies themselves are extra</li>
+    </ul>
+  </section>
+
+  <!-- 14 ───────────────────────────────────────── -->
+  <section class="sec" id="cheat" style="--c:#06b6d4">
+    <div class="sec-head"><span class="sec-num">14</span><h2>Keywords at a glance</h2></div>
+    <div class="chip-group">Structure</div>
+    <div class="chips"><span>CREATE TABLE</span><span>DROP TABLE</span><span>ALTER TABLE</span><span>ADD COLUMN</span><span>RENAME TO</span><span>RENAME COLUMN</span><span>DROP COLUMN</span><span>PRAGMA table_info</span><span>PRAGMA foreign_keys</span></div>
+    <div class="chip-group">Types &amp; constraints</div>
+    <div class="chips"><span>INTEGER</span><span>REAL</span><span>TEXT</span><span>BLOB</span><span>NULL</span><span>BOOLEAN</span><span>DATE</span><span>DATETIME</span><span>NOT NULL</span><span>UNIQUE</span><span>PRIMARY KEY</span><span>AUTOINCREMENT</span><span>FOREIGN KEY</span><span>REFERENCES</span><span>CHECK</span><span>DEFAULT</span><span>ON DELETE CASCADE</span></div>
+    <div class="chip-group">Data</div>
+    <div class="chips"><span>INSERT INTO … VALUES</span><span>UPDATE … SET</span><span>DELETE FROM</span><span>CASE WHEN</span></div>
+    <div class="chip-group">Querying</div>
+    <div class="chips"><span>SELECT</span><span>FROM</span><span>WHERE</span><span>AND</span><span>OR</span><span>NOT</span><span>LIKE</span><span>GLOB</span><span>BETWEEN</span><span>IN</span><span>IS NULL</span><span>IS NOT NULL</span><span>ORDER BY</span><span>ASC</span><span>DESC</span><span>LIMIT</span><span>OFFSET</span><span>AS</span><span>DISTINCT</span></div>
+    <div class="chip-group">Aggregation</div>
+    <div class="chips"><span>COUNT</span><span>SUM</span><span>AVG</span><span>MIN</span><span>MAX</span><span>GROUP BY</span><span>HAVING</span><span>COALESCE</span><span>ROUND</span></div>
+    <div class="chip-group">Joins &amp; sets</div>
+    <div class="chips"><span>INNER JOIN</span><span>LEFT JOIN</span><span>RIGHT JOIN</span><span>FULL OUTER JOIN</span><span>CROSS JOIN</span><span>ON</span><span>UNION</span><span>UNION ALL</span><span>INTERSECT</span><span>EXCEPT</span></div>
+    <div class="chip-group">Dates</div>
+    <div class="chips"><span>strftime</span><span>CAST … AS</span></div>
+    <div class="chip-group">Python</div>
+    <div class="chips"><span>sqlite3</span><span>connect()</span><span>run_query_select</span><span>run_update_query</span><span>?</span><span>commit()</span></div>
+  </section>
+
+</main>
+
+<footer>🗄️ SQL Course &nbsp;|&nbsp; Exam material</footer>
+
+<script>
+  /* "Hide not for exam" toggle — remembered when storage is available */
+  (function () {
+    var box = document.getElementById('examOnly');
+    var KEY = 'sql_exam_only';
+    function apply(on) { document.body.classList.toggle('exam-only', on); box.checked = on; }
+    var saved = false;
+    try { saved = localStorage.getItem(KEY) === '1'; } catch (e) {}
+    apply(saved);
+    box.addEventListener('change', function () {
+      apply(box.checked);
+      try { localStorage.setItem(KEY, box.checked ? '1' : '0'); } catch (e) {}
+    });
+  })();
+</script>
+</body>
+</html>

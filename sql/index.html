@@ -381,6 +381,25 @@
       animation: breathe 4s ease-in-out infinite;
       filter: drop-shadow(0 0 10px rgba(6,182,212,.3));
     }
+    /* cover photo variant (practice cards) */
+    .slide-photo {
+      display: block;
+      width: calc(100% + 52px);
+      height: 150px;
+      margin: -28px -26px 20px;
+      object-fit: cover;
+      border-radius: 20px 20px 0 0;
+      filter: saturate(.9) brightness(.85);
+      transition: filter .3s;
+    }
+    .slide-card:hover .slide-photo { filter: saturate(1) brightness(1); }
+    .slide-card:has(.slide-photo) .slide-num {
+      z-index: 1;
+      color: #fff;
+      background: rgba(0,0,0,.55);
+      border-radius: 999px;
+      padding: 3px 10px;
+    }
     @keyframes breathe {
       0%,100% { transform: scale(1) rotate(0deg); }
       50%      { transform: scale(1.12) rotate(-3deg); }
@@ -799,6 +818,16 @@
       <div class="slide-arrow">Open slide deck <span class="arrow">→</span></div>
      </a>
 
+    <a class="slide-card" href="10_exam_material/index.html"
+       style="--c: #e879f9; animation-delay: .74s">
+      <span class="slide-num">EXAM MATERIAL</span>
+      <span class="slide-icon">📝</span>
+      <span class="slide-tag">Exam Prep</span>
+      <h2>Exam Material — All Topics</h2>
+      <p>Every topic from the course as nested bullets — tables, constraints, SELECT, aggregations, JOINs, design, Python — with what is not for the exam marked</p>
+      <div class="slide-arrow">Open summary <span class="arrow">→</span></div>
+    </a>
+
   </div>
 </div>
 
@@ -846,7 +875,7 @@
     <a class="slide-card" href="99_practice/01/index.html"
        style="--c: #06b6d4; animation-delay: .08s">
       <span class="slide-num">PRACTICE 01</span>
-      <span class="slide-icon">📝</span>
+      <img class="slide-photo" src="img/practice/01-rehearsal.jpg" alt="" loading="lazy">
       <span class="slide-tag">Rehearsal Questions</span>
       <h2>Rehearsal Questions</h2>
       <p>20 questions covering slides 01–06 — a quick rehearsal of everything so far</p>
@@ -856,7 +885,7 @@
     <a class="slide-card" href="99_practice/03/index.html"
        style="--c: #10b981; animation-delay: .16s">
       <span class="slide-num">PRACTICE 03</span>
-      <span class="slide-icon">⌨️</span>
+      <img class="slide-photo" src="img/practice/03-query-lab.jpg" alt="" loading="lazy">
       <span class="slide-tag">Query Lab</span>
       <h2>Query Lab — Write Real SQL</h2>
       <p>Type your own queries and get instant feedback — press Ctrl+Enter to check</p>
@@ -866,7 +895,7 @@
     <a class="slide-card" href="99_practice/04/index.html"
        style="--c: #f59e0b; animation-delay: .24s">
       <span class="slide-num">PRACTICE 04</span>
-      <span class="slide-icon">🎵</span>
+      <img class="slide-photo" src="img/practice/04-eurovision.jpg" alt="" loading="lazy">
       <span class="slide-tag">Eurovision Query Lab</span>
       <h2>Eurovision Query Lab</h2>
       <p>See the result, work out the query, then reveal the solution</p>
@@ -876,7 +905,7 @@
     <a class="slide-card" href="99_practice/05/index.html"
        style="--c: #a78bfa; animation-delay: .32s">
       <span class="slide-num">PRACTICE 05</span>
-      <span class="slide-icon">🛒</span>
+      <img class="slide-photo" src="img/practice/05-analytics.jpg" alt="" loading="lazy">
       <span class="slide-tag">Customer Analytics Lab</span>
       <h2>Customer Analytics Lab</h2>
       <p>See the result, work out the query, then reveal the solution</p>
@@ -886,10 +915,30 @@
     <a class="slide-card" href="99_practice/07/hw18.pdf" target="_blank" rel="noopener"
        style="--c: #f472b6; animation-delay: .40s">
       <span class="slide-num">PRACTICE 07</span>
-      <span class="slide-icon">🏗️</span>
+      <img class="slide-photo" src="img/practice/07-create-table.jpg" alt="" loading="lazy">
       <span class="slide-tag">Create Table &amp; Query</span>
       <h2>Create Table &amp; Query</h2>
       <p>Homework 18 — design and create your own tables, then write queries against them</p>
+      <div class="slide-arrow">Open PDF <span class="arrow">→</span></div>
+    </a>
+
+    <a class="slide-card" href="99_practice/08/hw17_b.pdf" target="_blank" rel="noopener"
+       style="--c: #fb7185; animation-delay: .48s">
+      <span class="slide-num">PRACTICE 08</span>
+      <img class="slide-photo" src="img/practice/08-joins.jpg" alt="" loading="lazy">
+      <span class="slide-tag">JOINs &amp; Queries</span>
+      <h2>JOINs &amp; Queries</h2>
+      <p>Homework 17 — query an e-commerce database, then practice JOINs, IS NULL and FULL OUTER JOIN on lectures &amp; courses</p>
+      <div class="slide-arrow">Open PDF <span class="arrow">→</span></div>
+    </a>
+
+    <a class="slide-card" href="99_practice/09/hw17_b.pdf" target="_blank" rel="noopener"
+       style="--c: #38bdf8; animation-delay: .56s">
+      <span class="slide-num">PRACTICE 09</span>
+      <img class="slide-photo" src="img/practice/08-joins.jpg" alt="" loading="lazy">
+      <span class="slide-tag">JOINs &amp; Queries</span>
+      <h2>JOINs &amp; Queries II</h2>
+      <p>Homework 17 (part B) — more practice with JOINs, IS NULL and FULL OUTER JOIN on lectures &amp; courses</p>
       <div class="slide-arrow">Open PDF <span class="arrow">→</span></div>
     </a>
 

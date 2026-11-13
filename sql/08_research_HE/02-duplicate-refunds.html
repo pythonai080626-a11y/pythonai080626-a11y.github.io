@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>שאלה 2 — החזרים כפולים</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='%23080e1c'/><text x='32' y='45' text-anchor='middle' font-family='Arial, sans-serif' font-size='42' font-weight='700' fill='%232dd4bf'>db</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body class="q2">
+
+<nav class="top-nav">
+  <div class="wrap">
+    <a class="nav-home" href="../index.html">→ דף הבית</a>
+    <div class="brand">תרגול לבחינה · מחקר SQL</div>
+    <a class="nav-link" href="01-top-customers.html">שאלה 1</a>
+    <a class="nav-link active" href="02-duplicate-refunds.html">שאלה 2</a>
+    <a class="nav-link" href="03-suspicious-logins.html">שאלה 3</a>
+  </div>
+</nav>
+
+<main class="container">
+
+  <header class="hero">
+    <span class="tag">שאלה 2 מתוך 3</span>
+    <h1><span class="h-icon">🔄</span> החזרים כפולים</h1>
+    <p class="lead">מחלקת הכספים שמה לב שסך ההחזרים גבוה מהצפוי. החשד: אותה הזמנה הוחזרה ללקוח יותר מפעם אחת.</p>
+  </header>
+
+  <!-- השאלה -->
+  <section class="card">
+    <h2>השאלה</h2>
+    <div class="q-banner">
+      <div class="q-label">שאלה</div>
+      <div class="q-text">אילו הזמנות מופיעות בטבלת <code>refunds</code> יותר מפעם אחת?</div>
+    </div>
+      <p class="context">הזמנה תקינה מוחזרת פעם אחת לכל היותר. אם אותו <code>order_id</code> מופיע בטבלת ההחזרים פעמיים — זה החזר כפול, וצריך לתפוס אותו.</p>
+    <h3 class="sub">מה צריך להציג?</h3>
+    <ul class="show">
+        <li>מספר ההזמנה</li>
+        <li>שם הלקוח שביצע את ההזמנה</li>
+        <li>כמה פעמים ההזמנה הוחזרה</li>
+    </ul>
+  </section>
+
+  <!-- הטבלאות -->
+  <section class="card">
+    <h2>הטבלאות והנתונים</h2>
+    <ul class="tables">
+        <li><code>customers</code><span>הלקוחות — מספר ושם</span></li>
+        <li><code>orders</code><span>ההזמנות, ולכל אחת הלקוח שביצע אותה</span></li>
+        <li><code>refunds</code><span>כל שורה היא החזר אחד, עם <code>order_id</code> של ההזמנה שהוחזרה</span></li>
+    </ul>
+    <p class="hint">הריצו את שתי הפקודות למטה ב־DB Browser for SQLite (לשונית <em>Execute SQL</em>) — קודם יצירת הטבלאות ואחר כך הכנסת הנתונים — ואז כתבו את השאילתה שלכם.</p>
+
+    <div class="code">
+      <div class="code-bar"><span class="code-title">1. יצירת הטבלאות</span><button class="copy-btn" type="button" data-target="q2-create">העתקה</button></div>
+<pre id="q2-create" dir="ltr"><span class="k">CREATE TABLE</span> customers (
+  id    <span class="ty">INTEGER</span> <span class="k">PRIMARY KEY</span>,
+  name  <span class="ty">TEXT</span> <span class="k">NOT NULL</span>
+);
+
+<span class="k">CREATE TABLE</span> orders (
+  id          <span class="ty">INTEGER</span> <span class="k">PRIMARY KEY</span>,
+  customer_id <span class="ty">INTEGER</span> <span class="k">NOT NULL</span>,
+  total       <span class="ty">REAL</span> <span class="k">NOT NULL</span>,
+  <span class="k">FOREIGN KEY</span> (customer_id) <span class="k">REFERENCES</span> customers(id)
+);
+
+<span class="k">CREATE TABLE</span> refunds (
+  id          <span class="ty">INTEGER</span> <span class="k">PRIMARY KEY</span>,
+  order_id    <span class="ty">INTEGER</span> <span class="k">NOT NULL</span>,
+  amount      <span class="ty">REAL</span> <span class="k">NOT NULL</span>,
+  refunded_at <span class="ty">TEXT</span> <span class="k">NOT NULL</span>,
+  <span class="k">FOREIGN KEY</span> (order_id) <span class="k">REFERENCES</span> orders(id)
+);</pre>
+    </div>
+
+    <div class="code">
+      <div class="code-bar"><span class="code-title">2. הכנסת הנתונים</span><button class="copy-btn" type="button" data-target="q2-insert">העתקה</button></div>
+<pre id="q2-insert" dir="ltr"><span class="k">INSERT INTO</span> customers <span class="k">VALUES</span>
+  (<span class="c">1</span>, <span class="t">&#x27;Ana Torres&#x27;</span>),
+  (<span class="c">2</span>, <span class="t">&#x27;David Levi&#x27;</span>),
+  (<span class="c">3</span>, <span class="t">&#x27;Sarah Kim&#x27;</span>),
+  (<span class="c">4</span>, <span class="t">&#x27;Tom Okafor&#x27;</span>),
+  (<span class="c">5</span>, <span class="t">&#x27;Mia Russo&#x27;</span>);
+
+<span class="k">INSERT INTO</span> orders <span class="k">VALUES</span>
+  (<span class="c">101</span>, <span class="c">1</span>, <span class="c">29.99</span>),
+  (<span class="c">105</span>, <span class="c">2</span>, <span class="c">49.99</span>),
+  (<span class="c">112</span>, <span class="c">4</span>, <span class="c">15.00</span>),
+  (<span class="c">118</span>, <span class="c">3</span>, <span class="c">89.00</span>),
+  (<span class="c">122</span>, <span class="c">5</span>, <span class="c">19.99</span>);
+
+<span class="k">INSERT INTO</span> refunds <span class="k">VALUES</span>
+  (<span class="c">1</span>, <span class="c">101</span>, <span class="c">29.99</span>, <span class="t">&#x27;2024-01-05&#x27;</span>),
+  (<span class="c">2</span>, <span class="c">105</span>, <span class="c">49.99</span>, <span class="t">&#x27;2024-01-08&#x27;</span>),
+  (<span class="c">3</span>, <span class="c">105</span>, <span class="c">49.99</span>, <span class="t">&#x27;2024-01-09&#x27;</span>),
+  (<span class="c">4</span>, <span class="c">112</span>, <span class="c">15.00</span>, <span class="t">&#x27;2024-01-12&#x27;</span>),
+  (<span class="c">5</span>, <span class="c">118</span>, <span class="c">89.00</span>, <span class="t">&#x27;2024-01-15&#x27;</span>),
+  (<span class="c">6</span>, <span class="c">118</span>, <span class="c">89.00</span>, <span class="t">&#x27;2024-01-16&#x27;</span>),
+  (<span class="c">7</span>, <span class="c">122</span>, <span class="c">19.99</span>, <span class="t">&#x27;2024-01-18&#x27;</span>);</pre>
+    </div>
+  </section>
+
+  <!-- שלבי הפתרון -->
+  <section class="card">
+    <h2>שלבי הפתרון</h2>
+    <p class="hint" style="margin-top:0">נסו קודם לבד, ואם נתקעתם — לכו שלב אחרי שלב. יש יותר מדרך אחת נכונה; העיקר שהתוצאה נכונה.</p>
+    <ol class="steps">
+        <li><div class="step-body"><h3>הבינו מה מחפשים</h3><p>מחפשים <code>order_id</code> שמופיע <strong>יותר מפעם אחת</strong> בטבלת <code>refunds</code>.</p></div></li>
+        <li><div class="step-body"><h3>ספרו כמה פעמים מופיעה כל הזמנה</h3><p>התחילו רק מטבלת <code>refunds</code>: קבצו לפי <code>order_id</code> (<code>GROUP BY order_id</code>) וספרו עם <code>COUNT(*)</code>. שימו לב — מקבצים לפי ההזמנה ולא לפי הלקוח.</p></div></li>
+        <li><div class="step-body"><h3>השאירו רק את הכפולות</h3><p>כדי להשאיר רק הזמנות שהוחזרו יותר מפעם אחת משתמשים ב־<code>HAVING COUNT(*) &gt; 1</code>. למה <code>HAVING</code> ולא <code>WHERE</code>? כי <code>WHERE</code> מסנן שורות לפני הקיבוץ, ואילו הספירה מתקבלת רק אחרי <code>GROUP BY</code>.</p></div></li>
+        <li><div class="step-body"><h3>הגיעו אל שם הלקוח</h3><p>בטבלת <code>refunds</code> יש רק מספר הזמנה. הדרך ללקוח עוברת דרך שני JOIN: <code>refunds → orders → customers</code> (קודם לפי <code>order_id</code>, ואחר כך לפי <code>customer_id</code>).</p></div></li>
+        <li><div class="step-body"><h3>הציגו את התוצאה</h3><p>בחרו להציג את מספר ההזמנה, שם הלקוח ומספר ההחזרים (תנו לו שם ברור עם <code>AS</code>).</p></div></li>
+    </ol>
+    <div class="remember"><span class="r-label">💡 לזכור</span><p><code>WHERE</code> מסנן <strong>שורות</strong> לפני הקיבוץ. <code>HAVING</code> מסנן <strong>קבוצות</strong> אחרי הקיבוץ.</p></div>
+  </section>
+
+  <div class="pager">
+    <a href="01-top-customers.html">→ שאלה קודמת</a>
+    <a href="03-suspicious-logins.html">שאלה הבאה ←</a>
+  </div>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>

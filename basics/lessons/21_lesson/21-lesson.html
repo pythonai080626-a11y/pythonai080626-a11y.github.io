@@ -454,6 +454,8 @@
 
       <hr class="side-divider">
       <button class="topic-link" data-target="topic-github">github folder</button>
+      <button class="topic-link" data-target="topic-exercise">homework — 3 tasks ✍️</button>
+      <button class="topic-link" data-target="topic-homework-heb">שיעורי בית - עברית</button>
 
       <div class="side-section-label">Navigation</div>
       <a class="nav-back" href="../../index.html#lessons">Back to lessons</a>
@@ -816,6 +818,154 @@ max_sum: 674 max_sum_seed: 37</div>
       </section>
 
       <!-- ═══ HOMEWORK EN ═══ -->
+      <section class="card topic-panel" id="topic-exercise">
+        <span class="tag">Homework</span>
+        <h2 class="step-title">Homework — Turn the Same Knobs Again ✍️</h2>
+        <p>Class gave you two building blocks: a function that computes <em>one</em> seed's sum, and a loop that walks through many seeds to find the best one. Homework turns both knobs further &mdash; smallest instead of biggest, a function that <strong>returns</strong> the winner instead of printing it, and new numbers to try it on.</p>
+        <div class="warn">
+          <strong>Rules for all three:</strong>
+          <ol class="task-list" style="margin-top:6px">
+            <li>Keep the docstring on every function you write &mdash; what it takes in, what it hands back.</li>
+            <li><code>random.seed()</code> is the <strong>first</strong> line inside the function, before any <code>randint</code>.</li>
+            <li>A function that is asked to <em>return</em> a value does not <code>print</code> inside itself. Call it first, then print what it gave you.</li>
+          </ol>
+        </div>
+
+        <div class="big-result">1 · Smallest, Not Biggest 🔽</div>
+        <p>Copy <code>calc_sum_10</code> from class exactly as it is &mdash; do not touch it. Then write the max-so-far loop again, but this time find the seed with the <strong>smallest</strong> sum. Only one symbol in the whole loop needs to change.</p>
+        <div class="code">min_sum = <span class="kw">None</span>
+min_sum_seed = <span class="kw">None</span>
+
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">42</span> + <span class="num">1</span>):
+    sum_10_numbers = <span class="fn">calc_sum_10</span>(i)
+    <span class="cm"># if min_sum is None or sum_10_numbers &lt; min_sum:</span>
+    <span class="cm">#     update both boxes together, same as in class</span>
+
+<span class="fn">print</span>(<span class="str">f"min_sum: {min_sum} min_sum_seed: {min_sum_seed}"</span>)</div>
+        <div class="console">min_sum: 304 min_sum_seed: 36</div>
+        <div class="note">
+          If you swapped <code>&gt;</code> for <code>&lt;</code> and nothing else, this is the number you get. If you also swapped which box updates first, you will get the right sum next to the wrong seed &mdash; the exact bug class from class today.
+        </div>
+
+        <div class="big-result">2 · The Search Becomes a Function 🔧</div>
+        <p>Last week a number trapped inside a function became a parameter. This week it is the <strong>whole search</strong>. Write <code>find_best_seed(num_seeds)</code>: it runs the max-so-far loop internally, calling <code>calc_sum_10</code> each time, and <strong>returns the pair</strong> <code>(best_seed, best_sum)</code>. No <code>print</code> anywhere inside it.</p>
+        <div class="code"><span class="kw">def</span> <span class="fn">find_best_seed</span>(num_seeds):
+    <span class="str">'''
+    try seeds 1..num_seeds, find the one with the highest calc_sum_10
+    :param num_seeds: how many seeds to try, starting from 1
+    :return: (best_seed, best_sum)
+    '''</span>
+    <span class="cm"># best_sum = None</span>
+    <span class="cm"># best_seed = None</span>
+    <span class="cm"># for i in range(1, num_seeds + 1):</span>
+    <span class="cm">#     ... same max-so-far pattern as always, but store - do not print</span>
+    <span class="cm"># return best_seed, best_sum</span>
+
+best_seed, best_sum = <span class="fn">find_best_seed</span>(<span class="num">42</span>)
+<span class="fn">print</span>(<span class="str">f"best seed: {best_seed}  best sum: {best_sum}"</span>)</div>
+        <div class="console">best seed: 37  best sum: 674</div>
+        <div class="note">
+          Same winner as class &mdash; 37 and 674 &mdash; because it is the same search, just wrapped so something else can call it, store the pair, or compare it to a different run <strong>without</strong> re-reading printed text.
+        </div>
+
+        <div class="big-result">3 · New Numbers, Same Function 🎲</div>
+        <p>Now reuse <code>calc_sum</code> from class &mdash; the one with four slots &mdash; to answer a different question. Try seeds <strong>1 to 100</strong>, and for each one roll <strong>5 dice</strong> (numbers <strong>1 to 6</strong>). Which seed gives the <strong>highest</strong> total? You will need your own version of <code>find_best_seed</code> that calls <code>calc_sum(seed, 5, 1, 6)</code> instead of <code>calc_sum_10(seed)</code>.</p>
+        <div class="code"><span class="cm"># seed 1: sum 12</span>
+<span class="cm"># seed 2: sum 8</span>
+<span class="cm"># seed 3: sum 17</span>
+<span class="cm"># ...</span></div>
+        <div class="console">best seed: 68  best sum: 27</div>
+        <div class="note">
+          Same shape as Task 2, one call changed. If your function only ever knew how to call <code>calc_sum_10</code>, this is where that choice costs you &mdash; which is exactly why <code>calc_sum</code> got four parameters in the first place.
+        </div>
+
+        <p><strong>Python only</strong>. Write it as a <code>.py</code> file in PyCharm and run with <span class="kbd">Shift</span> + <span class="kbd">F10</span>.</p>
+
+        <div class="big-result">Submission</div>
+        <div class="card submission">
+          <ol class="task-list">
+            <li><strong>Write the .py program</strong> in PyCharm.</li>
+            <li><strong>Upload to GitHub</strong> and send the link to:<br>
+              <a href="mailto:pythonai080626+hw21@gmail.com">pythonai080626+hw21@gmail.com</a>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ═══ HOMEWORK HE ═══ -->
+      <section class="card topic-panel rtl" id="topic-homework-heb" dir="rtl">
+        <span class="tag">שיעורי בית</span>
+        <h2 class="step-title">שיעורי בית — עוד סיבוב על אותם כפתורים ✍️</h2>
+        <p>השיעור נתן לכם שני בלוקים: פונקציה שמחשבת את הסכום של <em>seed</em> אחד, ולולאה שעוברת על הרבה seeds כדי למצוא את הטוב ביותר. שיעורי הבית מסובבים את אותם כפתורים עוד קצת — הכי קטן במקום הכי גדול, פונקציה <strong>שמחזירה</strong> את הזוכה במקום להדפיס אותו, ומספרים חדשים להפעיל עליהם את אותה פונקציה.</p>
+        <div class="warn">
+          <strong>כללים לשלוש המשימות:</strong>
+          <ol class="task-list" style="margin-top:6px">
+            <li>שמרו docstring על כל פונקציה שאתם כותבים — מה היא מקבלת, מה היא מחזירה.</li>
+            <li><code dir="ltr">random.seed()</code> היא השורה <strong>הראשונה</strong> בתוך הפונקציה, לפני כל <code dir="ltr">randint</code>.</li>
+            <li>פונקציה שהתבקשה <em>להחזיר</em> ערך לא עושה <code dir="ltr">print</code> בתוך עצמה. קודם קוראים לה, ורק אז מדפיסים את מה שהיא החזירה.</li>
+          </ol>
+        </div>
+
+        <div class="big-result">1 · הכי קטן, לא הכי גדול 🔽</div>
+        <p>העתיקו את <code dir="ltr">calc_sum_10</code> מהשיעור בדיוק כפי שהיא — בלי לגעת בה. אחר כך כתבו שוב את הלולאה עם הזוג הכי-טוב-עד-עכשיו, אבל הפעם מצאו את ה-seed עם הסכום <strong>הכי קטן</strong>. רק סימן אחד בכל הלולאה צריך להשתנות.</p>
+        <div class="code" dir="ltr">min_sum = <span class="kw">None</span>
+min_sum_seed = <span class="kw">None</span>
+
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1</span>, <span class="num">42</span> + <span class="num">1</span>):
+    sum_10_numbers = <span class="fn">calc_sum_10</span>(i)
+    <span class="cm"># if min_sum is None or sum_10_numbers &lt; min_sum:</span>
+    <span class="cm">#     update both boxes together, same as in class</span>
+
+<span class="fn">print</span>(<span class="str">f"min_sum: {min_sum} min_sum_seed: {min_sum_seed}"</span>)</div>
+        <div class="console" dir="ltr">min_sum: 304 min_sum_seed: 36</div>
+        <div class="note">
+          אם החלפתם רק <code dir="ltr">&gt;</code> ב-<code dir="ltr">&lt;</code> ושום דבר אחר, זה המספר שתקבלו. אם גם החלפתם איזו תיבה מתעדכנת ראשונה, תקבלו את הסכום הנכון ליד ה-seed הלא נכון — בדיוק סוג הבאג מהשיעור היום.
+        </div>
+
+        <div class="big-result">2 · החיפוש הופך לפונקציה 🔧</div>
+        <p>בשבוע שעבר מספר שהיה תקוע בתוך פונקציה הפך לפרמטר. השבוע זה <strong>כל החיפוש</strong>. כתבו <code dir="ltr">find_best_seed(num_seeds)</code>: היא מריצה בפנים את הלולאה עם הזוג הכי-טוב-עד-עכשיו, קוראת ל-<code dir="ltr">calc_sum_10</code> בכל פעם, <strong>ומחזירה את הזוג</strong> <code dir="ltr">(best_seed, best_sum)</code>. אין <code dir="ltr">print</code> באף מקום בפנים.</p>
+        <div class="code" dir="ltr"><span class="kw">def</span> <span class="fn">find_best_seed</span>(num_seeds):
+    <span class="str">'''
+    try seeds 1..num_seeds, find the one with the highest calc_sum_10
+    :param num_seeds: how many seeds to try, starting from 1
+    :return: (best_seed, best_sum)
+    '''</span>
+    <span class="cm"># best_sum = None</span>
+    <span class="cm"># best_seed = None</span>
+    <span class="cm"># for i in range(1, num_seeds + 1):</span>
+    <span class="cm">#     ... same max-so-far pattern as always, but store - do not print</span>
+    <span class="cm"># return best_seed, best_sum</span>
+
+best_seed, best_sum = <span class="fn">find_best_seed</span>(<span class="num">42</span>)
+<span class="fn">print</span>(<span class="str">f"best seed: {best_seed}  best sum: {best_sum}"</span>)</div>
+        <div class="console" dir="ltr">best seed: 37  best sum: 674</div>
+        <div class="note">
+          אותו זוכה כמו בשיעור — 37 ו-674 — כי זה אותו חיפוש בדיוק, רק עטוף כך שמשהו אחר יכול לקרוא לו, לשמור את הזוג, או להשוות אותו לריצה אחרת <strong>בלי</strong> לקרוא טקסט מודפס מחדש.
+        </div>
+
+        <div class="big-result">3 · מספרים חדשים, אותה פונקציה 🎲</div>
+        <p>עכשיו השתמשו שוב ב-<code dir="ltr">calc_sum</code> מהשיעור — זו עם ארבעת החריצים — כדי לענות על שאלה אחרת. נסו seeds <strong>1 עד 100</strong>, ובכל אחד הטילו <strong>5 קוביות</strong> (מספרים <strong>1 עד 6</strong>). איזה seed נותן את הסכום <strong>הגבוה ביותר</strong>? תצטרכו גרסה משלכם ל-<code dir="ltr">find_best_seed</code> שקוראת ל-<code dir="ltr">calc_sum(seed, 5, 1, 6)</code> במקום ל-<code dir="ltr">calc_sum_10(seed)</code>.</p>
+        <div class="code" dir="ltr"><span class="cm"># seed 1: sum 12</span>
+<span class="cm"># seed 2: sum 8</span>
+<span class="cm"># seed 3: sum 17</span>
+<span class="cm"># ...</span></div>
+        <div class="console" dir="ltr">best seed: 68  best sum: 27</div>
+        <div class="note">
+          אותה צורה בדיוק כמו משימה 2, רק קריאה אחת השתנתה. אם הפונקציה שלכם ידעה לקרוא רק ל-<code dir="ltr">calc_sum_10</code>, פה זו הבחירה שעולה לכם ביוקר — ובדיוק בשביל זה <code dir="ltr">calc_sum</code> קיבלה ארבעה פרמטרים מלכתחילה.
+        </div>
+
+        <p><strong>פייתון בלבד</strong>. כתבו קובץ <code dir="ltr">.py</code> ב-PyCharm והריצו עם <span class="kbd">Shift</span> + <span class="kbd">F10</span>.</p>
+
+        <div class="big-result">הגשה</div>
+        <div class="card submission">
+          <ol class="task-list">
+            <li><strong>כתבו את התוכנית ב-<code dir="ltr">.py</code></strong> ב-PyCharm.</li>
+            <li><strong>העלו ל-GitHub</strong> ושלחו את הקישור אל:<br>
+              <a href="mailto:pythonai080626+hw21@gmail.com" dir="ltr">pythonai080626+hw21@gmail.com</a>
+            </li>
+          </ol>
+        </div>
+      </section>
 
     </main>
   </div>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>שאלה 3 — כניסות חשודות</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='%23080e1c'/><text x='32' y='45' text-anchor='middle' font-family='Arial, sans-serif' font-size='42' font-weight='700' fill='%232dd4bf'>db</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body class="q3">
+
+<nav class="top-nav">
+  <div class="wrap">
+    <a class="nav-home" href="../index.html">→ דף הבית</a>
+    <div class="brand">תרגול לבחינה · מחקר SQL</div>
+    <a class="nav-link" href="01-top-customers.html">שאלה 1</a>
+    <a class="nav-link" href="02-duplicate-refunds.html">שאלה 2</a>
+    <a class="nav-link active" href="03-suspicious-logins.html">שאלה 3</a>
+  </div>
+</nav>
+
+<main class="container">
+
+  <header class="hero">
+    <span class="tag">שאלה 3 מתוך 3</span>
+    <h1><span class="h-icon">🚨</span> כניסות חשודות</h1>
+    <p class="lead">צוות האבטחה קיבל התראה: חשבון של אחד העובדים נכנס למערכת מישראל בבוקר, ובערב של אותו יום הופיעה כניסה נוספת לאותו חשבון — מרוסיה. אי אפשר להיות בשתי מדינות באותו יום, ולכן כנראה אחת הכניסות היא של תוקף.</p>
+  </header>
+
+  <!-- השאלה -->
+  <section class="card">
+    <h2>השאלה</h2>
+    <div class="q-banner">
+      <div class="q-label">שאלה</div>
+      <div class="q-text">אילו עובדים התחברו מיותר ממדינה אחת באותו יום?</div>
+    </div>
+      <p class="context">כמה כניסות ביום מאותה מדינה — זה תקין. אנחנו מחפשים רק עובד שנכנס מיותר ממדינה אחת <strong>באותו תאריך</strong>. כניסה ממדינה אחרת ביום אחר לא נחשבת חשודה.</p>
+    <h3 class="sub">מה צריך להציג?</h3>
+    <ul class="show">
+        <li>שם העובד</li>
+        <li>התאריך</li>
+        <li>כמה מדינות שונות נרשמו באותו יום</li>
+    </ul>
+  </section>
+
+  <!-- הטבלאות -->
+  <section class="card">
+    <h2>הטבלאות והנתונים</h2>
+    <ul class="tables">
+        <li><code>employees</code><span>העובדים — מספר ושם</span></li>
+        <li><code>login_logs</code><span>כל שורה היא כניסה אחת למערכת: מי נכנס, מתי (<code>login_time</code> — תאריך ושעה) ומאיזו מדינה</span></li>
+    </ul>
+    <p class="hint">הריצו את שתי הפקודות למטה ב־DB Browser for SQLite (לשונית <em>Execute SQL</em>) — קודם יצירת הטבלאות ואחר כך הכנסת הנתונים — ואז כתבו את השאילתה שלכם.</p>
+
+    <div class="code">
+      <div class="code-bar"><span class="code-title">1. יצירת הטבלאות</span><button class="copy-btn" type="button" data-target="q3-create">העתקה</button></div>
+<pre id="q3-create" dir="ltr"><span class="k">CREATE TABLE</span> employees (
+  id    <span class="ty">INTEGER</span> <span class="k">PRIMARY KEY</span>,
+  name  <span class="ty">TEXT</span> <span class="k">NOT NULL</span>
+);
+
+<span class="k">CREATE TABLE</span> login_logs (
+  id          <span class="ty">INTEGER</span> <span class="k">PRIMARY KEY</span>,
+  employee_id <span class="ty">INTEGER</span> <span class="k">NOT NULL</span>,
+  login_time  <span class="ty">TEXT</span> <span class="k">NOT NULL</span>,
+  country     <span class="ty">TEXT</span> <span class="k">NOT NULL</span>,
+  <span class="k">FOREIGN KEY</span> (employee_id) <span class="k">REFERENCES</span> employees(id)
+);</pre>
+    </div>
+
+    <div class="code">
+      <div class="code-bar"><span class="code-title">2. הכנסת הנתונים</span><button class="copy-btn" type="button" data-target="q3-insert">העתקה</button></div>
+<pre id="q3-insert" dir="ltr"><span class="k">INSERT INTO</span> employees <span class="k">VALUES</span>
+  (<span class="c">1</span>, <span class="t">&#x27;Yael Cohen&#x27;</span>),
+  (<span class="c">2</span>, <span class="t">&#x27;James Walker&#x27;</span>),
+  (<span class="c">3</span>, <span class="t">&#x27;Lena Fischer&#x27;</span>),
+  (<span class="c">4</span>, <span class="t">&#x27;Omar Haddad&#x27;</span>);
+
+<span class="k">INSERT INTO</span> login_logs <span class="k">VALUES</span>
+  (<span class="c">1</span>, <span class="c">1</span>, <span class="t">&#x27;2024-03-15 09:14:02&#x27;</span>, <span class="t">&#x27;Israel&#x27;</span>),
+  (<span class="c">2</span>, <span class="c">1</span>, <span class="t">&#x27;2024-03-15 21:33:45&#x27;</span>, <span class="t">&#x27;Russia&#x27;</span>),
+  (<span class="c">3</span>, <span class="c">2</span>, <span class="t">&#x27;2024-03-15 10:05:00&#x27;</span>, <span class="t">&#x27;UK&#x27;</span>),
+  (<span class="c">4</span>, <span class="c">3</span>, <span class="t">&#x27;2024-03-15 11:00:44&#x27;</span>, <span class="t">&#x27;Germany&#x27;</span>),
+  (<span class="c">5</span>, <span class="c">1</span>, <span class="t">&#x27;2024-03-15 14:30:00&#x27;</span>, <span class="t">&#x27;Israel&#x27;</span>),
+  (<span class="c">6</span>, <span class="c">4</span>, <span class="t">&#x27;2024-03-15 15:12:18&#x27;</span>, <span class="t">&#x27;France&#x27;</span>),
+  (<span class="c">7</span>, <span class="c">4</span>, <span class="t">&#x27;2024-03-16 09:00:00&#x27;</span>, <span class="t">&#x27;Spain&#x27;</span>);</pre>
+    </div>
+  </section>
+
+  <!-- שלבי הפתרון -->
+  <section class="card">
+    <h2>שלבי הפתרון</h2>
+    <p class="hint" style="margin-top:0">נסו קודם לבד, ואם נתקעתם — לכו שלב אחרי שלב. יש יותר מדרך אחת נכונה; העיקר שהתוצאה נכונה.</p>
+    <ol class="steps">
+        <li><div class="step-body"><h3>הבינו מה מחפשים</h3><p>אותו עובד + אותו יום + יותר ממדינה אחת. העמודה <code>login_time</code> שומרת תאריך <em>וגם</em> שעה (למשל <code>2024-03-15 09:14:02</code>), אבל כדי להשוות בין ימים צריך רק את התאריך.</p></div></li>
+        <li><div class="step-body"><h3>חלצו את התאריך</h3><p>הפונקציה <code>strftime('%Y-%m-%d', login_time)</code> מחזירה את התאריך בלבד, למשל <code>2024-03-15</code>.</p></div></li>
+        <li><div class="step-body"><h3>קבצו לפי עובד ולפי יום</h3><p><code>GROUP BY employee_id, strftime('%Y-%m-%d', login_time)</code> — כך מתקבלת קבוצה אחת לכל עובד בכל יום.</p></div></li>
+        <li><div class="step-body"><h3>ספרו מדינות שונות</h3><p>בתוך כל קבוצה ספרו כמה מדינות <strong>שונות</strong> יש: <code>COUNT(DISTINCT country)</code>. ה־<code>DISTINCT</code> חשוב — שלוש כניסות מאותה מדינה הן עדיין מדינה אחת. אחר כך השאירו רק קבוצות עם יותר ממדינה אחת: <code>HAVING COUNT(DISTINCT country) &gt; 1</code>.</p></div></li>
+        <li><div class="step-body"><h3>הוסיפו את שם העובד</h3><p>השם נמצא בטבלת <code>employees</code>. חברו אותה בעזרת <code>JOIN</code> על <code>employees.id = login_logs.employee_id</code>.</p></div></li>
+    </ol>
+    <div class="remember"><span class="r-label">💡 לזכור</span><p>אם תקבצו רק לפי עובד (בלי היום) תקבלו גם עובדים שנכנסו ממדינות שונות <strong>בימים שונים</strong> — וזה לא חשוד.</p></div>
+  </section>
+
+  <div class="pager">
+    <a href="02-duplicate-refunds.html">→ שאלה קודמת</a>
+    <span></span>
+  </div>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>

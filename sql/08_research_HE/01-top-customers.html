@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>שאלה 1 — הלקוחות המובילים</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='%23080e1c'/><text x='32' y='45' text-anchor='middle' font-family='Arial, sans-serif' font-size='42' font-weight='700' fill='%232dd4bf'>db</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body class="q1">
+
+<nav class="top-nav">
+  <div class="wrap">
+    <a class="nav-home" href="../index.html">→ דף הבית</a>
+    <div class="brand">תרגול לבחינה · מחקר SQL</div>
+    <a class="nav-link active" href="01-top-customers.html">שאלה 1</a>
+    <a class="nav-link" href="02-duplicate-refunds.html">שאלה 2</a>
+    <a class="nav-link" href="03-suspicious-logins.html">שאלה 3</a>
+  </div>
+</nav>
+
+<main class="container">
+
+  <header class="hero">
+    <span class="tag">שאלה 1 מתוך 3</span>
+    <h1><span class="h-icon">🏆</span> הלקוחות המובילים</h1>
+    <p class="lead">צוות השיווק רוצה לזהות את לקוחות ה־VIP של החברה — אלה שהוציאו הכי הרבה כסף — כדי להציע להם מבצעים מיוחדים.</p>
+  </header>
+
+  <!-- השאלה -->
+  <section class="card">
+    <h2>השאלה</h2>
+    <div class="q-banner">
+      <div class="q-label">שאלה</div>
+      <div class="q-text">מי שלושת הלקוחות שהוציאו הכי הרבה כסף בסך הכול?</div>
+    </div>
+    <h3 class="sub">מה צריך להציג?</h3>
+    <ul class="show">
+        <li>שם הלקוח</li>
+        <li>מספר ההזמנות של הלקוח</li>
+        <li>הסכום הכולל שהוא הוציא</li>
+        <li>הסדר: מהסכום הגבוה לנמוך</li>
+    </ul>
+  </section>
+
+  <!-- הטבלאות -->
+  <section class="card">
+    <h2>הטבלאות והנתונים</h2>
+    <ul class="tables">
+        <li><code>customers</code><span>הלקוחות של החברה — מספר, שם ועיר</span></li>
+        <li><code>orders</code><span>כל שורה היא הזמנה אחת: איזה לקוח הזמין, וכמה שילם (<code>total</code>)</span></li>
+    </ul>
+    <p class="hint">הריצו את שתי הפקודות למטה ב־DB Browser for SQLite (לשונית <em>Execute SQL</em>) — קודם יצירת הטבלאות ואחר כך הכנסת הנתונים — ואז כתבו את השאילתה שלכם.</p>
+
+    <div class="code">
+      <div class="code-bar"><span class="code-title">1. יצירת הטבלאות</span><button class="copy-btn" type="button" data-target="q1-create">העתקה</button></div>
+<pre id="q1-create" dir="ltr"><span class="k">CREATE TABLE</span> customers (
+  id    <span class="ty">INTEGER</span> <span class="k">PRIMARY KEY</span>,
+  name  <span class="ty">TEXT</span> <span class="k">NOT NULL</span>,
+  city  <span class="ty">TEXT</span>
+);
+
+<span class="k">CREATE TABLE</span> orders (
+  id          <span class="ty">INTEGER</span> <span class="k">PRIMARY KEY</span>,
+  customer_id <span class="ty">INTEGER</span> <span class="k">NOT NULL</span>,
+  total       <span class="ty">REAL</span> <span class="k">NOT NULL</span>,
+  <span class="k">FOREIGN KEY</span> (customer_id) <span class="k">REFERENCES</span> customers(id)
+);</pre>
+    </div>
+
+    <div class="code">
+      <div class="code-bar"><span class="code-title">2. הכנסת הנתונים</span><button class="copy-btn" type="button" data-target="q1-insert">העתקה</button></div>
+<pre id="q1-insert" dir="ltr"><span class="k">INSERT INTO</span> customers <span class="k">VALUES</span>
+  (<span class="c">1</span>,  <span class="t">&#x27;Ana Torres&#x27;</span>, <span class="t">&#x27;Madrid&#x27;</span>),
+  (<span class="c">2</span>,  <span class="t">&#x27;David Levi&#x27;</span>, <span class="t">&#x27;Tel Aviv&#x27;</span>),
+  (<span class="c">3</span>,  <span class="t">&#x27;Sara Kim&#x27;</span>,   <span class="t">&#x27;Seoul&#x27;</span>),
+  (<span class="c">4</span>,  <span class="t">&#x27;James Park&#x27;</span>, <span class="t">&#x27;London&#x27;</span>),
+  (<span class="c">5</span>,  <span class="t">&#x27;Mia Russo&#x27;</span>,  <span class="t">&#x27;Rome&#x27;</span>),
+  (<span class="c">6</span>,  <span class="t">&#x27;Chen Wei&#x27;</span>,   <span class="t">&#x27;Shanghai&#x27;</span>),
+  (<span class="c">7</span>,  <span class="t">&#x27;Leila Nabi&#x27;</span>, <span class="t">&#x27;Paris&#x27;</span>),
+  (<span class="c">8</span>,  <span class="t">&#x27;Omar Said&#x27;</span>,  <span class="t">&#x27;Cairo&#x27;</span>),
+  (<span class="c">9</span>,  <span class="t">&#x27;Tom Okafor&#x27;</span>, <span class="t">&#x27;Lagos&#x27;</span>),
+  (<span class="c">10</span>, <span class="t">&#x27;Nina Braun&#x27;</span>, <span class="t">&#x27;Berlin&#x27;</span>);
+
+<span class="k">INSERT INTO</span> orders <span class="k">VALUES</span>
+  (<span class="c">1</span>, <span class="c">2</span>, <span class="c">120.00</span>),
+  (<span class="c">2</span>, <span class="c">5</span>, <span class="c">340.00</span>),
+  (<span class="c">3</span>, <span class="c">2</span>,  <span class="c">85.50</span>),
+  (<span class="c">4</span>, <span class="c">9</span>, <span class="c">220.00</span>),
+  (<span class="c">5</span>, <span class="c">5</span>, <span class="c">410.00</span>),
+  (<span class="c">6</span>, <span class="c">2</span>,  <span class="c">60.00</span>),
+  (<span class="c">7</span>, <span class="c">9</span>, <span class="c">180.00</span>),
+  (<span class="c">8</span>, <span class="c">1</span>,  <span class="c">95.00</span>);</pre>
+    </div>
+  </section>
+
+  <!-- שלבי הפתרון -->
+  <section class="card">
+    <h2>שלבי הפתרון</h2>
+    <p class="hint" style="margin-top:0">נסו קודם לבד, ואם נתקעתם — לכו שלב אחרי שלב. יש יותר מדרך אחת נכונה; העיקר שהתוצאה נכונה.</p>
+    <ol class="steps">
+        <li><div class="step-body"><h3>הבינו מה מבקשים</h3><p>קראו שוב את השאלה: צריך שם לקוח, מספר הזמנות וסכום כולל — ורק עבור שלושת הלקוחות הראשונים.</p></div></li>
+        <li><div class="step-body"><h3>איפה הכסף?</h3><p>הסכומים נמצאים בטבלת <code>orders</code>, בעמודה <code>total</code>. כל שורה היא הזמנה אחת, ולכן צריך לחבר את הסכומים של כל לקוח בנפרד: <code>SUM(total)</code>, ולספור את ההזמנות שלו: <code>COUNT(*)</code>.</p></div></li>
+        <li><div class="step-body"><h3>קבצו לפי לקוח</h3><p>כדי לחשב סכום לכל לקוח בנפרד משתמשים ב־<code>GROUP BY customer_id</code>. טיפ: התחילו רק מטבלת <code>orders</code> (בלי JOIN) ובדקו שהמספרים הגיוניים.</p></div></li>
+        <li><div class="step-body"><h3>הביאו את השם</h3><p>שם הלקוח נמצא בטבלה אחרת — <code>customers</code>. חברו אותה בעזרת <code>JOIN</code> על <code>customers.id = orders.customer_id</code>.</p></div></li>
+        <li><div class="step-body"><h3>רק שלושת הראשונים</h3><p>מיינו לפי הסכום הכולל מהגדול לקטן (<code>ORDER BY … DESC</code>; תנו לסכום שם בעזרת <code>AS</code> כדי שיהיה קל להתייחס אליו) והגבילו ל־3 שורות עם <code>LIMIT 3</code>.</p></div></li>
+    </ol>
+    <div class="remember"><span class="r-label">💡 לזכור</span><p>סדר הכתיבה של השאילתה: <code>SELECT → FROM → JOIN → GROUP BY → ORDER BY → LIMIT</code></p></div>
+  </section>
+
+  <div class="pager">
+    <span></span>
+    <a href="02-duplicate-refunds.html">שאלה הבאה ←</a>
+  </div>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
