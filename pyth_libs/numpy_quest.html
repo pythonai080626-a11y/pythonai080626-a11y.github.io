@@ -1,0 +1,685 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}</style>
+<title>NumPy Quest</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a sticky XP bar, a hero with a 3x3 "mission map" (the levels are literally a matrix), then nine level cards.
+   Look: playful notebook-meets-arcade. Thick ink outlines, hard offset shadows, one sun-yellow reward color. */
+:root{
+  --bg:#F2F5FF; --surface:#FFFFFF; --surface-2:#E7ECFF;
+  --ink:#121735; --muted:#4F5880;
+  --line:#121735; --line-soft:#B7C0E6; --shadow:#121735;
+  --accent:#2F5BFF; --accent-ink:#FFFFFF; --focus:#E8590C;
+  --sun:#FFCB2E; --sun-ink:#121735;
+  --ok:#0B7A4D; --ok-bg:#D6F5E6; --bad:#B4232B; --bad-bg:#FFE0E0; --warn-bg:#FFF1C2;
+  --code-bg:#10173B; --code-fg:#E6EAFF; --code-dim:#8F9AD8;
+  --t1:#FFCB2E; --t2:#7CE3C0; --t3:#FF9BB5; --t4:#9DB8FF; --tile-ink:#121735;
+  --f-display:'Bricolage Grotesque','Trebuchet MS',system-ui,sans-serif;
+  --f-body:'DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,Consolas,'Courier New',monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0B0F2E; --surface:#151A47; --surface-2:#1E2559;
+    --ink:#EDEFFF; --muted:#A3ABDB;
+    --line:#6470D6; --line-soft:#363F8C; --shadow:#04061B;
+    --accent:#7C93FF; --accent-ink:#0B0F2E; --focus:#FFCB2E;
+    --ok:#4BE3A4; --ok-bg:#12382F; --bad:#FF8F94; --bad-bg:#40182A; --warn-bg:#3F3715;
+    --code-bg:#070A22; --code-fg:#E6EAFF; --code-dim:#7E89CC;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0B0F2E; --surface:#151A47; --surface-2:#1E2559;
+  --ink:#EDEFFF; --muted:#A3ABDB;
+  --line:#6470D6; --line-soft:#363F8C; --shadow:#04061B;
+  --accent:#7C93FF; --accent-ink:#0B0F2E; --focus:#FFCB2E;
+  --ok:#4BE3A4; --ok-bg:#12382F; --bad:#FF8F94; --bad-bg:#40182A; --warn-bg:#3F3715;
+  --code-bg:#070A22; --code-fg:#E6EAFF; --code-dim:#7E89CC;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font:400 1rem/1.6 var(--f-body);margin:0;padding-block:0 4rem;-webkit-text-size-adjust:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+.wrap{max-width:880px;margin-inline:auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+code,.mono{font-family:var(--f-mono);font-size:.88em}
+p code,li code,.q code,label code,.story code{background:var(--surface-2);border:1px solid var(--line-soft);border-radius:6px;padding:.05em .35em}
+
+/* sticky XP bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;background:var(--bg);border-bottom:2px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:1rem;padding-block:.6rem}
+.brand{font:800 1.15rem var(--f-display);letter-spacing:-.01em;white-space:nowrap}
+.brand b{background:var(--sun);color:var(--sun-ink);padding:0 .35em;border-radius:6px;border:2px solid var(--line)}
+.meter{flex:1;min-width:0;display:grid;gap:.2rem}
+.meter .lab{display:flex;justify-content:space-between;gap:.5rem;font:600 .78rem var(--f-mono);color:var(--muted);flex-wrap:wrap}
+.meter .lab strong{color:var(--ink)}
+.bar{height:14px;border:2px solid var(--line);border-radius:99px;background:var(--surface);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--sun);border-right:2px solid var(--line);transition:width .5s cubic-bezier(.2,.8,.2,1)}
+
+/* hero */
+.hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:2.2rem;align-items:center;padding-block:2.4rem 1.6rem}
+.eyebrow{font:600 .8rem var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 .7rem}
+h1{font:800 clamp(2.6rem,8vw,4.4rem)/.95 var(--f-display);letter-spacing:-.03em;margin:0 0 1rem;text-wrap:balance}
+h1 span{background:var(--sun);color:var(--sun-ink);padding:0 .12em;border-radius:.12em;box-shadow:.06em .06em 0 var(--shadow);display:inline-block;transform:rotate(-1.5deg)}
+.lede{font-size:1.08rem;max-width:34rem;margin:0 0 1.2rem}
+.how{display:flex;flex-wrap:wrap;gap:.5rem;list-style:none;margin:0 0 1.3rem;padding:0;counter-reset:how}
+.how li{counter-increment:how;display:flex;gap:.5rem;align-items:center;font-weight:500;font-size:.92rem;border:2px solid var(--line);border-radius:99px;padding:.25rem .8rem .25rem .3rem;background:var(--surface)}
+.how li::before{content:counter(how);display:grid;place-items:center;width:1.5rem;height:1.5rem;border-radius:50%;background:var(--ink);color:var(--bg);font:700 .8rem var(--f-mono)}
+.btn{font:700 .95rem var(--f-body);padding:.6rem 1.1rem;border:2px solid var(--line);border-radius:10px;background:var(--accent);color:var(--accent-ink);box-shadow:3px 3px 0 var(--shadow);cursor:pointer;text-decoration:none;display:inline-block;transition:transform .08s,box-shadow .08s}
+.btn:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--shadow)}
+.btn:active{transform:translate(3px,3px);box-shadow:0 0 0 var(--shadow)}
+.btn.ghost{background:var(--surface);color:var(--ink)}
+.btn.small{padding:.3rem .7rem;font-size:.82rem;box-shadow:2px 2px 0 var(--shadow)}
+
+/* mission map */
+.mapbox{display:grid;gap:.7rem}
+.map{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.6rem}
+.tile{display:flex;flex-direction:column;justify-content:space-between;gap:.4rem;min-height:96px;padding:.55rem .65rem;border:2px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);text-decoration:none;box-shadow:3px 3px 0 var(--shadow);transition:transform .1s}
+.tile:hover{transform:translate(-1px,-1px)}
+.tile .n{font:800 1.5rem/1 var(--f-display);display:flex;justify-content:space-between;align-items:flex-start}
+.tile .nm{font:500 .78rem/1.2 var(--f-body);color:var(--muted);overflow-wrap:anywhere}
+.tile.done{background:var(--ok-bg)}
+.tile.done .n::after{content:"✓";font:700 1rem var(--f-body);color:var(--ok)}
+.tile.next{background:var(--sun);color:var(--sun-ink)}
+.tile.next .nm{color:var(--sun-ink)}
+.tile.next .n::after{content:"GO";font:700 .7rem var(--f-mono);border:2px solid var(--sun-ink);border-radius:99px;padding:.1rem .4rem}
+.mapcap{font:400 .8rem var(--f-mono);color:var(--muted);margin:0;overflow-wrap:anywhere}
+
+/* toolbelt */
+.belt{border:2px solid var(--line);border-radius:14px;background:var(--surface);padding:1rem 1.1rem;box-shadow:4px 4px 0 var(--shadow);margin-block:.6rem 2.4rem}
+.belt h2{font:800 1.15rem var(--f-display);margin:0 0 .15rem}
+.belt p{margin:0 0 .8rem;color:var(--muted);font-size:.92rem}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem}
+.chip{font:600 .78rem var(--f-mono);padding:.25rem .6rem;border:2px dashed var(--line-soft);border-radius:99px;color:var(--muted);transition:background .3s}
+.chip.on{background:var(--sun);color:var(--sun-ink);border:2px solid var(--line)}
+
+/* levels */
+#levels{display:grid;gap:2.2rem}
+.level{scroll-margin-top:5.2rem;border:2px solid var(--line);border-radius:18px;background:var(--surface);box-shadow:6px 6px 0 var(--shadow);overflow:hidden}
+.lv-head{display:flex;align-items:center;gap:1rem;padding:1rem 1.2rem;background:var(--tc);color:var(--tile-ink);border-bottom:2px solid var(--line)}
+.badge{flex:none;display:grid;place-items:center;min-width:3.4rem;height:3.4rem;padding-inline:.4rem;border:2px solid var(--tile-ink);border-radius:12px;background:var(--surface);color:var(--ink);font:800 1.05rem var(--f-display);box-shadow:2px 2px 0 var(--tile-ink)}
+.lv-head h2{font:800 clamp(1.3rem,4.4vw,1.8rem)/1.1 var(--f-display);letter-spacing:-.02em;margin:0;text-wrap:balance}
+.lv-head p{margin:.15rem 0 0;font-size:.92rem;font-weight:500}
+.lv-head .tt{min-width:0;flex:1}
+.lv-xp{font:700 .8rem var(--f-mono);border:2px solid var(--tile-ink);border-radius:99px;padding:.2rem .65rem;background:var(--surface);color:var(--ink);white-space:nowrap}
+.lv-body{padding:1.2rem 1.2rem 1.4rem;display:grid;gap:1.1rem}
+.story{margin:0;font-size:1.04rem}
+.starter{border-radius:12px;overflow:hidden;border:2px solid var(--line);background:var(--code-bg)}
+.starter .cap{display:flex;justify-content:space-between;align-items:center;gap:.6rem;padding:.4rem .6rem .4rem .9rem;font:600 .76rem var(--f-mono);color:var(--code-dim);border-bottom:1px solid var(--code-dim);flex-wrap:wrap}
+pre{margin:0;padding:.8rem 1rem;overflow-x:auto;color:var(--code-fg);font:400 .85rem/1.6 var(--f-mono);tab-size:4}
+pre .cm{color:var(--code-dim)}
+.tip{border:2px dashed var(--line);border-radius:12px;padding:.7rem .9rem;background:var(--surface-2);font-size:.93rem}
+
+ol.tasks{list-style:none;margin:0;padding:0;counter-reset:step;display:grid;gap:0}
+.task{counter-increment:step;display:grid;grid-template-columns:2.3rem minmax(0,1fr);gap:.2rem .9rem;padding-block:1.1rem;border-top:2px dashed var(--line-soft)}
+.task:first-child{border-top:0;padding-top:.2rem}
+.task::before{content:counter(step);display:grid;place-items:center;width:2.1rem;height:2.1rem;border:2px solid var(--line);border-radius:50%;font:700 .95rem var(--f-mono);background:var(--surface)}
+.task.done::before{content:"✓";background:var(--ok-bg);color:var(--ok);font-family:var(--f-body)}
+.task>*{grid-column:2}
+.task::before{grid-column:1;grid-row:1 / span 3}
+.q{margin:0 0 .45rem;font-weight:500}
+.tools{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:.7rem;align-items:center}
+.tools small{font:600 .72rem var(--f-mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-right:.2rem}
+.tool{font:600 .75rem var(--f-mono);background:var(--surface-2);border:1px solid var(--line-soft);border-radius:6px;padding:.1rem .4rem}
+.lbl{display:block;font:600 .8rem var(--f-mono);color:var(--muted);margin-bottom:.3rem}
+.row{display:flex;gap:.6rem;flex-wrap:wrap}
+input.txt{flex:1 1 12rem;min-width:0;font:600 1rem var(--f-mono);padding:.55rem .75rem;border:2px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+input.txt:disabled{opacity:1;background:var(--ok-bg);color:var(--ok);border-color:var(--ok)}
+fieldset{border:0;margin:0 0 .7rem;padding:0;display:grid;gap:.5rem;min-width:0}
+.opt{display:flex;gap:.7rem;align-items:flex-start;padding:.6rem .8rem;border:2px solid var(--line);border-radius:10px;background:var(--bg);cursor:pointer;font-size:.95rem}
+.opt:hover{background:var(--surface-2)}
+.opt input{margin-top:.28rem;accent-color:var(--accent);flex:none}
+.opt span{min-width:0;overflow-wrap:anywhere}
+.opt.right{background:var(--ok-bg);border-color:var(--ok)}
+.opt.locked{cursor:default}
+.fb{margin-top:.6rem;font-weight:700;font-size:.93rem;border-radius:10px;padding:.5rem .8rem;border:2px solid transparent}
+.fb:empty{display:none}
+.fb.bad{background:var(--bad-bg);color:var(--bad);border-color:var(--bad)}
+.fb.good{background:var(--ok-bg);color:var(--ok);border-color:var(--ok)}
+.fb.warn{background:var(--warn-bg);color:var(--ink);border-color:var(--line)}
+.fb.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.acts{display:flex;gap:.9rem;flex-wrap:wrap;margin-top:.6rem}
+.lnk{font:600 .84rem var(--f-body);background:none;border:0;padding:.1rem 0;color:var(--accent);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.lnk small{color:var(--muted);font-weight:500}
+.hintbox{margin-top:.6rem;border-left:5px solid var(--sun);background:var(--surface-2);padding:.6rem .85rem;border-radius:0 10px 10px 0;font-size:.93rem}
+.solbox{margin-top:.6rem;border-radius:10px;overflow:hidden;border:2px solid var(--line);background:var(--code-bg)}
+.solbox .cap{padding:.3rem .9rem;font:600 .72rem var(--f-mono);color:var(--code-dim);border-bottom:1px solid var(--code-dim);text-transform:uppercase;letter-spacing:.06em}
+
+.lvdone{border:2px solid var(--ok);background:var(--ok-bg);border-radius:14px;padding:.9rem 1.1rem;display:grid;gap:.6rem}
+.lvdone h3{margin:0;font:800 1.2rem var(--f-display);color:var(--ok)}
+.lvdone p{margin:0;font-size:.93rem}
+.board{display:grid;grid-template-columns:repeat(8,1fr);width:min(100%,19rem);aspect-ratio:1;border:3px solid var(--line);border-radius:6px;overflow:hidden}
+.board div{display:grid;place-items:center;font:700 clamp(.7rem,2.6vw,1rem) var(--f-mono);color:var(--tile-ink)}
+.board div:nth-child(16n+1),.board div:nth-child(16n+3),.board div:nth-child(16n+5),.board div:nth-child(16n+7),.board div:nth-child(16n+10),.board div:nth-child(16n+12),.board div:nth-child(16n+14),.board div:nth-child(16n+16){background:#EBD9B4}
+.board div:nth-child(16n+2),.board div:nth-child(16n+4),.board div:nth-child(16n+6),.board div:nth-child(16n+8),.board div:nth-child(16n+9),.board div:nth-child(16n+11),.board div:nth-child(16n+13),.board div:nth-child(16n+15){background:#B58863}
+.board .p{background:var(--sun)!important}
+
+/* finale */
+.finale{margin-top:2.4rem;border:3px solid var(--line);border-radius:20px;padding:1.6rem 1.4rem;background:var(--sun);color:var(--sun-ink);box-shadow:8px 8px 0 var(--shadow);display:grid;gap:.7rem;text-align:left}
+.finale h2{margin:0;font:800 clamp(1.8rem,6vw,2.8rem)/1 var(--f-display);letter-spacing:-.02em}
+.finale p{margin:0;max-width:36rem}
+.finale .btn{background:var(--ink);color:var(--bg);justify-self:start;border-color:var(--sun-ink);box-shadow:3px 3px 0 var(--sun-ink)}
+footer{margin-top:2.4rem;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;color:var(--muted);font-size:.85rem}
+.pop{position:fixed;width:10px;height:10px;border-radius:2px;pointer-events:none;z-index:99}
+
+@media (max-width:760px){
+  .hero{grid-template-columns:minmax(0,1fr);gap:1.6rem;padding-top:1.6rem}
+  .lv-head{flex-wrap:wrap}
+  .lv-xp{order:3}
+  .brand{font-size:1rem}
+}
+@media (max-width:460px){
+  .task{grid-template-columns:minmax(0,1fr)}
+  .task::before{grid-column:1;grid-row:auto;margin-bottom:.4rem}
+  .task>*{grid-column:1}
+  .lv-body{padding-inline:1rem}
+  .top .wrap{gap:.6rem}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{transition:none!important;animation:none!important}
+}
+</style>
+
+</head>
+<body>
+<div class="top"><div class="wrap">
+  <div class="brand"><b>np</b> Quest</div>
+  <div class="meter">
+    <div class="lab"><span id="rank">Rank: Fresh Recruit</span><span><strong id="xp">0</strong> / <span id="xpmax">0</span> XP</span></div>
+    <div class="bar" role="progressbar" aria-label="Quest progress" id="bar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="barfill" style="width:0%"></i></div>
+  </div>
+</div></div>
+
+<main class="wrap">
+  <section class="hero">
+    <div>
+      <p class="eyebrow">9 missions · 36 challenges · NumPy only</p>
+      <h1>Level up your <span>arrays</span></h1>
+      <p class="lede">A chessboard that needs building, a vault that somebody is emptying, a bookshop with a flash sale. Each mission drops you into a tiny story where NumPy saves the day, and not a single for-loop is allowed to show up.</p>
+      <ol class="how">
+        <li>Read the story</li>
+        <li>Code it in your Jupyter notebook</li>
+        <li>Type your result here to earn XP</li>
+      </ol>
+      <a class="btn" href="#lv0">Start mission 0</a>
+    </div>
+    <div class="mapbox">
+      <nav class="map" id="map" aria-label="Mission map"></nav>
+      <p class="mapcap">levels = np.arange(9).reshape(3, 3)</p>
+    </div>
+  </section>
+
+  <section class="belt" aria-labelledby="beltT">
+    <h2 id="beltT">Your toolbelt</h2>
+    <p>Every tool lights up once you finish the mission that teaches it.</p>
+    <div class="chips" id="chips"></div>
+  </section>
+
+  <div id="levels"></div>
+
+  <section class="finale" id="finale" hidden>
+    <h2 id="finT">You did it!</h2>
+    <p id="finP"></p>
+    <a class="btn" href="#levels">Review any mission</a>
+  </section>
+
+  <footer>
+    <span>Your progress is saved in this browser only.</span>
+    <button class="btn ghost small" id="reset" type="button">Reset progress</button>
+  </footer>
+</main>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- content ---------- */
+var LEVELS=[
+{ name:"Boot Sequence", tag:"The pre-flight checklist. No code yet, just the right instincts.",
+  story:"Welcome aboard, recruit! Mission Control just handed you the keys to a brand-new data lab, and rule number one is simple: nothing launches until NumPy is on board. Three quick checks, then you're cleared for takeoff.",
+  tip:"Pro tip for later: type <code>np.</code> and press <b>Tab</b> to see everything NumPy can do. Put your cursor inside a function's parentheses and press <b>Shift + Tab</b> to read its manual.",
+  unlocks:["import numpy as np"],
+  tasks:[
+   {type:"mc",tools:["pip","import"],
+    q:"The lab computer has never heard of NumPy. Where does each command belong?",
+    options:[
+      "<code>pip install numpy</code> goes in a notebook cell, and <code>import numpy as np</code> goes in the CMD",
+      "Both commands go in a notebook cell",
+      "<code>pip install numpy</code> in the computer's CMD (once), and <code>import numpy as np</code> in a notebook cell",
+      "Neither. Python ships with NumPy already inside"],
+    correct:2,
+    hint:"Installing is a job for the computer itself. Importing is a job for the notebook you're working in.",
+    sol:"# in the computer's CMD / terminal (once)\npip install numpy\n\n# in a Jupyter cell (every notebook)\nimport numpy as np"},
+   {type:"mc",tools:["+ on lists","+ on arrays"],
+    q:"Two crates arrive. Crate A is <code>[1, 2]</code> and crate B is <code>[3, 4]</code>. What does the <code>+</code> operator do when they are plain Python lists, and what does it do when they are NumPy arrays? Try it in a cell before you answer.",
+    options:[
+      "Both give <code>[4, 6]</code>",
+      "Lists give <code>[1, 2, 3, 4]</code>, arrays give <code>[4, 6]</code>",
+      "Lists give <code>[4, 6]</code>, arrays give <code>[1, 2, 3, 4]</code>",
+      "Both raise an error"],
+    correct:1,
+    hint:"Lists glue together. Arrays do math, item by item.",
+    sol:"import numpy as np\n\n[1, 2] + [3, 4]                          # [1, 2, 3, 4]\nnp.array([1, 2]) + np.array([3, 4])      # array([4, 6])"},
+   {type:"mc",tools:["arrays vs lists"],
+    q:"Your boss asks why NumPy beats lists for number crunching. One of these four claims is <b>false</b>. Which one?",
+    options:[
+      "Arrays are faster for large amounts of numeric data",
+      "Arrays use less memory than lists",
+      "You can do math on a whole array without writing a loop",
+      "Arrays are better than lists at storing a random mix of text, numbers and objects"],
+    correct:3,
+    hint:"NumPy is a specialist. It is built for numbers, not for hoarding random stuff.",
+    sol:"# Arrays win on: speed, memory, built-in math/statistics,\n# and compatibility with SciPy, Matplotlib and Pandas.\n# Mixed bags of data? That's still a job for a plain list."}
+  ]},
+
+{ name:"Grade Day at Pixel High", tag:"Your first array, saving a teacher's weekend.",
+  story:"Ms. Cohen just finished marking the Physics midterm and she's drowning in paper. She slides six grades across the desk and says: \"Make the computer do it, and make it fast.\" You're about to build your very first NumPy array to rescue her weekend.",
+  starter:"import numpy as np\n\nnames  = [\"Maya\", \"Noam\", \"Lior\", \"Sasha\", \"Omar\", \"Tali\"]\ngrades = [78, 92, 65, 88, 71, 99]",
+  unlocks:["np.array()","type()","+ − × ÷",".mean()",".max()",".min()",".argmax()"],
+  tasks:[
+   {type:"text",accept:["ndarray"],label:"What does it print?",ph:"numpy.ndarray ...?",tools:["np.array()","type()"],
+    q:"Turn the <code>grades</code> list into a NumPy array called <code>scores</code>, then ask Python what <code>type</code> it is. What shows up?",
+    hint:"Hand the whole list to <code>np.array(...)</code>, then wrap your new variable in <code>type(...)</code>.",
+    sol:"scores = np.array(grades)\nprint(type(scores))      # <class 'numpy.ndarray'>"},
+   {type:"num",answer:82.2,tol:.06,label:"Class average (1 decimal)",ph:"e.g. 75.3",tools:[".mean()"],
+    q:"First question from Ms. Cohen: what's the class average? Round it to one decimal place.",
+    hint:"An array can calculate its own average. Look for a method that sounds like what you want.",
+    sol:"scores.mean()      # 82.1666..."},
+   {type:"num",answer:87.2,tol:.06,label:"New class average (1 decimal)",ph:"e.g. 80.1",tools:["array + number",".mean()"],
+    q:"Ms. Cohen feels generous: <b>+5 points for everybody</b>. Do it in a single line, no loops, and tell her the new class average.",
+    hint:"Try <code>scores + 5</code> and see what happens to every element at once.",
+    sol:"curved = scores + 5\ncurved.mean()      # 87.1666..."},
+   {type:"text",accept:["tali"],label:"Name of the top scorer",ph:"a name from the list",tools:[".argmax()","names[...]"],
+    q:"The principal wants to congratulate the top scorer. Use your array to find out who it is. The answer is a name from <code>names</code>.",
+    hint:"<code>argmax()</code> gives you a position, not a value. A position is exactly what a list needs.",
+    sol:"names[scores.argmax()]      # 'Tali'"},
+   {type:"num",answer:34,tol:.0001,label:"Points between best and worst",ph:"a number",tools:[".max()",".min()"],
+    q:"Last one: how many points separate the best grade from the worst one?",
+    hint:"Two methods, one subtraction.",
+    sol:"scores.max() - scores.min()      # 99 - 65 = 34"}
+  ]},
+
+{ name:"Weather Station Zero", tag:"Rebuild a timeline and hunt for the hottest moment.",
+  story:"A sensor on a windy mountain top logs the temperature every 3 hours, starting at midnight, and beams the readings down to you. Its clock is scrambled, so first you rebuild the timeline yourself, then you find the hottest moment of the day.",
+  starter:"import numpy as np\n\ntemps = np.array([11, 9, 13, 19, 26, 29, 22, 15])   # degrees Celsius, one per reading",
+  unlocks:["np.arange()","np.linspace()"],
+  tasks:[
+   {type:"num",answer:21,tol:.0001,label:"Last timestamp",ph:"an hour",tools:["np.arange()"],
+    q:"Rebuild the sensor's timeline: 0, 3, 6, and so on, stopping before 24:00 (that's already tomorrow!). That should give 8 timestamps. What's the last one?",
+    hint:"Three numbers go in the parentheses: where to start, where to stop, and the size of each jump. The stop value never joins the party.",
+    sol:"hours = np.arange(0, 24, 3)\nhours      # array([ 0,  3,  6,  9, 12, 15, 18, 21])"},
+   {type:"num",answer:15,tol:.0001,label:"Hottest hour",ph:"an hour",tools:[".argmax()","hours[...]"],
+    q:"At what hour was it hottest? Match your <code>temps</code> to your <code>hours</code>.",
+    hint:"Find the position of the highest temperature, then use that position inside <code>hours</code>.",
+    sol:"hours[temps.argmax()]      # 15"},
+   {type:"num",answer:20,tol:.0001,label:"The 5th test temperature",ph:"a temperature",tools:["np.linspace()"],
+    q:"Calibration time! Test the thermometer on a freezer-to-oven ladder: <b>6 evenly spaced temperatures from -20 to 30</b>. What is the 5th one (index 4)?",
+    hint:"<code>np.linspace(start, stop, how_many)</code>. Unlike <code>arange</code>, here the stop value is included.",
+    sol:"ladder = np.linspace(-20, 30, 6)\nladder      # array([-20., -10.,   0.,  10.,  20.,  30.])\nladder[4]   # 20.0"},
+   {type:"num",answer:84.2,tol:.05,label:"Peak temperature in °F",ph:"e.g. 77.7",tools:["array math",".max()"],
+    q:"A visiting scientist from the US wants Fahrenheit. The formula is <b>F = C × 9/5 + 32</b>, and you'll apply it to the entire array in one go. What's the peak temperature in °F?",
+    hint:"Multiply, divide and add directly on the array. No loop will be harmed.",
+    sol:"temps_f = temps * 9 / 5 + 32\ntemps_f.max()      # 84.2"}
+  ]},
+
+{ name:"Chess Night", tag:"Start with an empty 8x8 grid and bring it to life.",
+  story:"The club tournament starts in ten minutes and the scoreboard app just crashed. You're rebuilding the board from scratch: an 8x8 grid that begins completely empty, then you place the pieces one by one. Empty squares are <b>0</b>, pawns are worth <b>1</b>, rooks <b>5</b> and the king <b>9</b>. Rows and columns start counting at 0.",
+  unlocks:["np.zeros()","dtype=int",".shape","[row][col]",".sum()","[condition]"],
+  tasks:[
+   {type:"text",accept:["8,8"],label:"What does .shape print?",ph:"(?, ?)",tools:["np.zeros()","dtype=int",".shape"],
+    q:"Build the empty board: 8 rows, 8 columns, all zeros, stored as <b>whole numbers</b> (no ugly <code>0.</code> decimals). Name it <code>board</code> and print its <code>shape</code>.",
+    hint:"The size goes in as one pair: <code>(rows, columns)</code>. Whole numbers are requested with <code>dtype=int</code>.",
+    sol:"board = np.zeros((8, 8), dtype=int)\nboard.shape      # (8, 8)"},
+   {type:"num",answer:27,tol:.0001,label:"Total points on the board",ph:"a number",tools:["board[row][:] = 1","board[row][col] = ...",".sum()"],
+    q:"Time to set up. Fill <b>all of row 1</b> with pawns (1). Put the king (9) in <b>row 0, column 4</b>, and a rook (5) in each corner of row 0 (<b>columns 0 and 7</b>). Then add up the whole board. How many points?",
+    hint:"<code>board[1][:] = 1</code> paints a whole row in one move. A single square is <code>board[row][col]</code>.",
+    sol:"board[1][:] = 1       # eight pawns\nboard[0][4] = 9       # the king\nboard[0][0] = 5       # rook\nboard[0][7] = 5       # rook\nboard.sum()           # 8 + 9 + 5 + 5 = 27"},
+   {type:"num",answer:11,tol:.0001,label:"Occupied squares",ph:"a number",tools:["board[condition]","len()"],
+    q:"The referee asks how many squares are occupied. Select every square greater than zero and count them.",
+    hint:"A condition inside the square brackets keeps only the matching elements. Then measure the result with <code>len</code>.",
+    sol:"len(board[board > 0])      # 11"}
+  ],
+  reward:"board"},
+
+{ name:"Loot Box Lab", tag:"Random numbers that behave themselves on command.",
+  story:"You're the new programmer at an indie game studio and your first ticket is a doozy: test the dice and the loot boxes. But the testers get different results every run and nobody can reproduce the bugs. Time to meet the <b>random seed</b>, the cheat code for repeatable chaos.",
+  unlocks:["np.random.seed()","np.random.randint()","np.random.rand()"],
+  tasks:[
+   {type:"num",answer:37,tol:.0001,label:"Sum of the 12 rolls",ph:"a number",tools:["np.random.seed()","np.random.randint()",".sum()"],
+    q:"Set the seed to <b>7</b>, then roll a six-sided die <b>12 times</b> (whole numbers from 1 to 6). Name the result <code>rolls</code>. What do all 12 rolls add up to?",
+    hint:"Careful with <code>randint</code>: the upper limit is not included, so a die needs a 7. Seed first, roll second.",
+    sol:"np.random.seed(7)\nrolls = np.random.randint(1, 7, 12)\nrolls.sum()      # 37"},
+   {type:"num",answer:3,tol:.0001,label:"Lucky rolls",ph:"a number",tools:["rolls[condition]","len()"],
+    q:"Out of those 12 rolls, how many were <b>lucky</b> (a 5 or a 6)?",
+    hint:"Filter <code>rolls</code> with a condition, then count what survives.",
+    sol:"len(rolls[rolls >= 5])      # 3"},
+   {type:"mc",tools:["np.random.seed()"],
+    q:"Bug report! A tester calls <code>np.random.seed(7)</code> <b>once</b>, then draws 3 random numbers, and then draws 3 more right after. Are the two draws identical?",
+    options:[
+      "Yes, the seed locks the numbers forever",
+      "No. The second draw continues the sequence, so you must set the seed again before drawing to repeat it",
+      "Yes, but only when using <code>randint</code>",
+      "No. Seeds only work with <code>rand</code>"],
+    correct:1,
+    hint:"Think of the seed as the starting position in a very long list of random numbers. Each draw moves you forward.",
+    sol:"np.random.seed(7)\nnp.random.randint(1, 7, 3)   # array([5, 2, 4])\nnp.random.randint(1, 7, 3)   # array([4, 5, 2])  <- different!\n\nnp.random.seed(7)            # reset the starting position\nnp.random.randint(1, 7, 3)   # array([5, 2, 4])  <- same as before"},
+   {type:"num",answer:3,tol:.0001,label:"Number of LEGENDARY drops",ph:"a number",tools:["np.random.seed()","np.random.rand()","drops[condition]"],
+    q:"Loot box odds! Set the seed to <b>42</b> and generate <b>10 random drops</b>, decimals between 0 and 1. Any drop <b>below 0.2</b> is a LEGENDARY item. How many legendaries?",
+    hint:"<code>np.random.rand(10)</code> gives ten decimals. Then filter with a condition and count.",
+    sol:"np.random.seed(42)\ndrops = np.random.rand(10)\nlen(drops[drops < 0.2])      # 3"}
+  ]},
+
+{ name:"Warehouse Tetris", tag:"48 boxes, one robot, and a grid that has to fit exactly.",
+  story:"A warehouse robot called Bolt only understands grids. Forty-eight boxes, numbered 1 to 48, are lying in one endless line, and Bolt has to arrange them on shelves before the delivery truck shows up. Help Bolt reshape reality.",
+  starter:"import numpy as np\n\nboxes = np.arange(1, 49)      # box numbers 1 to 48, in one long line",
+  unlocks:[".reshape()","[start:stop]"],
+  tasks:[
+   {type:"mc",tools:[".reshape()"],
+    q:"Bolt tests four shelf layouts on the 48 boxes. Try them in your notebook. Which layout makes NumPy refuse with an error?",
+    options:["6 rows x 8 columns","4 rows x 12 columns","5 rows x 10 columns","3 rows x 16 columns"],
+    correct:2,
+    hint:"The number of rows times the number of columns has to be exactly 48.",
+    sol:"boxes.reshape(6, 8)     # ok\nboxes.reshape(4, 12)    # ok\nboxes.reshape(5, 10)    # ValueError: 5 * 10 = 50, not 48\nboxes.reshape(3, 16)    # ok"},
+   {type:"num",answer:20,tol:.0001,label:"Box number",ph:"a number",tools:[".reshape()","[row][col]"],
+    q:"Go with the <b>6 x 8</b> layout and call it <code>shelves</code>. Which box sits on <b>row 2, column 3</b>? (Counting from 0, as always.)",
+    hint:"Reshape first, then <code>shelves[row][col]</code>.",
+    sol:"shelves = boxes.reshape(6, 8)\nshelves[2][3]      # 20"},
+   {type:"num",answer:356,tol:.0001,label:"Sum of the last row",ph:"a number",tools:["shelves[row]",".sum()"],
+    q:"Bolt loads the very last shelf, <b>row 5</b>, onto the truck. What do the box numbers on that row add up to?",
+    hint:"One index gives you a whole row. Rows are arrays too, so they can sum themselves.",
+    sol:"shelves[5].sum()      # 41 + 42 + ... + 48 = 356"},
+   {type:"num",answer:12,tol:.0001,label:"Sum of the grabbed boxes",ph:"a number",tools:["[start:stop]",".sum()"],
+    q:"A fragile order sits in <b>row 0</b>, from <b>column 2 up to (but not including) column 5</b>. Slice those boxes out. What do they add up to?",
+    hint:"A slice looks like <code>[2:5]</code>. It starts at the first number and stops just before the second.",
+    sol:"shelves[0][2:5]            # array([3, 4, 5])\nshelves[0][2:5].sum()      # 12"}
+  ]},
+
+{ name:"The Vault Heist", tag:"A tale of two variable names and one very empty vault.",
+  story:"Midnight at the Royal Mint. The vault holds five chests of gold coins, and the night intern, Gil, was told to \"make a backup list for the audit\". Gil is about to make the most expensive typo of his career.",
+  starter:"import numpy as np\n\nvault  = np.array([120, 340, 90, 560, 210])   # coins in each chest\n\nbackup = vault        # Gil's \"backup\"\nbackup[0:2] = 0       # ...then he \"tests\" it by emptying the first two chests",
+  unlocks:[".copy()"],
+  tasks:[
+   {type:"num",answer:0,tol:.0001,label:"vault[1] is now...",ph:"a number",tools:["[start:stop] = value"],
+    q:"Run Gil's code, then print <code>vault[1]</code>. How many coins are in the second chest of the <b>real</b> vault now?",
+    hint:"Does <code>backup = vault</code> really create a second array? Look at what <code>vault</code> prints.",
+    sol:"vault      # array([  0,   0,  90, 560, 210])   <- the real vault got emptied!\nvault[1]   # 0"},
+   {type:"num",answer:1320,tol:.0001,label:"Coins left in the real vault",ph:"a number",tools:[".copy()",".sum()"],
+    q:"Rebuild the vault from scratch and make a <b>real</b> backup this time. Empty the first two chests of the <i>backup</i> again. How many coins does the real vault hold in total?",
+    hint:"There is a method on every array whose whole purpose is to make an independent duplicate.",
+    sol:"vault  = np.array([120, 340, 90, 560, 210])\nbackup = vault.copy()\nbackup[0:2] = 0\nvault.sum()      # 1320 (untouched)"},
+   {type:"mc",tools:[".copy()"],
+    q:"Why did Gil's first attempt wipe out the real vault?",
+    options:[
+      "Slicing always deletes the original array",
+      "<code>backup = vault</code> doesn't duplicate any data. Both names point to the very same array in memory",
+      "NumPy arrays are read-only until you unlock them",
+      "<code>[0:2] = 0</code> has a bug"],
+    correct:1,
+    hint:"Two labels, one box.",
+    sol:"# backup = vault   -> two names for ONE array\n# backup = vault.copy() -> two independent arrays"}
+  ]},
+
+{ name:"Bookshop Flash Sale", tag:"Filters, conditions and the maths of a very busy Saturday.",
+  story:"Saturday, 9 a.m. The little bookshop on Maple Street has ten bestsellers and a sign that says EVERYTHING MUST GO. The owner, Rina, needs answers fast: who's cheap, who's pricey, and how much did the shop make?",
+  starter:"import numpy as np\n\nprices  = np.array([12.5, 8, 45, 23.9, 5.5, 31, 17.25, 60, 9.99, 38])   # euros per book\nmorning = np.array([3, 1, 0, 2, 5, 1, 2, 0, 4, 1])    # copies sold before noon\nevening = np.array([2, 2, 1, 0, 3, 0, 1, 1, 2, 2])    # copies sold after noon",
+  unlocks:["& and |","+ between arrays"],
+  tasks:[
+   {type:"num",answer:5,tol:.0001,label:"Number of books",ph:"a number",tools:["prices[condition]","len()"],
+    q:"Warm-up: how many books cost <b>more than 20</b> euros?",
+    hint:"Put the condition inside square brackets, then count the survivors.",
+    sol:"len(prices[prices > 20])      # 5"},
+   {type:"num",answer:3,tol:.0001,label:"Number of books",ph:"a number",tools:["&","prices[condition]"],
+    q:"Rina's \"sweet spot\" is any book costing <b>from 10 to 30 euros, both included</b>. How many books live in the sweet spot?",
+    hint:"Two conditions glued with <code>&</code>. Wrap each condition in its own parentheses.",
+    sol:"len(prices[(prices >= 10) & (prices <= 30)])      # 3"},
+   {type:"num",answer:4,tol:.0001,label:"Number of books",ph:"a number",tools:["|","prices[condition]"],
+    q:"The bargain bin takes books <b>under 9 euros</b>. The glass display case takes books <b>over 40 euros</b>. How many books end up in one of the two?",
+    hint:"\"This OR that\" has its own symbol, the vertical bar.",
+    sol:"len(prices[(prices < 9) | (prices > 40)])      # 4"},
+   {type:"num",answer:539.99,tol:.011,label:"Day's revenue (2 decimals)",ph:"e.g. 123.45",tools:["array + array","array * array",".sum()"],
+    q:"How much did the shop earn today? Add <code>morning</code> and <code>evening</code> to get total copies per title, multiply by the prices element by element, then sum it all up.",
+    hint:"Three operations in a row: <code>+</code> between arrays, <code>*</code> between arrays, then <code>.sum()</code>.",
+    sol:"sold = morning + evening\nrevenue = (sold * prices).sum()\nround(revenue, 2)      # 539.99"},
+   {type:"num",answer:200.91,tol:.011,label:"Sale price of the shelf (2 decimals)",ph:"e.g. 123.45",tools:["array * number",".sum()"],
+    q:"BLACK FRIDAY! Everything is <b>20% off</b>. What would one copy of every title cost together at the new prices?",
+    hint:"20% off means you pay 80%. Apply that to the whole array at once.",
+    sol:"sale = prices * 0.8\nround(sale.sum(), 2)      # 200.91"}
+  ]},
+
+{ name:"Final Boss: Movie Night", tag:"A whole table of ratings and a friend group that needs a verdict.",
+  story:"Six friends rated five movies from 1 to 10 for the big Friday Movie Night vote. Nobody trusts anybody's math, everybody is hungry, and you're the only one who knows NumPy. The ratings come from a seeded generator, so everyone at the party gets the exact same table.",
+  starter:"import numpy as np\n\nnp.random.seed(99)\nratings = np.random.randint(1, 11, (6, 5))   # 6 friends (rows) x 5 movies (columns)\n\nfriends = [\"Ava\", \"Ben\", \"Cleo\", \"Dan\", \"Eli\", \"Fay\"]\nmovies  = [\"Galaxy Rush\", \"Pixel Pirates\", \"Cake Wars\", \"Midnight Llama\", \"Turbo Turtles\"]",
+  unlocks:[".argmin()","axis=0 / axis=1","np.median()"],
+  tasks:[
+   {type:"text",accept:["llama"],label:"Winning movie",ph:"a movie title",tools:[".mean(axis=0)",".argmax()","movies[...]"],
+    q:"Which movie wins the vote? Find the <b>highest average rating per movie</b> and give me its name.",
+    hint:"Each movie is a column, and <code>axis=0</code> averages down the columns. Then you know the trick from the grade mission: position in, name out.",
+    sol:"avg_movie = ratings.mean(axis=0)\nmovies[avg_movie.argmax()]      # 'Midnight Llama'"},
+   {type:"text",accept:["dan"],label:"Harshest critic",ph:"a friend's name",tools:[".mean(axis=1)",".argmin()","friends[...]"],
+    q:"Who is the <b>harshest critic</b>, the friend whose average rating is the lowest?",
+    hint:"Each friend is a row, and <code>axis=1</code> averages across the rows. Lowest value, so <code>argmin</code> this time.",
+    sol:"avg_friend = ratings.mean(axis=1)\nfriends[avg_friend.argmin()]      # 'Dan'"},
+   {type:"num",answer:8,tol:.0001,label:"Number of rave reviews",ph:"a number",tools:["ratings[condition]","len()"],
+    q:"Count the <b>rave reviews</b> in the whole table: every rating of 9 or 10.",
+    hint:"A condition works on a 2D table too, and it hands you back a flat list of the matches.",
+    sol:"len(ratings[ratings >= 9])      # 8"},
+   {type:"num",answer:76,tol:.0001,label:"Sum of the rave ratings",ph:"a number",tools:["ratings[condition]",".sum()"],
+    q:"Collect all those rave ratings into one 1D array and add them up.",
+    hint:"The filtered result is already one-dimensional. It can sum itself.",
+    sol:"raves = ratings[ratings >= 9]\nraves.sum()      # 76"},
+   {type:"num",answer:9,tol:.0001,label:"Ava's median rating",ph:"a number",tools:["np.median()","ratings[row]"],
+    q:"Final challenge: Ava is row 0. What's the <b>median</b> of her five ratings? (The middle value once they're sorted.)",
+    hint:"The median is a function you call on the array, <code>np.median(...)</code>, rather than a method.",
+    sol:"np.median(ratings[0])      # 9.0"}
+  ]}
+];
+
+var WRONG=["Not yet. Re-run your code and read the result carefully.","Close, but that's not it. Check the hint if you're stuck.","Hmm, NumPy disagrees. Look at the numbers once more.","Nope! Wipe the cobwebs off and try again.","Almost. Double-check what you passed to the function."];
+var RIGHT=["Boom! Exactly right.","Nailed it.","Clean. NumPy approves.","Yes! Keep that streak going.","Perfect."];
+var RANKS=[[0,"Fresh Recruit"],[.08,"List Escapee"],[.25,"Array Apprentice"],[.45,"Slice Master"],[.7,"Matrix Wrangler"],[1,"NumPy Ninja"]];
+var CHIPS=[];
+LEVELS.forEach(function(L,i){L.unlocks.forEach(function(u){CHIPS.push([u,i]);});});
+var KEY="numpy-quest-v1";
+
+/* ---------- helpers ---------- */
+function $(s,r){return (r||document).querySelector(s);}
+function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function code(s){return esc(s).replace(/(#.*)$/gm,'<span class="cm">$1</span>');}
+function pick(a){return a[Math.floor(Math.random()*a.length)];}
+var state={done:{},peek:{}};
+try{var s=JSON.parse(localStorage.getItem(KEY)||"null");if(s&&s.done){state=s;state.peek=state.peek||{};}}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+var TOTAL=LEVELS.reduce(function(n,L){return n+L.tasks.length;},0);
+var MAXXP=TOTAL*10;
+
+/* ---------- build ---------- */
+function taskHTML(t,li,ti){
+  var id=li+"-"+ti;
+  var tools=(t.tools&&t.tools.length)?'<div class="tools"><small>Tools</small>'+t.tools.map(function(x){return '<span class="tool">'+esc(x)+'</span>';}).join("")+'</div>':"";
+  var form;
+  if(t.type==="mc"){
+    form='<form class="answer" data-id="'+id+'" novalidate><fieldset><legend class="sr">Pick one answer</legend>'+
+      t.options.map(function(o,i){return '<label class="opt"><input type="radio" name="q'+id+'" value="'+i+'"><span>'+o+'</span></label>';}).join("")+
+      '</fieldset><div class="row"><button class="btn" type="submit">Lock it in</button></div><div class="fb" role="status" aria-live="polite"></div></form>';
+  }else{
+    form='<form class="answer" data-id="'+id+'" novalidate><label class="lbl" for="in'+id+'">'+esc(t.label||"Your result")+'</label>'+
+      '<div class="row"><input id="in'+id+'" class="txt" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="'+esc(t.ph||"")+'">'+
+      '<button class="btn" type="submit">Check</button></div><div class="fb" role="status" aria-live="polite"></div></form>';
+  }
+  return '<li class="task" id="t'+id+'" data-id="'+id+'"><p class="q">'+t.q+'</p>'+tools+form+
+    '<div class="acts"><button class="lnk" type="button" data-act="hint" data-id="'+id+'">Need a hint?</button>'+
+    '<button class="lnk" type="button" data-act="sol" data-id="'+id+'">Peek at the solution <small>(costs 5 XP)</small></button></div>'+
+    '<div class="hintbox" id="h'+id+'" hidden>'+t.hint+'</div>'+
+    '<div class="solbox" id="s'+id+'" hidden><div class="cap">Solution</div><pre>'+code(t.sol)+'</pre></div></li>';
+}
+function boardHTML(){
+  var cells="";
+  for(var r=0;r<8;r++)for(var c=0;c<8;c++){
+    var v=0;
+    if(r===1)v=1; if(r===0&&c===4)v=9; if(r===0&&(c===0||c===7))v=5;
+    cells+='<div class="'+(v?"p":"")+'">'+(v||"")+'</div>';
+  }
+  return '<div class="board" role="img" aria-label="The finished chessboard: pawns on row 1, rooks in the corners of row 0, king on column 4">'+cells+'</div>';
+}
+function build(){
+  var h="";
+  LEVELS.forEach(function(L,li){
+    h+='<section class="level" id="lv'+li+'" style="--tc:var(--t'+((li%4)+1)+')" aria-labelledby="lt'+li+'">'+
+      '<header class="lv-head"><span class="badge">LV '+li+'</span><div class="tt"><h2 id="lt'+li+'">'+esc(L.name)+'</h2><p>'+esc(L.tag)+'</p></div><span class="lv-xp" id="lx'+li+'">0 / '+(L.tasks.length*10)+' XP</span></header>'+
+      '<div class="lv-body"><p class="story">'+L.story+'</p>'+
+      (L.starter?'<div class="starter"><div class="cap"><span>Starter kit: paste it into a notebook cell</span><button class="btn small ghost" type="button" data-act="copy" data-lv="'+li+'">Copy</button></div><pre>'+code(L.starter)+'</pre></div>':"")+
+      (L.tip?'<div class="tip">'+L.tip+'</div>':"")+
+      '<ol class="tasks">'+L.tasks.map(function(t,ti){return taskHTML(t,li,ti);}).join("")+'</ol>'+
+      '<div class="lvdone" id="ld'+li+'" hidden><h3>Mission complete!</h3><p id="ldp'+li+'"></p>'+(L.reward==="board"?boardHTML():"")+'</div>'+
+      '</div></section>';
+  });
+  $("#levels").innerHTML=h;
+  $("#chips").innerHTML=CHIPS.map(function(c,i){return '<span class="chip" data-lv="'+c[1]+'">'+esc(c[0])+'</span>';}).join("");
+  $("#xpmax").textContent=MAXXP;
+}
+
+/* ---------- state -> UI ---------- */
+function applyState(){
+  var xp=0,solved=0,firstOpen=-1,perfect=0;
+  LEVELS.forEach(function(L,li){
+    var lxp=0,ln=0;
+    L.tasks.forEach(function(t,ti){
+      var id=li+"-"+ti,d=state.done[id],el=$("#t"+id);
+      var form=$("form",el),fb=$(".fb",form),sol=$("#s"+id),hint=$("#h"+id);
+      var acts=$(".acts",el);
+      if(d){
+        ln++;lxp+=d.xp;xp+=d.xp;solved++;if(d.xp===10)perfect++;
+        el.classList.add("done");
+        if(t.type==="mc"){
+          $$("input",form).forEach(function(r){r.disabled=true;r.checked=(String(r.value)===String(d.val));});
+          $$(".opt",form).forEach(function(o,i){o.classList.add("locked");if(i===t.correct)o.classList.add("right");});
+          $("button[type=submit]",form).hidden=true;
+        }else{
+          var inp=$("input.txt",form);inp.value=d.val;inp.disabled=true;
+          $("button[type=submit]",form).hidden=true;
+        }
+        fb.className="fb good";fb.textContent="Solved! +"+d.xp+" XP"+(d.xp<10?" (you peeked, so half XP)":"");
+        sol.hidden=false;hint.hidden=true;acts.hidden=true;
+      }
+    });
+    $("#lx"+li).textContent=lxp+" / "+(L.tasks.length*10)+" XP";
+    var complete=(ln===L.tasks.length);
+    var box=$("#ld"+li);box.hidden=!complete;
+    if(complete){$("#ldp"+li).textContent="Toolbelt upgraded: "+L.unlocks.join(", ")+"."+(L.reward==="board"?" Here is your finished board:":"");}
+    $$(".chip[data-lv='"+li+"']").forEach(function(c){c.classList.toggle("on",complete);});
+    if(!complete&&firstOpen<0)firstOpen=li;
+    var tile=$("#tile"+li);
+    if(tile){tile.className="tile"+(complete?" done":(li===firstOpen?" next":""));}
+  });
+  var frac=xp/MAXXP,rank=RANKS[0][1];
+  RANKS.forEach(function(r){if(frac>=r[0]&&(r[0]<1||frac>=1))rank=r[1];});
+  $("#xp").textContent=xp;
+  $("#rank").textContent="Rank: "+rank;
+  $("#barfill").style.width=(frac*100).toFixed(1)+"%";
+  $("#barfill").style.borderRightWidth=frac>0&&frac<1?"2px":"0";
+  var pb=$("#bar");pb.setAttribute("aria-valuenow",Math.round(frac*100));
+  var fin=$("#finale");
+  if(solved===TOTAL){
+    fin.hidden=false;
+    $("#finT").textContent="You are a "+rank+"!";
+    $("#finP").textContent="All "+TOTAL+" challenges cleared, "+xp+" of "+MAXXP+" XP, and "+perfect+" of them without peeking at a solution. Next step: re-run the missions with other seeds, other shapes and other stories of your own.";
+  }else fin.hidden=true;
+}
+function buildMap(){
+  $("#map").innerHTML=LEVELS.map(function(L,i){return '<a class="tile" id="tile'+i+'" href="#lv'+i+'"><span class="n">'+i+'</span><span class="nm">'+esc(L.name)+'</span></a>';}).join("");
+}
+
+/* ---------- interactions ---------- */
+function check(t,val){
+  if(t.type==="num"){var n=parseFloat(String(val).replace(",","."));return isFinite(n)&&Math.abs(n-t.answer)<=t.tol;}
+  if(t.type==="text"){var v=String(val).toLowerCase().replace(/[\s'"`]/g,"");return t.accept.some(function(a){return v.indexOf(a)>-1;});}
+  return Number(val)===t.correct;
+}
+function setFb(form,msg,kind){
+  var fb=$(".fb",form);fb.className="fb "+kind;fb.textContent=msg;
+  if(kind==="bad"){void fb.offsetWidth;fb.classList.add("shake");}
+}
+function burst(x,y){
+  if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  var cols=["#FFCB2E","#7CE3C0","#FF9BB5","#9DB8FF","#2F5BFF"];
+  for(var i=0;i<16;i++){
+    var p=document.createElement("span");p.className="pop";p.style.left=x+"px";p.style.top=y+"px";p.style.background=cols[i%cols.length];
+    document.body.appendChild(p);
+    var a=Math.random()*Math.PI*2,d=50+Math.random()*80;
+    if(p.animate){
+      var an=p.animate([{transform:"translate(0,0) rotate(0)",opacity:1},{transform:"translate("+Math.cos(a)*d+"px,"+(Math.sin(a)*d-30)+"px) rotate("+(Math.random()*360)+"deg)",opacity:0}],{duration:700+Math.random()*300,easing:"cubic-bezier(.2,.8,.3,1)"});
+      an.onfinish=(function(el){return function(){el.remove();};})(p);
+    }else p.remove();
+  }
+}
+document.addEventListener("submit",function(e){
+  var f=e.target.closest&&e.target.closest("form.answer");if(!f)return;e.preventDefault();
+  var id=f.dataset.id,parts=id.split("-"),t=LEVELS[+parts[0]].tasks[+parts[1]];
+  if(state.done[id])return;
+  var val;
+  if(t.type==="mc"){
+    var c=$("input:checked",f);if(!c){setFb(f,"Pick an answer first.","warn");return;}val=c.value;
+  }else{
+    val=$("input.txt",f).value.trim();
+    if(!val){setFb(f,"Type your result first.","warn");return;}
+    if(t.type==="num"&&!isFinite(parseFloat(val.replace(",","."))))
+      {setFb(f,"That one needs a number.","warn");return;}
+  }
+  if(check(t,val)){
+    var r=$("button[type=submit]",f).getBoundingClientRect();
+    state.done[id]={xp:state.peek[id]?5:10,val:val};save();
+    burst(r.left+r.width/2,r.top+r.height/2);
+    applyState();
+    var fb=$(".fb",$("#t"+id));fb.textContent=pick(RIGHT)+" +"+state.done[id].xp+" XP"+(state.peek[id]?" (half XP, you peeked)":"");
+  }else{
+    setFb(f,pick(WRONG),"bad");
+  }
+});
+document.addEventListener("click",function(e){
+  var b=e.target.closest&&e.target.closest("[data-act]");if(!b)return;
+  var act=b.dataset.act,id=b.dataset.id;
+  if(act==="hint"){var h=$("#h"+id);h.hidden=!h.hidden;}
+  else if(act==="sol"){
+    var s=$("#s"+id);
+    if(s.hidden&&!state.done[id]&&!state.peek[id]){state.peek[id]=true;save();}
+    s.hidden=!s.hidden;
+  }
+  else if(act==="copy"){
+    var txt=LEVELS[+b.dataset.lv].starter;
+    var ok=function(){b.textContent="Copied!";setTimeout(function(){b.textContent="Copy";},1400);};
+    var fallback=function(){
+      var pre=b.closest(".starter").querySelector("pre"),rg=document.createRange();rg.selectNodeContents(pre);
+      var sel=getSelection();sel.removeAllRanges();sel.addRange(rg);b.textContent="Press Ctrl+C";setTimeout(function(){b.textContent="Copy";},2000);
+    };
+    try{navigator.clipboard.writeText(txt).then(ok,fallback);}catch(err){fallback();}
+  }
+});
+var rs=$("#reset"),rt=null;
+rs.addEventListener("click",function(){
+  if(rs.dataset.armed){
+    state={done:{},peek:{}};save();build();buildMap();applyState();
+    rs.dataset.armed="";rs.textContent="Reset progress";clearTimeout(rt);window.scrollTo(0,0);
+  }else{
+    rs.dataset.armed="1";rs.textContent="Click again to wipe everything";
+    rt=setTimeout(function(){rs.dataset.armed="";rs.textContent="Reset progress";},4000);
+  }
+});
+
+build();buildMap();applyState();
+})();
+</script>
+</body>
+</html>
