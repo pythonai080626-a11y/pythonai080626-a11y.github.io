@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Movies Manager Exercise</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='%23080e1c'/><text x='32' y='47' text-anchor='middle' font-family='Arial, sans-serif' font-size='40'>🎬</text></svg>">
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    pre { white-space: pre-wrap; word-break: break-word; }
+
+    a:focus-visible, button:focus-visible, summary:focus-visible, .check-item:focus-visible {
+      outline: 2px solid var(--amber); outline-offset: 2px;
+    }
+
+    /* ── HERO ── */
+    .ex-hero {
+      margin-top: 28px; position: relative; overflow: hidden;
+      border-radius: 20px; padding: 40px 34px 34px;
+      background: linear-gradient(135deg, #17120a 0%, #1a0f16 55%, #0d1426 100%);
+      border: 1px solid rgba(251,191,36,.22);
+      box-shadow: 0 32px 80px rgba(0,0,0,.55), 0 0 70px rgba(251,191,36,.06);
+    }
+    .ex-hero::before {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 55% 50% at 0% 0%,   rgba(251,191,36,.12) 0%, transparent 60%),
+        radial-gradient(ellipse 45% 50% at 100% 100%, rgba(248,113,113,.08) 0%, transparent 60%);
+    }
+    /* film-strip sprockets along top and bottom edges */
+    .sprockets {
+      position: absolute; left: 0; right: 0; height: 8px; pointer-events: none;
+      background: repeating-linear-gradient(90deg, rgba(251,191,36,.22) 0 12px, transparent 12px 26px);
+    }
+    .sprockets.top { top: 10px; }
+    .sprockets.bottom { bottom: 10px; }
+
+    .hero-grid {
+      position: relative; z-index: 1;
+      display: grid; grid-template-columns: minmax(0,1fr) 330px;
+      gap: 32px; align-items: center;
+    }
+    @media (max-width: 820px) { .hero-grid { grid-template-columns: 1fr; } }
+
+    .badge-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .ex-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+      padding: 4px 12px; border-radius: 999px;
+    }
+    .ex-badge-amber { background: var(--amber-d); color: var(--amber); border: 1px solid rgba(251,191,36,.3); }
+    .ex-badge-blue  { background: var(--blue-d);  color: var(--blue);  border: 1px solid rgba(96,165,250,.3); }
+    .ex-badge-coral { background: var(--coral-d); color: var(--coral); border: 1px solid rgba(248,113,113,.3); }
+
+    .ex-hero h1 {
+      font-size: clamp(1.9rem, 5vw, 2.9rem); line-height: 1.12; margin: 0 0 12px;
+      background: linear-gradient(120deg, #fef3c7 15%, var(--amber) 55%, var(--coral) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .ex-hero .lead code, .inline-code {
+      font-family: 'JetBrains Mono', monospace; font-size: .86em;
+      color: #fde68a; background: rgba(251,191,36,.08);
+      border: 1px solid rgba(251,191,36,.18); border-radius: 6px; padding: 1px 6px;
+    }
+
+    .hero-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 9px 16px; border-radius: 10px;
+      font-weight: 700; font-size: .86rem; text-decoration: none;
+      transition: transform .2s, box-shadow .2s, background .2s;
+    }
+    .btn-blue { color: #dbeafe; background: var(--blue-d); border: 1px solid rgba(96,165,250,.4); }
+    .btn-blue:hover { background: rgba(96,165,250,.2); transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0,0,0,.35); }
+    .btn-sol { color: #dcfce7; background: var(--green-d); border: 1px solid rgba(74,222,128,.4); }
+    .btn-sol:hover { background: rgba(74,222,128,.2); transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0,0,0,.35); }
+
+    /* ── TERMINAL ── */
+    .term {
+      background: #060d19; border: 1px solid rgba(148,180,255,.14);
+      border-radius: 14px; overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0,0,0,.5);
+    }
+    .term-bar {
+      display: flex; align-items: center; gap: 6px; padding: 9px 12px;
+      background: #0f1929; border-bottom: 1px solid rgba(148,180,255,.08);
+    }
+    .term-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .term-title {
+      margin-left: 8px; font-family: 'JetBrains Mono', monospace;
+      font-size: .72rem; font-weight: 700; color: var(--dim); letter-spacing: .08em;
+    }
+    .term pre { background: transparent; font-size: .82rem; line-height: 1.7; }
+    .o-head { color: var(--amber); font-weight: 700; }
+    .o-cmd  { color: var(--teal); }
+    .o-in   { color: #fef3c7; background: rgba(251,191,36,.14); border-radius: 3px; padding: 0 3px; }
+    .o-ok   { color: var(--green); }
+    .o-err  { color: var(--coral); }
+    .o-dim  { color: var(--dim); font-style: italic; }
+    .cursor {
+      display: inline-block; width: .55em; height: 1.05em; vertical-align: text-bottom;
+      background: var(--amber); animation: blink 1s steps(1) infinite;
+    }
+    @keyframes blink { 50% { opacity: 0; } }
+    @media (prefers-reduced-motion: reduce) { .cursor { animation: none; } }
+
+    /* ── ROADMAP ── */
+    .roadmap { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px; }
+    @media (max-width: 760px) { .roadmap { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+    @media (max-width: 420px) { .roadmap { grid-template-columns: 1fr; } }
+    .road-step {
+      display: block; text-decoration: none; color: inherit;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-top: 3px solid var(--c); border-radius: 14px; padding: 14px 16px;
+      transition: transform .2s, border-color .2s, box-shadow .2s;
+    }
+    .road-step:hover { transform: translateY(-3px); border-color: var(--border-hi); border-top-color: var(--c); box-shadow: 0 12px 26px rgba(0,0,0,.35); }
+    .road-num { font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: .8rem; color: var(--c); letter-spacing: .08em; }
+    .road-title { font-weight: 700; font-size: .98rem; margin-top: 2px; }
+    .road-desc { color: var(--muted); font-size: .82rem; line-height: 1.45; margin-top: 4px; }
+
+    /* ── STEP CARDS ── */
+    .step-card-x { scroll-margin-top: 80px; }
+    .step-head { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
+    .step-badge {
+      width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+      display: grid; place-items: center;
+      font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 1.05rem;
+    }
+    .step-head h2 { margin: 0 !important; }
+    .step-sub { color: var(--muted); font-size: .93rem; max-width: 70ch; }
+    .sub-title {
+      font-size: .74rem; font-weight: 800; letter-spacing: .09em; text-transform: uppercase;
+      color: var(--dim); margin: 22px 0 0;
+    }
+
+    .label-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .code .label-row .label { border-bottom: none; padding: 0; background: none; }
+    .code .label-row {
+      background: #0f1929; padding: 6px 8px 6px 13px;
+      border-bottom: 1px solid rgba(148,180,255,.08);
+    }
+    .copy-btn { padding: 4px 10px; }
+
+    /* file tree */
+    .tree pre { white-space: pre; word-break: normal; overflow-x: auto; }
+    .tree .f-given { color: var(--blue); font-weight: 700; }
+    .tree .f-you   { color: var(--amber); font-weight: 700; }
+    .tree .f-auto  { color: var(--muted); }
+    .tree .f-note  { color: var(--dim); }
+
+    /* flow: who talks to whom */
+    .flow { display: flex; align-items: stretch; gap: 8px; margin-top: 12px; }
+    .flow-box {
+      flex: 1; min-width: 0;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-top: 3px solid var(--c); border-radius: 12px; padding: 12px 14px;
+    }
+    .flow-file { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: .86rem; color: var(--c); }
+    .flow-desc { font-size: .8rem; color: var(--muted); line-height: 1.45; margin-top: 4px; }
+    .flow-arrow { align-self: center; color: var(--dim); font-weight: 800; flex-shrink: 0; }
+    @media (max-width: 760px) {
+      .flow { flex-direction: column; }
+      .flow-arrow { transform: rotate(90deg); }
+    }
+
+    /* spec tables */
+    .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; margin-top: 14px; }
+    .spec { width: 100%; border-collapse: collapse; font-size: .87rem; }
+    .spec th {
+      text-align: left; white-space: nowrap;
+      background: rgba(251,191,36,.07); color: var(--amber);
+      font-size: .72rem; text-transform: uppercase; letter-spacing: .07em;
+      padding: 10px 14px; border-bottom: 1px solid rgba(251,191,36,.18);
+    }
+    .spec td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--muted); vertical-align: top; }
+    .spec tr:last-child td { border-bottom: none; }
+    .spec tr:hover td { background: rgba(255,255,255,.02); }
+    .mono { font-family: 'JetBrains Mono', monospace; font-size: .82rem; color: var(--text); white-space: nowrap; }
+    .h-sel { color: var(--teal); }
+    .h-upd { color: var(--coral); }
+    .opt-num {
+      display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 8px;
+      background: var(--amber-d); color: var(--amber); border: 1px solid rgba(251,191,36,.3);
+      font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: .85rem;
+    }
+
+    /* data preview */
+    .peek { margin-top: 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface2); }
+    .peek summary {
+      cursor: pointer; list-style: none; padding: 11px 14px;
+      font-weight: 700; font-size: .9rem; color: #c9daf8;
+    }
+    .peek summary::-webkit-details-marker { display: none; }
+    .peek summary::before { content: '▸'; display: inline-block; margin-right: 8px; color: var(--amber); transition: transform .2s; }
+    .peek[open] summary::before { transform: rotate(90deg); }
+    .peek .table-wrap { margin: 0 14px 14px; }
+    .db-table { width: 100%; border-collapse: collapse; font-family: 'JetBrains Mono', monospace; font-size: .8rem; }
+    .db-table th { background: rgba(45,212,191,.1); color: var(--teal); padding: 8px 12px; text-align: left; border-bottom: 1px solid rgba(45,212,191,.25); }
+    .db-table td { padding: 6px 12px; border-bottom: 1px solid var(--border); color: var(--text); white-space: nowrap; }
+    .db-table tr:last-child td { border-bottom: none; }
+    .db-table td.num { color: var(--orange); }
+
+    /* sample-run tabs */
+    .run-tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 14px; }
+    .run-tab {
+      font-family: 'JetBrains Mono', monospace; font-size: .78rem; font-weight: 700;
+      padding: 7px 12px; border-radius: 9px; cursor: pointer;
+      border: 1px solid var(--border); background: var(--surface2); color: var(--muted);
+      transition: color .2s, border-color .2s, background .2s;
+    }
+    .run-tab:hover { border-color: var(--border-hi); color: var(--text); }
+    .run-tab.active { color: var(--amber); border-color: rgba(251,191,36,.45); background: rgba(251,191,36,.08); }
+    .run-panel { display: none; margin-top: 12px; }
+    .run-panel.active { display: block; }
+
+    .rules { padding-left: 20px; margin-top: 12px; }
+    .rules li { color: var(--muted); font-size: .9rem; margin-top: 7px; }
+    .rules li::marker { color: var(--amber); }
+    .rules strong { color: var(--text); }
+
+    .check-item:focus-visible { outline-offset: 0; }
+
+    .page-end {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 12px; flex-wrap: wrap; margin-top: 26px;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <div class="wrap">
+    <a class="nav-home" href="../index.html">← Home</a>
+    <a class="nav-home" href="index.html" style="color:var(--blue);background:rgba(96,165,250,.08);border-color:rgba(96,165,250,.35);">← Lesson 9</a>
+    <div class="brand">Exercise — Movies Manager</div>
+  </div>
+</nav>
+
+<main class="container">
+
+  <!-- ══════════ HERO ══════════ -->
+  <section class="ex-hero reveal">
+    <div class="sprockets top"></div>
+    <div class="sprockets bottom"></div>
+    <div class="hero-grid">
+      <div>
+        <div class="badge-row">
+          <span class="ex-badge ex-badge-amber">🎬 Exercise</span>
+          <span class="ex-badge ex-badge-blue">Python + SQLite</span>
+          <span class="ex-badge ex-badge-coral">CRUD</span>
+        </div>
+        <h1>Movies Manager</h1>
+        <p class="lead">
+          Build a small terminal app that manages a <strong style="color:var(--amber)">movies</strong> table.
+          Use the <code>db.py</code> template from Lesson 9, put all the SQL in a DAL file,
+          and run everything from a menu that keeps going until the user picks <strong style="color:var(--text)">Exit</strong>.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-blue" href="04-code-hub.html">📄 Lesson 9 code (db.py)</a>
+          <a class="btn btn-sol" href="solution.html">✅ Solution</a>
+        </div>
+      </div>
+
+      <div class="term reveal-scale d2" aria-label="Preview of the finished program">
+        <div class="term-bar">
+          <span class="term-dot" style="background:#f87171"></span>
+          <span class="term-dot" style="background:#fbbf24"></span>
+          <span class="term-dot" style="background:#4ade80"></span>
+          <span class="term-title">main.py</span>
+        </div>
+<pre><span class="o-cmd">$ python main.py</span>
+
+<span class="o-head">===== MOVIES MENU =====</span>
+1. Show all movies
+2. Find movies by year
+3. Update movie title
+4. Delete movie
+5. Add new movie
+6. Exit
+Choose an option: <span class="cursor"></span></pre>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ ROADMAP ══════════ -->
+  <section class="section card reveal">
+    <h2>The plan</h2>
+    <div class="roadmap">
+      <a class="road-step" href="#step1" style="--c:var(--blue)">
+        <div class="road-num">STEP 01</div>
+        <div class="road-title">Project files</div>
+        <div class="road-desc">db.py is given. You write two more files.</div>
+      </a>
+      <a class="road-step" href="#step2" style="--c:var(--teal)">
+        <div class="road-num">STEP 02</div>
+        <div class="road-title">Create the database</div>
+        <div class="road-desc">Copy two queries and run them once.</div>
+      </a>
+      <a class="road-step" href="#step3" style="--c:var(--violet)">
+        <div class="road-num">STEP 03</div>
+        <div class="road-title">Write the DAL</div>
+        <div class="road-desc">Five functions. All the SQL lives here.</div>
+      </a>
+      <a class="road-step" href="#step4" style="--c:var(--amber)">
+        <div class="road-num">STEP 04</div>
+        <div class="road-title">Write the menu</div>
+        <div class="road-desc">A loop with six options, until Exit.</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ══════════ STEP 1 ══════════ -->
+  <section id="step1" class="section card reveal step-card-x">
+    <div class="step-head">
+      <div class="step-badge" style="background:var(--blue-d);color:var(--blue);">01</div>
+      <h2>Project files</h2>
+    </div>
+    <p class="step-sub">Create a new folder with these files. Each file has one job.</p>
+
+    <div class="code tree">
+      <div class="label">movies_project/</div>
+<pre>movies_project/
+├── <span class="f-given">db.py</span>          <span class="f-note">← given: the Lesson 9 template (copy below)</span>
+├── <span class="f-you">movies_dal.py</span>  <span class="f-note">← you write: one function per SQL query</span>
+├── <span class="f-you">main.py</span>        <span class="f-note">← you write: the menu loop</span>
+├── <span class="f-auto">setup_db.py</span>    <span class="f-note">← run once: creates the table + 20 movies (step 2)</span>
+└── <span class="f-auto">movies.db</span>      <span class="f-note">← created automatically</span></pre>
+    </div>
+
+    <div class="sub-title">How the files talk to each other</div>
+    <div class="flow">
+      <div class="flow-box" style="--c:var(--amber)">
+        <div class="flow-file">main.py</div>
+        <div class="flow-desc">Talks to the <strong>user</strong>: prints the menu, reads input. No SQL here.</div>
+      </div>
+      <div class="flow-arrow" aria-hidden="true">→</div>
+      <div class="flow-box" style="--c:var(--violet)">
+        <div class="flow-file">movies_dal.py</div>
+        <div class="flow-desc">Talks to the <strong>database</strong>: one function per query.</div>
+      </div>
+      <div class="flow-arrow" aria-hidden="true">→</div>
+      <div class="flow-box" style="--c:var(--blue)">
+        <div class="flow-file">db.py</div>
+        <div class="flow-desc">Opens the connection and runs the query. Given.</div>
+      </div>
+      <div class="flow-arrow" aria-hidden="true">→</div>
+      <div class="flow-box" style="--c:var(--teal)">
+        <div class="flow-file">movies.db</div>
+        <div class="flow-desc">The SQLite file with the <strong>movies</strong> table.</div>
+      </div>
+    </div>
+
+    <div class="sub-title">db.py — copy as is</div>
+    <div class="code">
+      <div class="label-row">
+        <div class="label">db.py</div>
+        <button class="copy-btn" data-copy-target="code-db" type="button">Copy</button>
+      </div>
+<pre id="code-db"><span class="py-k">import</span> sqlite3
+
+DB_PATH = <span class="py-s">"movies.db"</span>
+
+<span class="py-k">def</span> <span class="py-fn">connect</span>():
+    conn = sqlite3.<span class="py-fn">connect</span>(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    <span class="py-k">return</span> conn
+
+<span class="py-k">def</span> <span class="py-fn">run_query_select</span>(sql, params=()):
+    conn = <span class="py-fn">connect</span>()
+    <span class="py-k">try</span>:
+        cursor = conn.<span class="py-fn">cursor</span>()
+        cursor.<span class="py-fn">execute</span>(sql, params)
+        rows = cursor.<span class="py-fn">fetchall</span>()
+        <span class="py-k">return</span> [<span class="py-b">dict</span>(row) <span class="py-k">for</span> row <span class="py-k">in</span> rows]
+    <span class="py-k">finally</span>:
+        conn.<span class="py-fn">close</span>()
+
+<span class="py-k">def</span> <span class="py-fn">run_update_query</span>(sql, params=()):
+    conn = <span class="py-fn">connect</span>()
+    <span class="py-k">try</span>:
+        cursor = conn.<span class="py-fn">cursor</span>()
+        cursor.<span class="py-fn">execute</span>(sql, params)
+        conn.<span class="py-fn">commit</span>()
+        <span class="py-k">return</span> cursor.lastrowid
+    <span class="py-k">finally</span>:
+        conn.<span class="py-fn">close</span>()</pre>
+    </div>
+    <div class="note">This is the same <span class="inline-code">db.py</span> from Lesson 9. The only change is <span class="inline-code">DB_PATH = "movies.db"</span>.</div>
+  </section>
+
+  <!-- ══════════ STEP 2 ══════════ -->
+  <section id="step2" class="section card reveal step-card-x">
+    <div class="step-head">
+      <div class="step-badge" style="background:var(--teal-d);color:var(--teal);">02</div>
+      <h2>Create the database</h2>
+    </div>
+    <p class="step-sub">Two queries: one creates the <strong style="color:var(--text)">movies</strong> table, the other fills it with 20 movies. Copy them as they are.</p>
+
+    <div class="sub-title">Query 1 — create the table</div>
+    <div class="code">
+      <div class="label-row">
+        <div class="label">SQL</div>
+        <button class="copy-btn" data-copy-target="sql-create" type="button">Copy</button>
+      </div>
+<pre id="sql-create"><span class="k">CREATE TABLE IF NOT EXISTS</span> movies (
+    id       <span class="t">INTEGER</span> <span class="k">PRIMARY KEY AUTOINCREMENT</span>,
+    title    <span class="t">TEXT</span>    <span class="k">NOT NULL</span>,
+    director <span class="t">TEXT</span>    <span class="k">NOT NULL</span>,
+    year     <span class="t">INTEGER</span> <span class="k">NOT NULL</span>,
+    genre    <span class="t">TEXT</span>    <span class="k">NOT NULL</span>,
+    rating   <span class="t">REAL</span>    <span class="k">NOT NULL</span>
+);</pre>
+    </div>
+
+    <div class="sub-title">Query 2 — insert 20 movies</div>
+    <div class="code">
+      <div class="label-row">
+        <div class="label">SQL</div>
+        <button class="copy-btn" data-copy-target="sql-insert" type="button">Copy</button>
+      </div>
+<pre id="sql-insert"><span class="k">INSERT INTO</span> movies (title, director, year, genre, rating) <span class="k">VALUES</span>
+(<span class="py-s">'The Shawshank Redemption'</span>, <span class="py-s">'Frank Darabont'</span>,       <span class="py-n">1994</span>, <span class="py-s">'Drama'</span>,     <span class="py-n">9.3</span>),
+(<span class="py-s">'The Godfather'</span>,            <span class="py-s">'Francis Ford Coppola'</span>, <span class="py-n">1972</span>, <span class="py-s">'Crime'</span>,     <span class="py-n">9.2</span>),
+(<span class="py-s">'The Dark Knight'</span>,          <span class="py-s">'Christopher Nolan'</span>,    <span class="py-n">2008</span>, <span class="py-s">'Action'</span>,    <span class="py-n">9.0</span>),
+(<span class="py-s">'Pulp Fiction'</span>,             <span class="py-s">'Quentin Tarantino'</span>,    <span class="py-n">1994</span>, <span class="py-s">'Crime'</span>,     <span class="py-n">8.9</span>),
+(<span class="py-s">'Forrest Gump'</span>,             <span class="py-s">'Robert Zemeckis'</span>,      <span class="py-n">1994</span>, <span class="py-s">'Drama'</span>,     <span class="py-n">8.8</span>),
+(<span class="py-s">'Fight Club'</span>,               <span class="py-s">'David Fincher'</span>,        <span class="py-n">1999</span>, <span class="py-s">'Drama'</span>,     <span class="py-n">8.8</span>),
+(<span class="py-s">'Inception'</span>,                <span class="py-s">'Christopher Nolan'</span>,    <span class="py-n">2010</span>, <span class="py-s">'Sci-Fi'</span>,    <span class="py-n">8.8</span>),
+(<span class="py-s">'Interstellar'</span>,             <span class="py-s">'Christopher Nolan'</span>,    <span class="py-n">2014</span>, <span class="py-s">'Sci-Fi'</span>,    <span class="py-n">8.7</span>),
+(<span class="py-s">'The Green Mile'</span>,           <span class="py-s">'Frank Darabont'</span>,       <span class="py-n">1999</span>, <span class="py-s">'Drama'</span>,     <span class="py-n">8.6</span>),
+(<span class="py-s">'Gladiator'</span>,                <span class="py-s">'Ridley Scott'</span>,         <span class="py-n">2000</span>, <span class="py-s">'Action'</span>,    <span class="py-n">8.5</span>),
+(<span class="py-s">'Whiplash'</span>,                 <span class="py-s">'Damien Chazelle'</span>,      <span class="py-n">2014</span>, <span class="py-s">'Drama'</span>,     <span class="py-n">8.5</span>),
+(<span class="py-s">'Parasite'</span>,                 <span class="py-s">'Bong Joon Ho'</span>,         <span class="py-n">2019</span>, <span class="py-s">'Thriller'</span>,  <span class="py-n">8.5</span>),
+(<span class="py-s">'Joker'</span>,                    <span class="py-s">'Todd Phillips'</span>,        <span class="py-n">2019</span>, <span class="py-s">'Drama'</span>,     <span class="py-n">8.4</span>),
+(<span class="py-s">'WALL-E'</span>,                   <span class="py-s">'Andrew Stanton'</span>,       <span class="py-n">2008</span>, <span class="py-s">'Animation'</span>, <span class="py-n">8.4</span>),
+(<span class="py-s">'Toy Story 3'</span>,              <span class="py-s">'Lee Unkrich'</span>,          <span class="py-n">2010</span>, <span class="py-s">'Animation'</span>, <span class="py-n">8.3</span>),
+(<span class="py-s">'The Sixth Sense'</span>,          <span class="py-s">'M. Night Shyamalan'</span>,   <span class="py-n">1999</span>, <span class="py-s">'Thriller'</span>,  <span class="py-n">8.2</span>),
+(<span class="py-s">'Gone Girl'</span>,                <span class="py-s">'David Fincher'</span>,        <span class="py-n">2014</span>, <span class="py-s">'Thriller'</span>,  <span class="py-n">8.1</span>),
+(<span class="py-s">'Titanic'</span>,                  <span class="py-s">'James Cameron'</span>,        <span class="py-n">1997</span>, <span class="py-s">'Romance'</span>,   <span class="py-n">7.9</span>),
+(<span class="py-s">'Avatar'</span>,                   <span class="py-s">'James Cameron'</span>,        <span class="py-n">2009</span>, <span class="py-s">'Sci-Fi'</span>,    <span class="py-n">7.9</span>),
+(<span class="py-s">'The Social Network'</span>,       <span class="py-s">'David Fincher'</span>,        <span class="py-n">2010</span>, <span class="py-s">'Drama'</span>,     <span class="py-n">7.8</span>);</pre>
+    </div>
+
+    <div class="sub-title">Run them once — setup_db.py</div>
+    <div class="code">
+      <div class="label-row">
+        <div class="label">setup_db.py</div>
+        <button class="copy-btn" data-copy-target="code-setup" type="button">Copy</button>
+      </div>
+<pre id="code-setup"><span class="py-k">from</span> db <span class="py-k">import</span> run_update_query
+
+<span class="py-fn">run_update_query</span>(<span class="py-s">"""PASTE QUERY 1 HERE"""</span>)
+<span class="py-fn">run_update_query</span>(<span class="py-s">"""PASTE QUERY 2 HERE"""</span>)</pre>
+    </div>
+    <div class="note note-amber"><strong>Run setup_db.py only once.</strong> If you run it again, the same 20 movies are added a second time (ids 21–40). If that happens, delete <span class="inline-code">movies.db</span> and run it once more.</div>
+    <p style="color:var(--muted);font-size:.86rem;margin-top:10px;">Prefer DB Browser for SQLite? Open <span class="inline-code">movies.db</span>, paste each query into <em>Execute SQL</em>, run it, then click <em>Write Changes</em>.</p>
+
+    <details class="peek">
+      <summary>Peek at the table — 20 rows after setup</summary>
+      <div class="table-wrap">
+        <table class="db-table">
+          <thead><tr><th>id</th><th>title</th><th>director</th><th>year</th><th>genre</th><th>rating</th></tr></thead>
+          <tbody>
+            <tr><td class="num">1</td><td>The Shawshank Redemption</td><td>Frank Darabont</td><td class="num">1994</td><td>Drama</td><td class="num">9.3</td></tr>
+            <tr><td class="num">2</td><td>The Godfather</td><td>Francis Ford Coppola</td><td class="num">1972</td><td>Crime</td><td class="num">9.2</td></tr>
+            <tr><td class="num">3</td><td>The Dark Knight</td><td>Christopher Nolan</td><td class="num">2008</td><td>Action</td><td class="num">9.0</td></tr>
+            <tr><td class="num">4</td><td>Pulp Fiction</td><td>Quentin Tarantino</td><td class="num">1994</td><td>Crime</td><td class="num">8.9</td></tr>
+            <tr><td class="num">5</td><td>Forrest Gump</td><td>Robert Zemeckis</td><td class="num">1994</td><td>Drama</td><td class="num">8.8</td></tr>
+            <tr><td class="num">6</td><td>Fight Club</td><td>David Fincher</td><td class="num">1999</td><td>Drama</td><td class="num">8.8</td></tr>
+            <tr><td class="num">7</td><td>Inception</td><td>Christopher Nolan</td><td class="num">2010</td><td>Sci-Fi</td><td class="num">8.8</td></tr>
+            <tr><td class="num">8</td><td>Interstellar</td><td>Christopher Nolan</td><td class="num">2014</td><td>Sci-Fi</td><td class="num">8.7</td></tr>
+            <tr><td class="num">9</td><td>The Green Mile</td><td>Frank Darabont</td><td class="num">1999</td><td>Drama</td><td class="num">8.6</td></tr>
+            <tr><td class="num">10</td><td>Gladiator</td><td>Ridley Scott</td><td class="num">2000</td><td>Action</td><td class="num">8.5</td></tr>
+            <tr><td class="num">11</td><td>Whiplash</td><td>Damien Chazelle</td><td class="num">2014</td><td>Drama</td><td class="num">8.5</td></tr>
+            <tr><td class="num">12</td><td>Parasite</td><td>Bong Joon Ho</td><td class="num">2019</td><td>Thriller</td><td class="num">8.5</td></tr>
+            <tr><td class="num">13</td><td>Joker</td><td>Todd Phillips</td><td class="num">2019</td><td>Drama</td><td class="num">8.4</td></tr>
+            <tr><td class="num">14</td><td>WALL-E</td><td>Andrew Stanton</td><td class="num">2008</td><td>Animation</td><td class="num">8.4</td></tr>
+            <tr><td class="num">15</td><td>Toy Story 3</td><td>Lee Unkrich</td><td class="num">2010</td><td>Animation</td><td class="num">8.3</td></tr>
+            <tr><td class="num">16</td><td>The Sixth Sense</td><td>M. Night Shyamalan</td><td class="num">1999</td><td>Thriller</td><td class="num">8.2</td></tr>
+            <tr><td class="num">17</td><td>Gone Girl</td><td>David Fincher</td><td class="num">2014</td><td>Thriller</td><td class="num">8.1</td></tr>
+            <tr><td class="num">18</td><td>Titanic</td><td>James Cameron</td><td class="num">1997</td><td>Romance</td><td class="num">7.9</td></tr>
+            <tr><td class="num">19</td><td>Avatar</td><td>James Cameron</td><td class="num">2009</td><td>Sci-Fi</td><td class="num">7.9</td></tr>
+            <tr><td class="num">20</td><td>The Social Network</td><td>David Fincher</td><td class="num">2010</td><td>Drama</td><td class="num">7.8</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </details>
+  </section>
+
+  <!-- ══════════ STEP 3 ══════════ -->
+  <section id="step3" class="section card reveal step-card-x">
+    <div class="step-head">
+      <div class="step-badge" style="background:var(--violet-d);color:var(--violet);">03</div>
+      <h2>Write the DAL — movies_dal.py</h2>
+    </div>
+    <p class="step-sub">
+      <strong style="color:var(--text)">DAL</strong> means <em>Data Access Layer</em>: the one file that talks to the database.
+      Each function runs one query using a helper from <span class="inline-code">db.py</span>.
+      <span class="inline-code">main.py</span> calls these functions and never writes SQL itself.
+    </p>
+
+    <div class="table-wrap">
+      <table class="spec">
+        <thead>
+          <tr><th>Function</th><th>What it does</th><th>SQL</th><th>db.py helper</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono">get_all_movies()</td>
+            <td>Returns every movie</td>
+            <td class="mono">SELECT</td>
+            <td class="mono h-sel">run_query_select</td>
+          </tr>
+          <tr>
+            <td class="mono">get_movies_by_year(year)</td>
+            <td>Returns all the movies from that year</td>
+            <td class="mono">SELECT … WHERE</td>
+            <td class="mono h-sel">run_query_select</td>
+          </tr>
+          <tr>
+            <td class="mono">update_movie_title(movie_id, new_title)</td>
+            <td>Changes the title of that movie</td>
+            <td class="mono">UPDATE … WHERE</td>
+            <td class="mono h-upd">run_update_query</td>
+          </tr>
+          <tr>
+            <td class="mono">delete_movie(movie_id)</td>
+            <td>Deletes that movie</td>
+            <td class="mono">DELETE … WHERE</td>
+            <td class="mono h-upd">run_update_query</td>
+          </tr>
+          <tr>
+            <td class="mono">insert_movie(title, director, year, genre, rating)</td>
+            <td>Adds a new movie</td>
+            <td class="mono">INSERT</td>
+            <td class="mono h-upd">run_update_query</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ul class="rules">
+      <li>Every value that comes from the user goes in with a <strong>?</strong> placeholder, like in Lesson 9: <span class="inline-code">VALUES (?, ?)</span> + <span class="inline-code">("Bob", 82)</span>.</li>
+      <li>One value still needs a tuple, so add the comma: <span class="inline-code">(movie_id,)</span>.</li>
+      <li>You don't need to pass <span class="inline-code">id</span> when you insert. <span class="inline-code">AUTOINCREMENT</span> gives the new movie the next number.</li>
+    </ul>
+  </section>
+
+  <!-- ══════════ STEP 4 ══════════ -->
+  <section id="step4" class="section card reveal step-card-x">
+    <div class="step-head">
+      <div class="step-badge" style="background:var(--amber-d);color:var(--amber);">04</div>
+      <h2>Write the menu — main.py</h2>
+    </div>
+    <p class="step-sub">Print the menu, read the user's choice, call the right DAL function, then print the menu again. Keep going until the user picks <strong style="color:var(--text)">6</strong>.</p>
+
+    <div class="table-wrap">
+      <table class="spec">
+        <thead>
+          <tr><th>#</th><th>Option</th><th>Ask the user for</th><th>Then</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="opt-num">1</span></td>
+            <td style="color:var(--text)">Show all movies</td>
+            <td>—</td>
+            <td>Print every movie</td>
+          </tr>
+          <tr>
+            <td><span class="opt-num">2</span></td>
+            <td style="color:var(--text)">Find movies by year</td>
+            <td>a year</td>
+            <td>Print all the movies from that year</td>
+          </tr>
+          <tr>
+            <td><span class="opt-num">3</span></td>
+            <td style="color:var(--text)">Update movie title</td>
+            <td>movie id, new title</td>
+            <td>Change the title and print <span class="mono">Movie updated!</span></td>
+          </tr>
+          <tr>
+            <td><span class="opt-num">4</span></td>
+            <td style="color:var(--text)">Delete movie</td>
+            <td>movie id</td>
+            <td>Delete it and print <span class="mono">Movie deleted!</span></td>
+          </tr>
+          <tr>
+            <td><span class="opt-num">5</span></td>
+            <td style="color:var(--text)">Add new movie</td>
+            <td>title, director, year, genre, rating</td>
+            <td>Insert it and print <span class="mono">Movie added!</span></td>
+          </tr>
+          <tr>
+            <td><span class="opt-num">6</span></td>
+            <td style="color:var(--text)">Exit</td>
+            <td>—</td>
+            <td>Print <span class="mono">Bye!</span> and stop the loop</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ul class="rules">
+      <li>The menu runs in a <strong>loop</strong> and only stops on option 6.</li>
+      <li><span class="inline-code">input()</span> always gives you text. Turn the year and the id into numbers with <span class="inline-code">int()</span>, and the rating with <span class="inline-code">float()</span>.</li>
+      <li>Any other choice prints <span class="mono">Invalid option</span> and shows the menu again.</li>
+      <li>You can use a function for each option to keep <span class="inline-code">main.py</span> tidy. Keep it simple.</li>
+    </ul>
+  </section>
+
+  <!-- ══════════ SAMPLE RUN ══════════ -->
+  <section class="section card reveal">
+    <h2>Sample run</h2>
+    <p class="step-sub">Pick an option to see what it looks like. Your output doesn't have to match exactly; any clear format is fine.</p>
+
+    <div class="run-tabs" role="tablist">
+      <button class="run-tab active" data-run="run1" type="button" role="tab" aria-selected="true">1 · All</button>
+      <button class="run-tab" data-run="run2" type="button" role="tab" aria-selected="false">2 · By year</button>
+      <button class="run-tab" data-run="run3" type="button" role="tab" aria-selected="false">3 · Update</button>
+      <button class="run-tab" data-run="run4" type="button" role="tab" aria-selected="false">4 · Delete</button>
+      <button class="run-tab" data-run="run5" type="button" role="tab" aria-selected="false">5 · Add</button>
+      <button class="run-tab" data-run="run6" type="button" role="tab" aria-selected="false">6 · Exit</button>
+    </div>
+
+    <div id="run1" class="run-panel active term" role="tabpanel">
+      <div class="term-bar"><span class="term-dot" style="background:#f87171"></span><span class="term-dot" style="background:#fbbf24"></span><span class="term-dot" style="background:#4ade80"></span><span class="term-title">option 1</span></div>
+<pre>Choose an option: <span class="o-in">1</span>
+1 | The Shawshank Redemption | Frank Darabont | 1994 | Drama | 9.3
+2 | The Godfather | Francis Ford Coppola | 1972 | Crime | 9.2
+3 | The Dark Knight | Christopher Nolan | 2008 | Action | 9.0
+4 | Pulp Fiction | Quentin Tarantino | 1994 | Crime | 8.9
+5 | Forrest Gump | Robert Zemeckis | 1994 | Drama | 8.8
+6 | Fight Club | David Fincher | 1999 | Drama | 8.8
+7 | Inception | Christopher Nolan | 2010 | Sci-Fi | 8.8
+8 | Interstellar | Christopher Nolan | 2014 | Sci-Fi | 8.7
+9 | The Green Mile | Frank Darabont | 1999 | Drama | 8.6
+10 | Gladiator | Ridley Scott | 2000 | Action | 8.5
+11 | Whiplash | Damien Chazelle | 2014 | Drama | 8.5
+12 | Parasite | Bong Joon Ho | 2019 | Thriller | 8.5
+13 | Joker | Todd Phillips | 2019 | Drama | 8.4
+14 | WALL-E | Andrew Stanton | 2008 | Animation | 8.4
+15 | Toy Story 3 | Lee Unkrich | 2010 | Animation | 8.3
+16 | The Sixth Sense | M. Night Shyamalan | 1999 | Thriller | 8.2
+17 | Gone Girl | David Fincher | 2014 | Thriller | 8.1
+18 | Titanic | James Cameron | 1997 | Romance | 7.9
+19 | Avatar | James Cameron | 2009 | Sci-Fi | 7.9
+20 | The Social Network | David Fincher | 2010 | Drama | 7.8</pre>
+    </div>
+
+    <div id="run2" class="run-panel term" role="tabpanel">
+      <div class="term-bar"><span class="term-dot" style="background:#f87171"></span><span class="term-dot" style="background:#fbbf24"></span><span class="term-dot" style="background:#4ade80"></span><span class="term-title">option 2</span></div>
+<pre>Choose an option: <span class="o-in">2</span>
+Enter year: <span class="o-in">2010</span>
+7 | Inception | Christopher Nolan | 2010 | Sci-Fi | 8.8
+15 | Toy Story 3 | Lee Unkrich | 2010 | Animation | 8.3
+20 | The Social Network | David Fincher | 2010 | Drama | 7.8</pre>
+    </div>
+
+    <div id="run3" class="run-panel term" role="tabpanel">
+      <div class="term-bar"><span class="term-dot" style="background:#f87171"></span><span class="term-dot" style="background:#fbbf24"></span><span class="term-dot" style="background:#4ade80"></span><span class="term-title">option 3</span></div>
+<pre>Choose an option: <span class="o-in">3</span>
+Enter movie id: <span class="o-in">2</span>
+Enter new title: <span class="o-in">The Godfather Part I</span>
+<span class="o-ok">Movie updated!</span></pre>
+    </div>
+
+    <div id="run4" class="run-panel term" role="tabpanel">
+      <div class="term-bar"><span class="term-dot" style="background:#f87171"></span><span class="term-dot" style="background:#fbbf24"></span><span class="term-dot" style="background:#4ade80"></span><span class="term-title">option 4</span></div>
+<pre>Choose an option: <span class="o-in">4</span>
+Enter movie id: <span class="o-in">19</span>
+<span class="o-ok">Movie deleted!</span></pre>
+    </div>
+
+    <div id="run5" class="run-panel term" role="tabpanel">
+      <div class="term-bar"><span class="term-dot" style="background:#f87171"></span><span class="term-dot" style="background:#fbbf24"></span><span class="term-dot" style="background:#4ade80"></span><span class="term-title">option 5</span></div>
+<pre>Choose an option: <span class="o-in">5</span>
+Title: <span class="o-in">Oppenheimer</span>
+Director: <span class="o-in">Christopher Nolan</span>
+Year: <span class="o-in">2023</span>
+Genre: <span class="o-in">Drama</span>
+Rating: <span class="o-in">8.3</span>
+<span class="o-ok">Movie added!</span>
+
+<span class="o-dim">… the menu prints again …</span>
+
+Choose an option: <span class="o-in">2</span>
+Enter year: <span class="o-in">2023</span>
+21 | Oppenheimer | Christopher Nolan | 2023 | Drama | 8.3</pre>
+    </div>
+
+    <div id="run6" class="run-panel term" role="tabpanel">
+      <div class="term-bar"><span class="term-dot" style="background:#f87171"></span><span class="term-dot" style="background:#fbbf24"></span><span class="term-dot" style="background:#4ade80"></span><span class="term-title">option 6</span></div>
+<pre>Choose an option: <span class="o-in">9</span>
+<span class="o-err">Invalid option</span>
+
+<span class="o-dim">… the menu prints again …</span>
+
+Choose an option: <span class="o-in">6</span>
+Bye!</pre>
+    </div>
+  </section>
+
+  <!-- ══════════ CHECKLIST ══════════ -->
+  <section class="section card reveal">
+    <h2>Before you call it done</h2>
+    <div class="checklist">
+      <div class="check-item" tabindex="0" role="checkbox" aria-checked="false"><div class="check-box"></div><div class="check-text">The movies table has 20 rows after setup_db.py runs once</div></div>
+      <div class="check-item" tabindex="0" role="checkbox" aria-checked="false"><div class="check-box"></div><div class="check-text">movies_dal.py has the 5 functions, and main.py has no SQL in it</div></div>
+      <div class="check-item" tabindex="0" role="checkbox" aria-checked="false"><div class="check-box"></div><div class="check-text">Every user value goes into the query with a ? placeholder</div></div>
+      <div class="check-item" tabindex="0" role="checkbox" aria-checked="false"><div class="check-box"></div><div class="check-text">After each option the menu shows again</div></div>
+      <div class="check-item" tabindex="0" role="checkbox" aria-checked="false"><div class="check-box"></div><div class="check-text">Option 6 ends the program</div></div>
+    </div>
+
+    <div class="note note-violet" style="margin-top:16px;">
+      <strong>Extra (optional):</strong> if option 2 finds nothing, print <span class="inline-code">No movies from 2001</span>.
+      Or show all movies sorted by rating, best first.
+    </div>
+  </section>
+
+  <div class="page-end">
+    <a class="btn btn-blue" href="index.html">← Back to Lesson 9</a>
+    <a class="btn btn-sol" href="solution.html">✅ Solution →</a>
+  </div>
+</main>
+
+<script src="app.js"></script>
+<script>
+  /* ── copy buttons (with fallback for file://) ── */
+  document.querySelectorAll('.copy-btn[data-copy-target]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const target = document.getElementById(btn.dataset.copyTarget);
+      if (!target) return;
+      const text = target.textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch (e) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch (e2) {}
+        ta.remove();
+      }
+      const old = btn.textContent;
+      btn.textContent = 'Copied';
+      setTimeout(() => { btn.textContent = old; }, 1200);
+    });
+  });
+
+  /* ── sample-run tabs ── */
+  const runTabs = [...document.querySelectorAll('.run-tab')];
+  const runPanels = [...document.querySelectorAll('.run-panel')];
+  runTabs.forEach(tab => tab.addEventListener('click', () => {
+    runTabs.forEach(t => {
+      const on = t === tab;
+      t.classList.toggle('active', on);
+      t.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    runPanels.forEach(p => p.classList.toggle('active', p.id === tab.dataset.run));
+  }));
+
+  /* ── checklist ── */
+  document.querySelectorAll('.check-item').forEach(item => {
+    const toggle = () => {
+      const on = item.classList.toggle('checked');
+      item.setAttribute('aria-checked', on ? 'true' : 'false');
+    };
+    item.addEventListener('click', toggle);
+    item.addEventListener('keydown', e => {
+      if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(); }
+    });
+  });
+</script>
+</body>
+</html>

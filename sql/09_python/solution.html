@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Movies Manager Solution</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='12' fill='%23080e1c'/><text x='32' y='47' text-anchor='middle' font-family='Arial, sans-serif' font-size='40'>🎬</text></svg>">
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    pre { white-space: pre; overflow-x: auto; font-size: .82rem; }
+    #code-setup { font-size: .76rem; }
+    /* let wide code scroll inside its box instead of stretching the page */
+    .lesson-main, .lesson-panel, .term { min-width: 0; }
+    @media (max-width: 900px) { .lesson-layout { grid-template-columns: minmax(0, 1fr); } }
+
+    a:focus-visible, button:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
+
+    /* ── HERO ── */
+    .sol-hero {
+      margin-top: 28px; position: relative; overflow: hidden;
+      border-radius: 20px; padding: 40px 34px 34px;
+      background: linear-gradient(135deg, #0b1a14 0%, #17120a 55%, #0d1426 100%);
+      border: 1px solid rgba(74,222,128,.22);
+      box-shadow: 0 32px 80px rgba(0,0,0,.55), 0 0 70px rgba(74,222,128,.05);
+    }
+    .sol-hero::before {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 55% 50% at 0% 0%,   rgba(74,222,128,.11) 0%, transparent 60%),
+        radial-gradient(ellipse 45% 50% at 100% 100%, rgba(251,191,36,.08) 0%, transparent 60%);
+    }
+    .sprockets {
+      position: absolute; left: 0; right: 0; height: 8px; pointer-events: none;
+      background: repeating-linear-gradient(90deg, rgba(74,222,128,.2) 0 12px, transparent 12px 26px);
+    }
+    .sprockets.top { top: 10px; }
+    .sprockets.bottom { bottom: 10px; }
+    .sol-hero-inner { position: relative; z-index: 1; }
+
+    .badge-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+    .ex-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+      padding: 4px 12px; border-radius: 999px;
+    }
+    .ex-badge-green { background: var(--green-d); color: var(--green); border: 1px solid rgba(74,222,128,.3); }
+    .ex-badge-blue  { background: var(--blue-d);  color: var(--blue);  border: 1px solid rgba(96,165,250,.3); }
+    .ex-badge-amber { background: var(--amber-d); color: var(--amber); border: 1px solid rgba(251,191,36,.3); }
+
+    .sol-hero h1 {
+      font-size: clamp(1.9rem, 5vw, 2.9rem); line-height: 1.12; margin: 0 0 12px;
+      background: linear-gradient(120deg, #dcfce7 15%, var(--green) 55%, var(--amber) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .inline-code {
+      font-family: 'JetBrains Mono', monospace; font-size: .86em;
+      color: #fde68a; background: rgba(251,191,36,.08);
+      border: 1px solid rgba(251,191,36,.18); border-radius: 6px; padding: 1px 6px;
+    }
+
+    .hero-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 9px 16px; border-radius: 10px;
+      font-weight: 700; font-size: .86rem; text-decoration: none;
+      transition: transform .2s, box-shadow .2s, background .2s;
+    }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(0,0,0,.35); }
+    .btn-amber { color: #fef3c7; background: var(--amber-d); border: 1px solid rgba(251,191,36,.4); }
+    .btn-amber:hover { background: rgba(251,191,36,.2); }
+    .btn-blue { color: #dbeafe; background: var(--blue-d); border: 1px solid rgba(96,165,250,.4); }
+    .btn-blue:hover { background: rgba(96,165,250,.2); }
+
+    /* ── side menu: file name + small caption ── */
+    .side-link .sl-name { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: .84rem; display: block; }
+    .side-link .sl-cap { display: block; font-size: .72rem; color: var(--dim); margin-top: 1px; }
+    .side-link.active .sl-cap { color: #7dd3c7; }
+    .side-sep { height: 1px; background: var(--border); margin: 4px 2px; }
+
+    .panel-sub { color: var(--muted); font-size: .92rem; margin-bottom: 4px; max-width: 70ch; }
+    .copy-btn { padding: 5px 11px; }
+
+    .rules { padding-left: 20px; margin-top: 14px; }
+    .rules li { color: var(--muted); font-size: .9rem; margin-top: 7px; }
+    .rules li::marker { color: var(--green); }
+    .rules strong { color: var(--text); }
+
+    /* terminal */
+    .term { margin-top: 14px; background: #060d19; border: 1px solid rgba(148,180,255,.14); border-radius: 14px; overflow: hidden; }
+    .term-bar { display: flex; align-items: center; gap: 6px; padding: 9px 12px; background: #0f1929; border-bottom: 1px solid rgba(148,180,255,.08); }
+    .term-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .term-title { margin-left: 8px; font-family: 'JetBrains Mono', monospace; font-size: .72rem; font-weight: 700; color: var(--dim); letter-spacing: .08em; }
+    .term pre { background: transparent; }
+    .o-cmd { color: var(--teal); }
+    .o-dim { color: var(--dim); }
+
+    /* flow boxes */
+    .flow { display: flex; align-items: stretch; gap: 8px; margin-top: 12px; }
+    .flow-box {
+      flex: 1; min-width: 0;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-top: 3px solid var(--c); border-radius: 12px; padding: 12px 14px;
+    }
+    .flow-file { font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: .84rem; color: var(--c); }
+    .flow-desc { font-size: .78rem; color: var(--muted); line-height: 1.45; margin-top: 4px; }
+    .flow-desc code { font-family: 'JetBrains Mono', monospace; font-size: .74rem; color: #fde68a; }
+    .flow-arrow { align-self: center; color: var(--dim); font-weight: 800; flex-shrink: 0; }
+    @media (max-width: 760px) {
+      .flow { flex-direction: column; }
+      .flow-arrow { transform: rotate(90deg); }
+    }
+
+    .sub-title {
+      font-size: .74rem; font-weight: 800; letter-spacing: .09em; text-transform: uppercase;
+      color: var(--dim); margin: 24px 0 0;
+    }
+    .sf-dot { background: var(--green-d); border-color: var(--green); color: var(--green); }
+    .sf-desc code { font-family: 'JetBrains Mono', monospace; font-size: .8rem; color: #fde68a; }
+    .sf-file { font-family: 'JetBrains Mono', monospace; font-size: .74rem; font-weight: 700; color: var(--c); margin-left: 6px; }
+
+    .page-end { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 22px; }
+  </style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <div class="wrap">
+    <a class="nav-home" href="../index.html">← Home</a>
+    <a class="nav-home" href="exercise.html" style="color:var(--amber);background:rgba(251,191,36,.08);border-color:rgba(251,191,36,.35);">← Exercise</a>
+    <div class="brand">Solution — Movies Manager</div>
+  </div>
+</nav>
+
+<main class="container">
+
+  <!-- ══════════ HERO ══════════ -->
+  <section class="sol-hero reveal">
+    <div class="sprockets top"></div>
+    <div class="sprockets bottom"></div>
+    <div class="sol-hero-inner">
+      <div class="badge-row">
+        <span class="ex-badge ex-badge-green">✅ Solution</span>
+        <span class="ex-badge ex-badge-blue">Python + SQLite</span>
+        <span class="ex-badge ex-badge-amber">🎬 Movies Manager</span>
+      </div>
+      <h1>Movies Manager — Solution</h1>
+      <p class="lead">
+        Four small files. <span class="inline-code">main.py</span> talks to the user,
+        <span class="inline-code">movies_dal.py</span> talks to the database, and
+        <span class="inline-code">db.py</span> does the connecting. Pick a file on the left.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-amber" href="exercise.html">← Back to the exercise</a>
+        <a class="btn btn-blue" href="04-code-hub.html">📄 Lesson 9 code</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════ FILES ══════════ -->
+  <section class="section lesson-layout reveal">
+    <aside class="lesson-side">
+      <div class="side-title">Solution</div>
+      <div class="side-links">
+        <button class="side-link active" data-panel="p-how" type="button"><span class="sl-name">How it works</span><span class="sl-cap">start here</span></button>
+        <div class="side-sep"></div>
+        <button class="side-link" data-panel="p-setup" type="button"><span class="sl-name">setup_db.py</span><span class="sl-cap">run once</span></button>
+        <button class="side-link" data-panel="p-db" type="button"><span class="sl-name">db.py</span><span class="sl-cap">given — Lesson 9</span></button>
+        <button class="side-link" data-panel="p-dal" type="button"><span class="sl-name">movies_dal.py</span><span class="sl-cap">all the SQL</span></button>
+        <button class="side-link" data-panel="p-main" type="button"><span class="sl-name">main.py</span><span class="sl-cap">the menu loop</span></button>
+        <div class="side-sep"></div>
+        <button class="side-link" data-panel="p-extra" type="button"><span class="sl-name">Extras</span><span class="sl-cap">optional</span></button>
+      </div>
+    </aside>
+
+    <div class="lesson-main">
+
+      <!-- HOW IT WORKS -->
+      <section id="p-how" class="card lesson-panel active">
+        <h2 style="margin-bottom:6px;">How it works</h2>
+        <p class="panel-sub">Each file has one job, and the work passes from one file to the next.</p>
+
+        <div class="flow">
+          <div class="flow-box" style="--c:var(--amber)">
+            <div class="flow-file">main.py</div>
+            <div class="flow-desc">Menu, <code>input()</code>, <code>print()</code>. No SQL.</div>
+          </div>
+          <div class="flow-arrow" aria-hidden="true">→</div>
+          <div class="flow-box" style="--c:var(--violet)">
+            <div class="flow-file">movies_dal.py</div>
+            <div class="flow-desc">5 functions, one query each.</div>
+          </div>
+          <div class="flow-arrow" aria-hidden="true">→</div>
+          <div class="flow-box" style="--c:var(--blue)">
+            <div class="flow-file">db.py</div>
+            <div class="flow-desc">Connects and runs the query.</div>
+          </div>
+          <div class="flow-arrow" aria-hidden="true">→</div>
+          <div class="flow-box" style="--c:var(--teal)">
+            <div class="flow-file">movies.db</div>
+            <div class="flow-desc">The movies table.</div>
+          </div>
+        </div>
+
+        <div class="sub-title">Run it</div>
+        <div class="term">
+          <div class="term-bar"><span class="term-dot" style="background:#f87171"></span><span class="term-dot" style="background:#fbbf24"></span><span class="term-dot" style="background:#4ade80"></span><span class="term-title">terminal</span></div>
+<pre><span class="o-cmd">$ python setup_db.py</span>   <span class="o-dim"># only the first time</span>
+<span class="o-cmd">$ python main.py</span></pre>
+        </div>
+
+        <div class="sub-title">Follow option 2 through the files</div>
+        <div class="step-flow">
+          <div class="step-flow-item">
+            <div class="sf-dot">1</div>
+            <div class="sf-body">
+              <div class="sf-title">The user picks 2 and types 2010 <span class="sf-file" style="--c:var(--amber)">main.py</span></div>
+              <div class="sf-desc"><code>year = int(input("Enter year: "))</code> turns the text "2010" into the number 2010.</div>
+            </div>
+          </div>
+          <div class="step-flow-item">
+            <div class="sf-dot">2</div>
+            <div class="sf-body">
+              <div class="sf-title">main.py calls the DAL <span class="sf-file" style="--c:var(--amber)">main.py</span></div>
+              <div class="sf-desc"><code>get_movies_by_year(year)</code>. main.py doesn't know any SQL. It just asks for the movies.</div>
+            </div>
+          </div>
+          <div class="step-flow-item">
+            <div class="sf-dot">3</div>
+            <div class="sf-body">
+              <div class="sf-title">The DAL runs one query <span class="sf-file" style="--c:var(--violet)">movies_dal.py</span></div>
+              <div class="sf-desc"><code>SELECT * FROM movies WHERE year = ?</code> with <code>(year,)</code>, through <code>run_query_select</code>.</div>
+            </div>
+          </div>
+          <div class="step-flow-item">
+            <div class="sf-dot">4</div>
+            <div class="sf-body">
+              <div class="sf-title">db.py talks to SQLite <span class="sf-file" style="--c:var(--blue)">db.py</span></div>
+              <div class="sf-desc">Opens movies.db, runs the query and returns a list of dicts, one per movie.</div>
+            </div>
+          </div>
+          <div class="step-flow-item">
+            <div class="sf-dot">5</div>
+            <div class="sf-body">
+              <div class="sf-title">main.py prints the result <span class="sf-file" style="--c:var(--amber)">main.py</span></div>
+              <div class="sf-desc"><code>print_movies(...)</code> prints the 3 movies from 2010, then the menu shows again.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SETUP -->
+      <section id="p-setup" class="card lesson-panel">
+        <div class="code-head">
+          <h2>setup_db.py</h2>
+          <button class="copy-btn" data-copy-target="code-setup" type="button">Copy</button>
+        </div>
+        <p class="panel-sub">The two queries from the exercise, pasted into <span class="inline-code">run_update_query</span>. Run this file <strong style="color:var(--text)">once</strong>.</p>
+        <div class="code">
+          <div class="label">setup_db.py</div>
+<pre id="code-setup"><span class="py-k">from</span> db <span class="py-k">import</span> run_update_query
+
+<span class="py-fn">run_update_query</span>(<span class="py-s">"""CREATE TABLE IF NOT EXISTS movies (
+    id       INTEGER PRIMARY KEY AUTOINCREMENT,
+    title    TEXT    NOT NULL,
+    director TEXT    NOT NULL,
+    year     INTEGER NOT NULL,
+    genre    TEXT    NOT NULL,
+    rating   REAL    NOT NULL
+);"""</span>)
+
+<span class="py-fn">run_update_query</span>(<span class="py-s">"""INSERT INTO movies (title, director, year, genre, rating) VALUES
+('The Shawshank Redemption', 'Frank Darabont',       1994, 'Drama',     9.3),
+('The Godfather',            'Francis Ford Coppola', 1972, 'Crime',     9.2),
+('The Dark Knight',          'Christopher Nolan',    2008, 'Action',    9.0),
+('Pulp Fiction',             'Quentin Tarantino',    1994, 'Crime',     8.9),
+('Forrest Gump',             'Robert Zemeckis',      1994, 'Drama',     8.8),
+('Fight Club',               'David Fincher',        1999, 'Drama',     8.8),
+('Inception',                'Christopher Nolan',    2010, 'Sci-Fi',    8.8),
+('Interstellar',             'Christopher Nolan',    2014, 'Sci-Fi',    8.7),
+('The Green Mile',           'Frank Darabont',       1999, 'Drama',     8.6),
+('Gladiator',                'Ridley Scott',         2000, 'Action',    8.5),
+('Whiplash',                 'Damien Chazelle',      2014, 'Drama',     8.5),
+('Parasite',                 'Bong Joon Ho',         2019, 'Thriller',  8.5),
+('Joker',                    'Todd Phillips',        2019, 'Drama',     8.4),
+('WALL-E',                   'Andrew Stanton',       2008, 'Animation', 8.4),
+('Toy Story 3',              'Lee Unkrich',          2010, 'Animation', 8.3),
+('The Sixth Sense',          'M. Night Shyamalan',   1999, 'Thriller',  8.2),
+('Gone Girl',                'David Fincher',        2014, 'Thriller',  8.1),
+('Titanic',                  'James Cameron',        1997, 'Romance',   7.9),
+('Avatar',                   'James Cameron',        2009, 'Sci-Fi',    7.9),
+('The Social Network',       'David Fincher',        2010, 'Drama',     7.8);"""</span>)
+
+<span class="py-fn">print</span>(<span class="py-s">"movies.db is ready - 20 movies added"</span>)</pre>
+        </div>
+      </section>
+
+      <!-- DB -->
+      <section id="p-db" class="card lesson-panel">
+        <div class="code-head">
+          <h2>db.py</h2>
+          <button class="copy-btn" data-copy-target="code-db" type="button">Copy</button>
+        </div>
+        <p class="panel-sub">The Lesson 9 template. Only <span class="inline-code">DB_PATH</span> changed.</p>
+        <div class="code">
+          <div class="label">db.py</div>
+<pre id="code-db"><span class="py-k">import</span> sqlite3
+
+DB_PATH = <span class="py-s">"movies.db"</span>
+
+<span class="py-k">def</span> <span class="py-fn">connect</span>():
+    conn = sqlite3.<span class="py-fn">connect</span>(DB_PATH)
+    conn.row_factory = sqlite3.Row
+    <span class="py-k">return</span> conn
+
+<span class="py-k">def</span> <span class="py-fn">run_query_select</span>(sql, params=()):
+    conn = <span class="py-fn">connect</span>()
+    <span class="py-k">try</span>:
+        cursor = conn.<span class="py-fn">cursor</span>()
+        cursor.<span class="py-fn">execute</span>(sql, params)
+        rows = cursor.<span class="py-fn">fetchall</span>()
+        <span class="py-k">return</span> [<span class="py-b">dict</span>(row) <span class="py-k">for</span> row <span class="py-k">in</span> rows]
+    <span class="py-k">finally</span>:
+        conn.<span class="py-fn">close</span>()
+
+<span class="py-k">def</span> <span class="py-fn">run_update_query</span>(sql, params=()):
+    conn = <span class="py-fn">connect</span>()
+    <span class="py-k">try</span>:
+        cursor = conn.<span class="py-fn">cursor</span>()
+        cursor.<span class="py-fn">execute</span>(sql, params)
+        conn.<span class="py-fn">commit</span>()
+        <span class="py-k">return</span> cursor.lastrowid
+    <span class="py-k">finally</span>:
+        conn.<span class="py-fn">close</span>()</pre>
+        </div>
+      </section>
+
+      <!-- DAL -->
+      <section id="p-dal" class="card lesson-panel">
+        <div class="code-head">
+          <h2>movies_dal.py</h2>
+          <button class="copy-btn" data-copy-target="code-dal" type="button">Copy</button>
+        </div>
+        <p class="panel-sub">Five functions, one query each. This is the only file with SQL in it.</p>
+        <div class="code">
+          <div class="label">movies_dal.py</div>
+<pre id="code-dal"><span class="py-k">from</span> db <span class="py-k">import</span> run_query_select, run_update_query
+
+
+<span class="py-k">def</span> <span class="py-fn">get_all_movies</span>():
+    sql = <span class="py-s">"SELECT * FROM movies"</span>
+    <span class="py-k">return</span> <span class="py-fn">run_query_select</span>(sql)
+
+
+<span class="py-k">def</span> <span class="py-fn">get_movies_by_year</span>(year):
+    sql = <span class="py-s">"SELECT * FROM movies WHERE year = ?"</span>
+    <span class="py-k">return</span> <span class="py-fn">run_query_select</span>(sql, (year,))
+
+
+<span class="py-k">def</span> <span class="py-fn">update_movie_title</span>(movie_id, new_title):
+    sql = <span class="py-s">"UPDATE movies SET title = ? WHERE id = ?"</span>
+    <span class="py-fn">run_update_query</span>(sql, (new_title, movie_id))
+
+
+<span class="py-k">def</span> <span class="py-fn">delete_movie</span>(movie_id):
+    sql = <span class="py-s">"DELETE FROM movies WHERE id = ?"</span>
+    <span class="py-fn">run_update_query</span>(sql, (movie_id,))
+
+
+<span class="py-k">def</span> <span class="py-fn">insert_movie</span>(title, director, year, genre, rating):
+    sql = <span class="py-s">"""INSERT INTO movies (title, director, year, genre, rating)
+             VALUES (?, ?, ?, ?, ?)"""</span>
+    <span class="py-fn">run_update_query</span>(sql, (title, director, year, genre, rating))</pre>
+        </div>
+        <ul class="rules">
+          <li><strong>SELECT</strong> uses <span class="inline-code">run_query_select</span> and <strong>returns</strong> the rows. UPDATE, DELETE and INSERT use <span class="inline-code">run_update_query</span>.</li>
+          <li>Every value from the user goes in through a <strong>?</strong>, never pasted into the SQL text.</li>
+          <li>The order of the values in the tuple matches the order of the <strong>?</strong> marks: in UPDATE, the title comes first, then the id.</li>
+        </ul>
+      </section>
+
+      <!-- MAIN -->
+      <section id="p-main" class="card lesson-panel">
+        <div class="code-head">
+          <h2>main.py</h2>
+          <button class="copy-btn" data-copy-target="code-main" type="button">Copy</button>
+        </div>
+        <p class="panel-sub">Two helper functions, then one <span class="inline-code">while True</span> loop that runs until the user picks 6.</p>
+        <div class="code">
+          <div class="label">main.py</div>
+<pre id="code-main"><span class="py-k">from</span> movies_dal <span class="py-k">import</span> (get_all_movies, get_movies_by_year,
+                        update_movie_title, delete_movie, insert_movie)
+
+
+<span class="py-k">def</span> <span class="py-fn">show_menu</span>():
+    <span class="py-fn">print</span>()
+    <span class="py-fn">print</span>(<span class="py-s">"===== MOVIES MENU ====="</span>)
+    <span class="py-fn">print</span>(<span class="py-s">"1. Show all movies"</span>)
+    <span class="py-fn">print</span>(<span class="py-s">"2. Find movies by year"</span>)
+    <span class="py-fn">print</span>(<span class="py-s">"3. Update movie title"</span>)
+    <span class="py-fn">print</span>(<span class="py-s">"4. Delete movie"</span>)
+    <span class="py-fn">print</span>(<span class="py-s">"5. Add new movie"</span>)
+    <span class="py-fn">print</span>(<span class="py-s">"6. Exit"</span>)
+
+
+<span class="py-k">def</span> <span class="py-fn">print_movies</span>(movies):
+    <span class="py-k">for</span> movie <span class="py-k">in</span> movies:
+        <span class="py-fn">print</span>(movie[<span class="py-s">"id"</span>], <span class="py-s">"|"</span>, movie[<span class="py-s">"title"</span>], <span class="py-s">"|"</span>, movie[<span class="py-s">"director"</span>], <span class="py-s">"|"</span>,
+              movie[<span class="py-s">"year"</span>], <span class="py-s">"|"</span>, movie[<span class="py-s">"genre"</span>], <span class="py-s">"|"</span>, movie[<span class="py-s">"rating"</span>])
+
+
+<span class="py-k">while</span> <span class="py-k">True</span>:
+    <span class="py-fn">show_menu</span>()
+    choice = <span class="py-fn">input</span>(<span class="py-s">"Choose an option: "</span>)
+
+    <span class="py-k">if</span> choice == <span class="py-s">"1"</span>:
+        <span class="py-fn">print_movies</span>(<span class="py-fn">get_all_movies</span>())
+
+    <span class="py-k">elif</span> choice == <span class="py-s">"2"</span>:
+        year = <span class="py-fn">int</span>(<span class="py-fn">input</span>(<span class="py-s">"Enter year: "</span>))
+        <span class="py-fn">print_movies</span>(<span class="py-fn">get_movies_by_year</span>(year))
+
+    <span class="py-k">elif</span> choice == <span class="py-s">"3"</span>:
+        movie_id = <span class="py-fn">int</span>(<span class="py-fn">input</span>(<span class="py-s">"Enter movie id: "</span>))
+        new_title = <span class="py-fn">input</span>(<span class="py-s">"Enter new title: "</span>)
+        <span class="py-fn">update_movie_title</span>(movie_id, new_title)
+        <span class="py-fn">print</span>(<span class="py-s">"Movie updated!"</span>)
+
+    <span class="py-k">elif</span> choice == <span class="py-s">"4"</span>:
+        movie_id = <span class="py-fn">int</span>(<span class="py-fn">input</span>(<span class="py-s">"Enter movie id: "</span>))
+        <span class="py-fn">delete_movie</span>(movie_id)
+        <span class="py-fn">print</span>(<span class="py-s">"Movie deleted!"</span>)
+
+    <span class="py-k">elif</span> choice == <span class="py-s">"5"</span>:
+        title = <span class="py-fn">input</span>(<span class="py-s">"Title: "</span>)
+        director = <span class="py-fn">input</span>(<span class="py-s">"Director: "</span>)
+        year = <span class="py-fn">int</span>(<span class="py-fn">input</span>(<span class="py-s">"Year: "</span>))
+        genre = <span class="py-fn">input</span>(<span class="py-s">"Genre: "</span>)
+        rating = <span class="py-fn">float</span>(<span class="py-fn">input</span>(<span class="py-s">"Rating: "</span>))
+        <span class="py-fn">insert_movie</span>(title, director, year, genre, rating)
+        <span class="py-fn">print</span>(<span class="py-s">"Movie added!"</span>)
+
+    <span class="py-k">elif</span> choice == <span class="py-s">"6"</span>:
+        <span class="py-fn">print</span>(<span class="py-s">"Bye!"</span>)
+        <span class="py-k">break</span>
+
+    <span class="py-k">else</span>:
+        <span class="py-fn">print</span>(<span class="py-s">"Invalid option"</span>)</pre>
+        </div>
+        <ul class="rules">
+          <li><span class="inline-code">input()</span> returns text, so the choice is compared to <strong>"1"</strong>, not 1.</li>
+          <li>Year and id become numbers with <span class="inline-code">int()</span>, the rating with <span class="inline-code">float()</span>.</li>
+          <li><span class="inline-code">break</span> on option 6 is the only way out of the loop.</li>
+        </ul>
+      </section>
+
+      <!-- EXTRAS -->
+      <section id="p-extra" class="card lesson-panel">
+        <h2 style="margin-bottom:6px;">Extras (optional)</h2>
+        <p class="panel-sub">The two optional extras from the exercise. Each one changes only a few lines.</p>
+
+        <div class="sub-title" style="margin-top:16px;">1 · "No movies from …" — in main.py, option 2</div>
+        <div class="code">
+          <div class="label">main.py — replaces the option 2 block</div>
+<pre id="code-extra-main">    <span class="py-k">elif</span> choice == <span class="py-s">"2"</span>:
+        year = <span class="py-fn">int</span>(<span class="py-fn">input</span>(<span class="py-s">"Enter year: "</span>))
+        movies = <span class="py-fn">get_movies_by_year</span>(year)
+        <span class="py-k">if</span> <span class="py-fn">len</span>(movies) == <span class="py-n">0</span>:
+            <span class="py-fn">print</span>(<span class="py-s">f"No movies from {year}"</span>)
+        <span class="py-k">else</span>:
+            <span class="py-fn">print_movies</span>(movies)</pre>
+        </div>
+
+        <div class="sub-title">2 · Best rating first — in movies_dal.py</div>
+        <div class="code">
+          <div class="label">movies_dal.py — replaces get_all_movies</div>
+<pre id="code-extra-dal"><span class="py-k">def</span> <span class="py-fn">get_all_movies</span>():
+    sql = <span class="py-s">"SELECT * FROM movies ORDER BY rating DESC"</span>
+    <span class="py-k">return</span> <span class="py-fn">run_query_select</span>(sql)</pre>
+        </div>
+        <div class="note">Only the SQL changed. <span class="inline-code">main.py</span> didn't change at all. That's the point of keeping the SQL in the DAL.</div>
+      </section>
+
+    </div>
+  </section>
+
+  <div class="page-end">
+    <a class="btn btn-amber" href="exercise.html">← Back to the exercise</a>
+    <a class="btn btn-blue" href="index.html">Lesson 9 →</a>
+  </div>
+</main>
+
+<script src="app.js"></script>
+<script>
+  /* ── side menu panels ── */
+  const menuButtons = [...document.querySelectorAll('.side-link[data-panel]')];
+  const panels = [...document.querySelectorAll('.lesson-panel')];
+  function showPanel(id) {
+    panels.forEach(p => p.classList.toggle('active', p.id === id));
+    menuButtons.forEach(b => b.classList.toggle('active', b.dataset.panel === id));
+  }
+  menuButtons.forEach(btn => btn.addEventListener('click', () => showPanel(btn.dataset.panel)));
+
+  /* ── copy buttons (with fallback for file://) ── */
+  document.querySelectorAll('.copy-btn[data-copy-target]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const target = document.getElementById(btn.dataset.copyTarget);
+      if (!target) return;
+      const text = target.textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch (e) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch (e2) {}
+        ta.remove();
+      }
+      const old = btn.textContent;
+      btn.textContent = 'Copied';
+      setTimeout(() => { btn.textContent = old; }, 1200);
+    });
+  });
+</script>
+</body>
+</html>
